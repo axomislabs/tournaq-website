@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd /Users/martinadam/my_app/tournamaster && python3 - <<'PY'\nfrom pathlib import Path, re\nlines = Path\\('lib/main\\.dart'\\)\\.read_text\\(\\)\\.splitlines\\(\\)\nfor i,line in enumerate\\(lines\\):\n    if 'Navigator\\.popUntil\\(context, \\(route\\) => route\\.isFirst\\);' in line:\n        # search backwards for callback name\n        callback = None\n        for j in range\\(i-1, max\\(i-10, -1\\), -1\\):\n            m = re\\.search\\(r'on\\(\\\\w\\+Tap\\):\\\\s\\*\\\\\\(\\\\\\) \\\\\\{', lines\\[j\\]\\)\n            if m:\n                callback = m\\.group\\(1\\)\n                break\n        print\\('line', i\\+1, 'callback', callback\\)\n        for j in range\\(i, min\\(i\\+6, len\\(lines\\)\\)\\):\n            print\\(f'\\{j\\+1\\}: \\{lines\\[j\\]\\}'\\)\n        print\\('----'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
