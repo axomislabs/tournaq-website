@@ -42,7 +42,7 @@ class _UserInputSectionState extends State<UserInputSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Text(
-          'Create a New User',
+          'Create a New Player',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
@@ -51,7 +51,7 @@ class _UserInputSectionState extends State<UserInputSection> {
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _createUser(),
           decoration: const InputDecoration(
-            labelText: 'User name',
+            labelText: 'Player name',
             border: OutlineInputBorder(),
           ),
         ),
@@ -81,7 +81,7 @@ class _UserInputSectionState extends State<UserInputSection> {
           },
         ),
         const SizedBox(height: 8),
-        ElevatedButton(onPressed: _createUser, child: const Text('Add User')),
+        ElevatedButton(onPressed: _createUser, child: const Text('Add Player')),
       ],
     );
   }

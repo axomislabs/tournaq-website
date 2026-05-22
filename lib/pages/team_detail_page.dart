@@ -63,7 +63,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Assign User'),
+          title: const Text('Assign Player'),
           content: DropdownButtonFormField<String>(
             initialValue: selectedUserId,
             items: availableUsers
@@ -171,8 +171,8 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove User'),
-        content: const Text('Remove this user from the team?'),
+        title: const Text('Remove Player'),
+        content: const Text('Remove this player from the team?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -278,7 +278,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                       children: [
                         ElevatedButton(
                           onPressed: _showAssignUserDialog,
-                          child: const Text('Add User'),
+                          child: const Text('Add Player'),
                         ),
                         ElevatedButton(
                           onPressed: _showAssignTournamentDialog,

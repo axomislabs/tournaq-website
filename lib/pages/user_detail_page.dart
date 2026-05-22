@@ -108,7 +108,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove from Team'),
-        content: const Text('Remove this user from the team?'),
+        content: const Text('Remove this player from the team?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -138,10 +138,10 @@ class _UserDetailPageState extends State<UserDetailPage> {
     if (user == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('User Details'),
+          title: const Text('Player Details'),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
-        body: const Center(child: Text('User not found.')),
+        body: const Center(child: Text('Player not found.')),
       );
     }
 

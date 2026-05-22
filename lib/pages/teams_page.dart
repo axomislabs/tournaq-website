@@ -140,7 +140,7 @@ class _TeamsPageState extends State<TeamsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Assign User'),
+          title: const Text('Assign Player'),
           content: DropdownButtonFormField<String>(
             initialValue: selectedUserId,
             items: availableUsers
@@ -367,7 +367,7 @@ class _TeamsPageState extends State<TeamsPage> {
                             itemBuilder: (context) => [
                               const PopupMenuItem(
                                 value: 'assignUser',
-                                child: Text('Assign User'),
+                                child: Text('Assign Player'),
                               ),
                               const PopupMenuItem(
                                 value: 'assignTournament',

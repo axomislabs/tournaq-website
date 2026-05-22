@@ -87,7 +87,7 @@ class _UsersPageState extends State<UsersPage> {
     _updateState(newState);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Generated $count random users.')));
+    ).showSnackBar(SnackBar(content: Text('Generated $count random players.')));
   }
 
   void _addUser(String name, String? teamId) {
@@ -112,7 +112,7 @@ class _UsersPageState extends State<UsersPage> {
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: AppBar(
-        title: const Text('Users'),
+        title: const Text('Players'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ScrollablePage(
@@ -124,11 +124,11 @@ class _UsersPageState extends State<UsersPage> {
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: () => _generateRandomUsers(10),
-              child: const Text('Generate 10 Random Users'),
+              child: const Text('Generate 10 Random Players'),
             ),
             const SizedBox(height: 24),
             Text(
-              'Users (${_localState.users.length})',
+              'Players (${_localState.users.length})',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -136,7 +136,7 @@ class _UsersPageState extends State<UsersPage> {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(24),
-                  child: Text('No users yet.'),
+                  child: Text('No players yet.'),
                 ),
               )
             else

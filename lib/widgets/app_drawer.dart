@@ -4,6 +4,7 @@ import '../pages/users_page.dart';
 import '../pages/teams_page.dart';
 import '../pages/tournaments_page.dart';
 import '../pages/games_page.dart';
+import '../pages/clubs_page.dart';
 import '../pages/promo_ads_page.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -41,40 +42,22 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.home_rounded,
                   label: 'Home',
                   iconBgColor: const Color(0xFFFFF3CC),
-                  onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                  onTap: () =>
+                      Navigator.of(context).popUntil((r) => r.isFirst),
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.person_rounded,
-                  label: 'Users',
+                  icon: Icons.sports_basketball_rounded,
+                  label: 'Games',
                   iconBgColor: const Color(0xFFFFF3CC),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => UsersPage(
-                          appState: appState,
-                          onAppStateChanged: onAppStateChanged,
-                        ),
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => GamesPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
                       ),
-                    );
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.group_rounded,
-                  label: 'Teams',
-                  iconBgColor: const Color(0xFFFFF3CC),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => TeamsPage(
-                          appState: appState,
-                          onAppStateChanged: onAppStateChanged,
-                        ),
-                      ),
-                    );
+                    ));
                   },
                 ),
                 _buildNavItem(
@@ -84,31 +67,57 @@ class AppDrawer extends StatelessWidget {
                   iconBgColor: const Color(0xFFFFF3CC),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => TournamentsPage(
-                          appState: appState,
-                          onAppStateChanged: onAppStateChanged,
-                        ),
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => TournamentsPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
                       ),
-                    );
+                    ));
                   },
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.sports_basketball_rounded,
-                  label: 'Games',
+                  icon: Icons.group_rounded,
+                  label: 'Teams',
                   iconBgColor: const Color(0xFFFFF3CC),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => GamesPage(
-                          appState: appState,
-                          onAppStateChanged: onAppStateChanged,
-                        ),
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => TeamsPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
                       ),
-                    );
+                    ));
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.person_rounded,
+                  label: 'Players',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => UsersPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
+                      ),
+                    ));
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.shield_rounded,
+                  label: 'Clubs',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ClubsPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
+                      ),
+                    ));
                   },
                 ),
                 const Padding(
@@ -122,14 +131,12 @@ class AppDrawer extends StatelessWidget {
                   iconBgColor: const Color(0xFFF0F0F0),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => PromoAdsPage(
-                          appState: appState,
-                          onAppStateChanged: onAppStateChanged,
-                        ),
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => PromoAdsPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
                       ),
-                    );
+                    ));
                   },
                 ),
               ],
