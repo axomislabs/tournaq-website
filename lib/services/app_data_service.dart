@@ -1,4 +1,5 @@
 import '../models/app_user.dart';
+import '../models/club.dart';
 import '../models/team.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
@@ -25,7 +26,14 @@ class AppDataService {
   }
 
   static AppState deleteUser(AppState state, String userId) {
-    return state.removeUser(userId);
+    var updatedState = state.removeUser(userId);
+    // Remove player from all clubs
+    for (final club in state.clubs) {
+      if (club.playerIds.contains(userId)) {
+        updatedState = updatedState.updateClub(club.removePlayerId(userId));
+      }
+    }
+    return updatedState;
   }
 
   static AppState updateUser(AppState state, AppUser user) {
@@ -43,8 +51,8 @@ class AppDataService {
   }
 
   static AppState deleteTeam(AppState state, String teamId) {
-    // Remove team from all users
     var updatedState = state;
+    // Remove team from all users
     for (final user in state.users) {
       if (user.teamIds.contains(teamId)) {
         updatedState = updatedState.updateUser(user.removeTeamId(teamId));
@@ -56,6 +64,12 @@ class AppDataService {
         updatedState = updatedState.updateTournament(
           tournament.removeTeamId(teamId),
         );
+      }
+    }
+    // Remove team from all clubs
+    for (final club in state.clubs) {
+      if (club.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateClub(club.removeTeamId(teamId));
       }
     }
     return updatedState.removeTeam(teamId);
@@ -111,8 +125,8 @@ class AppDataService {
   }
 
   static AppState deleteTournament(AppState state, String tournamentId) {
-    // Remove tournament from all teams
     var updatedState = state;
+    // Remove tournament from all teams
     for (final team in state.teams) {
       if (team.tournamentIds.contains(tournamentId)) {
         updatedState = updatedState.updateTeam(
@@ -124,6 +138,14 @@ class AppDataService {
     final tournamentGames = state.getTournamentGames(tournamentId);
     for (final game in tournamentGames) {
       updatedState = updatedState.removeGame(game.id);
+    }
+    // Remove tournament from all clubs
+    for (final club in state.clubs) {
+      if (club.tournamentIds.contains(tournamentId)) {
+        updatedState = updatedState.updateClub(
+          club.removeTournamentId(tournamentId),
+        );
+      }
     }
     return updatedState.removeTournament(tournamentId);
   }
@@ -271,5 +293,84 @@ class AppDataService {
       isLocalOnly: true,
     );
     return state.addGame(game);
+  }
+
+  // CLUB OPERATIONS
+  static AppState createClub(AppState state, {required String name}) {
+    final club = Club(id: AppState.generateId(), name: name);
+    return state.addClub(club);
+  }
+
+  static AppState updateClub(AppState state, Club club) {
+    return state.updateClub(club);
+  }
+
+  static AppState deleteClub(AppState state, String clubId) {
+    return state.removeClub(clubId);
+  }
+
+  // CLUB-PLAYER ASSIGNMENTS
+  static AppState assignPlayerToClub(
+    AppState state, {
+    required String playerId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getUserById(playerId) == null) return state;
+    return state.updateClub(club.addPlayerId(playerId));
+  }
+
+  static AppState removePlayerFromClub(
+    AppState state, {
+    required String playerId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removePlayerId(playerId));
+  }
+
+  // CLUB-TEAM ASSIGNMENTS
+  static AppState assignTeamToClub(
+    AppState state, {
+    required String teamId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getTeamById(teamId) == null) return state;
+    return state.updateClub(club.addTeamId(teamId));
+  }
+
+  static AppState removeTeamFromClub(
+    AppState state, {
+    required String teamId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removeTeamId(teamId));
+  }
+
+  // CLUB-TOURNAMENT ASSIGNMENTS
+  static AppState assignTournamentToClub(
+    AppState state, {
+    required String tournamentId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getTournamentById(tournamentId) == null) {
+      return state;
+    }
+    return state.updateClub(club.addTournamentId(tournamentId));
+  }
+
+  static AppState removeTournamentFromClub(
+    AppState state, {
+    required String tournamentId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removeTournamentId(tournamentId));
   }
 }
