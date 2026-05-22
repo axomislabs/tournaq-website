@@ -5,6 +5,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/assign_dialog.dart';
 import '../widgets/create_team_sheet.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/scrollable_page.dart';
@@ -68,6 +69,63 @@ class _TeamsPageState extends State<TeamsPage> {
     );
     if (result != null && mounted) _updateState(result);
   }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  Future<void> _assignPlayer(String teamId) async {
+    final team = _localState.getTeamById(teamId);
+    if (team == null) return;
+    final items = _localState.users
+        .where((u) => !u.teamIds.contains(teamId))
+        .map((u) => (id: u.id, name: u.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign Player', items: items,
+      emptyMessage: 'All players are already in this team.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignUserToTeam(_localState, userId: selected, teamId: teamId));
+    }
+  }
+
+  Future<void> _assignTournament(String teamId) async {
+    final team = _localState.getTeamById(teamId);
+    if (team == null) return;
+    final items = _localState.tournaments
+        .where((t) => !t.teamIds.contains(teamId))
+        .map((t) => (id: t.id, name: t.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Tournament', items: items,
+      emptyMessage: 'Team is already in all tournaments.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTeamToTournament(_localState, teamId: teamId, tournamentId: selected));
+    }
+  }
+
+  Future<void> _assignClub(String teamId) async {
+    final items = _localState.clubs
+        .where((c) => !c.teamIds.contains(teamId))
+        .map((c) => (id: c.id, name: c.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Club', items: items,
+      emptyMessage: 'Team is already in all clubs.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTeamToClub(_localState, teamId: teamId, clubId: selected));
+    }
+  }
+
+  Future<void> _deleteTeam(String teamId) async {
+    final team = _localState.getTeamById(teamId);
+    if (team == null) return;
+    final ok = await showConfirmDeleteDialog(context, team.name);
+    if (ok && mounted) _updateState(AppDataService.deleteTeam(_localState, teamId));
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────────────
 
   void _clearAll() {
     _searchCtrl.clear();
@@ -137,22 +195,19 @@ class _TeamsPageState extends State<TeamsPage> {
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Player',
-                icon: Icons.person_rounded,
+                label: 'Player', icon: Icons.person_rounded,
                 items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Tournament',
-                icon: Icons.emoji_events_rounded,
+                label: 'Tournament', icon: Icons.emoji_events_rounded,
                 items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _tournamentFilter,
                 onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club',
-                icon: Icons.home_rounded,
+                label: 'Club', icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
@@ -188,11 +243,21 @@ class _TeamsPageState extends State<TeamsPage> {
                     builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
                   )),
                   trailing: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, size: 20),
                     onSelected: (value) {
-                      if (value == 'delete') { _updateState(AppDataService.deleteTeam(_localState, team.id)); }
+                      switch (value) {
+                        case 'assign_player': _assignPlayer(team.id);
+                        case 'assign_tournament': _assignTournament(team.id);
+                        case 'assign_club': _assignClub(team.id);
+                        case 'delete': _deleteTeam(team.id);
+                      }
                     },
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'delete', child: Text('Delete Team')),
+                      actionMenuItem('assign_player', Icons.person_rounded, 'Assign Player'),
+                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, 'Assign to Tournament'),
+                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
+                      const PopupMenuDivider(),
+                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
                     ],
                   ),
                 );

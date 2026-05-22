@@ -4,6 +4,7 @@ import '../models/tournament_mode.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/assign_dialog.dart';
 import '../widgets/create_tournament_sheet.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/scrollable_page.dart';
@@ -23,7 +24,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
   final _teamFilter = <String>{};
   final _playerFilter = <String>{};
   final _clubFilter = <String>{};
-  final _modeFilter = <String>{};  // stores TournamentModeType.name
+  final _modeFilter = <String>{};
 
   @override
   void initState() {
@@ -52,6 +53,65 @@ class _TournamentsPageState extends State<TournamentsPage> {
     );
     if (result != null && mounted) _updateState(result);
   }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  Future<void> _assignTeam(String tournamentId) async {
+    final tournament = _localState.getTournamentById(tournamentId);
+    if (tournament == null) return;
+    final items = _localState.teams
+        .where((t) => !tournament.teamIds.contains(t.id))
+        .map((t) => (id: t.id, name: t.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign Team', items: items,
+      emptyMessage: 'All teams are already in this tournament.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTeamToTournament(_localState, teamId: selected, tournamentId: tournamentId));
+    }
+  }
+
+  Future<void> _assignClub(String tournamentId) async {
+    final items = _localState.clubs
+        .where((c) => !c.tournamentIds.contains(tournamentId))
+        .map((c) => (id: c.id, name: c.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Club', items: items,
+      emptyMessage: 'Tournament is already in all clubs.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: tournamentId, clubId: selected));
+    }
+  }
+
+  void _generateGames(String tournamentId) {
+    final tournament = _localState.getTournamentById(tournamentId);
+    if (tournament == null) return;
+    if (tournament.gameIds.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Games already generated for this tournament.')),
+      );
+      return;
+    }
+    if (tournament.teamIds.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add at least 2 teams before generating games.')),
+      );
+      return;
+    }
+    _updateState(AppDataService.generateGamesForTournament(_localState, tournament));
+  }
+
+  Future<void> _deleteTournament(String tournamentId) async {
+    final tournament = _localState.getTournamentById(tournamentId);
+    if (tournament == null) return;
+    final ok = await showConfirmDeleteDialog(context, tournament.name);
+    if (ok && mounted) _updateState(AppDataService.deleteTournament(_localState, tournamentId));
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────────────
 
   void _clearAll() {
     _searchCtrl.clear();
@@ -125,29 +185,25 @@ class _TournamentsPageState extends State<TournamentsPage> {
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Team',
-                icon: Icons.group_rounded,
+                label: 'Team', icon: Icons.group_rounded,
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Player',
-                icon: Icons.person_rounded,
+                label: 'Player', icon: Icons.person_rounded,
                 items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club',
-                icon: Icons.home_rounded,
+                label: 'Club', icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Mode',
-                icon: Icons.tune_rounded,
+                label: 'Mode', icon: Icons.tune_rounded,
                 items: modeItems,
                 selectedIds: _modeFilter,
                 onToggle: (id, v) => setState(() { if (v) { _modeFilter.add(id); } else { _modeFilter.remove(id); } }),
@@ -181,11 +237,21 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     builder: (_) => TournamentDetailPage(appState: _localState, onAppStateChanged: _updateState, tournamentId: t.id),
                   )),
                   trailing: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, size: 20),
                     onSelected: (value) {
-                      if (value == 'delete') { _updateState(AppDataService.deleteTournament(_localState, t.id)); }
+                      switch (value) {
+                        case 'assign_team': _assignTeam(t.id);
+                        case 'assign_club': _assignClub(t.id);
+                        case 'generate_games': _generateGames(t.id);
+                        case 'delete': _deleteTournament(t.id);
+                      }
                     },
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'delete', child: Text('Delete Tournament')),
+                      actionMenuItem('assign_team', Icons.group_rounded, 'Assign Team'),
+                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
+                      actionMenuItem('generate_games', Icons.auto_awesome_rounded, 'Generate Games'),
+                      const PopupMenuDivider(),
+                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
                     ],
                   ),
                 );

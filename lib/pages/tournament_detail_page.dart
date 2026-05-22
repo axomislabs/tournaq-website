@@ -8,10 +8,12 @@ import '../services/app_data_service.dart';
 import '../services/tournament_logic_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/hybrid_mode_group_dialog.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/single_games_dialog.dart';
+import 'club_detail_page.dart';
 import 'score_page.dart';
 import 'team_detail_page.dart';
 
@@ -65,59 +67,31 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   Future<void> _showAssignTeamDialog() async {
     final tournament = _tournament;
     if (tournament == null) return;
-
-    final availableTeams = _localState.teams
-        .where((team) => !tournament.teamIds.contains(team.id))
+    final items = _localState.teams
+        .where((t) => !tournament.teamIds.contains(t.id))
+        .map((t) => (id: t.id, name: t.name))
         .toList();
-    if (availableTeams.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No available teams to assign.')),
-      );
-      return;
-    }
-
-    String? selectedTeamId = availableTeams.first.id;
-
-    await showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Assign Team'),
-          content: DropdownButtonFormField<String>(
-            initialValue: selectedTeamId,
-            items: availableTeams
-                .map(
-                  (team) =>
-                      DropdownMenuItem(value: team.id, child: Text(team.name)),
-                )
-                .toList(),
-            onChanged: (value) {
-              selectedTeamId = value;
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedTeamId != null) {
-                  final newState = AppDataService.assignTeamToTournament(
-                    _localState,
-                    teamId: selectedTeamId!,
-                    tournamentId: tournament.id,
-                  );
-                  _updateState(newState);
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Assign'),
-            ),
-          ],
-        );
-      },
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign Team', items: items,
+      emptyMessage: 'All teams are already in this tournament.',
     );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTeamToTournament(_localState, teamId: selected, tournamentId: widget.tournamentId));
+    }
+  }
+
+  Future<void> _assignClub() async {
+    final items = _localState.clubs
+        .where((c) => !c.tournamentIds.contains(widget.tournamentId))
+        .map((c) => (id: c.id, name: c.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Club', items: items,
+      emptyMessage: 'Tournament is already in all clubs.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: widget.tournamentId, clubId: selected));
+    }
   }
 
   void _generateGames() {
@@ -269,6 +243,10 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                           onPressed: _showAssignTeamDialog,
                           child: const Text('Assign Team'),
                         ),
+                        ElevatedButton(
+                          onPressed: _assignClub,
+                          child: const Text('Assign to Club'),
+                        ),
                         if (tournament.mode.type ==
                             TournamentModeType.singleGame)
                           ElevatedButton(
@@ -390,6 +368,9 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                       subtitle: Text(
                         'W:${standing.wins} D:${standing.draws} L:${standing.losses} PF:${standing.pointsFor} PA:${standing.pointsAgainst}',
                       ),
+                      onTap: team == null ? null : () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
+                      )),
                     );
                   }).toList(),
                 ),
@@ -425,6 +406,39 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                     )
                     .toList(),
               ),
+
+            // Clubs section
+            const SizedBox(height: 20),
+            Builder(builder: (context) {
+              final clubs = _localState.getTournamentClubs(widget.tournamentId);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Clubs (${clubs.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 12),
+                  if (clubs.isEmpty)
+                    const Center(child: Text('Not in any clubs yet.', style: TextStyle(color: Colors.black45)))
+                  else
+                    ...clubs.map((club) => Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: ListTile(
+                        leading: const Icon(Icons.home_rounded),
+                        title: Text(club.name),
+                        subtitle: Text('${club.playerIds.length} player(s) • ${club.teamIds.length} team(s)'),
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ClubDetailPage(appState: _localState, onAppStateChanged: _updateState, clubId: club.id),
+                        )),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          onPressed: () => _updateState(AppDataService.removeTournamentFromClub(
+                            _localState, tournamentId: widget.tournamentId, clubId: club.id,
+                          )),
+                        ),
+                      ),
+                    )),
+                ],
+              );
+            }),
           ],
         ),
       ),

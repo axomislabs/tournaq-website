@@ -5,6 +5,7 @@ import '../models/app_user.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/assign_dialog.dart';
 import '../widgets/create_player_sheet.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/scrollable_page.dart';
@@ -68,6 +69,47 @@ class _UsersPageState extends State<UsersPage> {
     );
     if (result != null && mounted) _updateState(result);
   }
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+
+  Future<void> _assignTeam(String userId) async {
+    final user = _localState.getUserById(userId);
+    if (user == null) return;
+    final items = _localState.teams
+        .where((t) => !user.teamIds.contains(t.id))
+        .map((t) => (id: t.id, name: t.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Team', items: items,
+      emptyMessage: 'Player is already in all teams.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignUserToTeam(_localState, userId: userId, teamId: selected));
+    }
+  }
+
+  Future<void> _assignClub(String userId) async {
+    final items = _localState.clubs
+        .where((c) => !c.playerIds.contains(userId))
+        .map((c) => (id: c.id, name: c.name))
+        .toList();
+    final selected = await showAssignDialog(
+      context: context, title: 'Assign to Club', items: items,
+      emptyMessage: 'Player is already in all clubs.',
+    );
+    if (selected != null && mounted) {
+      _updateState(AppDataService.assignPlayerToClub(_localState, playerId: userId, clubId: selected));
+    }
+  }
+
+  Future<void> _deletePlayer(String userId) async {
+    final user = _localState.getUserById(userId);
+    if (user == null) return;
+    final ok = await showConfirmDeleteDialog(context, user.name);
+    if (ok && mounted) _updateState(AppDataService.deleteUser(_localState, userId));
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────────────
 
   void _clearAll() {
     _searchCtrl.clear();
@@ -142,22 +184,19 @@ class _UsersPageState extends State<UsersPage> {
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Team',
-                icon: Icons.group_rounded,
+                label: 'Team', icon: Icons.group_rounded,
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Tournament',
-                icon: Icons.emoji_events_rounded,
+                label: 'Tournament', icon: Icons.emoji_events_rounded,
                 items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _tournamentFilter,
                 onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club',
-                icon: Icons.home_rounded,
+                label: 'Club', icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
@@ -190,9 +229,21 @@ class _UsersPageState extends State<UsersPage> {
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => UserDetailPage(appState: _localState, onAppStateChanged: _updateState, userId: user.id),
                   )),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () => _updateState(AppDataService.deleteUser(_localState, user.id)),
+                  trailing: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert, size: 20),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'assign_team': _assignTeam(user.id);
+                        case 'assign_club': _assignClub(user.id);
+                        case 'delete': _deletePlayer(user.id);
+                      }
+                    },
+                    itemBuilder: (_) => [
+                      actionMenuItem('assign_team', Icons.group_rounded, 'Assign to Team'),
+                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
+                      const PopupMenuDivider(),
+                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
+                    ],
                   ),
                 );
               },
