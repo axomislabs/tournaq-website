@@ -10,7 +10,7 @@ import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
-import '../widgets/hybrid_mode_group_dialog.dart';
+import '../widgets/hybrid_mode_setup_page.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/single_games_dialog.dart';
 import 'club_detail_page.dart';
@@ -135,23 +135,24 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     );
   }
 
-  void _showHybridModeDialog() {
+  Future<void> _showHybridModeSetup() async {
     final tournament = _tournament;
     if (tournament == null) return;
 
-    showDialog<void>(
-      context: context,
-      builder: (context) => HybridModeGroupDialog(
-        modeTypes: TournamentModeType.values
-            .where((mode) => mode != TournamentModeType.hybrid)
-            .toList(),
-        onConfirm: (groups) {
-          final updatedTournament = tournament.copyWith(hybridGroups: groups);
-          final updatedState = _localState.updateTournament(updatedTournament);
-          _updateState(updatedState);
-        },
+    final result = await Navigator.of(context).push<List<List<TournamentModeType>>>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => HybridModeSetupPage(
+          modeTypes: TournamentModeType.values
+              .where((mode) => mode != TournamentModeType.hybrid)
+              .toList(),
+          initialGroups: tournament.hybridGroups,
+        ),
       ),
     );
+    if (result != null && mounted) {
+      _updateState(_localState.updateTournament(tournament.copyWith(hybridGroups: result)));
+    }
   }
 
   void _resetGames() {
@@ -256,7 +257,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                         else if (tournament.mode.type ==
                             TournamentModeType.hybrid) ...[
                           ElevatedButton(
-                            onPressed: _showHybridModeDialog,
+                            onPressed: _showHybridModeSetup,
                             child: const Text('Configure Hybrid Groups'),
                           ),
                           ElevatedButton(
