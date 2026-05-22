@@ -1,17 +1,20 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'pages/landing_page.dart';
 import 'state/app_state.dart';
+import 'pages/landing_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize Google Mobile Ads only on supported platforms (iOS, Android, Web)
   if (defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.android ||
       kIsWeb) {
-    await gma.MobileAds.instance.initialize();
+    await MobileAds.instance.initialize();
   }
 
   runApp(const MyApp());
@@ -25,7 +28,34 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  AppState _appState = const AppState();
+  late AppState _appState;
+  final Random _random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _appState = const AppState();
+    _initializeSampleData();
+  }
+
+  void _initializeSampleData() {
+    // Initialize with some sample teams for testing
+    // This will be removed once users can create their own data
+    setState(() {
+      _appState = _appState.addTeam(Team(
+        id: AppState.generateId(),
+        name: 'Red Dragons',
+      ));
+      _appState = _appState.addTeam(Team(
+        id: AppState.generateId(),
+        name: 'Blue Titans',
+      ));
+      _appState = _appState.addTeam(Team(
+        id: AppState.generateId(),
+        name: 'Golden Warriors',
+      ));
+    });
+  }
 
   void _updateAppState(AppState newState) {
     setState(() {
@@ -35,8 +65,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme =
-        ColorScheme.fromSeed(
+    return MaterialApp(
+      title: 'Team Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFB08B1E),
           brightness: Brightness.light,
         ).copyWith(
@@ -59,20 +91,14 @@ class _MyAppState extends State<MyApp> {
           inverseSurface: const Color(0xFF303030),
           onInverseSurface: Colors.white,
           inversePrimary: const Color(0xFF6E7640),
-        );
-
-    return MaterialApp(
-      title: 'Tournamaster',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: colorScheme,
-        useMaterial3: true,
-        appBarTheme: AppBarTheme(
-          backgroundColor: colorScheme.inversePrimary,
-          foregroundColor: colorScheme.onInverseSurface,
         ),
-        drawerTheme: DrawerThemeData(
-          backgroundColor: colorScheme.primaryContainer,
+        useMaterial3: true,
+        appBarTheme: AppBarThemeData(
+          backgroundColor: const Color(0xFF6E7640),
+          foregroundColor: Colors.white,
+        ),
+        drawerTheme: const DrawerThemeData(
+          backgroundColor: Color(0xFFF0D47A),
         ),
       ),
       home: LandingPage(
@@ -82,3 +108,14 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+// Re-export key models and state for convenience in page files
+export 'models/app_user.dart';
+export 'models/team.dart';
+export 'models/tournament.dart';
+export 'models/tournament_mode.dart';
+export 'models/game.dart';
+export 'models/game_result.dart';
+export 'state/app_state.dart';
+export 'services/app_data_service.dart';
+export 'services/tournament_logic_service.dart';
