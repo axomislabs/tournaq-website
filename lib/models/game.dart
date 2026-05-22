@@ -6,23 +6,32 @@ enum GameStatus {
   completed,
 }
 
+enum GameSource {
+  tournament,
+  quickLocal,
+}
+
 class Game {
   final String id;
-  final String tournamentId;
+  final String? tournamentId;
   final String team1Id;
   final String team2Id;
   final int round;
   final GameStatus status;
   final GameResult? result;
+  final GameSource source;
+  final bool isLocalOnly;
 
   const Game({
     required this.id,
-    required this.tournamentId,
+    this.tournamentId,
     required this.team1Id,
     required this.team2Id,
     required this.round,
     this.status = GameStatus.scheduled,
     this.result,
+    this.source = GameSource.tournament,
+    this.isLocalOnly = false,
   });
 
   Game copyWith({
@@ -33,6 +42,8 @@ class Game {
     int? round,
     GameStatus? status,
     GameResult? result,
+    GameSource? source,
+    bool? isLocalOnly,
   }) {
     return Game(
       id: id ?? this.id,
@@ -42,6 +53,8 @@ class Game {
       round: round ?? this.round,
       status: status ?? this.status,
       result: result ?? this.result,
+      source: source ?? this.source,
+      isLocalOnly: isLocalOnly ?? this.isLocalOnly,
     );
   }
 

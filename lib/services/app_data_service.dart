@@ -246,12 +246,30 @@ class AppDataService {
     if (game == null) return state;
 
     var updatedState = state.removeGame(gameId);
-    final tournament = state.getTournamentById(game.tournamentId);
+    final tournament = game.tournamentId != null
+        ? state.getTournamentById(game.tournamentId!)
+        : null;
     if (tournament != null) {
       updatedState = updatedState.updateTournament(
         tournament.removeGameId(gameId),
       );
     }
     return updatedState;
+  }
+
+  static AppState createQuickGame(
+    AppState state, {
+    required String team1Id,
+    required String team2Id,
+  }) {
+    final game = Game(
+      id: AppState.generateId(),
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: 1,
+      source: GameSource.quickLocal,
+      isLocalOnly: true,
+    );
+    return state.addGame(game);
   }
 }

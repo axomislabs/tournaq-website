@@ -85,6 +85,10 @@ class AppState {
     return games.where((g) => g.tournamentId == tournamentId).toList();
   }
 
+  List<Game> getQuickGames() {
+    return games.where((g) => g.source == GameSource.quickLocal).toList();
+  }
+
   List<Game> getTeamGames(String teamId) {
     return games.where((g) => g.isTeamInvolved(teamId)).toList();
   }

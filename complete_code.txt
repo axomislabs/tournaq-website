@@ -122,11 +122,7 @@ class Team {
 
 import 'tournament_mode.dart';
 
-enum TournamentStatus {
-  draft,
-  inProgress,
-  completed,
-}
+enum TournamentStatus { draft, inProgress, completed }
 
 class Tournament {
   final String id;
@@ -135,6 +131,7 @@ class Tournament {
   final List<String> teamIds;
   final List<String> gameIds;
   final TournamentStatus status;
+  final List<List<TournamentModeType>> hybridGroups;
 
   const Tournament({
     required this.id,
@@ -143,6 +140,7 @@ class Tournament {
     this.teamIds = const [],
     this.gameIds = const [],
     this.status = TournamentStatus.draft,
+    this.hybridGroups = const [],
   });
 
   Tournament copyWith({
@@ -152,6 +150,7 @@ class Tournament {
     List<String>? teamIds,
     List<String>? gameIds,
     TournamentStatus? status,
+    List<List<TournamentModeType>>? hybridGroups,
   }) {
     return Tournament(
       id: id ?? this.id,
@@ -160,6 +159,7 @@ class Tournament {
       teamIds: teamIds ?? this.teamIds,
       gameIds: gameIds ?? this.gameIds,
       status: status ?? this.status,
+      hybridGroups: hybridGroups ?? this.hybridGroups,
     );
   }
 
@@ -169,9 +169,7 @@ class Tournament {
   }
 
   Tournament removeTeamId(String teamId) {
-    return copyWith(
-      teamIds: teamIds.where((id) => id != teamId).toList(),
-    );
+    return copyWith(teamIds: teamIds.where((id) => id != teamId).toList());
   }
 
   Tournament addGameId(String gameId) {
@@ -180,9 +178,7 @@ class Tournament {
   }
 
   Tournament removeGameId(String gameId) {
-    return copyWith(
-      gameIds: gameIds.where((id) => id != gameId).toList(),
-    );
+    return copyWith(gameIds: gameIds.where((id) => id != gameId).toList());
   }
 }
 
@@ -197,23 +193,32 @@ enum GameStatus {
   completed,
 }
 
+enum GameSource {
+  tournament,
+  quickLocal,
+}
+
 class Game {
   final String id;
-  final String tournamentId;
+  final String? tournamentId;
   final String team1Id;
   final String team2Id;
   final int round;
   final GameStatus status;
   final GameResult? result;
+  final GameSource source;
+  final bool isLocalOnly;
 
   const Game({
     required this.id,
-    required this.tournamentId,
+    this.tournamentId,
     required this.team1Id,
     required this.team2Id,
     required this.round,
     this.status = GameStatus.scheduled,
     this.result,
+    this.source = GameSource.tournament,
+    this.isLocalOnly = false,
   });
 
   Game copyWith({
@@ -224,6 +229,8 @@ class Game {
     int? round,
     GameStatus? status,
     GameResult? result,
+    GameSource? source,
+    bool? isLocalOnly,
   }) {
     return Game(
       id: id ?? this.id,
@@ -233,6 +240,8 @@ class Game {
       round: round ?? this.round,
       status: status ?? this.status,
       result: result ?? this.result,
+      source: source ?? this.source,
+      isLocalOnly: isLocalOnly ?? this.isLocalOnly,
     );
   }
 
@@ -416,6 +425,10 @@ class AppState {
     return games.where((g) => g.tournamentId == tournamentId).toList();
   }
 
+  List<Game> getQuickGames() {
+    return games.where((g) => g.source == GameSource.quickLocal).toList();
+  }
+
   List<Game> getTeamGames(String teamId) {
     return games.where((g) => g.isTeamInvolved(teamId)).toList();
   }
@@ -557,6 +570,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: colorScheme,
+        scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
         appBarTheme: AppBarTheme(
           backgroundColor: colorScheme.inversePrimary,
@@ -584,6 +598,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 
 class ScorePage extends StatefulWidget {
   final AppState appState;
@@ -644,6 +659,17 @@ class _ScorePageState extends State<ScorePage> {
     });
   }
 
+  bool _shouldShowSideChangeReminder() {
+    final total = _score1 + _score2;
+    if (total == 0) return false;
+    if (_targetPoints == 15) {
+      return total % 5 == 0;
+    } else if (_targetPoints == 21) {
+      return total % 7 == 0;
+    }
+    return false;
+  }
+
   void _saveScore() {
     final winnerTeamId = _score1 > _score2
         ? _game.team1Id
@@ -668,17 +694,37 @@ class _ScorePageState extends State<ScorePage> {
     });
   }
 
+  void _resetScores() {
+    setState(() {
+      _score1 = 0;
+      _score2 = 0;
+      _winnerTeamId = null;
+    });
+  }
+
+  void _swapScores() {
+    setState(() {
+      final temp = _score1;
+      _score1 = _score2;
+      _score2 = temp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final team1Name = _team1?.name ?? 'Team 1';
     final team2Name = _team2?.name ?? 'Team 2';
+    final isTeam1Leading = _score1 > _score2;
+    final isTeam2Leading = _score2 > _score1;
+    final isTied = _score1 == _score2;
+
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: AppBar(
         title: const Text('Score Game'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -686,16 +732,102 @@ class _ScorePageState extends State<ScorePage> {
             Text(
               '$team1Name vs $team2Name',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildScoreCounterCard(
+                    teamName: team1Name,
+                    score: _score1,
+                    isLeading: isTeam1Leading,
+                    onIncrement: () => _updateScore1(1),
+                    onDecrement: () => _updateScore1(-1),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildScoreCounterCard(
+                    teamName: team2Name,
+                    score: _score2,
+                    isLeading: isTeam2Leading,
+                    onIncrement: () => _updateScore2(1),
+                    onDecrement: () => _updateScore2(-1),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Status indicator
+            Card(
+              color: isTied
+                  ? Colors.grey[300]
+                  : isTeam1Leading
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Text(
+                    isTied
+                        ? 'Tied'
+                        : isTeam1Leading
+                        ? '$team1Name Leading'
+                        : '$team2Name Leading',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_shouldShowSideChangeReminder())
+              Card(
+                color: Colors.yellow[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    'Side change reminder: total score is ${_score1 + _score2}.',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
+            // Quick action buttons
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _swapScores,
+                  icon: const Icon(Icons.swap_horiz),
+                  label: const Text('Swap'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _resetScores,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reset'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
+            // Target points section
+            const Text(
+              'Target Points',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _buildScoreRow(team1Name, _score1, _updateScore1),
-            const SizedBox(height: 12),
-            _buildScoreRow(team2Name, _score2, _updateScore2),
-            const SizedBox(height: 20),
-            const Text('Target Points'),
-            const SizedBox(height: 8),
             Wrap(
-              spacing: 8,
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
               children: [
                 for (final value in [11, 15, 21])
                   ChoiceChip(
@@ -706,11 +838,21 @@ class _ScorePageState extends State<ScorePage> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text('Winner'),
-            const SizedBox(height: 8),
+            // Winner section
+            const Text(
+              'Winner',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
             DropdownButtonFormField<String?>(
               initialValue: _winnerTeamId,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
               items: [
                 const DropdownMenuItem<String?>(
                   value: null,
@@ -727,12 +869,13 @@ class _ScorePageState extends State<ScorePage> {
                 });
               },
             ),
-            const Spacer(),
+            const SizedBox(height: 24),
+            // Save button
             ElevatedButton(
               onPressed: _saveScore,
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
-                child: Text('Save Score'),
+                child: Text('Save Score', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -741,35 +884,46 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildScoreRow(
-    String label,
-    int score,
-    ValueChanged<int> updateScore,
-  ) {
+  Widget _buildScoreCounterCard({
+    required String teamName,
+    required int score,
+    required bool isLeading,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+  }) {
     return Card(
+      color: isLeading
+          ? Theme.of(context).colorScheme.primaryContainer
+          : Theme.of(context).colorScheme.surfaceContainer,
+      elevation: isLeading ? 8 : 2,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            Text(
+              teamName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              score.toString(),
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle_outline),
-                  onPressed: () => updateScore(-1),
+                IconButton.filled(
+                  icon: const Icon(Icons.remove),
+                  onPressed: onDecrement,
+                  tooltip: 'Decrease score',
                 ),
-                Text(
-                  score.toString(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
-                  onPressed: () => updateScore(1),
+                IconButton.filled(
+                  icon: const Icon(Icons.add),
+                  onPressed: onIncrement,
+                  tooltip: 'Increase score',
                 ),
               ],
             ),
@@ -1009,7 +1163,251 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
 }
 
 
+===== lib/pages/user_detail_page.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/app_user.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
+import 'team_detail_page.dart';
+
+class UserDetailPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+  final String userId;
+
+  const UserDetailPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+    required this.userId,
+  });
+
+  @override
+  State<UserDetailPage> createState() => _UserDetailPageState();
+}
+
+class _UserDetailPageState extends State<UserDetailPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  AppUser? get _user => _localState.getUserById(widget.userId);
+
+  Future<void> _showAssignTeamDialog() async {
+    final user = _user;
+    if (user == null) return;
+
+    final availableTeams = _localState.teams
+        .where((team) => !user.teamIds.contains(team.id))
+        .toList();
+
+    if (availableTeams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All teams are already assigned.')),
+      );
+      return;
+    }
+
+    String? selectedTeamId = availableTeams.first.id;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign Team'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedTeamId,
+            items: availableTeams
+                .map(
+                  (team) =>
+                      DropdownMenuItem(value: team.id, child: Text(team.name)),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedTeamId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedTeamId != null) {
+                  final newState = AppDataService.assignUserToTeam(
+                    _localState,
+                    userId: user.id,
+                    teamId: selectedTeamId!,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _removeUserFromTeam(String teamId) async {
+    final user = _user;
+    if (user == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove from Team'),
+        content: const Text('Remove this user from the team?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final newState = AppDataService.removeUserFromTeam(
+        _localState,
+        userId: user.id,
+        teamId: teamId,
+      );
+      _updateState(newState);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = _user;
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('User Details'),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: const Center(child: Text('User not found.')),
+      );
+    }
+
+    final userTeams = _localState.getTeamsByIds(user.teamIds);
+
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('User Details'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ScrollablePage(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (user.email != null) ...[
+                      Text('Email: ${user.email}'),
+                      const SizedBox(height: 8),
+                    ],
+                    if (user.role != null) ...[
+                      Text('Role: ${user.role}'),
+                      const SizedBox(height: 8),
+                    ],
+                    ElevatedButton(
+                      onPressed: _showAssignTeamDialog,
+                      child: const Text('Assign to Team'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Teams (${userTeams.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (userTeams.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('Not assigned to any teams.'),
+                ),
+              )
+            else
+              Column(
+                children: userTeams
+                    .map(
+                      (team) => Card(
+                        child: ListTile(
+                          title: Text(team.name),
+                          subtitle: Text(team.scope.name),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TeamDetailPage(
+                                  appState: _localState,
+                                  onAppStateChanged: _updateState,
+                                  teamId: team.id,
+                                ),
+                              ),
+                            );
+                          },
+                          trailing: IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () => _removeUserFromTeam(team.id),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 ===== lib/pages/teams_page.dart =====
+
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../models/team.dart';
@@ -1017,6 +1415,7 @@ import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/team_input_section.dart';
+import 'team_detail_page.dart';
 
 class TeamsPage extends StatefulWidget {
   final AppState appState;
@@ -1034,11 +1433,22 @@ class TeamsPage extends StatefulWidget {
 
 class _TeamsPageState extends State<TeamsPage> {
   late AppState _localState;
+  final Random _random = Random();
+  late final ScrollController _scrollController;
+  String _scrollStatus = 'idle';
+  String _pointerStatus = 'none';
 
   @override
   void initState() {
     super.initState();
     _localState = widget.appState;
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _updateState(AppState newState) {
@@ -1046,6 +1456,78 @@ class _TeamsPageState extends State<TeamsPage> {
       _localState = newState;
     });
     widget.onAppStateChanged(newState);
+  }
+
+  void _updateScrollStatus(ScrollNotification notification) {
+    setState(() {
+      _scrollStatus =
+          '${notification.runtimeType.toString()} @ '
+          '${notification.metrics.pixels.toStringAsFixed(1)}';
+    });
+  }
+
+  void _updatePointerStatus(String event, PointerEvent pointer) {
+    setState(() {
+      _pointerStatus =
+          '$event @ '
+          '(${pointer.localPosition.dx.toStringAsFixed(0)}, '
+          '${pointer.localPosition.dy.toStringAsFixed(0)})';
+    });
+  }
+
+  String _randomTeamName() {
+    const prefixes = [
+      'Falcon',
+      'Phoenix',
+      'Lion',
+      'Tiger',
+      'Eagle',
+      'Storm',
+      'Dragon',
+      'Viper',
+      'Thunder',
+      'Raven',
+      'Comet',
+      'Shadow',
+      'Blaze',
+      'Orbit',
+      'Nova',
+    ];
+    const suffixes = [
+      'Squad',
+      'Team',
+      'Crew',
+      'Force',
+      'Unit',
+      'Gang',
+      'Pack',
+      'Alliance',
+      'Legion',
+      'Group',
+      'Collective',
+      'Clan',
+      'Horde',
+      'Dynasty',
+      'Crew',
+    ];
+    final prefix = prefixes[_random.nextInt(prefixes.length)];
+    final suffix = suffixes[_random.nextInt(suffixes.length)];
+    return '$prefix $suffix';
+  }
+
+  void _generateRandomTeams(int count) {
+    var newState = _localState;
+    for (var i = 0; i < count; i++) {
+      newState = AppDataService.createTeam(
+        newState,
+        name: _randomTeamName(),
+        scope: TeamScope.temporary,
+      );
+    }
+    _updateState(newState);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Generated $count random teams.')));
   }
 
   Future<void> _showAssignUserDialog(Team team) async {
@@ -1172,88 +1654,147 @@ class _TeamsPageState extends State<TeamsPage> {
         title: const Text('Teams'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TeamInputSection(
-                onTeamCreated: (teamName) {
-                  final newState = AppDataService.createTeam(
-                    _localState,
-                    name: teamName,
-                    scope: TeamScope.temporary,
-                  );
-                  _updateState(newState);
-                },
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Teams (${_localState.teams.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_localState.teams.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No teams yet. Create one above!'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _localState.teams.length,
-                  itemBuilder: (context, index) {
-                    final team = _localState.teams[index];
-                    final teamUsers = _localState.getUsersForTeam(team.id);
-                    final teamTournaments = _localState.getTeamTournaments(
-                      team.id,
-                    );
-                    return ListTile(
-                      title: Text(team.name),
-                      subtitle: Text(
-                        '${teamUsers.length} member(s) • ${teamTournaments.length} tournament(s)',
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) async {
-                          if (value == 'assignUser') {
-                            await _showAssignUserDialog(team);
-                          } else if (value == 'assignTournament') {
-                            await _showAssignTournamentDialog(team);
-                          } else if (value == 'delete') {
-                            final newState = AppDataService.deleteTeam(
-                              _localState,
-                              team.id,
-                            );
-                            _updateState(newState);
-                          }
+      body: SafeArea(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            _updateScrollStatus(notification);
+            debugPrint(
+              'TeamsPage scroll notified: ${notification.runtimeType}, '
+              'pixels=${notification.metrics.pixels}, '
+              'max=${notification.metrics.maxScrollExtent}, '
+              'min=${notification.metrics.minScrollExtent}',
+            );
+            return false;
+          },
+          child: Listener(
+            onPointerDown: (event) => _updatePointerStatus('down', event),
+            onPointerMove: (event) => _updatePointerStatus('move', event),
+            onPointerUp: (event) => _updatePointerStatus('up', event),
+            child: CustomScrollView(
+              controller: _scrollController,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      TeamInputSection(
+                        onTeamCreated: (teamName) {
+                          final newState = AppDataService.createTeam(
+                            _localState,
+                            name: teamName,
+                            scope: TeamScope.temporary,
+                          );
+                          _updateState(newState);
                         },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'assignUser',
-                            child: Text('Assign User'),
-                          ),
-                          const PopupMenuItem(
-                            value: 'assignTournament',
-                            child: Text('Assign Tournament'),
-                          ),
-                          const PopupMenuDivider(),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete Team'),
-                          ),
-                        ],
                       ),
-                    );
-                  },
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () => _generateRandomTeams(10),
+                        child: const Text('Generate 10 Random Teams'),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Teams (${_localState.teams.length})',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Scroll status: $_scrollStatus',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Pointer status: $_pointerStatus',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ]),
+                  ),
                 ),
-            ],
+                if (_localState.teams.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      child: const Align(
+                        alignment: Alignment.topLeft,
+                        child: Text('No teams yet. Create one above!'),
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final team = _localState.teams[index];
+                        final teamUsers = _localState.getUsersForTeam(team.id);
+                        final teamTournaments = _localState.getTeamTournaments(
+                          team.id,
+                        );
+                        return ListTile(
+                          title: Text(team.name),
+                          subtitle: Text(
+                            '${teamUsers.length} member(s) • ${teamTournaments.length} tournament(s)',
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TeamDetailPage(
+                                  appState: _localState,
+                                  onAppStateChanged: _updateState,
+                                  teamId: team.id,
+                                ),
+                              ),
+                            );
+                          },
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'assignUser') {
+                                await _showAssignUserDialog(team);
+                              } else if (value == 'assignTournament') {
+                                await _showAssignTournamentDialog(team);
+                              } else if (value == 'delete') {
+                                final newState = AppDataService.deleteTeam(
+                                  _localState,
+                                  team.id,
+                                );
+                                _updateState(newState);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'assignUser',
+                                child: Text('Assign User'),
+                              ),
+                              const PopupMenuItem(
+                                value: 'assignTournament',
+                                child: Text('Assign Tournament'),
+                              ),
+                              const PopupMenuDivider(),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete Team'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }, childCount: _localState.teams.length),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1268,7 +1809,9 @@ import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import '../widgets/game_tile.dart';
+import '../widgets/quick_start_sheet.dart';
 import 'score_page.dart';
 
 class GamesPage extends StatefulWidget {
@@ -1293,7 +1836,6 @@ class _GamesPageState extends State<GamesPage> {
   void initState() {
     super.initState();
     _localState = widget.appState;
-    _selectedTournamentId = null;
   }
 
   List<Game> get _filteredGames {
@@ -1308,6 +1850,32 @@ class _GamesPageState extends State<GamesPage> {
     widget.onAppStateChanged(newState);
   }
 
+  Future<void> _showQuickStart() async {
+    final result =
+        await showModalBottomSheet<({AppState state, String gameId})>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => QuickStartSheet(appState: _localState),
+    );
+
+    if (result == null || !mounted) return;
+
+    _updateState(result.state);
+
+    if (!mounted) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ScorePage(
+          appState: result.state,
+          onAppStateChanged: _updateState,
+          gameId: result.gameId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1316,87 +1884,188 @@ class _GamesPageState extends State<GamesPage> {
         title: const Text('Games'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Games',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              if (_localState.tournaments.isNotEmpty) ...[
-                DropdownButtonFormField<String?>(
-                  initialValue: _selectedTournamentId,
-                  decoration: const InputDecoration(
-                    labelText: 'Filter by tournament',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('All Games'),
-                    ),
-                    ..._localState.tournaments.map(
-                      (tournament) => DropdownMenuItem(
-                        value: tournament.id,
-                        child: Text(tournament.name),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTournamentId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-              ],
-              Text(
-                'Games (${_filteredGames.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_filteredGames.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No games yet. Create a tournament first!'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _filteredGames.length,
-                  itemBuilder: (context, index) {
-                    final game = _filteredGames[index];
-                    return GameTile(
-                      game: game,
-                      appState: _localState,
-                      onScoreTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ScorePage(
-                              appState: _localState,
-                              onAppStateChanged: _updateState,
-                              gameId: game.id,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildQuickStartCard(),
+            const SizedBox(height: 28),
+            _buildGameBrowser(),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildQuickStartCard() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFD9A520), Color(0xFFE8C840)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD9A520).withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.flash_on_rounded, color: Colors.white, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Quick Start',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Jump into a game instantly — no tournament needed.',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.85),
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _showQuickStart,
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: const Text(
+              'Quick Start Game',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFFD9A520),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameBrowser() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFFD9A520)),
+            SizedBox(width: 8),
+            Text(
+              'Game Browser',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (_localState.tournaments.isNotEmpty) ...[
+          DropdownButtonFormField<String?>(
+            initialValue: _selectedTournamentId,
+            decoration: const InputDecoration(
+              labelText: 'Filter by tournament',
+              border: OutlineInputBorder(),
+            ),
+            items: [
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('All Games'),
+              ),
+              ..._localState.tournaments.map(
+                (t) => DropdownMenuItem(value: t.id, child: Text(t.name)),
+              ),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _selectedTournamentId = value;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+        ],
+        Text(
+          '${_filteredGames.length} ${_filteredGames.length == 1 ? 'game' : 'games'}',
+          style: const TextStyle(
+            fontSize: 13,
+            color: Colors.black45,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (_filteredGames.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.sports_score_rounded,
+                    size: 48,
+                    color: Colors.black26,
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'No games yet',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: Colors.black45,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Use Quick Start above or create a tournament.',
+                    style: TextStyle(color: Colors.black38, fontSize: 13),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _filteredGames.length,
+            itemBuilder: (context, index) {
+              final game = _filteredGames[index];
+              return GameTile(
+                game: game,
+                appState: _localState,
+                onScoreTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ScorePage(
+                        appState: _localState,
+                        onAppStateChanged: _updateState,
+                        gameId: game.id,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+      ],
     );
   }
 }
@@ -1407,6 +2076,7 @@ class _GamesPageState extends State<GamesPage> {
 import 'package:flutter/material.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import 'teams_page.dart';
 import 'tournaments_page.dart';
 import 'games_page.dart';
@@ -1432,27 +2102,25 @@ class LandingPage extends StatelessWidget {
         title: const Text('Tournamaster'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Welcome to Tournamaster',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Organize and manage tournaments with ease.',
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-              _buildStatsCard(context),
-              const SizedBox(height: 20),
-              _buildQuickActionsSection(context),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Welcome to Tournamaster',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Organize and manage tournaments with ease.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            _buildStatsCard(context),
+            const SizedBox(height: 20),
+            _buildQuickActionsSection(context),
+          ],
         ),
       ),
     );
@@ -1562,6 +2230,391 @@ class LandingPage extends StatelessWidget {
 }
 
 
+===== lib/pages/team_detail_page.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/team.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
+import 'tournament_detail_page.dart';
+import 'user_detail_page.dart';
+
+class TeamDetailPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+  final String teamId;
+
+  const TeamDetailPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+    required this.teamId,
+  });
+
+  @override
+  State<TeamDetailPage> createState() => _TeamDetailPageState();
+}
+
+class _TeamDetailPageState extends State<TeamDetailPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  Team? get _team => _localState.getTeamById(widget.teamId);
+
+  Future<void> _showAssignUserDialog() async {
+    final team = _team;
+    if (team == null) return;
+
+    final availableUsers = _localState.users
+        .where((user) => !user.teamIds.contains(team.id))
+        .toList();
+
+    if (availableUsers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All users are already assigned.')),
+      );
+      return;
+    }
+
+    String? selectedUserId = availableUsers.first.id;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign User'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedUserId,
+            items: availableUsers
+                .map(
+                  (user) =>
+                      DropdownMenuItem(value: user.id, child: Text(user.name)),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedUserId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedUserId != null) {
+                  final newState = AppDataService.assignUserToTeam(
+                    _localState,
+                    userId: selectedUserId!,
+                    teamId: team.id,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showAssignTournamentDialog() async {
+    final team = _team;
+    if (team == null) return;
+
+    final availableTournaments = _localState.tournaments
+        .where((tournament) => !tournament.teamIds.contains(team.id))
+        .toList();
+
+    if (availableTournaments.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All tournaments already have this team.'),
+        ),
+      );
+      return;
+    }
+
+    String? selectedTournamentId = availableTournaments.first.id;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign Tournament'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedTournamentId,
+            items: availableTournaments
+                .map(
+                  (tournament) => DropdownMenuItem(
+                    value: tournament.id,
+                    child: Text(tournament.name),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedTournamentId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedTournamentId != null) {
+                  final newState = AppDataService.assignTeamToTournament(
+                    _localState,
+                    teamId: team.id,
+                    tournamentId: selectedTournamentId!,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _removeUserFromTeam(String userId) async {
+    final team = _team;
+    if (team == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove User'),
+        content: const Text('Remove this user from the team?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final newState = AppDataService.removeUserFromTeam(
+        _localState,
+        userId: userId,
+        teamId: team.id,
+      );
+      _updateState(newState);
+    }
+  }
+
+  Future<void> _removeTeamFromTournament(String tournamentId) async {
+    final team = _team;
+    if (team == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove from Tournament'),
+        content: const Text('Remove this team from the tournament?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final newState = AppDataService.removeTeamFromTournament(
+        _localState,
+        teamId: team.id,
+        tournamentId: tournamentId,
+      );
+      _updateState(newState);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final team = _team;
+    if (team == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Team Details'),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: const Center(child: Text('Team not found.')),
+      );
+    }
+
+    final teamUsers = _localState.getUsersForTeam(team.id);
+    final teamTournaments = _localState.getTeamTournaments(team.id);
+
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Team Details'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ScrollablePage(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      team.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Scope: ${team.scope.name}'),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _showAssignUserDialog,
+                          child: const Text('Add User'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _showAssignTournamentDialog,
+                          child: const Text('Add to Tournament'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Members (${teamUsers.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (teamUsers.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('No members yet.'),
+                ),
+              )
+            else
+              Column(
+                children: teamUsers
+                    .map(
+                      (user) => Card(
+                        child: ListTile(
+                          title: Text(user.name),
+                          subtitle: Text(user.email ?? 'No email'),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => UserDetailPage(
+                                  appState: _localState,
+                                  onAppStateChanged: _updateState,
+                                  userId: user.id,
+                                ),
+                              ),
+                            );
+                          },
+                          trailing: IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () => _removeUserFromTeam(user.id),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            const SizedBox(height: 20),
+            Text(
+              'Tournaments (${teamTournaments.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (teamTournaments.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('Not in any tournaments yet.'),
+                ),
+              )
+            else
+              Column(
+                children: teamTournaments
+                    .map(
+                      (tournament) => Card(
+                        child: ListTile(
+                          title: Text(tournament.name),
+                          subtitle: Text(tournament.mode.displayName),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TournamentDetailPage(
+                                  appState: _localState,
+                                  onAppStateChanged: _updateState,
+                                  tournamentId: tournament.id,
+                                ),
+                              ),
+                            );
+                          },
+                          trailing: IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: () =>
+                                _removeTeamFromTournament(tournament.id),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 ===== lib/pages/tournament_detail_page.dart =====
 
 import 'package:flutter/material.dart';
@@ -1575,7 +2628,11 @@ import '../services/tournament_logic_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/game_tile.dart';
+import '../widgets/hybrid_mode_group_dialog.dart';
+import '../widgets/scrollable_page.dart';
+import '../widgets/single_games_dialog.dart';
 import 'score_page.dart';
+import 'team_detail_page.dart';
 
 class TournamentDetailPage extends StatefulWidget {
   final AppState appState;
@@ -1701,6 +2758,80 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     _updateState(newState);
   }
 
+  void _showSingleGamesDialog() {
+    final tournament = _tournament;
+    if (tournament == null) return;
+    if (tournament.teamIds.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Add at least two teams before creating games.'),
+        ),
+      );
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => SingleGamesDialog(
+        appState: _localState,
+        tournament: tournament,
+        onGameCreated: _updateState,
+      ),
+    );
+  }
+
+  void _showHybridModeDialog() {
+    final tournament = _tournament;
+    if (tournament == null) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (context) => HybridModeGroupDialog(
+        modeTypes: TournamentModeType.values
+            .where((mode) => mode != TournamentModeType.hybrid)
+            .toList(),
+        onConfirm: (groups) {
+          final updatedTournament = tournament.copyWith(hybridGroups: groups);
+          final updatedState = _localState.updateTournament(updatedTournament);
+          _updateState(updatedState);
+        },
+      ),
+    );
+  }
+
+  void _resetGames() {
+    final tournament = _tournament;
+    if (tournament == null) return;
+
+    showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Games'),
+        content: const Text(
+          'Are you sure you want to delete all games in this tournament?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true) {
+        var newState = _localState;
+        for (final gameId in tournament.gameIds) {
+          newState = AppDataService.deleteGame(newState, gameId);
+        }
+        _updateState(newState);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final tournament = _tournament;
@@ -1724,135 +2855,196 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
         title: Text(tournament.name),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Card(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tournament.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tournament.name,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 8),
-                      Text('Mode: ${tournament.mode.displayName}'),
-                      Text('Status: ${tournament.status.name}'),
-                      Text('Teams: ${tournament.teamIds.length}'),
-                      Text('Games: ${tournament.gameIds.length}'),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 8,
-                        children: [
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Mode: ${tournament.mode.displayName}'),
+                    Text('Status: ${tournament.status.name}'),
+                    Text('Teams: ${tournament.teamIds.length}'),
+                    Text('Games: ${tournament.gameIds.length}'),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _showAssignTeamDialog,
+                          child: const Text('Assign Team'),
+                        ),
+                        if (tournament.mode.type ==
+                            TournamentModeType.singleGame)
                           ElevatedButton(
-                            onPressed: _showAssignTeamDialog,
-                            child: const Text('Assign Team'),
+                            onPressed: _showSingleGamesDialog,
+                            child: const Text('Create Game'),
+                          )
+                        else if (tournament.mode.type ==
+                            TournamentModeType.hybrid) ...[
+                          ElevatedButton(
+                            onPressed: _showHybridModeDialog,
+                            child: const Text('Configure Hybrid Groups'),
                           ),
+                          ElevatedButton(
+                            onPressed: tournament.hybridGroups.isNotEmpty
+                                ? _generateGames
+                                : null,
+                            child: const Text('Generate Games'),
+                          ),
+                        ] else
                           ElevatedButton(
                             onPressed: tournament.gameIds.isEmpty
                                 ? _generateGames
                                 : null,
                             child: const Text('Generate Games'),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Teams (${_teams.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_teams.isEmpty)
-                const Center(child: Text('No teams assigned yet.'))
-              else
-                Column(
-                  children: _teams
-                      .map(
-                        (team) => Card(
-                          margin: const EdgeInsets.symmetric(vertical: 6),
-                          child: ListTile(
-                            title: Text(team.name),
-                            subtitle: Text(
-                              '${_localState.getUsersForTeam(team.id).length} member(s)',
+                        if (tournament.gameIds.isNotEmpty)
+                          ElevatedButton(
+                            onPressed: _resetGames,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red[400],
                             ),
+                            child: const Text('Clear Games'),
                           ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              const SizedBox(height: 20),
-              if (standings.isNotEmpty) ...[
-                const Text(
-                  'League Standings',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                Card(
-                  child: Column(
-                    children: standings.map((standing) {
-                      final team = _localState.getTeamById(standing.teamId);
-                      return ListTile(
-                        title: Text(team?.name ?? 'Unknown'),
-                        subtitle: Text(
-                          'W:${standing.wins} D:${standing.draws} L:${standing.losses} PF:${standing.pointsFor} PA:${standing.pointsAgainst}',
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-              Text(
-                'Games (${_games.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                      ],
+                    ),
+                  ],
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            if (tournament.mode.type == TournamentModeType.hybrid) ...[
+              const Text(
+                'Hybrid Groups',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 12),
-              if (_games.isEmpty)
-                const Center(child: Text('No games created yet.'))
+              if (tournament.hybridGroups.isEmpty)
+                const Text('No hybrid groups configured yet.')
               else
                 Column(
-                  children: _games
-                      .map(
-                        (game) => GameTile(
-                          game: game,
-                          appState: _localState,
-                          onScoreTap: () {
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: List.generate(tournament.hybridGroups.length, (
+                    groupIndex,
+                  ) {
+                    final group = tournament.hybridGroups[groupIndex];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          children: group
+                              .map((mode) => Chip(label: Text(mode.name)))
+                              .toList(),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              const SizedBox(height: 20),
+            ],
+            Text(
+              'Teams (${_teams.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_teams.isEmpty)
+              const Center(child: Text('No teams assigned yet.'))
+            else
+              Column(
+                children: _teams
+                    .map(
+                      (team) => Card(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        child: ListTile(
+                          title: Text(team.name),
+                          subtitle: Text(
+                            '${_localState.getUsersForTeam(team.id).length} member(s)',
+                          ),
+                          onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => ScorePage(
+                                builder: (context) => TeamDetailPage(
                                   appState: _localState,
                                   onAppStateChanged: _updateState,
-                                  gameId: game.id,
+                                  teamId: team.id,
                                 ),
                               ),
                             );
                           },
                         ),
-                      )
-                      .toList(),
+                      ),
+                    )
+                    .toList(),
+              ),
+            const SizedBox(height: 20),
+            if (standings.isNotEmpty) ...[
+              const Text(
+                'League Standings',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Column(
+                  children: standings.map((standing) {
+                    final team = _localState.getTeamById(standing.teamId);
+                    return ListTile(
+                      title: Text(team?.name ?? 'Unknown'),
+                      subtitle: Text(
+                        'W:${standing.wins} D:${standing.draws} L:${standing.losses} PF:${standing.pointsFor} PA:${standing.pointsAgainst}',
+                      ),
+                    );
+                  }).toList(),
                 ),
+              ),
+              const SizedBox(height: 20),
             ],
-          ),
+            Text(
+              'Games (${_games.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_games.isEmpty)
+              const Center(child: Text('No games created yet.'))
+            else
+              Column(
+                children: _games
+                    .map(
+                      (game) => GameTile(
+                        game: game,
+                        appState: _localState,
+                        onScoreTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ScorePage(
+                                appState: _localState,
+                                onAppStateChanged: _updateState,
+                                gameId: game.id,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                    .toList(),
+              ),
+          ],
         ),
       ),
     );
@@ -1867,6 +3059,7 @@ import '../models/tournament.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import '../widgets/tournament_input_section.dart';
 import 'tournament_detail_page.dart';
 
@@ -1963,92 +3156,87 @@ class _TournamentsPageState extends State<TournamentsPage> {
         title: const Text('Tournaments'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TournamentInputSection(
-                onTournamentCreated: (name, mode) {
-                  final newState = AppDataService.createTournament(
-                    _localState,
-                    name: name,
-                    mode: mode,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TournamentInputSection(
+              onTournamentCreated: (name, mode) {
+                final newState = AppDataService.createTournament(
+                  _localState,
+                  name: name,
+                  mode: mode,
+                );
+                _updateState(newState);
+              },
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Tournaments (${_localState.tournaments.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_localState.tournaments.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('No tournaments yet. Create one above!'),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _localState.tournaments.length,
+                itemBuilder: (context, index) {
+                  final tournament = _localState.tournaments[index];
+                  final teamCount = tournament.teamIds.length;
+                  final gameCount = tournament.gameIds.length;
+                  return ListTile(
+                    title: Text(tournament.name),
+                    subtitle: Text(
+                      '${tournament.mode.displayName} • $teamCount teams • $gameCount games',
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TournamentDetailPage(
+                            appState: _localState,
+                            onAppStateChanged: _updateState,
+                            tournamentId: tournament.id,
+                          ),
+                        ),
+                      );
+                    },
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) async {
+                        if (value == 'assignTeam') {
+                          await _showAssignTeamDialog(tournament);
+                        } else if (value == 'delete') {
+                          final newState = AppDataService.deleteTournament(
+                            _localState,
+                            tournament.id,
+                          );
+                          _updateState(newState);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'assignTeam',
+                          child: Text('Assign Team'),
+                        ),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete Tournament'),
+                        ),
+                      ],
+                    ),
                   );
-                  _updateState(newState);
                 },
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Tournaments (${_localState.tournaments.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_localState.tournaments.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No tournaments yet. Create one above!'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _localState.tournaments.length,
-                  itemBuilder: (context, index) {
-                    final tournament = _localState.tournaments[index];
-                    final teamCount = tournament.teamIds.length;
-                    final gameCount = tournament.gameIds.length;
-                    return ListTile(
-                      title: Text(tournament.name),
-                      subtitle: Text(
-                        '${tournament.mode.displayName} • $teamCount teams • $gameCount games',
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => TournamentDetailPage(
-                              appState: _localState,
-                              onAppStateChanged: _updateState,
-                              tournamentId: tournament.id,
-                            ),
-                          ),
-                        );
-                      },
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) async {
-                          if (value == 'assignTeam') {
-                            await _showAssignTeamDialog(tournament);
-                          } else if (value == 'delete') {
-                            final newState = AppDataService.deleteTournament(
-                              _localState,
-                              tournament.id,
-                            );
-                            _updateState(newState);
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'assignTeam',
-                            child: Text('Assign Team'),
-                          ),
-                          const PopupMenuDivider(),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete Tournament'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -2058,11 +3246,15 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
 ===== lib/pages/users_page.dart =====
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import '../widgets/user_input_section.dart';
+import 'user_detail_page.dart';
 
 class UsersPage extends StatefulWidget {
   final AppState appState;
@@ -2080,6 +3272,7 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   late AppState _localState;
+  final Random _random = Random();
 
   @override
   void initState() {
@@ -2092,6 +3285,57 @@ class _UsersPageState extends State<UsersPage> {
       _localState = newState;
     });
     widget.onAppStateChanged(newState);
+  }
+
+  String _randomUserName() {
+    const firstNames = [
+      'Alex',
+      'Charlie',
+      'Jordan',
+      'Taylor',
+      'Morgan',
+      'Casey',
+      'Jamie',
+      'Avery',
+      'Riley',
+      'Rowan',
+      'Skyler',
+      'Quinn',
+      'Parker',
+      'Drew',
+      'Reese',
+    ];
+    const lastNames = [
+      'Harper',
+      'Brooks',
+      'Cole',
+      'Reed',
+      'Blake',
+      'Carter',
+      'Lane',
+      'Hayes',
+      'Hart',
+      'West',
+      'Fox',
+      'Gray',
+      'Shaw',
+      'Mason',
+      'Finn',
+    ];
+    final first = firstNames[_random.nextInt(firstNames.length)];
+    final last = lastNames[_random.nextInt(lastNames.length)];
+    return '$first $last';
+  }
+
+  void _generateRandomUsers(int count) {
+    var newState = _localState;
+    for (var i = 0; i < count; i++) {
+      newState = AppDataService.createUser(newState, name: _randomUserName());
+    }
+    _updateState(newState);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Generated $count random users.')));
   }
 
   void _addUser(String name, String? teamId) {
@@ -2119,57 +3363,65 @@ class _UsersPageState extends State<UsersPage> {
         title: const Text('Users'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              UserInputSection(
-                teams: _localState.teams,
-                onUserCreated: _addUser,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Users (${_localState.users.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            UserInputSection(teams: _localState.teams, onUserCreated: _addUser),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () => _generateRandomUsers(10),
+              child: const Text('Generate 10 Random Users'),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Users (${_localState.users.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_localState.users.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('No users yet.'),
                 ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _localState.users.length,
+                itemBuilder: (context, index) {
+                  final user = _localState.users[index];
+                  return ListTile(
+                    title: Text(user.name),
+                    subtitle: Text('${user.teamIds.length} team(s)'),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailPage(
+                            appState: _localState,
+                            onAppStateChanged: _updateState,
+                            userId: user.id,
+                          ),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        final newState = AppDataService.deleteUser(
+                          _localState,
+                          user.id,
+                        );
+                        _updateState(newState);
+                      },
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 12),
-              if (_localState.users.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No users yet.'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _localState.users.length,
-                  itemBuilder: (context, index) {
-                    final user = _localState.users[index];
-                    return ListTile(
-                      title: Text(user.name),
-                      subtitle: Text('${user.teamIds.length} team(s)'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          final newState = AppDataService.deleteUser(
-                            _localState,
-                            user.id,
-                          );
-                          _updateState(newState);
-                        },
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -2178,6 +3430,8 @@ class _UsersPageState extends State<UsersPage> {
 
 
 ===== lib/services/tournament_logic_service.dart =====
+
+import 'dart:math';
 
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
@@ -2198,6 +3452,10 @@ class TournamentLogicService {
         return _generateDoubleEliminationBracket(tournament.teamIds);
       case TournamentModeType.swiss:
         return _generateSwissPairings(tournament.teamIds);
+      case TournamentModeType.randomizer:
+        return _generateRandomPairings(tournament.teamIds);
+      case TournamentModeType.hybrid:
+        return _generateHybridPairings(state, tournament);
       default:
         return [];
     }
@@ -2240,6 +3498,38 @@ class TournamentLogicService {
   ) {
     // Simplified: just return round-robin structure
     return _generateRoundRobinPairings(teamIds);
+  }
+
+  static List<({String team1Id, String team2Id})> _generateRandomPairings(
+    List<String> teamIds,
+  ) {
+    final shuffled = [...teamIds]..shuffle(Random());
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < shuffled.length - 1; i += 2) {
+      pairs.add((team1Id: shuffled[i], team2Id: shuffled[i + 1]));
+    }
+    return pairs;
+  }
+
+  static List<({String team1Id, String team2Id})> _generateHybridPairings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    if (tournament.hybridGroups.isEmpty) return [];
+
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (final group in tournament.hybridGroups) {
+      if (group.isEmpty) continue;
+
+      final groupMode = group.first;
+      final tempTournament = tournament.copyWith(
+        mode: TournamentMode.fromType(groupMode),
+      );
+
+      pairs.addAll(generatePairings(state, tempTournament));
+    }
+
+    return pairs;
   }
 
   // Calculate tournament standings for league/round-robin
@@ -2356,6 +3646,10 @@ class AppDataService {
     return state.removeUser(userId);
   }
 
+  static AppState updateUser(AppState state, AppUser user) {
+    return state.updateUser(user);
+  }
+
   // TEAM OPERATIONS
   static AppState createTeam(
     AppState state, {
@@ -2383,6 +3677,10 @@ class AppDataService {
       }
     }
     return updatedState.removeTeam(teamId);
+  }
+
+  static AppState updateTeam(AppState state, Team team) {
+    return state.updateTeam(team);
   }
 
   // TEAM-USER ASSIGNMENTS
@@ -2446,6 +3744,10 @@ class AppDataService {
       updatedState = updatedState.removeGame(game.id);
     }
     return updatedState.removeTournament(tournamentId);
+  }
+
+  static AppState updateTournament(AppState state, Tournament tournament) {
+    return state.updateTournament(tournament);
   }
 
   // TEAM-TOURNAMENT ASSIGNMENTS
@@ -2562,13 +3864,601 @@ class AppDataService {
     if (game == null) return state;
 
     var updatedState = state.removeGame(gameId);
-    final tournament = state.getTournamentById(game.tournamentId);
+    final tournament = game.tournamentId != null
+        ? state.getTournamentById(game.tournamentId!)
+        : null;
     if (tournament != null) {
       updatedState = updatedState.updateTournament(
         tournament.removeGameId(gameId),
       );
     }
     return updatedState;
+  }
+
+  static AppState createQuickGame(
+    AppState state, {
+    required String team1Id,
+    required String team2Id,
+  }) {
+    final game = Game(
+      id: AppState.generateId(),
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: 1,
+      source: GameSource.quickLocal,
+      isLocalOnly: true,
+    );
+    return state.addGame(game);
+  }
+}
+
+
+===== lib/widgets/quick_start_sheet.dart =====
+
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
+import '../models/team.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+
+enum _TeamMethod { existing, createNew, random }
+
+class QuickStartSheet extends StatefulWidget {
+  final AppState appState;
+
+  const QuickStartSheet({super.key, required this.appState});
+
+  @override
+  State<QuickStartSheet> createState() => _QuickStartSheetState();
+}
+
+class _QuickStartSheetState extends State<QuickStartSheet> {
+  _TeamMethod? _method;
+  late AppState _state;
+
+  String? _team1Id;
+  String? _team2Id;
+
+  final _team1Controller = TextEditingController();
+  final _team2Controller = TextEditingController();
+
+  String _randomTeam1Name = '';
+  String _randomTeam2Name = '';
+
+  static const _adjectives = [
+    'Thunder', 'Iron', 'Swift', 'Bold', 'Red', 'Blue', 'Gold', 'Silver',
+    'Dark', 'Storm', 'Crimson', 'Blazing', 'Frozen', 'Shadow', 'Solar',
+    'Mighty', 'Royal', 'Wild', 'Steel', 'Fire',
+  ];
+  static const _nouns = [
+    'Hawks', 'Bears', 'Lions', 'Eagles', 'Wolves', 'Panthers', 'Sharks',
+    'Tigers', 'Foxes', 'Dragons', 'Cobras', 'Ravens', 'Falcons', 'Jaguars',
+    'Vipers', 'Stallions', 'Rhinos', 'Gladiators', 'Titans', 'Strikers',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _state = widget.appState;
+    _generateRandomNames();
+  }
+
+  @override
+  void dispose() {
+    _team1Controller.dispose();
+    _team2Controller.dispose();
+    super.dispose();
+  }
+
+  void _generateRandomNames() {
+    final rng = Random();
+    final adj1 = _adjectives[rng.nextInt(_adjectives.length)];
+    final adj2 = _adjectives[rng.nextInt(_adjectives.length)];
+    final noun1 = _nouns[rng.nextInt(_nouns.length)];
+    String noun2;
+    do {
+      noun2 = _nouns[rng.nextInt(_nouns.length)];
+    } while (noun2 == noun1);
+    setState(() {
+      _randomTeam1Name = '$adj1 $noun1';
+      _randomTeam2Name = '$adj2 $noun2';
+    });
+  }
+
+  void _startGame(String team1Id, String team2Id) {
+    final newState = AppDataService.createQuickGame(
+      _state,
+      team1Id: team1Id,
+      team2Id: team2Id,
+    );
+    final gameId = newState.games.last.id;
+    Navigator.pop(context, (state: newState, gameId: gameId));
+  }
+
+  void _startWithNewTeams() {
+    final name1 = _team1Controller.text.trim();
+    final name2 = _team2Controller.text.trim();
+    if (name1.isEmpty || name2.isEmpty) return;
+
+    var newState = AppDataService.createTeam(
+      _state,
+      name: name1,
+      scope: TeamScope.temporary,
+    );
+    final team1Id = newState.teams.last.id;
+    newState = AppDataService.createTeam(
+      newState,
+      name: name2,
+      scope: TeamScope.temporary,
+    );
+    final team2Id = newState.teams.last.id;
+    _state = newState;
+    _startGame(team1Id, team2Id);
+  }
+
+  void _startWithRandomTeams() {
+    var newState = AppDataService.createTeam(
+      _state,
+      name: _randomTeam1Name,
+      scope: TeamScope.temporary,
+    );
+    final team1Id = newState.teams.last.id;
+    newState = AppDataService.createTeam(
+      newState,
+      name: _randomTeam2Name,
+      scope: TeamScope.temporary,
+    );
+    final team2Id = newState.teams.last.id;
+    _state = newState;
+    _startGame(team1Id, team2Id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 4),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+                child: _method == null
+                    ? _buildMethodPicker()
+                    : _buildTeamPicker(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMethodPicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF3CC),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.flash_on_rounded,
+                color: Color(0xFFD9A520),
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Quick Start a Game',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'How would you like to choose your teams?',
+          style: TextStyle(color: Colors.black54, fontSize: 15),
+        ),
+        const SizedBox(height: 24),
+        _buildMethodCard(
+          icon: Icons.group_rounded,
+          label: 'Select Existing Teams',
+          subtitle: 'Choose from your saved teams',
+          onTap: () => setState(() => _method = _TeamMethod.existing),
+        ),
+        const SizedBox(height: 12),
+        _buildMethodCard(
+          icon: Icons.edit_rounded,
+          label: 'Create New Teams',
+          subtitle: 'Name your teams on the fly',
+          onTap: () => setState(() => _method = _TeamMethod.createNew),
+        ),
+        const SizedBox(height: 12),
+        _buildMethodCard(
+          icon: Icons.casino_rounded,
+          label: 'Generate Random Teams',
+          subtitle: 'Let us pick fun team names',
+          onTap: () => setState(() => _method = _TeamMethod.random),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMethodCard({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFEEEEEE)),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF3CC),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: const Color(0xFFD9A520), size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.black45, fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Colors.black26),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamPicker() {
+    switch (_method!) {
+      case _TeamMethod.existing:
+        return _buildExistingTeams();
+      case _TeamMethod.createNew:
+        return _buildCreateNew();
+      case _TeamMethod.random:
+        return _buildRandom();
+    }
+  }
+
+  Widget _buildBackHeader(String title) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _method = null),
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartButton({required VoidCallback? onPressed}) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.play_arrow_rounded),
+        label: const Text(
+          'Start Game',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFD9A520),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey[200],
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExistingTeams() {
+    final teams = _state.teams;
+
+    if (teams.length < 2) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildBackHeader('Select Teams'),
+          const SizedBox(height: 48),
+          const Center(
+            child: Column(
+              children: [
+                Icon(Icons.group_off_rounded, size: 52, color: Colors.black26),
+                SizedBox(height: 12),
+                Text(
+                  'Not enough teams',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'You need at least 2 saved teams.\nTry creating or generating teams instead.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.black45),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBackHeader('Select Teams'),
+        const SizedBox(height: 24),
+        const Text(
+          'Team 1',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: _team1Id,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          hint: const Text('Choose Team 1'),
+          items: teams
+              .where((t) => t.id != _team2Id)
+              .map((t) => DropdownMenuItem(value: t.id, child: Text(t.name)))
+              .toList(),
+          onChanged: (v) => setState(() => _team1Id = v),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Team 2',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          initialValue: _team2Id,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          hint: const Text('Choose Team 2'),
+          items: teams
+              .where((t) => t.id != _team1Id)
+              .map((t) => DropdownMenuItem(value: t.id, child: Text(t.name)))
+              .toList(),
+          onChanged: (v) => setState(() => _team2Id = v),
+        ),
+        const SizedBox(height: 28),
+        _buildStartButton(
+          onPressed: (_team1Id != null &&
+                  _team2Id != null &&
+                  _team1Id != _team2Id)
+              ? () => _startGame(_team1Id!, _team2Id!)
+              : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCreateNew() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBackHeader('Create Teams'),
+        const SizedBox(height: 24),
+        const Text(
+          'Team 1 Name',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _team1Controller,
+          decoration: InputDecoration(
+            hintText: 'e.g. Red Eagles',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          textCapitalization: TextCapitalization.words,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Team 2 Name',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _team2Controller,
+          decoration: InputDecoration(
+            hintText: 'e.g. Blue Lions',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          textCapitalization: TextCapitalization.words,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 28),
+        _buildStartButton(
+          onPressed: (_team1Controller.text.trim().isNotEmpty &&
+                  _team2Controller.text.trim().isNotEmpty)
+              ? _startWithNewTeams
+              : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRandom() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBackHeader('Random Teams'),
+        const SizedBox(height: 36),
+        Center(
+          child: Column(
+            children: [
+              _buildRandomTeamBadge(_randomTeam1Name),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'vs',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 22,
+                    color: Colors.black38,
+                  ),
+                ),
+              ),
+              _buildRandomTeamBadge(_randomTeam2Name),
+            ],
+          ),
+        ),
+        const SizedBox(height: 28),
+        OutlinedButton.icon(
+          onPressed: _generateRandomNames,
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('Re-roll Teams'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _buildStartButton(onPressed: _startWithRandomTeams),
+      ],
+    );
+  }
+
+  Widget _buildRandomTeamBadge(String name) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3CC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8C84E), width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.casino_rounded,
+            color: Color(0xFFD9A520),
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Text(
+            name,
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -2652,6 +4542,240 @@ class _TournamentInputSectionState extends State<TournamentInputSection> {
 }
 
 
+===== lib/widgets/hybrid_mode_group_dialog.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/tournament_mode.dart';
+
+class HybridModeGroupDialog extends StatefulWidget {
+  final List<TournamentModeType> modeTypes;
+  final Function(List<List<TournamentModeType>>) onConfirm;
+
+  const HybridModeGroupDialog({
+    super.key,
+    required this.modeTypes,
+    required this.onConfirm,
+  });
+
+  @override
+  State<HybridModeGroupDialog> createState() => _HybridModeGroupDialogState();
+}
+
+class _HybridModeGroupDialogState extends State<HybridModeGroupDialog> {
+  late List<TournamentModeType> _availableModes;
+  late List<List<TournamentModeType>> _groupedModes;
+
+  @override
+  void initState() {
+    super.initState();
+    _availableModes = [...widget.modeTypes];
+    _groupedModes = [];
+  }
+
+  void _createNewGroup() {
+    setState(() {
+      _groupedModes.add([]);
+    });
+  }
+
+  void _removeGroup(int groupIndex) {
+    setState(() {
+      final modesInGroup = _groupedModes[groupIndex];
+      _availableModes.addAll(modesInGroup);
+      _groupedModes.removeAt(groupIndex);
+    });
+  }
+
+  void _removeModeFromGroup(int groupIndex, int modeIndex) {
+    setState(() {
+      final mode = _groupedModes[groupIndex].removeAt(modeIndex);
+      _availableModes.add(mode);
+    });
+  }
+
+  void _confirm() {
+    widget.onConfirm(_groupedModes);
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Configure Hybrid Mode'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Available Modes',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            if (_availableModes.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'All modes grouped',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                children: _availableModes
+                    .map(
+                      (mode) => Draggable<TournamentModeType>(
+                        data: mode,
+                        feedback: Material(
+                          color: Colors.transparent,
+                          child: Chip(
+                            label: Text(mode.name),
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primary,
+                          ),
+                        ),
+                        childWhenDragging: Opacity(
+                          opacity: 0.4,
+                          child: Chip(label: Text(mode.name)),
+                        ),
+                        child: Chip(label: Text(mode.name)),
+                      ),
+                    )
+                    .toList(),
+              ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Mode Groups',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                ElevatedButton(
+                  onPressed: _createNewGroup,
+                  child: const Text('+ Add Group'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (_groupedModes.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'No groups created yet. Create a group and drag modes into it.',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              )
+            else
+              Column(
+                children: List.generate(
+                  _groupedModes.length,
+                  (groupIndex) => Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Group ${groupIndex + 1}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, size: 18),
+                                onPressed: () => _removeGroup(groupIndex),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          DragTarget<TournamentModeType>(
+                            onWillAcceptWithDetails: (_) => true,
+                            onAcceptWithDetails: (details) {
+                              final mode = details.data;
+                              setState(() {
+                                if (_availableModes.remove(mode)) {
+                                  _groupedModes[groupIndex].add(mode);
+                                }
+                              });
+                            },
+                            builder: (context, candidateData, rejectedData) {
+                              return Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: candidateData.isNotEmpty
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.grey[300]!,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: _groupedModes[groupIndex].isEmpty
+                                    ? const Text(
+                                        'Drag modes here',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      )
+                                    : Wrap(
+                                        spacing: 8,
+                                        children: List.generate(
+                                          _groupedModes[groupIndex].length,
+                                          (modeIndex) {
+                                            final mode =
+                                                _groupedModes[groupIndex][modeIndex];
+                                            return Chip(
+                                              label: Text(mode.name),
+                                              onDeleted: () =>
+                                                  _removeModeFromGroup(
+                                                    groupIndex,
+                                                    modeIndex,
+                                                  ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            const Text(
+              'Tip: Drag modes from "Available Modes" into a group.',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(onPressed: _confirm, child: const Text('Confirm')),
+      ],
+    );
+  }
+}
+
+
 ===== lib/widgets/app_drawer.dart =====
 
 import 'package:flutter/material.dart';
@@ -2674,103 +4798,239 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Drawer(
-      child: ListView(
+      backgroundColor: Colors.white,
+      elevation: 16,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      child: Column(
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+          _buildHeader(topPadding),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              children: [
+                _buildNavItem(
+                  context,
+                  icon: Icons.home_rounded,
+                  label: 'Home',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.person_rounded,
+                  label: 'Users',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => UsersPage(
+                          appState: appState,
+                          onAppStateChanged: onAppStateChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.group_rounded,
+                  label: 'Teams',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TeamsPage(
+                          appState: appState,
+                          onAppStateChanged: onAppStateChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.emoji_events_rounded,
+                  label: 'Tournaments',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => TournamentsPage(
+                          appState: appState,
+                          onAppStateChanged: onAppStateChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.sports_basketball_rounded,
+                  label: 'Games',
+                  iconBgColor: const Color(0xFFFFF3CC),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => GamesPage(
+                          appState: appState,
+                          onAppStateChanged: onAppStateChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.local_offer_rounded,
+                  label: 'Promo & Ads',
+                  iconBgColor: const Color(0xFFF0F0F0),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => PromoAdsPage(
+                          appState: appState,
+                          onAppStateChanged: onAppStateChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            child: const Text(
-              'Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: const Text('Users'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => UsersPage(
-                    appState: appState,
-                    onAppStateChanged: onAppStateChanged,
-                  ),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.group),
-            title: const Text('Teams'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => TeamsPage(
-                    appState: appState,
-                    onAppStateChanged: onAppStateChanged,
-                  ),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.sports),
-            title: const Text('Tournaments'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => TournamentsPage(
-                    appState: appState,
-                    onAppStateChanged: onAppStateChanged,
-                  ),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.sports_basketball),
-            title: const Text('Games'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => GamesPage(
-                    appState: appState,
-                    onAppStateChanged: onAppStateChanged,
-                  ),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.local_offer),
-            title: const Text('Promo & Ads'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PromoAdsPage(
-                    appState: appState,
-                    onAppStateChanged: onAppStateChanged,
-                  ),
-                ),
-              );
-            },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeader(double topPadding) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFD9A520),
+      padding: EdgeInsets.fromLTRB(22, topPadding + 28, 22, 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFE57F),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.emoji_events_rounded,
+              color: Colors.black87,
+              size: 34,
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'Tournamaster',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 32,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Manage your Tournaments',
+            style: TextStyle(
+              color: Colors.black.withValues(alpha: 0.55),
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color iconBgColor,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        leading: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(color: iconBgColor, shape: BoxShape.circle),
+          child: Icon(icon, color: Colors.black87, size: 20),
+        ),
+        title: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+            letterSpacing: 0.1,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          color: Color(0xFFBBBBBB),
+          size: 22,
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+
+===== lib/widgets/scrollable_page.dart =====
+
+import 'package:flutter/material.dart';
+
+class ScrollablePage extends StatelessWidget {
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  const ScrollablePage({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(padding: padding, child: child),
+          ),
+        );
+      },
     );
   }
 }
@@ -2931,6 +5191,161 @@ class _TeamInputSectionState extends State<TeamInputSection> {
 }
 
 
+===== lib/widgets/single_games_dialog.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/tournament.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+
+class SingleGamesDialog extends StatefulWidget {
+  final AppState appState;
+  final Tournament tournament;
+  final Function(AppState) onGameCreated;
+
+  const SingleGamesDialog({
+    super.key,
+    required this.appState,
+    required this.tournament,
+    required this.onGameCreated,
+  });
+
+  @override
+  State<SingleGamesDialog> createState() => _SingleGamesDialogState();
+}
+
+class _SingleGamesDialogState extends State<SingleGamesDialog> {
+  String? _selectedTeam1Id;
+  String? _selectedTeam2Id;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.tournament.teamIds.isNotEmpty) {
+      _selectedTeam1Id = widget.tournament.teamIds.first;
+    }
+  }
+
+  List<String> get _availableTeams => widget.tournament.teamIds;
+
+  List<String> get _team2Options {
+    if (_selectedTeam1Id == null) return _availableTeams;
+    return _availableTeams.where((id) => id != _selectedTeam1Id).toList();
+  }
+
+  void _createGame() {
+    if (_selectedTeam1Id == null || _selectedTeam2Id == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select both teams')));
+      return;
+    }
+
+    if (_selectedTeam1Id == _selectedTeam2Id) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Teams must be different')));
+      return;
+    }
+
+    // Determine the next round number
+    final existingGames = widget.appState.getTournamentGames(
+      widget.tournament.id,
+    );
+    final nextRound = existingGames.isEmpty
+        ? 1
+        : existingGames.map((g) => g.round).reduce((a, b) => a > b ? a : b) + 1;
+
+    final newState = AppDataService.createGame(
+      widget.appState,
+      tournamentId: widget.tournament.id,
+      team1Id: _selectedTeam1Id!,
+      team2Id: _selectedTeam2Id!,
+      round: nextRound,
+    );
+
+    widget.onGameCreated(newState);
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Create Game'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Select Team 1'),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String?>(
+              initialValue: _selectedTeam1Id,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              items: _availableTeams.map((teamId) {
+                final team = widget.appState.getTeamById(teamId);
+                return DropdownMenuItem(
+                  value: teamId,
+                  child: Text(team?.name ?? 'Unknown Team'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedTeam1Id = value;
+                  // Reset team2 if it's the same as team1
+                  if (_selectedTeam2Id == value) {
+                    _selectedTeam2Id = null;
+                  }
+                });
+              },
+            ),
+            const SizedBox(height: 20),
+            const Text('Select Team 2'),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String?>(
+              initialValue: _selectedTeam2Id,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              items: _team2Options.map((teamId) {
+                final team = widget.appState.getTeamById(teamId);
+                return DropdownMenuItem(
+                  value: teamId,
+                  child: Text(team?.name ?? 'Unknown Team'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedTeam2Id = value;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(onPressed: _createGame, child: const Text('Create')),
+      ],
+    );
+  }
+}
+
+
 ===== lib/widgets/game_tile.dart =====
 
 import 'package:flutter/material.dart';
@@ -2962,11 +5377,34 @@ class GameTile extends StatelessWidget {
     final winnerText = game.result?.winnerTeamId != null
         ? 'Winner: ${appState.getTeamById(game.result!.winnerTeamId!)?.name ?? 'Unknown'}'
         : null;
+    final isQuick = game.source == GameSource.quickLocal;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
-        title: Text('$team1Name vs $team2Name'),
+        title: Row(
+          children: [
+            Expanded(child: Text('$team1Name vs $team2Name')),
+            if (isQuick)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3CC),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE8C84E)),
+                ),
+                child: const Text(
+                  'Quick',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFD9A520),
+                  ),
+                ),
+              ),
+          ],
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -2975,6 +5413,7 @@ class GameTile extends StatelessWidget {
             Text('Round ${game.round} • ${game.status.name}'),
           ],
         ),
+        onTap: onScoreTap,
         trailing: IconButton(
           icon: const Icon(Icons.score),
           onPressed: onScoreTap,

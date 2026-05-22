@@ -27,11 +27,34 @@ class GameTile extends StatelessWidget {
     final winnerText = game.result?.winnerTeamId != null
         ? 'Winner: ${appState.getTeamById(game.result!.winnerTeamId!)?.name ?? 'Unknown'}'
         : null;
+    final isQuick = game.source == GameSource.quickLocal;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
-        title: Text('$team1Name vs $team2Name'),
+        title: Row(
+          children: [
+            Expanded(child: Text('$team1Name vs $team2Name')),
+            if (isQuick)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3CC),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE8C84E)),
+                ),
+                child: const Text(
+                  'Quick',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFD9A520),
+                  ),
+                ),
+              ),
+          ],
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
