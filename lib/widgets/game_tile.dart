@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 
 import '../models/game.dart';
 import '../state/app_state.dart';
+import 'assign_dialog.dart';
 
 class GameTile extends StatelessWidget {
   final Game game;
   final AppState appState;
   final VoidCallback? onScoreTap;
+  final VoidCallback? onDeleteTap;
 
   const GameTile({
     super.key,
     required this.game,
     required this.appState,
     this.onScoreTap,
+    this.onDeleteTap,
   });
 
   @override
@@ -37,8 +40,7 @@ class GameTile extends StatelessWidget {
             Expanded(child: Text('$team1Name vs $team2Name')),
             if (isQuick)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF3CC),
                   borderRadius: BorderRadius.circular(8),
@@ -64,10 +66,23 @@ class GameTile extends StatelessWidget {
           ],
         ),
         onTap: onScoreTap,
-        trailing: IconButton(
-          icon: const Icon(Icons.score),
-          onPressed: onScoreTap,
-          tooltip: 'Score this game',
+        trailing: PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert, size: 20),
+          onSelected: (value) {
+            switch (value) {
+              case 'score':
+                onScoreTap?.call();
+              case 'delete':
+                onDeleteTap?.call();
+            }
+          },
+          itemBuilder: (_) => [
+            actionMenuItem('score', Icons.score_rounded, 'Score Game'),
+            if (onDeleteTap != null) ...[
+              const PopupMenuDivider(),
+              actionMenuItem('delete', Icons.delete_outline, 'Delete Game', destructive: true),
+            ],
+          ],
         ),
       ),
     );

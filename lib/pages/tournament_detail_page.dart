@@ -392,16 +392,22 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                       (game) => GameTile(
                         game: game,
                         appState: _localState,
-                        onScoreTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ScorePage(
-                                appState: _localState,
-                                onAppStateChanged: _updateState,
-                                gameId: game.id,
-                              ),
+                        onScoreTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ScorePage(
+                              appState: _localState,
+                              onAppStateChanged: _updateState,
+                              gameId: game.id,
                             ),
-                          );
+                          ),
+                        ),
+                        onDeleteTap: () async {
+                          final t1 = _localState.getTeamById(game.team1Id)?.name ?? 'Unknown';
+                          final t2 = _localState.getTeamById(game.team2Id)?.name ?? 'Unknown';
+                          final ok = await showConfirmDeleteDialog(context, '$t1 vs $t2');
+                          if (ok && mounted) {
+                            _updateState(AppDataService.deleteGame(_localState, game.id));
+                          }
                         },
                       ),
                     )
