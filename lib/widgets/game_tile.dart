@@ -40,6 +40,7 @@ class GameTile extends StatelessWidget {
             Text('Round ${game.round} • ${game.status.name}'),
           ],
         ),
+        onTap: onScoreTap,
         trailing: IconButton(
           icon: const Icon(Icons.score),
           onPressed: onScoreTap,

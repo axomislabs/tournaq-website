@@ -3,6 +3,7 @@ import '../models/tournament.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import '../widgets/tournament_input_section.dart';
 import 'tournament_detail_page.dart';
 
@@ -99,92 +100,87 @@ class _TournamentsPageState extends State<TournamentsPage> {
         title: const Text('Tournaments'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TournamentInputSection(
-                onTournamentCreated: (name, mode) {
-                  final newState = AppDataService.createTournament(
-                    _localState,
-                    name: name,
-                    mode: mode,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TournamentInputSection(
+              onTournamentCreated: (name, mode) {
+                final newState = AppDataService.createTournament(
+                  _localState,
+                  name: name,
+                  mode: mode,
+                );
+                _updateState(newState);
+              },
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Tournaments (${_localState.tournaments.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_localState.tournaments.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('No tournaments yet. Create one above!'),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _localState.tournaments.length,
+                itemBuilder: (context, index) {
+                  final tournament = _localState.tournaments[index];
+                  final teamCount = tournament.teamIds.length;
+                  final gameCount = tournament.gameIds.length;
+                  return ListTile(
+                    title: Text(tournament.name),
+                    subtitle: Text(
+                      '${tournament.mode.displayName} • $teamCount teams • $gameCount games',
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TournamentDetailPage(
+                            appState: _localState,
+                            onAppStateChanged: _updateState,
+                            tournamentId: tournament.id,
+                          ),
+                        ),
+                      );
+                    },
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) async {
+                        if (value == 'assignTeam') {
+                          await _showAssignTeamDialog(tournament);
+                        } else if (value == 'delete') {
+                          final newState = AppDataService.deleteTournament(
+                            _localState,
+                            tournament.id,
+                          );
+                          _updateState(newState);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'assignTeam',
+                          child: Text('Assign Team'),
+                        ),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Text('Delete Tournament'),
+                        ),
+                      ],
+                    ),
                   );
-                  _updateState(newState);
                 },
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Tournaments (${_localState.tournaments.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_localState.tournaments.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No tournaments yet. Create one above!'),
-                  ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _localState.tournaments.length,
-                  itemBuilder: (context, index) {
-                    final tournament = _localState.tournaments[index];
-                    final teamCount = tournament.teamIds.length;
-                    final gameCount = tournament.gameIds.length;
-                    return ListTile(
-                      title: Text(tournament.name),
-                      subtitle: Text(
-                        '${tournament.mode.displayName} • $teamCount teams • $gameCount games',
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => TournamentDetailPage(
-                              appState: _localState,
-                              onAppStateChanged: _updateState,
-                              tournamentId: tournament.id,
-                            ),
-                          ),
-                        );
-                      },
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) async {
-                          if (value == 'assignTeam') {
-                            await _showAssignTeamDialog(tournament);
-                          } else if (value == 'delete') {
-                            final newState = AppDataService.deleteTournament(
-                              _localState,
-                              tournament.id,
-                            );
-                            _updateState(newState);
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'assignTeam',
-                            child: Text('Assign Team'),
-                          ),
-                          const PopupMenuDivider(),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete Tournament'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );

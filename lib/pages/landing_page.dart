@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import 'teams_page.dart';
 import 'tournaments_page.dart';
 import 'games_page.dart';
@@ -26,27 +27,25 @@ class LandingPage extends StatelessWidget {
         title: const Text('Tournamaster'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Welcome to Tournamaster',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Organize and manage tournaments with ease.',
-                style: TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-              _buildStatsCard(context),
-              const SizedBox(height: 20),
-              _buildQuickActionsSection(context),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Welcome to Tournamaster',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Organize and manage tournaments with ease.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            _buildStatsCard(context),
+            const SizedBox(height: 20),
+            _buildQuickActionsSection(context),
+          ],
         ),
       ),
     );

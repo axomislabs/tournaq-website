@@ -5,6 +5,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 
 class ScorePage extends StatefulWidget {
   final AppState appState;
@@ -65,6 +66,17 @@ class _ScorePageState extends State<ScorePage> {
     });
   }
 
+  bool _shouldShowSideChangeReminder() {
+    final total = _score1 + _score2;
+    if (total == 0) return false;
+    if (_targetPoints == 15) {
+      return total % 5 == 0;
+    } else if (_targetPoints == 21) {
+      return total % 7 == 0;
+    }
+    return false;
+  }
+
   void _saveScore() {
     final winnerTeamId = _score1 > _score2
         ? _game.team1Id
@@ -89,17 +101,37 @@ class _ScorePageState extends State<ScorePage> {
     });
   }
 
+  void _resetScores() {
+    setState(() {
+      _score1 = 0;
+      _score2 = 0;
+      _winnerTeamId = null;
+    });
+  }
+
+  void _swapScores() {
+    setState(() {
+      final temp = _score1;
+      _score1 = _score2;
+      _score2 = temp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final team1Name = _team1?.name ?? 'Team 1';
     final team2Name = _team2?.name ?? 'Team 2';
+    final isTeam1Leading = _score1 > _score2;
+    final isTeam2Leading = _score2 > _score1;
+    final isTied = _score1 == _score2;
+
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: AppBar(
         title: const Text('Score Game'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,16 +139,102 @@ class _ScorePageState extends State<ScorePage> {
             Text(
               '$team1Name vs $team2Name',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildScoreCounterCard(
+                    teamName: team1Name,
+                    score: _score1,
+                    isLeading: isTeam1Leading,
+                    onIncrement: () => _updateScore1(1),
+                    onDecrement: () => _updateScore1(-1),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildScoreCounterCard(
+                    teamName: team2Name,
+                    score: _score2,
+                    isLeading: isTeam2Leading,
+                    onIncrement: () => _updateScore2(1),
+                    onDecrement: () => _updateScore2(-1),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Status indicator
+            Card(
+              color: isTied
+                  ? Colors.grey[300]
+                  : isTeam1Leading
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Center(
+                  child: Text(
+                    isTied
+                        ? 'Tied'
+                        : isTeam1Leading
+                        ? '$team1Name Leading'
+                        : '$team2Name Leading',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_shouldShowSideChangeReminder())
+              Card(
+                color: Colors.yellow[100],
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    'Side change reminder: total score is ${_score1 + _score2}.',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12),
+            // Quick action buttons
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _swapScores,
+                  icon: const Icon(Icons.swap_horiz),
+                  label: const Text('Swap'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _resetScores,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reset'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
+            // Target points section
+            const Text(
+              'Target Points',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            _buildScoreRow(team1Name, _score1, _updateScore1),
-            const SizedBox(height: 12),
-            _buildScoreRow(team2Name, _score2, _updateScore2),
-            const SizedBox(height: 20),
-            const Text('Target Points'),
-            const SizedBox(height: 8),
             Wrap(
-              spacing: 8,
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
               children: [
                 for (final value in [11, 15, 21])
                   ChoiceChip(
@@ -127,11 +245,21 @@ class _ScorePageState extends State<ScorePage> {
               ],
             ),
             const SizedBox(height: 20),
-            const Text('Winner'),
-            const SizedBox(height: 8),
+            // Winner section
+            const Text(
+              'Winner',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
             DropdownButtonFormField<String?>(
               initialValue: _winnerTeamId,
-              decoration: const InputDecoration(border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
               items: [
                 const DropdownMenuItem<String?>(
                   value: null,
@@ -148,12 +276,13 @@ class _ScorePageState extends State<ScorePage> {
                 });
               },
             ),
-            const Spacer(),
+            const SizedBox(height: 24),
+            // Save button
             ElevatedButton(
               onPressed: _saveScore,
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
-                child: Text('Save Score'),
+                child: Text('Save Score', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
@@ -162,35 +291,46 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildScoreRow(
-    String label,
-    int score,
-    ValueChanged<int> updateScore,
-  ) {
+  Widget _buildScoreCounterCard({
+    required String teamName,
+    required int score,
+    required bool isLeading,
+    required VoidCallback onIncrement,
+    required VoidCallback onDecrement,
+  }) {
     return Card(
+      color: isLeading
+          ? Theme.of(context).colorScheme.primaryContainer
+          : Theme.of(context).colorScheme.surfaceContainer,
+      elevation: isLeading ? 8 : 2,
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            Text(
+              teamName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              score.toString(),
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle_outline),
-                  onPressed: () => updateScore(-1),
+                IconButton.filled(
+                  icon: const Icon(Icons.remove),
+                  onPressed: onDecrement,
+                  tooltip: 'Decrease score',
                 ),
-                Text(
-                  score.toString(),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
-                  onPressed: () => updateScore(1),
+                IconButton.filled(
+                  icon: const Icon(Icons.add),
+                  onPressed: onIncrement,
+                  tooltip: 'Increase score',
                 ),
               ],
             ),

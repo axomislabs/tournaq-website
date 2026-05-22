@@ -1,10 +1,6 @@
 import 'tournament_mode.dart';
 
-enum TournamentStatus {
-  draft,
-  inProgress,
-  completed,
-}
+enum TournamentStatus { draft, inProgress, completed }
 
 class Tournament {
   final String id;
@@ -13,6 +9,7 @@ class Tournament {
   final List<String> teamIds;
   final List<String> gameIds;
   final TournamentStatus status;
+  final List<List<TournamentModeType>> hybridGroups;
 
   const Tournament({
     required this.id,
@@ -21,6 +18,7 @@ class Tournament {
     this.teamIds = const [],
     this.gameIds = const [],
     this.status = TournamentStatus.draft,
+    this.hybridGroups = const [],
   });
 
   Tournament copyWith({
@@ -30,6 +28,7 @@ class Tournament {
     List<String>? teamIds,
     List<String>? gameIds,
     TournamentStatus? status,
+    List<List<TournamentModeType>>? hybridGroups,
   }) {
     return Tournament(
       id: id ?? this.id,
@@ -38,6 +37,7 @@ class Tournament {
       teamIds: teamIds ?? this.teamIds,
       gameIds: gameIds ?? this.gameIds,
       status: status ?? this.status,
+      hybridGroups: hybridGroups ?? this.hybridGroups,
     );
   }
 
@@ -47,9 +47,7 @@ class Tournament {
   }
 
   Tournament removeTeamId(String teamId) {
-    return copyWith(
-      teamIds: teamIds.where((id) => id != teamId).toList(),
-    );
+    return copyWith(teamIds: teamIds.where((id) => id != teamId).toList());
   }
 
   Tournament addGameId(String gameId) {
@@ -58,8 +56,6 @@ class Tournament {
   }
 
   Tournament removeGameId(String gameId) {
-    return copyWith(
-      gameIds: gameIds.where((id) => id != gameId).toList(),
-    );
+    return copyWith(gameIds: gameIds.where((id) => id != gameId).toList());
   }
 }

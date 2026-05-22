@@ -28,6 +28,10 @@ class AppDataService {
     return state.removeUser(userId);
   }
 
+  static AppState updateUser(AppState state, AppUser user) {
+    return state.updateUser(user);
+  }
+
   // TEAM OPERATIONS
   static AppState createTeam(
     AppState state, {
@@ -55,6 +59,10 @@ class AppDataService {
       }
     }
     return updatedState.removeTeam(teamId);
+  }
+
+  static AppState updateTeam(AppState state, Team team) {
+    return state.updateTeam(team);
   }
 
   // TEAM-USER ASSIGNMENTS
@@ -118,6 +126,10 @@ class AppDataService {
       updatedState = updatedState.removeGame(game.id);
     }
     return updatedState.removeTournament(tournamentId);
+  }
+
+  static AppState updateTournament(AppState state, Tournament tournament) {
+    return state.updateTournament(tournament);
   }
 
   // TEAM-TOURNAMENT ASSIGNMENTS

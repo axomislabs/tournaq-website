@@ -1,0 +1,2986 @@
+
+
+===== lib/models/tournament_mode.dart =====
+
+enum TournamentModeType {
+  singleGame,
+  league,
+  singleElimination,
+  doubleElimination,
+  swiss,
+  kingOfTheCourt,
+  randomizer,
+  manual,
+  hybrid,
+}
+
+class TournamentMode {
+  final TournamentModeType type;
+  final String displayName;
+
+  const TournamentMode({
+    required this.type,
+    required this.displayName,
+  });
+
+  static TournamentMode fromType(TournamentModeType type) {
+    return TournamentMode(
+      type: type,
+      displayName: _getDisplayName(type),
+    );
+  }
+
+  static String _getDisplayName(TournamentModeType type) {
+    switch (type) {
+      case TournamentModeType.singleGame:
+        return 'Single Games';
+      case TournamentModeType.league:
+        return 'League';
+      case TournamentModeType.singleElimination:
+        return 'Single Elimination';
+      case TournamentModeType.doubleElimination:
+        return 'Double Elimination';
+      case TournamentModeType.swiss:
+        return 'Swiss';
+      case TournamentModeType.kingOfTheCourt:
+        return 'King of the Court';
+      case TournamentModeType.randomizer:
+        return 'Randomizer';
+      case TournamentModeType.manual:
+        return 'Manual Tournament';
+      case TournamentModeType.hybrid:
+        return 'Hybrid Modes';
+    }
+  }
+}
+
+
+===== lib/models/team.dart =====
+
+enum TeamScope {
+  temporary,
+  tournament,
+  club,
+}
+
+class Team {
+  final String id;
+  final String name;
+  final List<String> userIds;
+  final List<String> tournamentIds;
+  final TeamScope scope;
+
+  const Team({
+    required this.id,
+    required this.name,
+    this.userIds = const [],
+    this.tournamentIds = const [],
+    this.scope = TeamScope.temporary,
+  });
+
+  Team copyWith({
+    String? id,
+    String? name,
+    List<String>? userIds,
+    List<String>? tournamentIds,
+    TeamScope? scope,
+  }) {
+    return Team(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      userIds: userIds ?? this.userIds,
+      tournamentIds: tournamentIds ?? this.tournamentIds,
+      scope: scope ?? this.scope,
+    );
+  }
+
+  Team addUserId(String userId) {
+    if (userIds.contains(userId)) return this;
+    return copyWith(userIds: [...userIds, userId]);
+  }
+
+  Team removeUserId(String userId) {
+    return copyWith(
+      userIds: userIds.where((id) => id != userId).toList(),
+    );
+  }
+
+  Team addTournamentId(String tournamentId) {
+    if (tournamentIds.contains(tournamentId)) return this;
+    return copyWith(tournamentIds: [...tournamentIds, tournamentId]);
+  }
+
+  Team removeTournamentId(String tournamentId) {
+    return copyWith(
+      tournamentIds: tournamentIds.where((id) => id != tournamentId).toList(),
+    );
+  }
+}
+
+
+===== lib/models/tournament.dart =====
+
+import 'tournament_mode.dart';
+
+enum TournamentStatus {
+  draft,
+  inProgress,
+  completed,
+}
+
+class Tournament {
+  final String id;
+  final String name;
+  final TournamentMode mode;
+  final List<String> teamIds;
+  final List<String> gameIds;
+  final TournamentStatus status;
+
+  const Tournament({
+    required this.id,
+    required this.name,
+    required this.mode,
+    this.teamIds = const [],
+    this.gameIds = const [],
+    this.status = TournamentStatus.draft,
+  });
+
+  Tournament copyWith({
+    String? id,
+    String? name,
+    TournamentMode? mode,
+    List<String>? teamIds,
+    List<String>? gameIds,
+    TournamentStatus? status,
+  }) {
+    return Tournament(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      mode: mode ?? this.mode,
+      teamIds: teamIds ?? this.teamIds,
+      gameIds: gameIds ?? this.gameIds,
+      status: status ?? this.status,
+    );
+  }
+
+  Tournament addTeamId(String teamId) {
+    if (teamIds.contains(teamId)) return this;
+    return copyWith(teamIds: [...teamIds, teamId]);
+  }
+
+  Tournament removeTeamId(String teamId) {
+    return copyWith(
+      teamIds: teamIds.where((id) => id != teamId).toList(),
+    );
+  }
+
+  Tournament addGameId(String gameId) {
+    if (gameIds.contains(gameId)) return this;
+    return copyWith(gameIds: [...gameIds, gameId]);
+  }
+
+  Tournament removeGameId(String gameId) {
+    return copyWith(
+      gameIds: gameIds.where((id) => id != gameId).toList(),
+    );
+  }
+}
+
+
+===== lib/models/game.dart =====
+
+import 'game_result.dart';
+
+enum GameStatus {
+  scheduled,
+  inProgress,
+  completed,
+}
+
+class Game {
+  final String id;
+  final String tournamentId;
+  final String team1Id;
+  final String team2Id;
+  final int round;
+  final GameStatus status;
+  final GameResult? result;
+
+  const Game({
+    required this.id,
+    required this.tournamentId,
+    required this.team1Id,
+    required this.team2Id,
+    required this.round,
+    this.status = GameStatus.scheduled,
+    this.result,
+  });
+
+  Game copyWith({
+    String? id,
+    String? tournamentId,
+    String? team1Id,
+    String? team2Id,
+    int? round,
+    GameStatus? status,
+    GameResult? result,
+  }) {
+    return Game(
+      id: id ?? this.id,
+      tournamentId: tournamentId ?? this.tournamentId,
+      team1Id: team1Id ?? this.team1Id,
+      team2Id: team2Id ?? this.team2Id,
+      round: round ?? this.round,
+      status: status ?? this.status,
+      result: result ?? this.result,
+    );
+  }
+
+  bool isTeamInvolved(String teamId) {
+    return team1Id == teamId || team2Id == teamId;
+  }
+
+  String getOpponentTeamId(String teamId) {
+    if (team1Id == teamId) return team2Id;
+    if (team2Id == teamId) return team1Id;
+    return '';
+  }
+}
+
+
+===== lib/models/game_result.dart =====
+
+class GameResult {
+  final int score1;
+  final int score2;
+  final int targetPoints;
+  final String? winnerTeamId;
+
+  const GameResult({
+    required this.score1,
+    required this.score2,
+    required this.targetPoints,
+    this.winnerTeamId,
+  });
+
+  int get pointDifference => score1 - score2;
+
+  GameResult copyWith({
+    int? score1,
+    int? score2,
+    int? targetPoints,
+    String? winnerTeamId,
+  }) {
+    return GameResult(
+      score1: score1 ?? this.score1,
+      score2: score2 ?? this.score2,
+      targetPoints: targetPoints ?? this.targetPoints,
+      winnerTeamId: winnerTeamId ?? this.winnerTeamId,
+    );
+  }
+}
+
+
+===== lib/models/app_user.dart =====
+
+class AppUser {
+  final String id;
+  final String name;
+  final String? email;
+  final List<String> teamIds;
+  final String? role;
+
+  const AppUser({
+    required this.id,
+    required this.name,
+    this.email,
+    this.teamIds = const [],
+    this.role,
+  });
+
+  AppUser copyWith({
+    String? id,
+    String? name,
+    String? email,
+    List<String>? teamIds,
+    String? role,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      teamIds: teamIds ?? this.teamIds,
+      role: role ?? this.role,
+    );
+  }
+
+  AppUser addTeamId(String teamId) {
+    if (teamIds.contains(teamId)) return this;
+    return copyWith(teamIds: [...teamIds, teamId]);
+  }
+
+  AppUser removeTeamId(String teamId) {
+    return copyWith(
+      teamIds: teamIds.where((id) => id != teamId).toList(),
+    );
+  }
+}
+
+
+===== lib/state/app_state.dart =====
+
+import 'package:uuid/uuid.dart';
+import '../models/app_user.dart';
+import '../models/team.dart';
+import '../models/tournament.dart';
+import '../models/game.dart';
+
+class AppState {
+  final List<AppUser> users;
+  final List<Team> teams;
+  final List<Tournament> tournaments;
+  final List<Game> games;
+
+  const AppState({
+    this.users = const [],
+    this.teams = const [],
+    this.tournaments = const [],
+    this.games = const [],
+  });
+
+  AppState copyWith({
+    List<AppUser>? users,
+    List<Team>? teams,
+    List<Tournament>? tournaments,
+    List<Game>? games,
+  }) {
+    return AppState(
+      users: users ?? this.users,
+      teams: teams ?? this.teams,
+      tournaments: tournaments ?? this.tournaments,
+      games: games ?? this.games,
+    );
+  }
+
+  // User lookups
+  AppUser? getUserById(String userId) {
+    try {
+      return users.firstWhere((u) => u.id == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Team lookups
+  Team? getTeamById(String teamId) {
+    try {
+      return teams.firstWhere((t) => t.id == teamId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Team> getTeamsByIds(List<String> teamIds) {
+    return teams.where((t) => teamIds.contains(t.id)).toList();
+  }
+
+  List<AppUser> getUsersForTeam(String teamId) {
+    final team = getTeamById(teamId);
+    if (team == null) return [];
+    return users.where((u) => team.userIds.contains(u.id)).toList();
+  }
+
+  // Tournament lookups
+  Tournament? getTournamentById(String tournamentId) {
+    try {
+      return tournaments.firstWhere((t) => t.id == tournamentId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Tournament> getTeamTournaments(String teamId) {
+    return tournaments.where((t) => t.teamIds.contains(teamId)).toList();
+  }
+
+  // Game lookups
+  Game? getGameById(String gameId) {
+    try {
+      return games.firstWhere((g) => g.id == gameId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Game> getTournamentGames(String tournamentId) {
+    return games.where((g) => g.tournamentId == tournamentId).toList();
+  }
+
+  List<Game> getTeamGames(String teamId) {
+    return games.where((g) => g.isTeamInvolved(teamId)).toList();
+  }
+
+  // State mutation helpers
+  AppState addUser(AppUser user) {
+    return copyWith(users: [...users, user]);
+  }
+
+  AppState updateUser(AppUser user) {
+    return copyWith(
+      users: users.map((u) => u.id == user.id ? user : u).toList(),
+    );
+  }
+
+  AppState removeUser(String userId) {
+    return copyWith(users: users.where((u) => u.id != userId).toList());
+  }
+
+  AppState addTeam(Team team) {
+    return copyWith(teams: [...teams, team]);
+  }
+
+  AppState updateTeam(Team team) {
+    return copyWith(
+      teams: teams.map((t) => t.id == team.id ? team : t).toList(),
+    );
+  }
+
+  AppState removeTeam(String teamId) {
+    return copyWith(teams: teams.where((t) => t.id != teamId).toList());
+  }
+
+  AppState addTournament(Tournament tournament) {
+    return copyWith(tournaments: [...tournaments, tournament]);
+  }
+
+  AppState updateTournament(Tournament tournament) {
+    return copyWith(
+      tournaments: tournaments
+          .map((t) => t.id == tournament.id ? tournament : t)
+          .toList(),
+    );
+  }
+
+  AppState removeTournament(String tournamentId) {
+    return copyWith(
+      tournaments: tournaments.where((t) => t.id != tournamentId).toList(),
+    );
+  }
+
+  AppState addGame(Game game) {
+    return copyWith(games: [...games, game]);
+  }
+
+  AppState updateGame(Game game) {
+    return copyWith(
+      games: games.map((g) => g.id == game.id ? game : g).toList(),
+    );
+  }
+
+  AppState removeGame(String gameId) {
+    return copyWith(games: games.where((g) => g.id != gameId).toList());
+  }
+
+  static String generateId() {
+    return const Uuid().v4();
+  }
+}
+
+
+===== lib/main.dart =====
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
+
+import 'pages/landing_page.dart';
+import 'state/app_state.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android ||
+      kIsWeb) {
+    await gma.MobileAds.instance.initialize();
+  }
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  AppState _appState = const AppState();
+
+  void _updateAppState(AppState newState) {
+    setState(() {
+      _appState = newState;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: const Color(0xFFB08B1E),
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: const Color(0xFFB08B1E),
+          onPrimary: Colors.black,
+          primaryContainer: const Color(0xFFF0D47A),
+          onPrimaryContainer: Colors.black,
+          secondary: const Color(0xFF65711D),
+          onSecondary: Colors.white,
+          secondaryContainer: const Color(0xFFDDE1A1),
+          onSecondaryContainer: Colors.black,
+          tertiary: const Color(0xFF8D6B2B),
+          onTertiary: Colors.white,
+          tertiaryContainer: const Color(0xFFF3D8A3),
+          onTertiaryContainer: Colors.black,
+          surface: const Color(0xFFFFF8E1),
+          onSurface: Colors.black87,
+          surfaceContainerHighest: const Color(0xFFE9DEB8),
+          outline: const Color(0xFF7E7351),
+          inverseSurface: const Color(0xFF303030),
+          onInverseSurface: Colors.white,
+          inversePrimary: const Color(0xFF6E7640),
+        );
+
+    return MaterialApp(
+      title: 'Tournamaster',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: colorScheme,
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: colorScheme.inversePrimary,
+          foregroundColor: colorScheme.onInverseSurface,
+        ),
+        drawerTheme: DrawerThemeData(
+          backgroundColor: colorScheme.primaryContainer,
+        ),
+      ),
+      home: LandingPage(
+        appState: _appState,
+        onAppStateChanged: _updateAppState,
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/score_page.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/game.dart';
+import '../models/team.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+
+class ScorePage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+  final String gameId;
+
+  const ScorePage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+    required this.gameId,
+  });
+
+  @override
+  State<ScorePage> createState() => _ScorePageState();
+}
+
+class _ScorePageState extends State<ScorePage> {
+  late AppState _localState;
+  late Game _game;
+  late Team? _team1;
+  late Team? _team2;
+  late int _score1;
+  late int _score2;
+  late int _targetPoints;
+  String? _winnerTeamId;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+    _game = _localState.getGameById(widget.gameId)!;
+    _team1 = _localState.getTeamById(_game.team1Id);
+    _team2 = _localState.getTeamById(_game.team2Id);
+    _score1 = _game.result?.score1 ?? 0;
+    _score2 = _game.result?.score2 ?? 0;
+    _targetPoints = _game.result?.targetPoints ?? 15;
+    _winnerTeamId = _game.result?.winnerTeamId;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+      _game = _localState.getGameById(widget.gameId)!;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  void _updateScore1(int delta) {
+    setState(() {
+      _score1 = (_score1 + delta).clamp(0, 999);
+    });
+  }
+
+  void _updateScore2(int delta) {
+    setState(() {
+      _score2 = (_score2 + delta).clamp(0, 999);
+    });
+  }
+
+  void _saveScore() {
+    final winnerTeamId = _score1 > _score2
+        ? _game.team1Id
+        : _score2 > _score1
+        ? _game.team2Id
+        : null;
+    final newState = AppDataService.updateGameResult(
+      _localState,
+      gameId: _game.id,
+      score1: _score1,
+      score2: _score2,
+      targetPoints: _targetPoints,
+      winnerTeamId: _winnerTeamId ?? winnerTeamId,
+    );
+    _updateState(newState);
+    Navigator.of(context).pop();
+  }
+
+  void _setTargetPoints(int value) {
+    setState(() {
+      _targetPoints = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final team1Name = _team1?.name ?? 'Team 1';
+    final team2Name = _team2?.name ?? 'Team 2';
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Score Game'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              '$team1Name vs $team2Name',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _buildScoreRow(team1Name, _score1, _updateScore1),
+            const SizedBox(height: 12),
+            _buildScoreRow(team2Name, _score2, _updateScore2),
+            const SizedBox(height: 20),
+            const Text('Target Points'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final value in [11, 15, 21])
+                  ChoiceChip(
+                    label: Text('$value'),
+                    selected: _targetPoints == value,
+                    onSelected: (_) => _setTargetPoints(value),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text('Winner'),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String?>(
+              initialValue: _winnerTeamId,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Auto select based on score'),
+                ),
+                if (_team1 != null)
+                  DropdownMenuItem(value: _team1!.id, child: Text(team1Name)),
+                if (_team2 != null)
+                  DropdownMenuItem(value: _team2!.id, child: Text(team2Name)),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _winnerTeamId = value;
+                });
+              },
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _saveScore,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                child: Text('Save Score'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScoreRow(
+    String label,
+    int score,
+    ValueChanged<int> updateScore,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  onPressed: () => updateScore(-1),
+                ),
+                Text(
+                  score.toString(),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () => updateScore(1),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/promo_ads_page.dart =====
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+
+class PromoAdsPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const PromoAdsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  State<PromoAdsPage> createState() => _PromoAdsPageState();
+}
+
+class _PromoAdsPageState extends State<PromoAdsPage> {
+  gma.BannerAd? _bannerAd1;
+  gma.BannerAd? _bannerAd2;
+  bool _isAdLoaded1 = false;
+  bool _isAdLoaded2 = false;
+  bool _adsSupported = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _adsSupported =
+        defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        kIsWeb;
+    if (_adsSupported) {
+      _initializeBannerAds();
+    }
+  }
+
+  void _initializeBannerAds() {
+    // Test Banner Ad 1
+    _bannerAd1 = gma.BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      size: gma.AdSize.banner,
+      request: const gma.AdRequest(),
+      listener: gma.BannerAdListener(
+        onAdLoaded: (gma.Ad ad) {
+          if (mounted) {
+            setState(() {
+              _isAdLoaded1 = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (gma.Ad ad, gma.LoadAdError error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd1!.load();
+
+    // Test Banner Ad 2 (Medium Rectangle)
+    _bannerAd2 = gma.BannerAd(
+      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      size: gma.AdSize.mediumRectangle,
+      request: const gma.AdRequest(),
+      listener: gma.BannerAdListener(
+        onAdLoaded: (gma.Ad ad) {
+          if (mounted) {
+            setState(() {
+              _isAdLoaded2 = true;
+            });
+          }
+        },
+        onAdFailedToLoad: (gma.Ad ad, gma.LoadAdError error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd2!.load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd1?.dispose();
+    _bannerAd2?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(
+        appState: widget.appState,
+        onAppStateChanged: widget.onAppStateChanged,
+      ),
+      appBar: AppBar(
+        title: const Text('Promo & Ads'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: _adsSupported
+          ? SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Test Mobile Ads',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Standard Banner Ad (320x50)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_isAdLoaded1)
+                      SizedBox(
+                        width: 320,
+                        height: 50,
+                        child: gma.AdWidget(ad: _bannerAd1!),
+                      )
+                    else
+                      Container(
+                        width: 320,
+                        height: 50,
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: Text('Banner Ad Loading...'),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Medium Rectangle Ad (300x250)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_isAdLoaded2)
+                      SizedBox(
+                        width: 300,
+                        height: 250,
+                        child: gma.AdWidget(ad: _bannerAd2!),
+                      )
+                    else
+                      Container(
+                        width: 300,
+                        height: 250,
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: Text('Medium Rectangle Ad Loading...'),
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    Card(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const [
+                            Text(
+                              'Using Google Test Ad Units',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'These are Google-provided test ad units for development and testing. '
+                              'Replace with your actual Ad Unit IDs before publishing.',
+                              style: TextStyle(fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Mobile Ads Not Available',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Google Mobile Ads are only available on iOS, Android, and Web platforms. '
+                      'Test this feature on a mobile device or emulator.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+
+===== lib/pages/teams_page.dart =====
+
+import 'package:flutter/material.dart';
+import '../models/team.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/team_input_section.dart';
+
+class TeamsPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const TeamsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  State<TeamsPage> createState() => _TeamsPageState();
+}
+
+class _TeamsPageState extends State<TeamsPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  Future<void> _showAssignUserDialog(Team team) async {
+    final availableUsers = _localState.users
+        .where((user) => !user.teamIds.contains(team.id))
+        .toList();
+
+    if (availableUsers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All users are already assigned to this team.'),
+        ),
+      );
+      return;
+    }
+
+    String? selectedUserId = availableUsers.first.id;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign User'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedUserId,
+            items: availableUsers
+                .map(
+                  (user) =>
+                      DropdownMenuItem(value: user.id, child: Text(user.name)),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedUserId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedUserId != null) {
+                  final newState = AppDataService.assignUserToTeam(
+                    _localState,
+                    userId: selectedUserId!,
+                    teamId: team.id,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showAssignTournamentDialog(Team team) async {
+    final availableTournaments = _localState.tournaments
+        .where((tournament) => !tournament.teamIds.contains(team.id))
+        .toList();
+
+    if (availableTournaments.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All tournaments already contain this team.'),
+        ),
+      );
+      return;
+    }
+
+    String? selectedTournamentId = availableTournaments.first.id;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign Tournament'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedTournamentId,
+            items: availableTournaments
+                .map(
+                  (tournament) => DropdownMenuItem(
+                    value: tournament.id,
+                    child: Text(tournament.name),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedTournamentId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedTournamentId != null) {
+                  final newState = AppDataService.assignTeamToTournament(
+                    _localState,
+                    teamId: team.id,
+                    tournamentId: selectedTournamentId!,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Teams'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TeamInputSection(
+                onTeamCreated: (teamName) {
+                  final newState = AppDataService.createTeam(
+                    _localState,
+                    name: teamName,
+                    scope: TeamScope.temporary,
+                  );
+                  _updateState(newState);
+                },
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Teams (${_localState.teams.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_localState.teams.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No teams yet. Create one above!'),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _localState.teams.length,
+                  itemBuilder: (context, index) {
+                    final team = _localState.teams[index];
+                    final teamUsers = _localState.getUsersForTeam(team.id);
+                    final teamTournaments = _localState.getTeamTournaments(
+                      team.id,
+                    );
+                    return ListTile(
+                      title: Text(team.name),
+                      subtitle: Text(
+                        '${teamUsers.length} member(s) • ${teamTournaments.length} tournament(s)',
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (value == 'assignUser') {
+                            await _showAssignUserDialog(team);
+                          } else if (value == 'assignTournament') {
+                            await _showAssignTournamentDialog(team);
+                          } else if (value == 'delete') {
+                            final newState = AppDataService.deleteTeam(
+                              _localState,
+                              team.id,
+                            );
+                            _updateState(newState);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'assignUser',
+                            child: Text('Assign User'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'assignTournament',
+                            child: Text('Assign Tournament'),
+                          ),
+                          const PopupMenuDivider(),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete Team'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/games_page.dart =====
+
+import 'package:flutter/material.dart';
+import '../models/game.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/game_tile.dart';
+import 'score_page.dart';
+
+class GamesPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const GamesPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  State<GamesPage> createState() => _GamesPageState();
+}
+
+class _GamesPageState extends State<GamesPage> {
+  late AppState _localState;
+  String? _selectedTournamentId;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+    _selectedTournamentId = null;
+  }
+
+  List<Game> get _filteredGames {
+    if (_selectedTournamentId == null) return _localState.games;
+    return _localState.getTournamentGames(_selectedTournamentId!);
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Games'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Games',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              if (_localState.tournaments.isNotEmpty) ...[
+                DropdownButtonFormField<String?>(
+                  initialValue: _selectedTournamentId,
+                  decoration: const InputDecoration(
+                    labelText: 'Filter by tournament',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('All Games'),
+                    ),
+                    ..._localState.tournaments.map(
+                      (tournament) => DropdownMenuItem(
+                        value: tournament.id,
+                        child: Text(tournament.name),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedTournamentId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+              Text(
+                'Games (${_filteredGames.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_filteredGames.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No games yet. Create a tournament first!'),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _filteredGames.length,
+                  itemBuilder: (context, index) {
+                    final game = _filteredGames[index];
+                    return GameTile(
+                      game: game,
+                      appState: _localState,
+                      onScoreTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ScorePage(
+                              appState: _localState,
+                              onAppStateChanged: _updateState,
+                              gameId: game.id,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/landing_page.dart =====
+
+import 'package:flutter/material.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import 'teams_page.dart';
+import 'tournaments_page.dart';
+import 'games_page.dart';
+
+class LandingPage extends StatelessWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const LandingPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(
+        appState: appState,
+        onAppStateChanged: onAppStateChanged,
+      ),
+      appBar: AppBar(
+        title: const Text('Tournamaster'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Welcome to Tournamaster',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Organize and manage tournaments with ease.',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              _buildStatsCard(context),
+              const SizedBox(height: 20),
+              _buildQuickActionsSection(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Statistics',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem(
+                  label: 'Teams',
+                  value: appState.teams.length.toString(),
+                ),
+                _buildStatItem(
+                  label: 'Tournaments',
+                  value: appState.tournaments.length.toString(),
+                ),
+                _buildStatItem(
+                  label: 'Games',
+                  value: appState.games.length.toString(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem({required String label, required String value}) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Quick Actions',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => TeamsPage(
+                  appState: appState,
+                  onAppStateChanged: onAppStateChanged,
+                ),
+              ),
+            );
+          },
+          child: const Text('Manage Teams'),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => TournamentsPage(
+                  appState: appState,
+                  onAppStateChanged: onAppStateChanged,
+                ),
+              ),
+            );
+          },
+          child: const Text('View Tournaments'),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => GamesPage(
+                  appState: appState,
+                  onAppStateChanged: onAppStateChanged,
+                ),
+              ),
+            );
+          },
+          child: const Text('View Games'),
+        ),
+      ],
+    );
+  }
+}
+
+
+===== lib/pages/tournament_detail_page.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/game.dart';
+import '../models/tournament.dart';
+import '../models/tournament_mode.dart';
+import '../models/team.dart';
+import '../services/app_data_service.dart';
+import '../services/tournament_logic_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/game_tile.dart';
+import 'score_page.dart';
+
+class TournamentDetailPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+  final String tournamentId;
+
+  const TournamentDetailPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+    required this.tournamentId,
+  });
+
+  @override
+  State<TournamentDetailPage> createState() => _TournamentDetailPageState();
+}
+
+class _TournamentDetailPageState extends State<TournamentDetailPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  Tournament? get _tournament =>
+      _localState.getTournamentById(widget.tournamentId);
+
+  List<Team> get _teams {
+    final tournament = _tournament;
+    if (tournament == null) return [];
+    return _localState.getTeamsByIds(tournament.teamIds);
+  }
+
+  List<Game> get _games {
+    final tournament = _tournament;
+    if (tournament == null) return [];
+    return _localState.getTournamentGames(tournament.id);
+  }
+
+  Future<void> _showAssignTeamDialog() async {
+    final tournament = _tournament;
+    if (tournament == null) return;
+
+    final availableTeams = _localState.teams
+        .where((team) => !tournament.teamIds.contains(team.id))
+        .toList();
+    if (availableTeams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No available teams to assign.')),
+      );
+      return;
+    }
+
+    String? selectedTeamId = availableTeams.first.id;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign Team'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedTeamId,
+            items: availableTeams
+                .map(
+                  (team) =>
+                      DropdownMenuItem(value: team.id, child: Text(team.name)),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedTeamId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedTeamId != null) {
+                  final newState = AppDataService.assignTeamToTournament(
+                    _localState,
+                    teamId: selectedTeamId!,
+                    tournamentId: tournament.id,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _generateGames() {
+    final tournament = _tournament;
+    if (tournament == null) return;
+    if (tournament.teamIds.length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Add at least two teams before generating games.'),
+        ),
+      );
+      return;
+    }
+
+    final newState = AppDataService.generateGamesForTournament(
+      _localState,
+      tournament,
+    );
+    _updateState(newState);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tournament = _tournament;
+    if (tournament == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Tournament Details'),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        ),
+        body: const Center(child: Text('Tournament not found.')),
+      );
+    }
+
+    final standings = tournament.mode.type == TournamentModeType.league
+        ? TournamentLogicService.calculateStandings(_localState, tournament)
+        : <TournamentStanding>[];
+
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: Text(tournament.name),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tournament.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text('Mode: ${tournament.mode.displayName}'),
+                      Text('Status: ${tournament.status.name}'),
+                      Text('Teams: ${tournament.teamIds.length}'),
+                      Text('Games: ${tournament.gameIds.length}'),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _showAssignTeamDialog,
+                            child: const Text('Assign Team'),
+                          ),
+                          ElevatedButton(
+                            onPressed: tournament.gameIds.isEmpty
+                                ? _generateGames
+                                : null,
+                            child: const Text('Generate Games'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Teams (${_teams.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_teams.isEmpty)
+                const Center(child: Text('No teams assigned yet.'))
+              else
+                Column(
+                  children: _teams
+                      .map(
+                        (team) => Card(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          child: ListTile(
+                            title: Text(team.name),
+                            subtitle: Text(
+                              '${_localState.getUsersForTeam(team.id).length} member(s)',
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              const SizedBox(height: 20),
+              if (standings.isNotEmpty) ...[
+                const Text(
+                  'League Standings',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Column(
+                    children: standings.map((standing) {
+                      final team = _localState.getTeamById(standing.teamId);
+                      return ListTile(
+                        title: Text(team?.name ?? 'Unknown'),
+                        subtitle: Text(
+                          'W:${standing.wins} D:${standing.draws} L:${standing.losses} PF:${standing.pointsFor} PA:${standing.pointsAgainst}',
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+              Text(
+                'Games (${_games.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_games.isEmpty)
+                const Center(child: Text('No games created yet.'))
+              else
+                Column(
+                  children: _games
+                      .map(
+                        (game) => GameTile(
+                          game: game,
+                          appState: _localState,
+                          onScoreTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ScorePage(
+                                  appState: _localState,
+                                  onAppStateChanged: _updateState,
+                                  gameId: game.id,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/tournaments_page.dart =====
+
+import 'package:flutter/material.dart';
+import '../models/tournament.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/tournament_input_section.dart';
+import 'tournament_detail_page.dart';
+
+class TournamentsPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const TournamentsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  State<TournamentsPage> createState() => _TournamentsPageState();
+}
+
+class _TournamentsPageState extends State<TournamentsPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  Future<void> _showAssignTeamDialog(Tournament tournament) async {
+    final availableTeams = _localState.teams
+        .where((team) => !tournament.teamIds.contains(team.id))
+        .toList();
+
+    if (availableTeams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No available teams to assign.')),
+      );
+      return;
+    }
+
+    String? selectedTeamId = availableTeams.first.id;
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Assign Team'),
+          content: DropdownButtonFormField<String>(
+            initialValue: selectedTeamId,
+            items: availableTeams
+                .map(
+                  (team) =>
+                      DropdownMenuItem(value: team.id, child: Text(team.name)),
+                )
+                .toList(),
+            onChanged: (value) {
+              selectedTeamId = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (selectedTeamId != null) {
+                  final newState = AppDataService.assignTeamToTournament(
+                    _localState,
+                    teamId: selectedTeamId!,
+                    tournamentId: tournament.id,
+                  );
+                  _updateState(newState);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Assign'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Tournaments'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TournamentInputSection(
+                onTournamentCreated: (name, mode) {
+                  final newState = AppDataService.createTournament(
+                    _localState,
+                    name: name,
+                    mode: mode,
+                  );
+                  _updateState(newState);
+                },
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Tournaments (${_localState.tournaments.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_localState.tournaments.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No tournaments yet. Create one above!'),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _localState.tournaments.length,
+                  itemBuilder: (context, index) {
+                    final tournament = _localState.tournaments[index];
+                    final teamCount = tournament.teamIds.length;
+                    final gameCount = tournament.gameIds.length;
+                    return ListTile(
+                      title: Text(tournament.name),
+                      subtitle: Text(
+                        '${tournament.mode.displayName} • $teamCount teams • $gameCount games',
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TournamentDetailPage(
+                              appState: _localState,
+                              onAppStateChanged: _updateState,
+                              tournamentId: tournament.id,
+                            ),
+                          ),
+                        );
+                      },
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) async {
+                          if (value == 'assignTeam') {
+                            await _showAssignTeamDialog(tournament);
+                          } else if (value == 'delete') {
+                            final newState = AppDataService.deleteTournament(
+                              _localState,
+                              tournament.id,
+                            );
+                            _updateState(newState);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'assignTeam',
+                            child: Text('Assign Team'),
+                          ),
+                          const PopupMenuDivider(),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text('Delete Tournament'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/pages/users_page.dart =====
+
+import 'package:flutter/material.dart';
+import '../services/app_data_service.dart';
+import '../state/app_state.dart';
+import '../widgets/app_drawer.dart';
+import '../widgets/user_input_section.dart';
+
+class UsersPage extends StatefulWidget {
+  final AppState appState;
+  final Function(AppState) onAppStateChanged;
+
+  const UsersPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  State<UsersPage> createState() => _UsersPageState();
+}
+
+class _UsersPageState extends State<UsersPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() {
+      _localState = newState;
+    });
+    widget.onAppStateChanged(newState);
+  }
+
+  void _addUser(String name, String? teamId) {
+    if (name.isEmpty) return;
+
+    var newState = AppDataService.createUser(_localState, name: name);
+
+    final createdUser = newState.users.last;
+    if (teamId != null) {
+      newState = AppDataService.assignUserToTeam(
+        newState,
+        userId: createdUser.id,
+        teamId: teamId,
+      );
+    }
+
+    _updateState(newState);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+      appBar: AppBar(
+        title: const Text('Users'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              UserInputSection(
+                teams: _localState.teams,
+                onUserCreated: _addUser,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Users (${_localState.users.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_localState.users.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text('No users yet.'),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _localState.users.length,
+                  itemBuilder: (context, index) {
+                    final user = _localState.users[index];
+                    return ListTile(
+                      title: Text(user.name),
+                      subtitle: Text('${user.teamIds.length} team(s)'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          final newState = AppDataService.deleteUser(
+                            _localState,
+                            user.id,
+                          );
+                          _updateState(newState);
+                        },
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+===== lib/services/tournament_logic_service.dart =====
+
+import '../models/tournament.dart';
+import '../models/tournament_mode.dart';
+import '../state/app_state.dart';
+
+class TournamentLogicService {
+  // Generate all pairings for a tournament based on its mode
+  static List<({String team1Id, String team2Id})> generatePairings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    switch (tournament.mode.type) {
+      case TournamentModeType.league:
+        return _generateRoundRobinPairings(tournament.teamIds);
+      case TournamentModeType.singleElimination:
+        return _generateSingleEliminationBracket(tournament.teamIds);
+      case TournamentModeType.doubleElimination:
+        return _generateDoubleEliminationBracket(tournament.teamIds);
+      case TournamentModeType.swiss:
+        return _generateSwissPairings(tournament.teamIds);
+      default:
+        return [];
+    }
+  }
+
+  // Round-robin: every team plays every other team once
+  static List<({String team1Id, String team2Id})> _generateRoundRobinPairings(
+    List<String> teamIds,
+  ) {
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < teamIds.length; i++) {
+      for (var j = i + 1; j < teamIds.length; j++) {
+        pairs.add((team1Id: teamIds[i], team2Id: teamIds[j]));
+      }
+    }
+    return pairs;
+  }
+
+  // Single elimination bracket
+  static List<({String team1Id, String team2Id})>
+  _generateSingleEliminationBracket(List<String> teamIds) {
+    // Simple pairing: teams in order
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < teamIds.length - 1; i += 2) {
+      pairs.add((team1Id: teamIds[i], team2Id: teamIds[i + 1]));
+    }
+    return pairs;
+  }
+
+  // Double elimination bracket
+  static List<({String team1Id, String team2Id})>
+  _generateDoubleEliminationBracket(List<String> teamIds) {
+    // For now, same as single elimination. Real implementation would track winners/losers bracket
+    return _generateSingleEliminationBracket(teamIds);
+  }
+
+  // Swiss system (simplified): random pairings each round
+  static List<({String team1Id, String team2Id})> _generateSwissPairings(
+    List<String> teamIds,
+  ) {
+    // Simplified: just return round-robin structure
+    return _generateRoundRobinPairings(teamIds);
+  }
+
+  // Calculate tournament standings for league/round-robin
+  static List<TournamentStanding> calculateStandings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    final standings = <String, TournamentStanding>{};
+
+    // Initialize standings for all teams
+    for (final teamId in tournament.teamIds) {
+      standings[teamId] = TournamentStanding(
+        teamId: teamId,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        pointsFor: 0,
+        pointsAgainst: 0,
+      );
+    }
+
+    // Process all games
+    final tournamentGames = state.getTournamentGames(tournament.id);
+    for (final game in tournamentGames) {
+      if (game.result == null) continue;
+
+      final result = game.result!;
+      final standing1 = standings[game.team1Id];
+      final standing2 = standings[game.team2Id];
+
+      if (standing1 == null || standing2 == null) continue;
+
+      standing1.pointsFor += result.score1;
+      standing1.pointsAgainst += result.score2;
+      standing2.pointsFor += result.score2;
+      standing2.pointsAgainst += result.score1;
+
+      if (result.winnerTeamId == game.team1Id) {
+        standing1.wins += 1;
+        standing2.losses += 1;
+      } else if (result.winnerTeamId == game.team2Id) {
+        standing2.wins += 1;
+        standing1.losses += 1;
+      } else {
+        standing1.draws += 1;
+        standing2.draws += 1;
+      }
+    }
+
+    // Sort by wins, then by point difference
+    final sortedStandings = standings.values.toList();
+    sortedStandings.sort((a, b) {
+      final winDiff = b.wins.compareTo(a.wins);
+      if (winDiff != 0) return winDiff;
+      return b.pointDifference.compareTo(a.pointDifference);
+    });
+
+    return sortedStandings;
+  }
+}
+
+class TournamentStanding {
+  final String teamId;
+  int wins;
+  int draws;
+  int losses;
+  int pointsFor;
+  int pointsAgainst;
+
+  TournamentStanding({
+    required this.teamId,
+    required this.wins,
+    required this.draws,
+    required this.losses,
+    required this.pointsFor,
+    required this.pointsAgainst,
+  });
+
+  int get pointDifference => pointsFor - pointsAgainst;
+  int get totalGames => wins + draws + losses;
+  int get points => wins * 3 + draws;
+}
+
+
+===== lib/services/app_data_service.dart =====
+
+import '../models/app_user.dart';
+import '../models/team.dart';
+import '../models/tournament.dart';
+import '../models/tournament_mode.dart';
+import '../models/game.dart';
+import '../models/game_result.dart';
+import '../services/tournament_logic_service.dart';
+import '../state/app_state.dart';
+
+class AppDataService {
+  // USER OPERATIONS
+  static AppState createUser(
+    AppState state, {
+    required String name,
+    String? email,
+    String? role,
+  }) {
+    final user = AppUser(
+      id: AppState.generateId(),
+      name: name,
+      email: email,
+      role: role,
+    );
+    return state.addUser(user);
+  }
+
+  static AppState deleteUser(AppState state, String userId) {
+    return state.removeUser(userId);
+  }
+
+  // TEAM OPERATIONS
+  static AppState createTeam(
+    AppState state, {
+    required String name,
+    required TeamScope scope,
+  }) {
+    final team = Team(id: AppState.generateId(), name: name, scope: scope);
+    return state.addTeam(team);
+  }
+
+  static AppState deleteTeam(AppState state, String teamId) {
+    // Remove team from all users
+    var updatedState = state;
+    for (final user in state.users) {
+      if (user.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateUser(user.removeTeamId(teamId));
+      }
+    }
+    // Remove team from all tournaments
+    for (final tournament in state.tournaments) {
+      if (tournament.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateTournament(
+          tournament.removeTeamId(teamId),
+        );
+      }
+    }
+    return updatedState.removeTeam(teamId);
+  }
+
+  // TEAM-USER ASSIGNMENTS
+  static AppState assignUserToTeam(
+    AppState state, {
+    required String userId,
+    required String teamId,
+  }) {
+    final user = state.getUserById(userId);
+    final team = state.getTeamById(teamId);
+
+    if (user == null || team == null) return state;
+
+    var updatedState = state.updateUser(user.addTeamId(teamId));
+    updatedState = updatedState.updateTeam(team.addUserId(userId));
+    return updatedState;
+  }
+
+  static AppState removeUserFromTeam(
+    AppState state, {
+    required String userId,
+    required String teamId,
+  }) {
+    final user = state.getUserById(userId);
+    final team = state.getTeamById(teamId);
+
+    if (user == null || team == null) return state;
+
+    var updatedState = state.updateUser(user.removeTeamId(teamId));
+    updatedState = updatedState.updateTeam(team.removeUserId(userId));
+    return updatedState;
+  }
+
+  // TOURNAMENT OPERATIONS
+  static AppState createTournament(
+    AppState state, {
+    required String name,
+    required TournamentMode mode,
+  }) {
+    final tournament = Tournament(
+      id: AppState.generateId(),
+      name: name,
+      mode: mode,
+    );
+    return state.addTournament(tournament);
+  }
+
+  static AppState deleteTournament(AppState state, String tournamentId) {
+    // Remove tournament from all teams
+    var updatedState = state;
+    for (final team in state.teams) {
+      if (team.tournamentIds.contains(tournamentId)) {
+        updatedState = updatedState.updateTeam(
+          team.removeTournamentId(tournamentId),
+        );
+      }
+    }
+    // Delete all games in tournament
+    final tournamentGames = state.getTournamentGames(tournamentId);
+    for (final game in tournamentGames) {
+      updatedState = updatedState.removeGame(game.id);
+    }
+    return updatedState.removeTournament(tournamentId);
+  }
+
+  // TEAM-TOURNAMENT ASSIGNMENTS
+  static AppState assignTeamToTournament(
+    AppState state, {
+    required String teamId,
+    required String tournamentId,
+  }) {
+    final team = state.getTeamById(teamId);
+    final tournament = state.getTournamentById(tournamentId);
+
+    if (team == null || tournament == null) return state;
+
+    var updatedState = state.updateTeam(team.addTournamentId(tournamentId));
+    updatedState = updatedState.updateTournament(tournament.addTeamId(teamId));
+    return updatedState;
+  }
+
+  static AppState removeTeamFromTournament(
+    AppState state, {
+    required String teamId,
+    required String tournamentId,
+  }) {
+    final team = state.getTeamById(teamId);
+    final tournament = state.getTournamentById(tournamentId);
+
+    if (team == null || tournament == null) return state;
+
+    var updatedState = state.updateTeam(team.removeTournamentId(tournamentId));
+    updatedState = updatedState.updateTournament(
+      tournament.removeTeamId(teamId),
+    );
+    return updatedState;
+  }
+
+  // GAME OPERATIONS
+  static AppState createGame(
+    AppState state, {
+    required String tournamentId,
+    required String team1Id,
+    required String team2Id,
+    required int round,
+  }) {
+    final game = Game(
+      id: AppState.generateId(),
+      tournamentId: tournamentId,
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: round,
+    );
+
+    var updatedState = state.addGame(game);
+    final tournament = state.getTournamentById(tournamentId);
+    if (tournament != null) {
+      updatedState = updatedState.updateTournament(
+        tournament.addGameId(game.id),
+      );
+    }
+    return updatedState;
+  }
+
+  static AppState generateGamesForTournament(
+    AppState state,
+    Tournament tournament,
+  ) {
+    if (tournament.gameIds.isNotEmpty) return state;
+
+    final pairings = TournamentLogicService.generatePairings(state, tournament);
+    var updatedState = state;
+    var round = 1;
+
+    for (final pairing in pairings) {
+      updatedState = createGame(
+        updatedState,
+        tournamentId: tournament.id,
+        team1Id: pairing.team1Id,
+        team2Id: pairing.team2Id,
+        round: round,
+      );
+      round++;
+    }
+
+    return updatedState;
+  }
+
+  static AppState updateGameResult(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final result = GameResult(
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winnerTeamId,
+    );
+
+    final updatedGame = game.copyWith(
+      result: result,
+      status: GameStatus.completed,
+    );
+
+    return state.updateGame(updatedGame);
+  }
+
+  static AppState deleteGame(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    var updatedState = state.removeGame(gameId);
+    final tournament = state.getTournamentById(game.tournamentId);
+    if (tournament != null) {
+      updatedState = updatedState.updateTournament(
+        tournament.removeGameId(gameId),
+      );
+    }
+    return updatedState;
+  }
+}
+
+
+===== lib/widgets/tournament_input_section.dart =====
+
+import 'package:flutter/material.dart';
+import '../models/tournament_mode.dart';
+
+class TournamentInputSection extends StatefulWidget {
+  final Function(String name, TournamentMode mode) onTournamentCreated;
+
+  const TournamentInputSection({super.key, required this.onTournamentCreated});
+
+  @override
+  State<TournamentInputSection> createState() => _TournamentInputSectionState();
+}
+
+class _TournamentInputSectionState extends State<TournamentInputSection> {
+  final TextEditingController _controller = TextEditingController();
+  TournamentModeType _selectedMode = TournamentModeType.league;
+
+  void _createTournament() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+
+    final mode = TournamentMode.fromType(_selectedMode);
+    widget.onTournamentCreated(name, mode);
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Create a New Tournament',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _controller,
+          decoration: const InputDecoration(
+            labelText: 'Tournament name',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text('Mode'),
+        const SizedBox(height: 8),
+        DropdownButton<TournamentModeType>(
+          value: _selectedMode,
+          isExpanded: true,
+          items: TournamentModeType.values.map((mode) {
+            final displayName = TournamentMode.fromType(mode).displayName;
+            return DropdownMenuItem(value: mode, child: Text(displayName));
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                _selectedMode = value;
+              });
+            }
+          },
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          onPressed: _createTournament,
+          child: const Text('Create Tournament'),
+        ),
+      ],
+    );
+  }
+}
+
+
+===== lib/widgets/app_drawer.dart =====
+
+import 'package:flutter/material.dart';
+import '../state/app_state.dart';
+import '../pages/users_page.dart';
+import '../pages/teams_page.dart';
+import '../pages/tournaments_page.dart';
+import '../pages/games_page.dart';
+import '../pages/promo_ads_page.dart';
+
+class AppDrawer extends StatelessWidget {
+  final AppState appState;
+  final void Function(AppState) onAppStateChanged;
+
+  const AppDrawer({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Text(
+              'Menu',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.people),
+            title: const Text('Users'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UsersPage(
+                    appState: appState,
+                    onAppStateChanged: onAppStateChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.group),
+            title: const Text('Teams'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TeamsPage(
+                    appState: appState,
+                    onAppStateChanged: onAppStateChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sports),
+            title: const Text('Tournaments'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TournamentsPage(
+                    appState: appState,
+                    onAppStateChanged: onAppStateChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.sports_basketball),
+            title: const Text('Games'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => GamesPage(
+                    appState: appState,
+                    onAppStateChanged: onAppStateChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.local_offer),
+            title: const Text('Promo & Ads'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PromoAdsPage(
+                    appState: appState,
+                    onAppStateChanged: onAppStateChanged,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+===== lib/widgets/user_input_section.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/team.dart';
+
+class UserInputSection extends StatefulWidget {
+  final List<Team> teams;
+  final void Function(String name, String? teamId) onUserCreated;
+
+  const UserInputSection({
+    super.key,
+    required this.teams,
+    required this.onUserCreated,
+  });
+
+  @override
+  State<UserInputSection> createState() => _UserInputSectionState();
+}
+
+class _UserInputSectionState extends State<UserInputSection> {
+  final TextEditingController _controller = TextEditingController();
+  String? _selectedTeamId;
+
+  void _createUser() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+    widget.onUserCreated(name, _selectedTeamId);
+    _controller.clear();
+    setState(() {
+      _selectedTeamId = null;
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Create a New User',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _controller,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _createUser(),
+          decoration: const InputDecoration(
+            labelText: 'User name',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String?>(
+          initialValue: _selectedTeamId,
+          decoration: const InputDecoration(
+            labelText: 'Assign to team (optional)',
+            border: OutlineInputBorder(),
+          ),
+          items: <DropdownMenuItem<String?>>[
+            const DropdownMenuItem<String?>(
+              value: null,
+              child: Text('No team'),
+            ),
+            ...widget.teams.map(
+              (team) => DropdownMenuItem<String?>(
+                value: team.id,
+                child: Text(team.name),
+              ),
+            ),
+          ],
+          onChanged: (value) {
+            setState(() {
+              _selectedTeamId = value;
+            });
+          },
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(onPressed: _createUser, child: const Text('Add User')),
+      ],
+    );
+  }
+}
+
+
+===== lib/widgets/team_input_section.dart =====
+
+import 'package:flutter/material.dart';
+
+class TeamInputSection extends StatefulWidget {
+  final Function(String) onTeamCreated;
+
+  const TeamInputSection({
+    super.key,
+    required this.onTeamCreated,
+  });
+
+  @override
+  State<TeamInputSection> createState() => _TeamInputSectionState();
+}
+
+class _TeamInputSectionState extends State<TeamInputSection> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _addTeam() {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+
+    widget.onTeamCreated(name);
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Create a New Team',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _controller,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => _addTeam(),
+          decoration: const InputDecoration(
+            labelText: 'Team name',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: _addTeam,
+          child: const Text('Add Team'),
+        ),
+      ],
+    );
+  }
+}
+
+
+===== lib/widgets/game_tile.dart =====
+
+import 'package:flutter/material.dart';
+
+import '../models/game.dart';
+import '../state/app_state.dart';
+
+class GameTile extends StatelessWidget {
+  final Game game;
+  final AppState appState;
+  final VoidCallback? onScoreTap;
+
+  const GameTile({
+    super.key,
+    required this.game,
+    required this.appState,
+    this.onScoreTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final team1 = appState.getTeamById(game.team1Id);
+    final team2 = appState.getTeamById(game.team2Id);
+    final team1Name = team1?.name ?? 'Unknown';
+    final team2Name = team2?.name ?? 'Unknown';
+    final resultText = game.result != null
+        ? '${game.result!.score1} - ${game.result!.score2}'
+        : 'Pending';
+    final winnerText = game.result?.winnerTeamId != null
+        ? 'Winner: ${appState.getTeamById(game.result!.winnerTeamId!)?.name ?? 'Unknown'}'
+        : null;
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: ListTile(
+        title: Text('$team1Name vs $team2Name'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(resultText),
+            if (winnerText != null) Text(winnerText),
+            Text('Round ${game.round} • ${game.status.name}'),
+          ],
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.score),
+          onPressed: onScoreTap,
+          tooltip: 'Score this game',
+        ),
+      ),
+    );
+  }
+}

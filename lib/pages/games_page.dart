@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/scrollable_page.dart';
 import '../widgets/game_tile.dart';
 import 'score_page.dart';
 
@@ -50,85 +51,80 @@ class _GamesPageState extends State<GamesPage> {
         title: const Text('Games'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: ScrollablePage(
         padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Games',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              if (_localState.tournaments.isNotEmpty) ...[
-                DropdownButtonFormField<String?>(
-                  initialValue: _selectedTournamentId,
-                  decoration: const InputDecoration(
-                    labelText: 'Filter by tournament',
-                    border: OutlineInputBorder(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Games',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_localState.tournaments.isNotEmpty) ...[
+              DropdownButtonFormField<String?>(
+                initialValue: _selectedTournamentId,
+                decoration: const InputDecoration(
+                  labelText: 'Filter by tournament',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('All Games'),
                   ),
-                  items: [
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('All Games'),
+                  ..._localState.tournaments.map(
+                    (tournament) => DropdownMenuItem(
+                      value: tournament.id,
+                      child: Text(tournament.name),
                     ),
-                    ..._localState.tournaments.map(
-                      (tournament) => DropdownMenuItem(
-                        value: tournament.id,
-                        child: Text(tournament.name),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTournamentId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-              ],
-              Text(
-                'Games (${_filteredGames.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_filteredGames.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No games yet. Create a tournament first!'),
                   ),
-                )
-              else
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _filteredGames.length,
-                  itemBuilder: (context, index) {
-                    final game = _filteredGames[index];
-                    return GameTile(
-                      game: game,
-                      appState: _localState,
-                      onScoreTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ScorePage(
-                              appState: _localState,
-                              onAppStateChanged: _updateState,
-                              gameId: game.id,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedTournamentId = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
             ],
-          ),
+            Text(
+              'Games (${_filteredGames.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_filteredGames.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Text('No games yet. Create a tournament first!'),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _filteredGames.length,
+                itemBuilder: (context, index) {
+                  final game = _filteredGames[index];
+                  return GameTile(
+                    game: game,
+                    appState: _localState,
+                    onScoreTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ScorePage(
+                            appState: _localState,
+                            onAppStateChanged: _updateState,
+                            gameId: game.id,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../state/app_state.dart';
@@ -17,6 +19,10 @@ class TournamentLogicService {
         return _generateDoubleEliminationBracket(tournament.teamIds);
       case TournamentModeType.swiss:
         return _generateSwissPairings(tournament.teamIds);
+      case TournamentModeType.randomizer:
+        return _generateRandomPairings(tournament.teamIds);
+      case TournamentModeType.hybrid:
+        return _generateHybridPairings(state, tournament);
       default:
         return [];
     }
@@ -59,6 +65,38 @@ class TournamentLogicService {
   ) {
     // Simplified: just return round-robin structure
     return _generateRoundRobinPairings(teamIds);
+  }
+
+  static List<({String team1Id, String team2Id})> _generateRandomPairings(
+    List<String> teamIds,
+  ) {
+    final shuffled = [...teamIds]..shuffle(Random());
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < shuffled.length - 1; i += 2) {
+      pairs.add((team1Id: shuffled[i], team2Id: shuffled[i + 1]));
+    }
+    return pairs;
+  }
+
+  static List<({String team1Id, String team2Id})> _generateHybridPairings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    if (tournament.hybridGroups.isEmpty) return [];
+
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (final group in tournament.hybridGroups) {
+      if (group.isEmpty) continue;
+
+      final groupMode = group.first;
+      final tempTournament = tournament.copyWith(
+        mode: TournamentMode.fromType(groupMode),
+      );
+
+      pairs.addAll(generatePairings(state, tempTournament));
+    }
+
+    return pairs;
   }
 
   // Calculate tournament standings for league/round-robin
