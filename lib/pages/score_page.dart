@@ -5,6 +5,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 
 class ScorePage extends StatefulWidget {
@@ -127,10 +128,7 @@ class _ScorePageState extends State<ScorePage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(
-        title: const Text('Score Game'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: const TournaQAppBar(title: 'Score Game'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(

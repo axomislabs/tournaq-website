@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/scrollable_page.dart';
+import '../widgets/tournaq_app_bar.dart';
 import 'teams_page.dart';
 import 'tournaments_page.dart';
 import 'games_page.dart';
@@ -23,10 +24,7 @@ class LandingPage extends StatelessWidget {
         appState: appState,
         onAppStateChanged: onAppStateChanged,
       ),
-      appBar: AppBar(
-        title: const Text('TournaQ'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: const TournaQAppBar(title: 'TournaQ'),
       body: ScrollablePage(
         padding: EdgeInsets.zero,
         child: Column(

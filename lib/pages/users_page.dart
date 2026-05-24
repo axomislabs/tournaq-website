@@ -5,6 +5,7 @@ import '../models/app_user.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_player_sheet.dart';
 import '../widgets/filter_bar.dart';
@@ -155,7 +156,7 @@ class _UsersPageState extends State<UsersPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(title: const Text('Players'), backgroundColor: Theme.of(context).colorScheme.inversePrimary),
+      appBar: const TournaQAppBar(title: 'Players'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

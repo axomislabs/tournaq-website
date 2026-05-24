@@ -3,6 +3,7 @@ import '../models/game.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/game_tile.dart';
@@ -144,10 +145,7 @@ class _GamesPageState extends State<GamesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(
-        title: const Text('Games'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: const TournaQAppBar(title: 'Games'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(

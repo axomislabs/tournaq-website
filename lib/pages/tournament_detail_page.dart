@@ -8,6 +8,7 @@ import '../services/app_data_service.dart';
 import '../services/tournament_logic_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/hybrid_mode_setup_page.dart';
@@ -193,10 +194,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
     final tournament = _tournament;
     if (tournament == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Tournament Details'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
+        appBar: const TournaQAppBar(title: 'Tournament Details'),
         body: const Center(child: Text('Tournament not found.')),
       );
     }
@@ -207,10 +205,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(
-        title: Text(tournament.name),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: TournaQAppBar(title: tournament.name),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -5,6 +5,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_team_sheet.dart';
 import '../widgets/filter_bar.dart';
@@ -166,7 +167,7 @@ class _TeamsPageState extends State<TeamsPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(title: const Text('Teams'), backgroundColor: Theme.of(context).colorScheme.inversePrimary),
+      appBar: const TournaQAppBar(title: 'Teams'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

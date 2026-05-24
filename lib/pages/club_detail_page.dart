@@ -4,6 +4,7 @@ import '../models/club.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
 import 'team_detail_page.dart';
@@ -154,10 +155,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
     final club = _club;
     if (club == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Club Details'),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        ),
+        appBar: const TournaQAppBar(title: 'Club Details'),
         body: const Center(child: Text('Club not found.')),
       );
     }
@@ -168,10 +166,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: AppBar(
-        title: const Text('Club Details'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: const TournaQAppBar(title: 'Club Details'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 
 class PromoAdsPage extends StatefulWidget {
@@ -163,10 +164,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         appState: widget.appState,
         onAppStateChanged: widget.onAppStateChanged,
       ),
-      appBar: AppBar(
-        title: const Text('Promo & Ads'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: const TournaQAppBar(title: 'Promo & Updates'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: _adsSupported ? _buildAdsContent() : _buildUnsupportedContent(),
