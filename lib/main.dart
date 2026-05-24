@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 
-import 'pages/landing_page.dart';
+import 'pages/splash_page.dart';
 import 'state/app_state.dart';
 
 void main() async {
@@ -144,7 +144,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
-      home: LandingPage(
+      home: SplashPage(
         appState: _appState,
         onAppStateChanged: _updateAppState,
       ),
