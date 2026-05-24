@@ -299,7 +299,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                   ) {
                     final group = tournament.hybridGroups[groupIndex];
                     return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Wrap(
@@ -326,7 +326,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                 children: _teams
                     .map(
                       (team) => Card(
-                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        margin: const EdgeInsets.symmetric(vertical: 4),
                         child: ListTile(
                           title: Text(team.name),
                           subtitle: Text(
@@ -422,7 +422,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                     const Center(child: Text('Not in any clubs yet.', style: TextStyle(color: Colors.black45)))
                   else
                     ...clubs.map((club) => Card(
-                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      margin: const EdgeInsets.symmetric(vertical: 4),
                       child: ListTile(
                         leading: const Icon(Icons.home_rounded),
                         title: Text(club.name),

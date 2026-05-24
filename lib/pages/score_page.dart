@@ -278,10 +278,7 @@ class _ScorePageState extends State<ScorePage> {
             // Save button
             ElevatedButton(
               onPressed: _saveScore,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 14),
-                child: Text('Save Score', style: TextStyle(fontSize: 16)),
-              ),
+              child: const Text('Save Score', style: TextStyle(fontSize: 16)),
             ),
           ],
         ),

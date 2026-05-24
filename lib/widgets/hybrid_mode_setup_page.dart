@@ -91,7 +91,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                       color: Colors.transparent,
                       child: Chip(
                         label: Text(_label(mode)),
-                        backgroundColor: const Color(0xFF6E7640),
+                        backgroundColor: const Color(0xFFB08B1E),
                         labelStyle: const TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ),
@@ -121,7 +121,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                 icon: const Icon(Icons.add_rounded, size: 16),
                 label: const Text('Add Group'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6E7640),
+                  backgroundColor: const Color(0xFFB08B1E),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -165,7 +165,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                 child: Center(
                   child: Text(
                     '${gi + 1}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6E7640)),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFB08B1E)),
                   ),
                 ),
               ),
@@ -193,7 +193,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                   decoration: BoxDecoration(
                     color: isHovering ? const Color(0xFFFFF8E1) : Colors.grey[50],
                     border: Border.all(
-                      color: isHovering ? const Color(0xFF6E7640) : Colors.grey[300]!,
+                      color: isHovering ? const Color(0xFFB08B1E) : Colors.grey[300]!,
                       width: isHovering ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -214,7 +214,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                             ...group.asMap().entries.map((e) => Chip(
                               label: Text(_label(e.value)),
                               backgroundColor: const Color(0xFFFFF8E1),
-                              deleteIconColor: const Color(0xFF6E7640),
+                              deleteIconColor: const Color(0xFFB08B1E),
                               labelStyle: const TextStyle(fontSize: 13),
                               onDeleted: () => _removeFromGroup(gi, e.key),
                             )),

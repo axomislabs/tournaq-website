@@ -70,7 +70,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           label: Text(item.name),
           selected: selected.contains(item.id),
           selectedColor: const Color(0xFFFFF8E1),
-          checkmarkColor: const Color(0xFF6E7640),
+          checkmarkColor: const Color(0xFFB08B1E),
           onSelected: (v) => setState(() {
             if (v) { selected.add(item.id); } else { selected.remove(item.id); }
           }),
@@ -104,7 +104,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
               Row(children: [
                 Container(padding: const EdgeInsets.all(10),
                   decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
-                  child: const Icon(Icons.group_rounded, color: Color(0xFF6E7640), size: 22)),
+                  child: const Icon(Icons.group_rounded, color: Color(0xFFB08B1E), size: 22)),
                 const SizedBox(width: 12),
                 const Text('Create Team', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
               ]),
@@ -115,9 +115,9 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
                 GestureDetector(
                   onTap: _suggestName,
                   child: const Row(children: [
-                    Icon(Icons.shuffle_rounded, size: 14, color: Color(0xFF6E7640)),
+                    Icon(Icons.shuffle_rounded, size: 14, color: Color(0xFFB08B1E)),
                     SizedBox(width: 4),
-                    Text('Suggest', style: TextStyle(fontSize: 12, color: Color(0xFF6E7640), fontWeight: FontWeight.w600)),
+                    Text('Suggest', style: TextStyle(fontSize: 12, color: Color(0xFFB08B1E), fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ]),
@@ -152,11 +152,11 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
                   icon: const Icon(Icons.check_rounded),
                   label: const Text('Create Team', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6E7640),
+                    backgroundColor: const Color(0xFFB08B1E),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[200],
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),

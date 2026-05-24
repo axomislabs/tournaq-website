@@ -216,6 +216,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
               ))
             else
               ...players.map((u) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.person_rounded),
                   title: Text(u.name),
@@ -242,6 +243,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
               ))
             else
               ...teams.map((t) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.group_rounded),
                   title: Text(t.name),
@@ -268,6 +270,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
               ))
             else
               ...tournaments.map((t) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.emoji_events_rounded),
                   title: Text(t.name),

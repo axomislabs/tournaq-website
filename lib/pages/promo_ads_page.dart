@@ -143,7 +143,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(Icons.info_outline, size: 48, color: const Color(0xFF6E7640)),
+        Icon(Icons.info_outline, size: 48, color: const Color(0xFFB08B1E)),
         const SizedBox(height: 16),
         const Text('Mobile Ads Not Available', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),

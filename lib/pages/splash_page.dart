@@ -59,23 +59,10 @@ class _SplashPageState extends State<SplashPage> {
               // Logo
               Image.asset(
                 'assets/tournaq_logo.png',
-                height: 120,
+                height: 156,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 28),
-
-              // App name
-              const Text(
-                'TournaQ',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF6E7640),
-                  letterSpacing: -0.5,
-                  height: 1.0,
-                ),
-              ),
-              const SizedBox(height: 10),
 
               // Subtitle
               const Padding(
@@ -84,11 +71,11 @@ class _SplashPageState extends State<SplashPage> {
                   'Scoring, Games & Tournament Management',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black45,
+                    fontSize: 30,
+                    color: Color(0xFFB08B1E),
                     fontWeight: FontWeight.w400,
                     letterSpacing: 0.1,
-                    height: 1.4,
+                    height: 1.3,
                   ),
                 ),
               ),
@@ -100,8 +87,8 @@ class _SplashPageState extends State<SplashPage> {
                 width: 26,
                 height: 26,
                 child: CircularProgressIndicator(
-                  color: const Color(0xFF6E7640),
-                  backgroundColor: const Color(0xFF6E7640).withValues(alpha: 0.15),
+                  color: const Color(0xFFB08B1E),
+                  backgroundColor: const Color(0xFFB08B1E).withValues(alpha: 0.15),
                   strokeWidth: 2.5,
                 ),
               ),

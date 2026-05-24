@@ -45,7 +45,7 @@ class LandingPage extends StatelessWidget {
         appState: appState,
         onAppStateChanged: onAppStateChanged,
       ),
-      appBar: const TournaQAppBar(title: 'TournaQ'),
+      appBar: const TournaQAppBar(title: 'Home'),
       body: ScrollablePage(
         padding: EdgeInsets.zero,
         child: Column(
@@ -65,36 +65,25 @@ class LandingPage extends StatelessWidget {
 
   Widget _buildBrand() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 28),
+      padding: const EdgeInsets.fromLTRB(24, 36, 24, 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(
             'assets/tournaq_logo.png',
-            height: 88,
+            width: 210,
             fit: BoxFit.contain,
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'TournaQ',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 44,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF6E7640),
-              letterSpacing: -0.5,
-              height: 1.0,
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           const Text(
             'Scoring, Games & Tournament Management',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.black45,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.1,
+              color: Color(0xFFB08B1E),
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.2,
+              height: 1.4,
             ),
           ),
         ],
@@ -113,8 +102,8 @@ class LandingPage extends StatelessWidget {
             title: 'Quick Game',
             subtitle: 'Jump straight into a game',
             icon: Icons.flash_on_rounded,
-            gradientColors: const [Color(0xFF6E7640), Color(0xFF8A9940)],
-            shadowColor: Color(0xFF6E7640),
+            gradientColors: const [Color(0xFFB08B1E), Color(0xFFC9A030)],
+            shadowColor: Color(0xFFB08B1E),
             onTap: () => _handleQuickGame(context),
           ),
           const SizedBox(height: 12),

@@ -51,7 +51,7 @@ class GameTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF6E7640),
+                    color: Color(0xFFB08B1E),
                   ),
                 ),
               ),

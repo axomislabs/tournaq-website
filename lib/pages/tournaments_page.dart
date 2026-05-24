@@ -173,7 +173,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6E7640),
+              backgroundColor: const Color(0xFFB08B1E),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

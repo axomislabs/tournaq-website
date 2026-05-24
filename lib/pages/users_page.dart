@@ -165,13 +165,13 @@ class _UsersPageState extends State<UsersPage> {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Create Player', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6E7640),
+              backgroundColor: const Color(0xFFB08B1E),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () => _generateRandom(10),
             icon: const Icon(Icons.shuffle_rounded),

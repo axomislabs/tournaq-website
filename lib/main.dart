@@ -97,13 +97,12 @@ class _MyAppState extends State<MyApp> {
         // ── Elevated Button (primary) ───────────────────────────────────────
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6E7640),
+            backgroundColor: const Color(0xFFB08B1E),
             foregroundColor: Colors.white,
             disabledBackgroundColor: Colors.grey.shade200,
             disabledForegroundColor: Colors.grey.shade400,
             elevation: 0,
             shadowColor: Colors.transparent,
-            side: const BorderSide(color: Color(0xFFB08B1E), width: 1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -119,8 +118,8 @@ class _MyAppState extends State<MyApp> {
         // ── Outlined Button (secondary) ────────────────────────────────────
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF6E7640),
-            side: const BorderSide(color: Color(0xFF6E7640), width: 1.5),
+            foregroundColor: const Color(0xFFB08B1E),
+            side: const BorderSide(color: Color(0xFFB08B1E), width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -136,7 +135,7 @@ class _MyAppState extends State<MyApp> {
         // ── Text Button ────────────────────────────────────────────────────
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF6E7640),
+            foregroundColor: const Color(0xFFB08B1E),
             textStyle: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,

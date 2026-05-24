@@ -173,7 +173,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
               ),
               child: const Icon(
                 Icons.flash_on_rounded,
-                color: Color(0xFF6E7640),
+                color: Color(0xFFB08B1E),
                 size: 22,
               ),
             ),
@@ -222,12 +222,12 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFFEEEEEE)),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
@@ -238,7 +238,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
                 color: Color(0xFFFFF8E1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: const Color(0xFF6E7640), size: 22),
+              child: Icon(icon, color: const Color(0xFFB08B1E), size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -311,12 +311,11 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6E7640),
+          backgroundColor: const Color(0xFFB08B1E),
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey[200],
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -524,7 +523,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
@@ -547,7 +546,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         children: [
           const Icon(
             Icons.casino_rounded,
-            color: Color(0xFF6E7640),
+            color: Color(0xFFB08B1E),
             size: 20,
           ),
           const SizedBox(width: 10),

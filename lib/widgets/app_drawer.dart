@@ -150,37 +150,39 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(double topPadding) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
-        color: Color(0xFF6E7640),
-      ),
-      padding: EdgeInsets.fromLTRB(22, topPadding + 24, 22, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      color: const Color(0xFF6E7640),
+      child: Stack(
         children: [
-          Image.asset(
-            'assets/tournaq_logo.png',
-            height: 52,
-            fit: BoxFit.contain,
-            alignment: Alignment.centerLeft,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'TournaQ',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.3,
-              height: 1.1,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/tournaq_background.png',
+              fit: BoxFit.cover,
+              opacity: const AlwaysStoppedAnimation(0.10),
             ),
           ),
-          const SizedBox(height: 5),
-          Text(
-            'Scoring, Games & Tournament Management',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.75),
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
+          Padding(
+            padding: EdgeInsets.fromLTRB(24, topPadding + 32, 24, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/tournaq_logo.png',
+                  width: 210,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Scoring, Games & Tournament Management',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFFF0D47A),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.2,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

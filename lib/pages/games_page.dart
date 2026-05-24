@@ -164,14 +164,14 @@ class _GamesPageState extends State<GamesPage> {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF6E7640), Color(0xFF8A9940)],
+          colors: [Color(0xFFB08B1E), Color(0xFFC9A030)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6E7640).withValues(alpha: 0.35),
+            color: const Color(0xFFB08B1E).withValues(alpha: 0.28),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -198,7 +198,7 @@ class _GamesPageState extends State<GamesPage> {
             label: const Text('Quick Start Game', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF6E7640),
+              foregroundColor: const Color(0xFFB08B1E),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),

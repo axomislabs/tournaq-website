@@ -178,6 +178,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
               ))
             else
               ...userTeams.map((team) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.group_rounded),
                   title: Text(team.name),
@@ -204,6 +205,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
               ))
             else
               ...userClubs.map((club) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.home_rounded),
                   title: Text(club.name),

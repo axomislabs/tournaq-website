@@ -12,25 +12,28 @@ class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      titleSpacing: 8,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
+      backgroundColor: Colors.transparent,
+      foregroundColor: const Color(0xFFF0D47A),
+      flexibleSpace: Stack(
+        fit: StackFit.expand,
         children: [
+          Container(color: const Color(0xFF6E7640)),
           Image.asset(
-            'assets/tournaq_icon.png',
-            height: 28,
-            width: 28,
-            fit: BoxFit.contain,
-            color: Colors.white,
-            colorBlendMode: BlendMode.srcIn,
-          ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Text(title, overflow: TextOverflow.ellipsis),
+            'assets/tournaq_background.png',
+            fit: BoxFit.cover,
+            opacity: const AlwaysStoppedAnimation(0.10),
           ),
         ],
       ),
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: Text(
+        title,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: Color(0xFFF0D47A),
+          fontSize: 25,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
       actions: actions,
     );
   }
