@@ -5,11 +5,9 @@ import '../widgets/quick_start_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'games_page.dart';
-import 'score_page.dart';
-import 'teams_page.dart';
-import 'tournaments_page.dart';
+import 'scorecard_splash_page.dart';
 
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
 
@@ -19,20 +17,38 @@ class LandingPage extends StatelessWidget {
     required this.onAppStateChanged,
   });
 
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  late AppState _localState;
+
+  @override
+  void initState() {
+    super.initState();
+    _localState = widget.appState;
+  }
+
+  void _updateState(AppState newState) {
+    setState(() => _localState = newState);
+    widget.onAppStateChanged(newState);
+  }
+
   Future<void> _handleQuickGame(BuildContext context) async {
     final result = await showModalBottomSheet<({AppState state, String gameId})>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => QuickStartSheet(appState: appState),
+      builder: (_) => QuickStartSheet(appState: _localState),
     );
     if (result == null || !context.mounted) return;
-    onAppStateChanged(result.state);
+    _updateState(result.state);
     if (!context.mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScorePage(
+      builder: (_) => ScorecardSplashPage(
         appState: result.state,
-        onAppStateChanged: onAppStateChanged,
+        onAppStateChanged: _updateState,
         gameId: result.gameId,
       ),
     ));
@@ -42,8 +58,8 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(
-        appState: appState,
-        onAppStateChanged: onAppStateChanged,
+        appState: _localState,
+        onAppStateChanged: _updateState,
       ),
       appBar: const TournaQAppBar(title: 'Home'),
       body: ScrollablePage(
@@ -51,7 +67,6 @@ class LandingPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildBrand(),
             _buildActionCards(context),
             _buildUpcomingSection(context),
             const SizedBox(height: 36),
@@ -61,46 +76,16 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  // ── Top: Logo + Name + Subtitle ───────────────────────────────────────────
-
-  Widget _buildBrand() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 36, 24, 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/tournaq_logo.png',
-            width: 210,
-            fit: BoxFit.contain,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Scoring, Games & Tournament Management',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFFB08B1E),
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.2,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ── Middle: Large Action Cards ────────────────────────────────────────────
+  // ── Action Cards ──────────────────────────────────────────────────────────
 
   Widget _buildActionCards(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         children: [
           _buildPrimaryCard(
-            title: 'Quick Game',
-            subtitle: 'Jump straight into a game',
+            title: 'Quick Start Game',
+            subtitle: 'Beach Volleyball Match',
             icon: Icons.flash_on_rounded,
             gradientColors: const [Color(0xFFB08B1E), Color(0xFFC9A030)],
             shadowColor: Color(0xFFB08B1E),
@@ -115,8 +100,8 @@ class LandingPage extends StatelessWidget {
             shadowColor: Color(0xFFB08B1E),
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => GamesPage(
-                appState: appState,
-                onAppStateChanged: onAppStateChanged,
+                appState: _localState,
+                onAppStateChanged: _updateState,
               ),
             )),
           ),
@@ -184,6 +169,8 @@ class LandingPage extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.80),
                       fontSize: 13,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -195,7 +182,7 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  // ── Bottom: Upcoming Section ──────────────────────────────────────────────
+  // ── Bottom: Coming Soon Section ───────────────────────────────────────────
 
   Widget _buildUpcomingSection(BuildContext context) {
     return Padding(
@@ -204,7 +191,7 @@ class LandingPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Upcoming',
+            'Coming Soon',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -213,52 +200,32 @@ class LandingPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _buildFeatureCard(
+          _buildAnnouncementCard(
             title: 'Tournament Management',
-            subtitle: '${appState.tournaments.length} tournament(s) active',
+            subtitle: 'Create and manage tournaments with multiple formats.',
             icon: Icons.emoji_events_rounded,
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => TournamentsPage(
-                appState: appState,
-                onAppStateChanged: onAppStateChanged,
-              ),
-            )),
           ),
           const SizedBox(height: 10),
-          _buildFeatureCard(
-            title: 'Teams & Players',
-            subtitle:
-                '${appState.teams.length} team(s) · ${appState.users.length} player(s)',
+          _buildAnnouncementCard(
+            title: 'Player, Team & Club Administration',
+            subtitle: 'Organize players, teams and clubs.',
             icon: Icons.group_rounded,
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => TeamsPage(
-                appState: appState,
-                onAppStateChanged: onAppStateChanged,
-              ),
-            )),
           ),
           const SizedBox(height: 10),
-          _buildFeatureCard(
-            title: 'More Game Modes',
-            subtitle: 'League, Knockout, Round Robin & more',
-            icon: Icons.tune_rounded,
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => TournamentsPage(
-                appState: appState,
-                onAppStateChanged: onAppStateChanged,
-              ),
-            )),
+          _buildAnnouncementCard(
+            title: 'Cloud Services',
+            subtitle: 'Cloud synchronization and connected features.',
+            icon: Icons.cloud_rounded,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureCard({
+  Widget _buildAnnouncementCard({
     required String title,
     required String subtitle,
     required IconData icon,
-    required VoidCallback onTap,
   }) {
     return Card(
       elevation: 0,
@@ -267,53 +234,57 @@ class LandingPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         side: BorderSide(color: Colors.grey.shade200),
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFF8E1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: const Color(0xFF6E7640), size: 22),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFF8E1),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
+              child: Icon(icon, color: const Color(0xFF6E7640), size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
-                      ),
-                    ),
-                  ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8E1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFB0BA78)),
+              ),
+              child: const Text(
+                'Coming Soon',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF6E7640),
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFFBBBBBB),
-                size: 20,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

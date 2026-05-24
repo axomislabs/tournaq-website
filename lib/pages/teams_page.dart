@@ -73,22 +73,6 @@ class _TeamsPageState extends State<TeamsPage> {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  Future<void> _assignPlayer(String teamId) async {
-    final team = _localState.getTeamById(teamId);
-    if (team == null) return;
-    final items = _localState.users
-        .where((u) => !u.teamIds.contains(teamId))
-        .map((u) => (id: u.id, name: u.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign Player', items: items,
-      emptyMessage: 'All players are already in this team.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignUserToTeam(_localState, userId: selected, teamId: teamId));
-    }
-  }
-
   Future<void> _assignTournament(String teamId) async {
     final team = _localState.getTeamById(teamId);
     if (team == null) return;
@@ -247,14 +231,17 @@ class _TeamsPageState extends State<TeamsPage> {
                     icon: const Icon(Icons.more_vert, size: 20),
                     onSelected: (value) {
                       switch (value) {
-                        case 'assign_player': _assignPlayer(team.id);
+                        case 'assign_player':
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
+                          ));
                         case 'assign_tournament': _assignTournament(team.id);
                         case 'assign_club': _assignClub(team.id);
                         case 'delete': _deleteTeam(team.id);
                       }
                     },
                     itemBuilder: (_) => [
-                      actionMenuItem('assign_player', Icons.person_rounded, 'Assign Player'),
+                      actionMenuItem('assign_player', Icons.edit_rounded, 'Edit Players'),
                       actionMenuItem('assign_tournament', Icons.emoji_events_rounded, 'Assign to Tournament'),
                       actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
                       const PopupMenuDivider(),

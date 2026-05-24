@@ -24,7 +24,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    await Future.delayed(const Duration(milliseconds: 2000));
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -39,63 +39,42 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/tournaq_background.png'),
+      backgroundColor: const Color(0xFF3A3E16),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/tournaq_background.png',
             fit: BoxFit.cover,
-            opacity: 0.08,
+            opacity: const AlwaysStoppedAnimation(0.10),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Spacer(flex: 2),
-
-              // Logo
-              Image.asset(
-                'assets/tournaq_logo.png',
-                height: 156,
-                fit: BoxFit.contain,
-              ),
-              const SizedBox(height: 28),
-
-              // Subtitle
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40),
-                child: Text(
-                  'Scoring, Games & Tournament Management',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Color(0xFFB08B1E),
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.1,
-                    height: 1.3,
+          SafeArea(
+            child: Column(
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Image.asset(
+                    'assets/Tournaq_logo_text.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
-              ),
-
-              const Spacer(flex: 3),
-
-              // Loading indicator
-              SizedBox(
-                width: 26,
-                height: 26,
-                child: CircularProgressIndicator(
-                  color: const Color(0xFFB08B1E),
-                  backgroundColor: const Color(0xFFB08B1E).withValues(alpha: 0.15),
-                  strokeWidth: 2.5,
+                const Spacer(),
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFFF0D47A),
+                    backgroundColor:
+                        const Color(0xFFF0D47A).withValues(alpha: 0.2),
+                    strokeWidth: 2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 52),
-            ],
+                const SizedBox(height: 48),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

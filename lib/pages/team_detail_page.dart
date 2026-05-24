@@ -45,20 +45,32 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
   // ── Player ────────────────────────────────────────────────────────────────
 
-  Future<void> _assignPlayer() async {
+  Future<void> _editPlayers() async {
     final team = _team;
     if (team == null) return;
-    final items = _localState.users
-        .where((u) => !u.teamIds.contains(team.id))
-        .map((u) => (id: u.id, name: u.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign Player', items: items,
-      emptyMessage: 'All players are already in this team.',
+    final users = _localState.getUsersForTeam(team.id);
+    final p1Name = users.isNotEmpty ? users[0].name : 'Player 1 ${team.name}';
+    final p2Name = users.length > 1 ? users[1].name : 'Player 2 ${team.name}';
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _EditPlayersSheet(
+        teamName: team.name,
+        initialP1: p1Name,
+        initialP2: p2Name,
+        onSave: (p1, p2) {
+          final ns = AppDataService.updateTeamPlayers(
+            _localState,
+            teamId: widget.teamId,
+            player1Name: p1,
+            player2Name: p2,
+          );
+          _updateState(ns);
+        },
+      ),
     );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignUserToTeam(_localState, userId: selected, teamId: widget.teamId));
-    }
   }
 
   Future<void> _removePlayer(String userId) async {
@@ -182,9 +194,9 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                     const SizedBox(height: 16),
                     Wrap(spacing: 10, runSpacing: 8, children: [
                       ElevatedButton.icon(
-                        onPressed: _assignPlayer,
-                        icon: const Icon(Icons.person_rounded, size: 16),
-                        label: const Text('Add Player'),
+                        onPressed: _editPlayers,
+                        icon: const Icon(Icons.edit_rounded, size: 16),
+                        label: const Text('Edit Players'),
                       ),
                       ElevatedButton.icon(
                         onPressed: _assignTournament,
@@ -285,6 +297,116 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _EditPlayersSheet extends StatefulWidget {
+  final String teamName;
+  final String initialP1;
+  final String initialP2;
+  final void Function(String p1, String p2) onSave;
+
+  const _EditPlayersSheet({
+    required this.teamName,
+    required this.initialP1,
+    required this.initialP2,
+    required this.onSave,
+  });
+
+  @override
+  State<_EditPlayersSheet> createState() => _EditPlayersSheetState();
+}
+
+class _EditPlayersSheetState extends State<_EditPlayersSheet> {
+  late final TextEditingController _p1;
+  late final TextEditingController _p2;
+
+  @override
+  void initState() {
+    super.initState();
+    _p1 = TextEditingController(text: widget.initialP1);
+    _p2 = TextEditingController(text: widget.initialP2);
+  }
+
+  @override
+  void dispose() {
+    _p1.dispose();
+    _p2.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(widget.teamName,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 4),
+            const Text('Edit player names',
+                style: TextStyle(color: Colors.black45, fontSize: 13)),
+            const SizedBox(height: 20),
+            _field('Player 1', _p1),
+            const SizedBox(height: 14),
+            _field('Player 2', _p2),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  final n1 = _p1.text.trim().isEmpty ? widget.initialP1 : _p1.text.trim();
+                  final n2 = _p2.text.trim().isEmpty ? widget.initialP2 : _p2.text.trim();
+                  widget.onSave(n1, n2);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB08B1E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Save Players',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _field(String label, TextEditingController ctrl) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+        const SizedBox(height: 6),
+        TextField(
+          controller: ctrl,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+          textCapitalization: TextCapitalization.words,
+        ),
+      ],
     );
   }
 }

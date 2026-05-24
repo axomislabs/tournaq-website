@@ -14,7 +14,6 @@ class CreateTeamSheet extends StatefulWidget {
 class _CreateTeamSheetState extends State<CreateTeamSheet> {
   final _nameCtrl = TextEditingController();
   TeamScope _scope = TeamScope.temporary;
-  final Set<String> _playerIds = {};
   final Set<String> _tournamentIds = {};
   final Set<String> _clubIds = {};
   final _rng = Random();
@@ -45,11 +44,8 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   void _create() {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
-    var state = AppDataService.createTeam(widget.appState, name: name, scope: _scope);
+    var state = AppDataService.createTeamWithPlayers(widget.appState, name: name, scope: _scope);
     final teamId = state.teams.last.id;
-    for (final id in _playerIds) {
-      state = AppDataService.assignUserToTeam(state, userId: id, teamId: teamId);
-    }
     for (final id in _tournamentIds) {
       state = AppDataService.assignTeamToTournament(state, teamId: teamId, tournamentId: id);
     }
@@ -81,7 +77,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final players = widget.appState.users.map((u) => (id: u.id, name: u.name)).toList();
     final tournaments = widget.appState.tournaments.map((t) => (id: t.id, name: t.name)).toList();
     final clubs = widget.appState.clubs.map((c) => (id: c.id, name: c.name)).toList();
 
@@ -141,7 +136,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
                 onChanged: (v) { if (v != null) setState(() => _scope = v); },
               ),
 
-              _buildAssignSection('Assign Players', players, _playerIds),
               _buildAssignSection('Assign to Tournaments', tournaments, _tournamentIds),
               _buildAssignSection('Assign to Clubs', clubs, _clubIds),
               const SizedBox(height: 24),

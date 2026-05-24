@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 
 import 'pages/splash_page.dart';
+import 'services/local_storage_service.dart';
 import 'state/app_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await LocalStorageService.init();
 
   if (defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.android ||
@@ -14,23 +17,30 @@ void main() async {
     await gma.MobileAds.instance.initialize();
   }
 
-  runApp(const MyApp());
+  final savedState = LocalStorageService.loadAppState();
+  runApp(MyApp(initialState: savedState));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final AppState initialState;
+  const MyApp({super.key, required this.initialState});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  AppState _appState = const AppState();
+  late AppState _appState;
+
+  @override
+  void initState() {
+    super.initState();
+    _appState = widget.initialState;
+  }
 
   void _updateAppState(AppState newState) {
-    setState(() {
-      _appState = newState;
-    });
+    setState(() => _appState = newState);
+    LocalStorageService.saveAppState(newState); // fire-and-forget
   }
 
   @override

@@ -56,4 +56,23 @@ class Team {
       tournamentIds: tournamentIds.where((id) => id != tournamentId).toList(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'userIds': userIds,
+        'tournamentIds': tournamentIds,
+        'scope': scope.name,
+      };
+
+  factory Team.fromJson(Map<String, dynamic> json) => Team(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        userIds: List<String>.from(json['userIds'] as List? ?? []),
+        tournamentIds: List<String>.from(json['tournamentIds'] as List? ?? []),
+        scope: TeamScope.values.firstWhere(
+          (e) => e.name == json['scope'],
+          orElse: () => TeamScope.temporary,
+        ),
+      );
 }

@@ -26,4 +26,18 @@ class GameResult {
       winnerTeamId: winnerTeamId ?? this.winnerTeamId,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'score1': score1,
+        'score2': score2,
+        'targetPoints': targetPoints,
+        'winnerTeamId': winnerTeamId,
+      };
+
+  factory GameResult.fromJson(Map<String, dynamic> json) => GameResult(
+        score1: json['score1'] as int,
+        score2: json['score2'] as int,
+        targetPoints: json['targetPoints'] as int? ?? 15,
+        winnerTeamId: json['winnerTeamId'] as String?,
+      );
 }

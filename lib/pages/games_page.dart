@@ -5,11 +5,11 @@ import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
-import '../widgets/filter_bar.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/quick_start_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import 'score_page.dart';
+import 'scorecard_splash_page.dart';
 
 class GamesPage extends StatefulWidget {
   final AppState appState;
@@ -53,21 +53,9 @@ class _GamesPageState extends State<GamesPage> {
     widget.onAppStateChanged(newState);
   }
 
-  void _clearAll() {
-    _searchCtrl.clear();
-    setState(() {
-      _playerFilter.clear();
-      _teamFilter.clear();
-      _tournamentFilter.clear();
-      _clubFilter.clear();
-      _statusFilter.clear();
-      _sourceFilter.clear();
-    });
-  }
-
   List<Game> get _filteredGames {
     final q = _searchCtrl.text.toLowerCase();
-    return _localState.games.where((game) {
+    return _localState.games.reversed.where((game) {
       if (q.isNotEmpty) {
         final t1 = _localState.getTeamById(game.team1Id)?.name.toLowerCase() ?? '';
         final t2 = _localState.getTeamById(game.team2Id)?.name.toLowerCase() ?? '';
@@ -100,14 +88,26 @@ class _GamesPageState extends State<GamesPage> {
     }).toList();
   }
 
-  bool get _hasActiveFilters =>
-      _searchCtrl.text.isNotEmpty ||
-      _playerFilter.isNotEmpty ||
-      _teamFilter.isNotEmpty ||
-      _tournamentFilter.isNotEmpty ||
-      _clubFilter.isNotEmpty ||
-      _statusFilter.isNotEmpty ||
-      _sourceFilter.isNotEmpty;
+  Future<void> _deleteHistoryData() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete All Match History?'),
+        content: const Text('This will permanently delete all local game records. This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      _updateState(AppDataService.clearLocalHistoryData(_localState));
+    }
+  }
 
   Future<void> _deleteGame(String gameId) async {
     final game = _localState.getGameById(gameId);
@@ -132,13 +132,15 @@ class _GamesPageState extends State<GamesPage> {
     _updateState(result.state);
     if (!mounted) return;
 
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => ScorePage(
-        appState: result.state,
-        onAppStateChanged: _updateState,
-        gameId: result.gameId,
-      ),
-    ));
+    _navigateToScorecard(result.state, result.gameId);
+  }
+
+  void _navigateToScorecard(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    final page = (game != null && !game.hasShownScorecardIntro)
+        ? ScorecardSplashPage(appState: state, onAppStateChanged: _updateState, gameId: gameId)
+        : ScorePage(appState: state, onAppStateChanged: _updateState, gameId: gameId);
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
   }
 
   @override
@@ -184,12 +186,14 @@ class _GamesPageState extends State<GamesPage> {
           const Row(children: [
             Icon(Icons.flash_on_rounded, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text('Quick Start', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+            Text('Quick Start Game', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
           ]),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
-            'Jump into a game instantly — no tournament needed.',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
+            'Beach Volleyball Match',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.95), fontSize: 13, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -211,82 +215,24 @@ class _GamesPageState extends State<GamesPage> {
   Widget _buildGameBrowser() {
     final filtered = _filteredGames;
     final total = _localState.games.length;
-    final countLabel = _hasActiveFilters ? '${filtered.length} of $total' : '$total';
-
-    const statusItems = [
-      (id: 'scheduled', name: 'Scheduled'),
-      (id: 'inProgress', name: 'In Progress'),
-      (id: 'completed', name: 'Completed'),
-    ];
-    const sourceItems = [
-      (id: 'tournament', name: 'Tournament'),
-      (id: 'quickLocal', name: 'Quick Game'),
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(children: [
-          Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFF6E7640)),
-          SizedBox(width: 8),
-          Text('Game Browser', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        Row(children: [
+          const Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFF6E7640)),
+          const SizedBox(width: 8),
+          const Text('Match History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const Spacer(),
+          if (total > 0)
+            TextButton.icon(
+              onPressed: _deleteHistoryData,
+              icon: const Icon(Icons.delete_outline, size: 16),
+              label: const Text('Delete History', style: TextStyle(fontSize: 12)),
+              style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
+            ),
         ]),
         const SizedBox(height: 12),
-        FilterBar(
-          searchController: _searchCtrl,
-          hintText: 'Search by team name...',
-          onClearAll: _clearAll,
-          groups: [
-            FilterGroup(
-              label: 'Player',
-              icon: Icons.person_rounded,
-              items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
-              selectedIds: _playerFilter,
-              onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
-            ),
-            FilterGroup(
-              label: 'Team',
-              icon: Icons.group_rounded,
-              items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
-              selectedIds: _teamFilter,
-              onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
-            ),
-            FilterGroup(
-              label: 'Tournament',
-              icon: Icons.emoji_events_rounded,
-              items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
-              selectedIds: _tournamentFilter,
-              onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
-            ),
-            FilterGroup(
-              label: 'Club',
-              icon: Icons.home_rounded,
-              items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
-              selectedIds: _clubFilter,
-              onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
-            ),
-            FilterGroup(
-              label: 'Status',
-              icon: Icons.pending_actions_rounded,
-              items: statusItems.toList(),
-              selectedIds: _statusFilter,
-              onToggle: (id, v) => setState(() { if (v) { _statusFilter.add(id); } else { _statusFilter.remove(id); } }),
-            ),
-            FilterGroup(
-              label: 'Source',
-              icon: Icons.category_rounded,
-              items: sourceItems.toList(),
-              selectedIds: _sourceFilter,
-              onToggle: (id, v) => setState(() { if (v) { _sourceFilter.add(id); } else { _sourceFilter.remove(id); } }),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Text(
-          '$countLabel ${filtered.length == 1 ? 'game' : 'games'}',
-          style: const TextStyle(fontSize: 13, color: Colors.black45, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
         if (filtered.isEmpty)
           Center(
             child: Padding(
@@ -319,13 +265,7 @@ class _GamesPageState extends State<GamesPage> {
               return GameTile(
                 game: game,
                 appState: _localState,
-                onScoreTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ScorePage(
-                    appState: _localState,
-                    onAppStateChanged: _updateState,
-                    gameId: game.id,
-                  ),
-                )),
+                onScoreTap: () => _navigateToScorecard(_localState, game.id),
                 onDeleteTap: () => _deleteGame(game.id),
               );
             },

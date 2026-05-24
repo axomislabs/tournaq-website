@@ -1,5 +1,7 @@
 import '../models/app_user.dart';
 import '../models/club.dart';
+import '../models/game_set.dart';
+import '../models/game_team_lineup.dart';
 import '../models/team.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
@@ -79,6 +81,23 @@ class AppDataService {
     return state.updateTeam(team);
   }
 
+  /// Creates a team and automatically adds two default placeholder players.
+  static AppState createTeamWithPlayers(
+    AppState state, {
+    required String name,
+    required TeamScope scope,
+  }) {
+    final teamId = AppState.generateId();
+    final p1Id = AppState.generateId();
+    final p2Id = AppState.generateId();
+
+    final p1 = AppUser(id: p1Id, name: 'Player 1 $name', teamIds: [teamId]);
+    final p2 = AppUser(id: p2Id, name: 'Player 2 $name', teamIds: [teamId]);
+    final team = Team(id: teamId, name: name, scope: scope, userIds: [p1Id, p2Id]);
+
+    return state.addUser(p1).addUser(p2).addTeam(team);
+  }
+
   // TEAM-USER ASSIGNMENTS
   static AppState assignUserToTeam(
     AppState state, {
@@ -107,6 +126,47 @@ class AppDataService {
 
     var updatedState = state.updateUser(user.removeTeamId(teamId));
     updatedState = updatedState.updateTeam(team.removeUserId(userId));
+    return updatedState;
+  }
+
+  /// Updates or creates two named players on a team, keeping AppState.users consistent.
+  static AppState updateTeamPlayers(
+    AppState state, {
+    required String teamId,
+    required String player1Name,
+    required String player2Name,
+  }) {
+    final team = state.getTeamById(teamId);
+    if (team == null) return state;
+
+    var updatedState = state;
+    final names = [player1Name, player2Name];
+    final newUserIds = <String>[];
+
+    for (int i = 0; i < 2; i++) {
+      if (i < team.userIds.length) {
+        final userId = team.userIds[i];
+        final user = state.getUserById(userId);
+        if (user != null) {
+          updatedState = updatedState.updateUser(user.copyWith(name: names[i]));
+          newUserIds.add(userId);
+        } else {
+          final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+          updatedState = updatedState.addUser(newUser);
+          newUserIds.add(newUser.id);
+        }
+      } else {
+        final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+        updatedState = updatedState.addUser(newUser);
+        newUserIds.add(newUser.id);
+      }
+    }
+
+    if (newUserIds.length != team.userIds.length ||
+        !newUserIds.every((id) => team.userIds.contains(id))) {
+      updatedState = updatedState.updateTeam(team.copyWith(userIds: newUserIds));
+    }
+
     return updatedState;
   }
 
@@ -188,19 +248,28 @@ class AppDataService {
   }
 
   // GAME OPERATIONS
+
   static AppState createGame(
     AppState state, {
     required String tournamentId,
     required String team1Id,
     required String team2Id,
     required int round,
+    MatchFormat matchFormat = MatchFormat.oneSet,
   }) {
+    final initialSet = GameSet(
+      id: AppState.generateId(),
+      setNumber: 1,
+    );
     final game = Game(
       id: AppState.generateId(),
       tournamentId: tournamentId,
       team1Id: team1Id,
       team2Id: team2Id,
       round: round,
+      matchFormat: matchFormat,
+      sets: [initialSet],
+      status: GameStatus.inProgress,
     );
 
     var updatedState = state.addGame(game);
@@ -237,6 +306,156 @@ class AppDataService {
     return updatedState;
   }
 
+  static AppState createQuickGame(
+    AppState state, {
+    required String team1Id,
+    required String team2Id,
+    MatchFormat matchFormat = MatchFormat.oneSet,
+  }) {
+    final initialSet = GameSet(
+      id: AppState.generateId(),
+      setNumber: 1,
+    );
+    final game = Game(
+      id: AppState.generateId(),
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: 1,
+      source: GameSource.quickLocal,
+      isLocalOnly: true,
+      matchFormat: matchFormat,
+      sets: [initialSet],
+      status: GameStatus.inProgress,
+    );
+    return state.addGame(game);
+  }
+
+  // SET OPERATIONS
+
+  /// Returns the active GameSet for a game, or null if the game doesn't exist.
+  static GameSet? getCurrentSet(AppState state, String gameId) {
+    return state.getGameById(gameId)?.currentSet;
+  }
+
+  /// Updates score1/score2 on the current set without completing it.
+  static AppState updateCurrentSetScore(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.currentSet == null) return state;
+
+    final updatedSet = game.currentSet!.copyWith(score1: score1, score2: score2);
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[game.currentSetIndex] = updatedSet;
+
+    return state.updateGame(game.copyWith(
+      sets: updatedSets,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Marks the current set as completed with final scores, then resolves match outcome.
+  static AppState completeCurrentSet(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.currentSet == null) return state;
+
+    final winner = winnerTeamId ??
+        (score1 > score2
+            ? game.team1Id
+            : score2 > score1
+                ? game.team2Id
+                : null);
+
+    final completedSet = game.currentSet!.copyWith(
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winner,
+      isCompleted: true,
+      completedAt: DateTime.now(),
+    );
+
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[game.currentSetIndex] = completedSet;
+
+    // Resolve match outcome on the updated game
+    return _resolveMatchOutcome(state, game.copyWith(sets: updatedSets));
+  }
+
+  /// Advances to the next set. Adds a new GameSet if it doesn't exist yet.
+  static AppState moveToNextSet(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.isMatchComplete) return state;
+
+    final nextIndex = game.currentSetIndex + 1;
+    if (nextIndex >= game.maxSets) return state;
+
+    var sets = List<GameSet>.from(game.sets);
+    while (sets.length <= nextIndex) {
+      sets.add(GameSet(
+        id: AppState.generateId(),
+        setNumber: sets.length + 1,
+        targetPoints: game.currentSet?.targetPoints ?? 15,
+      ));
+    }
+
+    return state.updateGame(game.copyWith(
+      sets: sets,
+      currentSetIndex: nextIndex,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Upserts a team lineup for a game (replaces existing entry for that teamId).
+  static AppState updateGameLineup(
+    AppState state,
+    String gameId,
+    GameTeamLineup lineup,
+  ) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final updatedLineups = [
+      ...game.lineups.where((l) => l.teamId != lineup.teamId),
+      lineup,
+    ];
+    return state.updateGame(game.copyWith(lineups: updatedLineups));
+  }
+
+  /// Replaces a specific GameSet within a game by id.
+  static AppState updateGameSet(
+    AppState state,
+    String gameId,
+    GameSet updatedSet,
+  ) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final sets =
+        game.sets.map((s) => s.id == updatedSet.id ? updatedSet : s).toList();
+    return state.updateGame(game.copyWith(sets: sets));
+  }
+
+  /// Returns the winning team id based on current sets, or null if undecided.
+  static String? calculateMatchWinner(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return null;
+    if (game.team1SetsWon >= game.setsToWin) return game.team1Id;
+    if (game.team2SetsWon >= game.setsToWin) return game.team2Id;
+    return null;
+  }
+
+  // BACKWARDS COMPATIBILITY — use completeCurrentSet for new code
   static AppState updateGameResult(
     AppState state, {
     required String gameId,
@@ -248,19 +467,198 @@ class AppDataService {
     final game = state.getGameById(gameId);
     if (game == null) return state;
 
+    // If the game has sets, delegate to completeCurrentSet
+    if (game.sets.isNotEmpty) {
+      return completeCurrentSet(
+        state,
+        gameId: gameId,
+        score1: score1,
+        score2: score2,
+        targetPoints: targetPoints,
+        winnerTeamId: winnerTeamId,
+      );
+    }
+
+    // Legacy path for games without sets
     final result = GameResult(
       score1: score1,
       score2: score2,
       targetPoints: targetPoints,
       winnerTeamId: winnerTeamId,
     );
-
-    final updatedGame = game.copyWith(
+    return state.updateGame(game.copyWith(
       result: result,
       status: GameStatus.completed,
+    ));
+  }
+
+  /// Completes a specific set by index without auto-completing the game.
+  static AppState completeSet(
+    AppState state, {
+    required String gameId,
+    required int setIndex,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex >= game.sets.length) return state;
+
+    final set = game.sets[setIndex];
+    final winner = winnerTeamId ??
+        (score1 > score2
+            ? game.team1Id
+            : score2 > score1
+                ? game.team2Id
+                : null);
+
+    final completedSet = GameSet(
+      id: set.id,
+      setNumber: set.setNumber,
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winner,
+      isCompleted: true,
+      completedAt: DateTime.now(),
     );
 
-    return state.updateGame(updatedGame);
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[setIndex] = completedSet;
+
+    return state.updateGame(game.copyWith(
+      sets: updatedSets,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Undoes completion of a specific set by index.
+  static AppState undoSetCompletion(
+    AppState state, {
+    required String gameId,
+    required int setIndex,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex >= game.sets.length) return state;
+
+    final set = game.sets[setIndex];
+    final resetSet = GameSet(
+      id: set.id,
+      setNumber: set.setNumber,
+      score1: set.score1,
+      score2: set.score2,
+      targetPoints: set.targetPoints,
+      winnerTeamId: null,
+      isCompleted: false,
+      completedAt: null,
+    );
+
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[setIndex] = resetSet;
+
+    final winner = _getMatchWinnerFromSets(game.copyWith(sets: updatedSets));
+
+    final finalGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: winner != null ? GameStatus.completed : GameStatus.inProgress,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: updatedSets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: winner,
+      lineups: game.lineups,
+    );
+
+    return state.updateGame(finalGame);
+  }
+
+  /// Changes the active set to setIndex, creating intermediate sets lazily.
+  static AppState setActiveSet(AppState state, String gameId, int setIndex) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex < 0 || setIndex >= game.maxSets) return state;
+
+    var sets = List<GameSet>.from(game.sets);
+    while (sets.length <= setIndex) {
+      sets.add(GameSet(
+        id: AppState.generateId(),
+        setNumber: sets.length + 1,
+        targetPoints: game.currentSet?.targetPoints ?? 15,
+      ));
+    }
+
+    return state.updateGame(game.copyWith(
+      sets: sets,
+      currentSetIndex: setIndex,
+      status: game.status == GameStatus.scheduled
+          ? GameStatus.inProgress
+          : game.status,
+    ));
+  }
+
+  /// Marks the game as completed based on current sets.
+  static AppState completeGame(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final winner = _getMatchWinnerFromSets(game);
+
+    final finalGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: GameStatus.completed,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: game.sets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: winner,
+      lineups: game.lineups,
+    );
+
+    return state.updateGame(finalGame);
+  }
+
+  /// Reverts a completed game back to in-progress, clearing the match winner.
+  static AppState undoGameCompletion(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final resetGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: GameStatus.inProgress,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: game.sets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: null,
+      lineups: game.lineups,
+    );
+
+    return state.updateGame(resetGame);
+  }
+
+  /// Returns the winning team id based on completed sets, or null if undecided.
+  static String? calculateMatchWinnerFromSets(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return null;
+    return _getMatchWinnerFromSets(game);
   }
 
   static AppState deleteGame(AppState state, String gameId) {
@@ -277,22 +675,6 @@ class AppDataService {
       );
     }
     return updatedState;
-  }
-
-  static AppState createQuickGame(
-    AppState state, {
-    required String team1Id,
-    required String team2Id,
-  }) {
-    final game = Game(
-      id: AppState.generateId(),
-      team1Id: team1Id,
-      team2Id: team2Id,
-      round: 1,
-      source: GameSource.quickLocal,
-      isLocalOnly: true,
-    );
-    return state.addGame(game);
   }
 
   // CLUB OPERATIONS
@@ -372,5 +754,57 @@ class AppDataService {
     final club = state.getClubById(clubId);
     if (club == null) return state;
     return state.updateClub(club.removeTournamentId(tournamentId));
+  }
+
+  // PRIVATE HELPERS
+
+  static AppState clearLocalHistoryData(AppState state) {
+    var updated = state.copyWith(games: []);
+
+    final tempTeamIds = state.teams
+        .where((t) => t.scope == TeamScope.temporary)
+        .map((t) => t.id)
+        .toSet();
+
+    // Remove users who only belong to temporary teams
+    for (final user in state.users) {
+      if (user.teamIds.isNotEmpty && user.teamIds.every(tempTeamIds.contains)) {
+        updated = updated.removeUser(user.id);
+      }
+    }
+
+    // Remove temporary teams (and their club/tournament associations)
+    for (final teamId in tempTeamIds) {
+      updated = AppDataService.deleteTeam(updated, teamId);
+    }
+
+    return updated;
+  }
+
+  static String? _getMatchWinnerFromSets(Game game) {
+    if (game.team1SetsWon >= game.setsToWin) return game.team1Id;
+    if (game.team2SetsWon >= game.setsToWin) return game.team2Id;
+    return null;
+  }
+
+  static AppState _resolveMatchOutcome(AppState state, Game game) {
+    String? matchWinner;
+    GameStatus status = game.status;
+
+    if (game.team1SetsWon >= game.setsToWin) {
+      matchWinner = game.team1Id;
+      status = GameStatus.completed;
+    } else if (game.team2SetsWon >= game.setsToWin) {
+      matchWinner = game.team2Id;
+      status = GameStatus.completed;
+    } else if (game.sets.every((s) => s.isCompleted)) {
+      // All sets played but no winner reached setsToWin (e.g. custom format draw)
+      status = GameStatus.completed;
+    }
+
+    return state.updateGame(game.copyWith(
+      matchWinnerTeamId: matchWinner ?? game.matchWinnerTeamId,
+      status: status,
+    ));
   }
 }

@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import '../state/app_state.dart';
-import '../pages/users_page.dart';
-import '../pages/teams_page.dart';
-import '../pages/tournaments_page.dart';
 import '../pages/games_page.dart';
-import '../pages/clubs_page.dart';
 import '../pages/promo_ads_page.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -54,66 +50,6 @@ class AppDrawer extends StatelessWidget {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => GamesPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.emoji_events_rounded,
-                  label: 'Tournaments',
-                  iconBgColor: const Color(0xFFFFF8E1),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TournamentsPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.group_rounded,
-                  label: 'Teams',
-                  iconBgColor: const Color(0xFFFFF8E1),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TeamsPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.person_rounded,
-                  label: 'Players',
-                  iconBgColor: const Color(0xFFFFF8E1),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => UsersPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.shield_rounded,
-                  label: 'Clubs',
-                  iconBgColor: const Color(0xFFFFF8E1),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ClubsPage(
                         appState: appState,
                         onAppStateChanged: onAppStateChanged,
                       ),
