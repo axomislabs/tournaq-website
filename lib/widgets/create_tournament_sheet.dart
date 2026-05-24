@@ -112,7 +112,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
     // Apply hybrid groups
     if (_mode == TournamentModeType.hybrid && _hybridGroups.isNotEmpty) {
       final t = state.getTournamentById(tournamentId)!;
-      state = state.updateTournament(t.copyWith(hybridGroups: _hybridGroups));
+      state = AppDataService.updateTournament(state, t.copyWith(hybridGroups: _hybridGroups));
     }
 
     // Generate random teams

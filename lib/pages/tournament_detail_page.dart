@@ -151,7 +151,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       ),
     );
     if (result != null && mounted) {
-      _updateState(_localState.updateTournament(tournament.copyWith(hybridGroups: result)));
+      _updateState(AppDataService.updateTournament(_localState, tournament.copyWith(hybridGroups: result)));
     }
   }
 
@@ -335,7 +335,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                         child: ListTile(
                           title: Text(team.name),
                           subtitle: Text(
-                            '${_localState.getUsersForTeam(team.id).length} member(s)',
+                            '${_localState.getUsersForTeam(team.id).length} player(s)',
                           ),
                           onTap: () {
                             Navigator.of(context).push(

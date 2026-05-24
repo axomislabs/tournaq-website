@@ -51,7 +51,6 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text('Hybrid Mode Setup'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

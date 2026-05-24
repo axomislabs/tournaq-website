@@ -238,7 +238,7 @@ class _TeamsPageState extends State<TeamsPage> {
                 final tournamentCount = _localState.getTeamTournaments(team.id).length;
                 return ListTile(
                   title: Text(team.name),
-                  subtitle: Text('$memberCount member(s) • $tournamentCount tournament(s)'),
+                  subtitle: Text('$memberCount player(s) • $tournamentCount tournament(s)'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
                   )),
