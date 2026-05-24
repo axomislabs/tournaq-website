@@ -68,12 +68,80 @@ class _MyAppState extends State<MyApp> {
         colorScheme: colorScheme,
         scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
+
+        // ── AppBar ─────────────────────────────────────────────────────────
         appBarTheme: AppBarTheme(
           backgroundColor: colorScheme.inversePrimary,
           foregroundColor: colorScheme.onInverseSurface,
+          elevation: 0,
+          scrolledUnderElevation: 2,
         ),
-        drawerTheme: DrawerThemeData(
-          backgroundColor: colorScheme.primaryContainer,
+
+        // ── Drawer ─────────────────────────────────────────────────────────
+        drawerTheme: const DrawerThemeData(
+          backgroundColor: Colors.white,
+        ),
+
+        // ── Cards ──────────────────────────────────────────────────────────
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.08),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          margin: EdgeInsets.zero,
+        ),
+
+        // ── Elevated Button (primary) ───────────────────────────────────────
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF6E7640),
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: Colors.grey.shade200,
+            disabledForegroundColor: Colors.grey.shade400,
+            elevation: 0,
+            shadowColor: Colors.transparent,
+            side: const BorderSide(color: Color(0xFFB08B1E), width: 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+
+        // ── Outlined Button (secondary) ────────────────────────────────────
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF6E7640),
+            side: const BorderSide(color: Color(0xFF6E7640), width: 1.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+
+        // ── Text Button ────────────────────────────────────────────────────
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFF6E7640),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
         ),
       ),
       home: LandingPage(
