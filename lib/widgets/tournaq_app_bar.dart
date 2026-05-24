@@ -21,6 +21,8 @@ class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
             height: 28,
             width: 28,
             fit: BoxFit.contain,
+            color: Colors.white,
+            colorBlendMode: BlendMode.srcIn,
           ),
           const SizedBox(width: 10),
           Flexible(
