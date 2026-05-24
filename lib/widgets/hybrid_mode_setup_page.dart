@@ -91,7 +91,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                       color: Colors.transparent,
                       child: Chip(
                         label: Text(_label(mode)),
-                        backgroundColor: const Color(0xFFD9A520),
+                        backgroundColor: const Color(0xFF6E7640),
                         labelStyle: const TextStyle(color: Colors.white, fontSize: 13),
                       ),
                     ),
@@ -121,7 +121,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                 icon: const Icon(Icons.add_rounded, size: 16),
                 label: const Text('Add Group'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD9A520),
+                  backgroundColor: const Color(0xFF6E7640),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -161,11 +161,11 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
             Row(children: [
               Container(
                 width: 26, height: 26,
-                decoration: const BoxDecoration(color: Color(0xFFFFF3CC), shape: BoxShape.circle),
+                decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
                 child: Center(
                   child: Text(
                     '${gi + 1}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFD9A520)),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6E7640)),
                   ),
                 ),
               ),
@@ -191,9 +191,9 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                   padding: const EdgeInsets.all(12),
                   constraints: const BoxConstraints(minHeight: 60),
                   decoration: BoxDecoration(
-                    color: isHovering ? const Color(0xFFFFF3CC) : Colors.grey[50],
+                    color: isHovering ? const Color(0xFFFFF8E1) : Colors.grey[50],
                     border: Border.all(
-                      color: isHovering ? const Color(0xFFD9A520) : Colors.grey[300]!,
+                      color: isHovering ? const Color(0xFF6E7640) : Colors.grey[300]!,
                       width: isHovering ? 2 : 1,
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -213,8 +213,8 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                           children: [
                             ...group.asMap().entries.map((e) => Chip(
                               label: Text(_label(e.value)),
-                              backgroundColor: const Color(0xFFFFF3CC),
-                              deleteIconColor: const Color(0xFFD9A520),
+                              backgroundColor: const Color(0xFFFFF8E1),
+                              deleteIconColor: const Color(0xFF6E7640),
                               labelStyle: const TextStyle(fontSize: 13),
                               onDeleted: () => _removeFromGroup(gi, e.key),
                             )),
@@ -223,7 +223,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                                 opacity: 0.5,
                                 child: Chip(
                                   label: Text(_label(candidateData.first!)),
-                                  backgroundColor: const Color(0xFFFFF3CC),
+                                  backgroundColor: const Color(0xFFFFF8E1),
                                   labelStyle: const TextStyle(fontSize: 13),
                                 ),
                               ),

@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
         );
 
     return MaterialApp(
-      title: 'Tournamaster',
+      title: 'TournaQ',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: colorScheme,

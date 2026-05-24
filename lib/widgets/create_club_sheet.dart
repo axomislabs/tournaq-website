@@ -47,8 +47,8 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
         children: items.map((item) => FilterChip(
           label: Text(item.name),
           selected: selected.contains(item.id),
-          selectedColor: const Color(0xFFFFF3CC),
-          checkmarkColor: const Color(0xFFD9A520),
+          selectedColor: const Color(0xFFFFF8E1),
+          checkmarkColor: const Color(0xFF6E7640),
           onSelected: (v) => setState(() {
             if (v) { selected.add(item.id); } else { selected.remove(item.id); }
           }),
@@ -81,8 +81,8 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Row(children: [
                 Container(padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(color: Color(0xFFFFF3CC), shape: BoxShape.circle),
-                  child: const Icon(Icons.shield_rounded, color: Color(0xFFD9A520), size: 22)),
+                  decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
+                  child: const Icon(Icons.shield_rounded, color: Color(0xFF6E7640), size: 22)),
                 const SizedBox(width: 12),
                 const Text('Create Club', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
               ]),
@@ -110,7 +110,7 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
                   icon: const Icon(Icons.check_rounded),
                   label: const Text('Create Club', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD9A520),
+                    backgroundColor: const Color(0xFF6E7640),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[200],
                     padding: const EdgeInsets.symmetric(vertical: 16),

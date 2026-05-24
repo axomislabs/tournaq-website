@@ -168,12 +168,12 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF3CC),
+                color: Color(0xFFFFF8E1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.flash_on_rounded,
-                color: Color(0xFFD9A520),
+                color: Color(0xFF6E7640),
                 size: 22,
               ),
             ),
@@ -235,10 +235,10 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
               width: 44,
               height: 44,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF3CC),
+                color: Color(0xFFFFF8E1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: const Color(0xFFD9A520), size: 22),
+              child: Icon(icon, color: const Color(0xFF6E7640), size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -311,7 +311,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFD9A520),
+          backgroundColor: const Color(0xFF6E7640),
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey[200],
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -538,7 +538,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF3CC),
+        color: const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE8C84E), width: 1.5),
       ),
@@ -547,7 +547,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         children: [
           const Icon(
             Icons.casino_rounded,
-            color: Color(0xFFD9A520),
+            color: Color(0xFF6E7640),
             size: 20,
           ),
           const SizedBox(width: 10),

@@ -175,7 +175,7 @@ class _TeamsPageState extends State<TeamsPage> {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Create Team', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD9A520),
+              backgroundColor: const Color(0xFF6E7640),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

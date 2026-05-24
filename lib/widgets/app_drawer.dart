@@ -41,7 +41,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.home_rounded,
                   label: 'Home',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () =>
                       Navigator.of(context).popUntil((r) => r.isFirst),
                 ),
@@ -49,7 +49,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.sports_basketball_rounded,
                   label: 'Games',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -64,7 +64,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.emoji_events_rounded,
                   label: 'Tournaments',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -79,7 +79,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.group_rounded,
                   label: 'Teams',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -94,7 +94,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.person_rounded,
                   label: 'Players',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -109,7 +109,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.shield_rounded,
                   label: 'Clubs',
-                  iconBgColor: const Color(0xFFFFF3CC),
+                  iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -150,41 +150,36 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(double topPadding) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFD9A520),
-      padding: EdgeInsets.fromLTRB(22, topPadding + 28, 22, 28),
+      decoration: const BoxDecoration(
+        color: Color(0xFF6E7640),
+      ),
+      padding: EdgeInsets.fromLTRB(22, topPadding + 24, 22, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFE57F),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.emoji_events_rounded,
-              color: Colors.black87,
-              size: 34,
-            ),
+          Image.asset(
+            'assets/tournaq_logo.png',
+            height: 52,
+            fit: BoxFit.contain,
+            alignment: Alignment.centerLeft,
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           const Text(
-            'Tournamaster',
+            'TournaQ',
             style: TextStyle(
-              color: Colors.black,
-              fontSize: 32,
+              color: Colors.white,
+              fontSize: 30,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.3,
               height: 1.1,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
-            'Manage your Tournaments',
+            'Scoring, Games & Tournament Management',
             style: TextStyle(
-              color: Colors.black.withValues(alpha: 0.55),
-              fontSize: 16,
+              color: Colors.white.withValues(alpha: 0.75),
+              fontSize: 11,
               fontWeight: FontWeight.w400,
             ),
           ),

@@ -24,62 +24,126 @@ class LandingPage extends StatelessWidget {
         onAppStateChanged: onAppStateChanged,
       ),
       appBar: AppBar(
-        title: const Text('Tournamaster'),
+        title: const Text('TournaQ'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ScrollablePage(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Welcome to Tournamaster',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            _buildHero(context),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildStatsCard(context),
+                  const SizedBox(height: 24),
+                  _buildQuickActionsSection(context),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'Organize and manage tournaments with ease.',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            _buildStatsCard(context),
-            const SizedBox(height: 20),
-            _buildQuickActionsSection(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHero(BuildContext context) {
+    return Stack(
+      children: [
+        SizedBox(
+          height: 220,
+          width: double.infinity,
+          child: Image.asset(
+            'assets/tournaq_background.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+        Container(
+          height: 220,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                const Color(0xFF6E7640).withValues(alpha: 0.80),
+                const Color(0xFF4A5028).withValues(alpha: 0.92),
+              ],
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Image.asset(
+                  'assets/tournaq_logo.png',
+                  height: 44,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.centerLeft,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'TournaQ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Scoring, Games & Tournament Management',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.82),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildStatsCard(BuildContext context) {
     return Card(
-      color: Theme.of(context).colorScheme.primaryContainer,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: const Color(0xFF6E7640).withValues(alpha: 0.18)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Text(
-              'Statistics',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            _buildStatItem(
+              label: 'Teams',
+              value: appState.teams.length.toString(),
+              icon: Icons.group_rounded,
             ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  label: 'Teams',
-                  value: appState.teams.length.toString(),
-                ),
-                _buildStatItem(
-                  label: 'Tournaments',
-                  value: appState.tournaments.length.toString(),
-                ),
-                _buildStatItem(
-                  label: 'Games',
-                  value: appState.games.length.toString(),
-                ),
-              ],
+            _buildDivider(),
+            _buildStatItem(
+              label: 'Tournaments',
+              value: appState.tournaments.length.toString(),
+              icon: Icons.emoji_events_rounded,
+            ),
+            _buildDivider(),
+            _buildStatItem(
+              label: 'Games',
+              value: appState.games.length.toString(),
+              icon: Icons.sports_basketball_rounded,
             ),
           ],
         ),
@@ -87,14 +151,37 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem({required String label, required String value}) {
+  Widget _buildDivider() => Container(
+    height: 36,
+    width: 1,
+    color: const Color(0xFF6E7640).withValues(alpha: 0.15),
+  );
+
+  Widget _buildStatItem({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
     return Column(
       children: [
+        Icon(icon, size: 20, color: const Color(0xFF6E7640)),
+        const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF6E7640),
+          ),
         ),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            color: Colors.black45,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
@@ -105,51 +192,49 @@ class LandingPage extends StatelessWidget {
       children: [
         const Text(
           'Quick Actions',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
         ),
         const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => TeamsPage(
-                  appState: appState,
-                  onAppStateChanged: onAppStateChanged,
-                ),
-              ),
-            );
-          },
-          child: const Text('Manage Teams'),
+        _buildActionButton(
+          context,
+          label: 'Manage Teams',
+          icon: Icons.group_rounded,
+          page: TeamsPage(appState: appState, onAppStateChanged: onAppStateChanged),
         ),
-        const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => TournamentsPage(
-                  appState: appState,
-                  onAppStateChanged: onAppStateChanged,
-                ),
-              ),
-            );
-          },
-          child: const Text('View Tournaments'),
+        const SizedBox(height: 10),
+        _buildActionButton(
+          context,
+          label: 'View Tournaments',
+          icon: Icons.emoji_events_rounded,
+          page: TournamentsPage(appState: appState, onAppStateChanged: onAppStateChanged),
         ),
-        const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => GamesPage(
-                  appState: appState,
-                  onAppStateChanged: onAppStateChanged,
-                ),
-              ),
-            );
-          },
-          child: const Text('View Games'),
+        const SizedBox(height: 10),
+        _buildActionButton(
+          context,
+          label: 'View Games',
+          icon: Icons.sports_basketball_rounded,
+          page: GamesPage(appState: appState, onAppStateChanged: onAppStateChanged),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButton(BuildContext context, {
+    required String label,
+    required IconData icon,
+    required Widget page,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => page)),
+      icon: Icon(icon, size: 18),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF6E7640),
+        side: const BorderSide(color: Color(0xFF6E7640), width: 1.5),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        alignment: Alignment.centerLeft,
+      ),
     );
   }
 }

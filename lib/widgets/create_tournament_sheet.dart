@@ -181,8 +181,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               Row(children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(color: Color(0xFFFFF3CC), shape: BoxShape.circle),
-                  child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFD9A520), size: 22),
+                  decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
+                  child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF6E7640), size: 22),
                 ),
                 const SizedBox(width: 12),
                 const Text('Create Tournament', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
@@ -195,9 +195,9 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                 GestureDetector(
                   onTap: _suggestName,
                   child: const Row(children: [
-                    Icon(Icons.shuffle_rounded, size: 14, color: Color(0xFFD9A520)),
+                    Icon(Icons.shuffle_rounded, size: 14, color: Color(0xFF6E7640)),
                     SizedBox(width: 4),
-                    Text('Suggest', style: TextStyle(fontSize: 12, color: Color(0xFFD9A520), fontWeight: FontWeight.w600)),
+                    Text('Suggest', style: TextStyle(fontSize: 12, color: Color(0xFF6E7640), fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ]),
@@ -240,8 +240,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                         : '${_hybridGroups.length} group${_hybridGroups.length == 1 ? '' : 's'} configured — tap to edit',
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFD9A520),
-                    side: const BorderSide(color: Color(0xFFD9A520)),
+                    foregroundColor: const Color(0xFF6E7640),
+                    side: const BorderSide(color: Color(0xFF6E7640)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -279,8 +279,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                 children: [0, 4, 6, 8, 10, 12, 16].map((n) => ChoiceChip(
                   label: Text(n == 0 ? 'None' : '$n'),
                   selected: _randomTeamCount == n,
-                  selectedColor: const Color(0xFFFFF3CC),
-                  checkmarkColor: const Color(0xFFD9A520),
+                  selectedColor: const Color(0xFFFFF8E1),
+                  checkmarkColor: const Color(0xFF6E7640),
                   onSelected: (_) => setState(() => _randomTeamCount = n),
                 )).toList(),
               ),
@@ -304,8 +304,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                   children: clubs.map((c) => FilterChip(
                     label: Text(c.name),
                     selected: _tournamentClubIds.contains(c.id),
-                    selectedColor: const Color(0xFFFFF3CC),
-                    checkmarkColor: const Color(0xFFD9A520),
+                    selectedColor: const Color(0xFFFFF8E1),
+                    checkmarkColor: const Color(0xFF6E7640),
                     onSelected: (v) => setState(() {
                       if (v) { _tournamentClubIds.add(c.id); } else { _tournamentClubIds.remove(c.id); }
                     }),
@@ -322,7 +322,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                   icon: const Icon(Icons.check_rounded),
                   label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD9A520),
+                    backgroundColor: const Color(0xFF6E7640),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.grey[200],
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -344,8 +344,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         FilterChip(
           label: const Text('All clubs'),
           selected: _clubFilterId == null,
-          selectedColor: const Color(0xFFFFF3CC),
-          checkmarkColor: const Color(0xFFD9A520),
+          selectedColor: const Color(0xFFFFF8E1),
+          checkmarkColor: const Color(0xFF6E7640),
           onSelected: (_) => setState(() => _clubFilterId = null),
         ),
         ...clubs.map((c) => Padding(
@@ -353,8 +353,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           child: FilterChip(
             label: Text(c.name),
             selected: _clubFilterId == c.id,
-            selectedColor: const Color(0xFFFFF3CC),
-            checkmarkColor: const Color(0xFFD9A520),
+            selectedColor: const Color(0xFFFFF8E1),
+            checkmarkColor: const Color(0xFF6E7640),
             onSelected: (_) => setState(() => _clubFilterId = _clubFilterId == c.id ? null : c.id),
           ),
         )),
@@ -382,7 +382,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               color: Colors.transparent,
               child: Chip(
                 label: Text(t.name),
-                backgroundColor: const Color(0xFFD9A520),
+                backgroundColor: const Color(0xFF6E7640),
                 labelStyle: const TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
@@ -412,9 +412,9 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
             padding: const EdgeInsets.all(12),
             constraints: const BoxConstraints(minHeight: 56),
             decoration: BoxDecoration(
-              color: isHovering ? const Color(0xFFFFF3CC) : Colors.grey[50],
+              color: isHovering ? const Color(0xFFFFF8E1) : Colors.grey[50],
               border: Border.all(
-                color: isHovering ? const Color(0xFFD9A520) : Colors.grey[300]!,
+                color: isHovering ? const Color(0xFF6E7640) : Colors.grey[300]!,
                 width: isHovering ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -439,8 +439,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                       children: [
                         ...allSelected.map((t) => Chip(
                           label: Text(t.name),
-                          backgroundColor: const Color(0xFFFFF3CC),
-                          deleteIconColor: const Color(0xFFD9A520),
+                          backgroundColor: const Color(0xFFFFF8E1),
+                          deleteIconColor: const Color(0xFF6E7640),
                           labelStyle: const TextStyle(fontSize: 13),
                           onDeleted: () => setState(() => _selectedTeamIds.remove(t.id)),
                         )),
@@ -451,7 +451,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                               label: Text(
                                 widget.appState.getTeamById(candidateData.first!)?.name ?? '',
                               ),
-                              backgroundColor: const Color(0xFFFFF3CC),
+                              backgroundColor: const Color(0xFFFFF8E1),
                               labelStyle: const TextStyle(fontSize: 13),
                             ),
                           ),
@@ -477,8 +477,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           spacing: 8, runSpacing: 6,
           children: allSelected.map((t) => Chip(
             label: Text(t.name),
-            backgroundColor: const Color(0xFFFFF3CC),
-            deleteIconColor: const Color(0xFFD9A520),
+            backgroundColor: const Color(0xFFFFF8E1),
+            deleteIconColor: const Color(0xFF6E7640),
             labelStyle: const TextStyle(fontSize: 13),
             onDeleted: () => setState(() => _selectedTeamIds.remove(t.id)),
           )).toList(),
@@ -510,7 +510,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           title: Text(t.name, style: const TextStyle(fontSize: 14)),
           subtitle: Text(t.scope.name, style: const TextStyle(fontSize: 12)),
           value: _selectedTeamIds.contains(t.id),
-          activeColor: const Color(0xFFD9A520),
+          activeColor: const Color(0xFF6E7640),
           controlAffinity: ListTileControlAffinity.leading,
           contentPadding: EdgeInsets.zero,
           onChanged: (v) => setState(() {
@@ -530,7 +530,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         contentPadding: EdgeInsets.zero,
         title: const Text('No club', style: TextStyle(fontSize: 14)),
         value: 'none',
-        activeColor: const Color(0xFFD9A520),
+        activeColor: const Color(0xFF6E7640),
       ),
       if (clubs.isNotEmpty)
         RadioListTile<String>(
@@ -538,7 +538,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           contentPadding: EdgeInsets.zero,
           title: const Text('Add to existing club', style: TextStyle(fontSize: 14)),
           value: 'existing',
-          activeColor: const Color(0xFFD9A520),
+          activeColor: const Color(0xFF6E7640),
         ),
       if (_randomClubMode == 'existing' && clubs.isNotEmpty)
         Padding(
@@ -562,7 +562,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         contentPadding: EdgeInsets.zero,
         title: const Text('Create new club', style: TextStyle(fontSize: 14)),
         value: 'new',
-        activeColor: const Color(0xFFD9A520),
+        activeColor: const Color(0xFF6E7640),
       ),
       if (_randomClubMode == 'new')
         Padding(
@@ -584,7 +584,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               onTap: () => setState(() => _newClubCtrl.text = _clubSuggestions[_rng.nextInt(_clubSuggestions.length)]),
               child: const Tooltip(
                 message: 'Suggest a name',
-                child: Icon(Icons.shuffle_rounded, size: 20, color: Color(0xFFD9A520)),
+                child: Icon(Icons.shuffle_rounded, size: 20, color: Color(0xFF6E7640)),
               ),
             ),
           ]),

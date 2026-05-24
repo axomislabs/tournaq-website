@@ -42,16 +42,16 @@ class GameTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3CC),
+                  color: const Color(0xFFFFF8E1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE8C84E)),
+                  border: Border.all(color: const Color(0xFFB0BA78)),
                 ),
                 child: const Text(
                   'Quick',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFFD9A520),
+                    color: Color(0xFF6E7640),
                   ),
                 ),
               ),
