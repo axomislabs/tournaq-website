@@ -39,8 +39,10 @@ class AppDrawer extends StatelessWidget {
                   icon: Icons.home_rounded,
                   label: 'Home',
                   iconBgColor: const Color(0xFFFFF8E1),
-                  onTap: () =>
-                      Navigator.of(context).popUntil((r) => r.isFirst),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).popUntil((r) => r.isFirst);
+                  },
                 ),
                 _buildNavItem(
                   context,
@@ -124,7 +126,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  'Scoring, Games & Tournament Management',
+                  'Scoring, Games and Tournament Management',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFFF0D47A),

@@ -134,13 +134,10 @@ class ContactPage extends StatelessWidget {
   Widget _buildBranding() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Image.asset(
-            'assets/Tournaq_logo_text.png',
-            fit: BoxFit.contain,
-            height: 60,
-          ),
+        Image.asset(
+          'assets/tournaq_icon.png',
+          width: 80,
+          height: 80,
         ),
         const SizedBox(height: 12),
         const Text(
@@ -154,7 +151,7 @@ class ContactPage extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         const Text(
-          'Quick scoring for sports and tournaments',
+          'Scoring, Games and Tournament Management',
           style: TextStyle(
             fontSize: 13,
             color: Colors.black54,
