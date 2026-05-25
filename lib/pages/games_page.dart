@@ -7,7 +7,6 @@ import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/quick_start_sheet.dart';
-import '../widgets/scrollable_page.dart';
 import 'score_page.dart';
 import 'scorecard_splash_page.dart';
 
@@ -145,19 +144,82 @@ class _GamesPageState extends State<GamesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filtered = _filteredGames;
+    final total = _localState.games.length;
+
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: const TournaQAppBar(title: 'Games'),
-      body: ScrollablePage(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildQuickStartCard(),
-            const SizedBox(height: 28),
-            _buildGameBrowser(),
-          ],
-        ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Fixed: Quick Start card
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: _buildQuickStartCard(),
+          ),
+          const SizedBox(height: 20),
+          // Fixed: Match History header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(children: [
+              const Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFF6E7640)),
+              const SizedBox(width: 8),
+              const Text('Match History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              const Spacer(),
+              if (total > 0)
+                TextButton.icon(
+                  onPressed: _deleteHistoryData,
+                  icon: const Icon(Icons.delete_outline, size: 16),
+                  label: const Text('Delete History', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
+                ),
+            ]),
+          ),
+          const SizedBox(height: 8),
+          // Scrollable: games list
+          Expanded(
+            child: filtered.isEmpty
+                ? _buildEmptyState(total)
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final game = filtered[index];
+                      return GameTile(
+                        game: game,
+                        appState: _localState,
+                        onScoreTap: () => _navigateToScorecard(_localState, game.id),
+                        onDeleteTap: () => _deleteGame(game.id),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(int total) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+        child: Column(children: [
+          const Icon(Icons.sports_score_rounded, size: 48, color: Colors.black26),
+          const SizedBox(height: 12),
+          Text(
+            total == 0 ? 'No games yet' : 'No games match the current filters',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black45),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            total == 0
+                ? 'Use Quick Start above or create a tournament.'
+                : 'Try clearing some filters.',
+            style: const TextStyle(color: Colors.black38, fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
+        ]),
       ),
     );
   }
@@ -212,65 +274,4 @@ class _GamesPageState extends State<GamesPage> {
     );
   }
 
-  Widget _buildGameBrowser() {
-    final filtered = _filteredGames;
-    final total = _localState.games.length;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(children: [
-          const Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFF6E7640)),
-          const SizedBox(width: 8),
-          const Text('Match History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const Spacer(),
-          if (total > 0)
-            TextButton.icon(
-              onPressed: _deleteHistoryData,
-              icon: const Icon(Icons.delete_outline, size: 16),
-              label: const Text('Delete History', style: TextStyle(fontSize: 12)),
-              style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
-            ),
-        ]),
-        const SizedBox(height: 12),
-        if (filtered.isEmpty)
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Column(children: [
-                const Icon(Icons.sports_score_rounded, size: 48, color: Colors.black26),
-                const SizedBox(height: 12),
-                Text(
-                  total == 0 ? 'No games yet' : 'No games match the current filters',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black45),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  total == 0
-                      ? 'Use Quick Start above or create a tournament.'
-                      : 'Try clearing some filters.',
-                  style: const TextStyle(color: Colors.black38, fontSize: 13),
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-            ),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: filtered.length,
-            itemBuilder: (context, index) {
-              final game = filtered[index];
-              return GameTile(
-                game: game,
-                appState: _localState,
-                onScoreTap: () => _navigateToScorecard(_localState, game.id),
-                onDeleteTap: () => _deleteGame(game.id),
-              );
-            },
-          ),
-      ],
-    );
-  }
 }

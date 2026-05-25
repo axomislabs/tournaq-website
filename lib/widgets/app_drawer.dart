@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../state/app_state.dart';
+import '../pages/contact_page.dart';
 import '../pages/games_page.dart';
 import '../pages/promo_ads_page.dart';
 
@@ -44,7 +45,7 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.sports_basketball_rounded,
-                  label: 'Games',
+                  label: 'Quick Start Game',
                   iconBgColor: const Color(0xFFFFF8E1),
                   onTap: () {
                     Navigator.of(context).pop();
@@ -63,12 +64,27 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.local_offer_rounded,
-                  label: 'Promo & Updates',
+                  label: 'Promo & Ads',
                   iconBgColor: const Color(0xFFF0F0F0),
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => PromoAdsPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
+                      ),
+                    ));
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.contact_support_rounded,
+                  label: 'Contact & About',
+                  iconBgColor: const Color(0xFFEEF2E6),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ContactPage(
                         appState: appState,
                         onAppStateChanged: onAppStateChanged,
                       ),

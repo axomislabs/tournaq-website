@@ -164,7 +164,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         appState: widget.appState,
         onAppStateChanged: widget.onAppStateChanged,
       ),
-      appBar: const TournaQAppBar(title: 'Promo & Updates'),
+      appBar: const TournaQAppBar(title: 'Promo & Ads'),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: _adsSupported ? _buildAdsContent() : _buildUnsupportedContent(),

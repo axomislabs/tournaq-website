@@ -465,7 +465,7 @@ class _ScorePageState extends State<ScorePage> {
       runSpacing: 6,
       children: [
         const Text(
-          'Target:',
+          'Target score:',
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         for (final v in [11, 15, 21])
