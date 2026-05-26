@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../config/contact_links.dart';
 import '../state/app_state.dart';
+import '../utils/url_utils.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -22,18 +23,14 @@ class ContactPage extends StatelessWidget {
     required this.onAppStateChanged,
   });
 
-  Future<void> _launchInstagram(BuildContext context) async {
-    final uri = Uri.parse(
-      'https://www.instagram.com/tournaq?igsh=MWd5cThxOGh6dmdnMQ%3D%3D&utm_source=qr',
-    );
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Instagram')),
-        );
-      }
-    }
-  }
+  Future<void> _launchInstagram(BuildContext context) =>
+      openExternalUrl(context, ContactLinks.instagram);
+
+  Future<void> _launchEmail(BuildContext context) =>
+      openEmail(context, ContactLinks.contactEmail);
+
+  Future<void> _launchFeedback(BuildContext context) =>
+      openExternalUrl(context, ContactLinks.feedbackForm);
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +54,14 @@ class ContactPage extends StatelessWidget {
               subtitle: '@tournaq',
               onTap: () => _launchInstagram(context),
             ),
-            _buildDisabledCard(
+            _buildClickableCard(
+              context,
               icon: Icons.email_rounded,
               iconBg: _kGoldLight,
               iconColor: _kGold,
               title: 'Email',
-              subtitle: 'Coming Soon',
+              subtitle: ContactLinks.contactEmail,
+              onTap: () => _launchEmail(context),
             ),
             _buildDisabledCard(
               icon: Icons.language_rounded,
@@ -74,26 +73,32 @@ class ContactPage extends StatelessWidget {
           ]),
           const SizedBox(height: 20),
           _buildSection('Support', Icons.support_agent_rounded, [
-            _buildDisabledCard(
+            _buildClickableCard(
+              context,
               icon: Icons.feedback_rounded,
               iconBg: _kGoldLight,
               iconColor: _kGold,
               title: 'Send Feedback',
-              subtitle: 'Coming Soon',
+              subtitle: 'Share your thoughts',
+              onTap: () => _launchFeedback(context),
             ),
-            _buildDisabledCard(
+            _buildClickableCard(
+              context,
               icon: Icons.bug_report_rounded,
               iconBg: const Color(0xFFFFEBEE),
               iconColor: Colors.red.shade400,
               title: 'Report Issue',
-              subtitle: 'Coming Soon',
+              subtitle: 'Let us know what went wrong',
+              onTap: () => _launchFeedback(context),
             ),
-            _buildDisabledCard(
+            _buildClickableCard(
+              context,
               icon: Icons.lightbulb_rounded,
               iconBg: _kOliveLight,
               iconColor: _kOlive,
               title: 'Feature Request',
-              subtitle: 'Coming Soon',
+              subtitle: 'Suggest something new',
+              onTap: () => _launchFeedback(context),
             ),
           ]),
           const SizedBox(height: 20),

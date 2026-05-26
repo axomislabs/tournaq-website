@@ -4,6 +4,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/quick_start_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
+import 'coming_soon_page.dart';
 import 'games_page.dart';
 import 'scorecard_splash_page.dart';
 
@@ -213,33 +214,50 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 12),
           _buildAnnouncementCard(
+            context,
             title: 'Tournament Management',
             subtitle: 'Create and manage tournaments with multiple formats.',
             icon: Icons.emoji_events_rounded,
+            description: 'Organize structured competitions, formats, and match results in one place.',
           ),
           const SizedBox(height: 10),
           _buildAnnouncementCard(
+            context,
             title: 'Player, Team & Club Administration',
             subtitle: 'Organize players, teams and clubs.',
             icon: Icons.group_rounded,
+            description: 'Organize Players, Teams and Clubs.',
+            pageTitle: 'Administration',
           ),
           const SizedBox(height: 10),
           _buildAnnouncementCard(
+            context,
             title: 'Cloud Services',
             subtitle: 'Cloud synchronization and connected features.',
             icon: Icons.cloud_rounded,
+            description: 'Future connected features for syncing, sharing, and accessing TournaQ across devices.',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAnnouncementCard({
+  Widget _buildAnnouncementCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
+    required String description,
+    String? pageTitle,
   }) {
-    return Card(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => ComingSoonPage(
+          title: pageTitle ?? title,
+          shortDescription: description,
+        ),
+      )),
+      child: Card(
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
@@ -299,6 +317,6 @@ class _LandingPageState extends State<LandingPage> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
