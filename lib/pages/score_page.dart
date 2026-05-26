@@ -15,16 +15,34 @@ const _kOlive = Color(0xFF556B2F);
 const _kOliveLight = Color(0xFFEEF2E6);
 const _kLeadingBg = Color(0xFFFFF3C4);
 
+class _ScoreEvent {
+  final bool isLeft;
+  final int setIndex;
+  final int prevService;
+  final bool changedService;
+
+  const _ScoreEvent({
+    required this.isLeft,
+    required this.setIndex,
+    required this.prevService,
+    required this.changedService,
+  });
+}
+
 class ScorePage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
   final String gameId;
+  // When provided, called instead of Navigator.pop() by "Save & Return to Games".
+  // Use this when the caller's navigation stack doesn't have GamesPage underneath.
+  final VoidCallback? onSaveAndReturn;
 
   const ScorePage({
     super.key,
     required this.appState,
     required this.onAppStateChanged,
     required this.gameId,
+    this.onSaveAndReturn,
   });
 
   @override
@@ -46,6 +64,9 @@ class _ScorePageState extends State<ScorePage> {
   // Active player cycle: 0=team1P1, 1=team2P1, 2=team1P2, 3=team2P2
   int _activePlayerIndex = 0;
 
+  // Service-change undo stack — cleared on set switch.
+  final List<_ScoreEvent> _scoreEvents = [];
+
   // ── Display helpers ───────────────────────────────────────────────────────
 
   String get _leftTeamId => _isSwapped ? _game.team2Id : _game.team1Id;
@@ -59,6 +80,7 @@ class _ScorePageState extends State<ScorePage> {
   bool get _isTied => _score1 == _score2;
   bool get _isActiveSetCompleted => _game.currentSet?.isCompleted ?? false;
   bool get _isGameComplete => _game.isMatchComplete;
+  bool get _isTeam1Serving => _activePlayerIndex % 2 == 0;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -74,6 +96,7 @@ class _ScorePageState extends State<ScorePage> {
     _score1 = _game.currentSet?.score1 ?? _game.result?.score1 ?? 0;
     _score2 = _game.currentSet?.score2 ?? _game.result?.score2 ?? 0;
     _targetPoints = _game.currentSet?.targetPoints ?? _game.result?.targetPoints ?? 15;
+    _scoreEvents.clear();
   }
 
   // ── State mutations ───────────────────────────────────────────────────────
@@ -86,21 +109,56 @@ class _ScorePageState extends State<ScorePage> {
     widget.onAppStateChanged(newState);
   }
 
-  void _updateLeftScore(int delta) => setState(() {
-        if (_isSwapped) {
-          _score2 = (_score2 + delta).clamp(0, 999);
-        } else {
-          _score1 = (_score1 + delta).clamp(0, 999);
-        }
-      });
+  void _applyDelta({required bool isLeft, required int delta}) {
+    if (_isSwapped) {
+      if (isLeft) {
+        _score2 = (_score2 + delta).clamp(0, 999);
+      } else {
+        _score1 = (_score1 + delta).clamp(0, 999);
+      }
+    } else {
+      if (isLeft) {
+        _score1 = (_score1 + delta).clamp(0, 999);
+      } else {
+        _score2 = (_score2 + delta).clamp(0, 999);
+      }
+    }
+  }
 
-  void _updateRightScore(int delta) => setState(() {
-        if (_isSwapped) {
-          _score1 = (_score1 + delta).clamp(0, 999);
-        } else {
-          _score2 = (_score2 + delta).clamp(0, 999);
-        }
-      });
+  void _addScore({required bool isLeft}) {
+    final prevService = _activePlayerIndex;
+    final scoringIsTeam1 = isLeft ? !_isSwapped : _isSwapped;
+    final changedService = scoringIsTeam1 != _isTeam1Serving;
+    setState(() {
+      _applyDelta(isLeft: isLeft, delta: 1);
+      if (changedService) _activePlayerIndex = (_activePlayerIndex + 1) % 4;
+      _scoreEvents.add(_ScoreEvent(
+        isLeft: isLeft,
+        setIndex: _game.currentSetIndex,
+        prevService: prevService,
+        changedService: changedService,
+      ));
+    });
+  }
+
+  void _removeScore({required bool isLeft}) {
+    int eventIndex = -1;
+    for (int i = _scoreEvents.length - 1; i >= 0; i--) {
+      if (_scoreEvents[i].isLeft == isLeft &&
+          _scoreEvents[i].setIndex == _game.currentSetIndex) {
+        eventIndex = i;
+        break;
+      }
+    }
+    setState(() {
+      _applyDelta(isLeft: isLeft, delta: -1);
+      if (eventIndex >= 0) {
+        final event = _scoreEvents[eventIndex];
+        if (event.changedService) _activePlayerIndex = event.prevService;
+        _scoreEvents.removeAt(eventIndex);
+      }
+    });
+  }
 
   void _swap() => setState(() => _isSwapped = !_isSwapped);
 
@@ -167,19 +225,41 @@ class _ScorePageState extends State<ScorePage> {
     }
   }
 
-  void _toggleCompleteGame() {
-    if (_isGameComplete) {
-      final newState = AppDataService.undoGameCompletion(_localState, _game.id);
-      _updateState(newState);
-    } else {
-      final newState = AppDataService.completeGame(_localState, _game.id);
-      setState(() {
-        _localState = newState;
-        _game = newState.getGameById(widget.gameId)!;
-      });
-      widget.onAppStateChanged(newState);
-      if (mounted) Navigator.of(context).pop();
+  void _doCompleteGame() {
+    var currentState = _localState;
+    final s1 = _isSwapped ? _score2 : _score1;
+    final s2 = _isSwapped ? _score1 : _score2;
+
+    if (_game.matchFormat == MatchFormat.oneSet && !_isActiveSetCompleted) {
+      currentState = AppDataService.completeSet(
+        currentState,
+        gameId: _game.id,
+        setIndex: _game.currentSetIndex,
+        score1: s1,
+        score2: s2,
+        targetPoints: _targetPoints,
+      );
     }
+
+    final newState = AppDataService.completeGame(currentState, _game.id);
+    setState(() {
+      _localState = newState;
+      _game = newState.getGameById(widget.gameId)!;
+      _score1 = _game.currentSet?.score1 ?? _score1;
+      _score2 = _game.currentSet?.score2 ?? _score2;
+    });
+    widget.onAppStateChanged(newState);
+    // Stay on page — no Navigator.pop()
+  }
+
+  void _undoGameCompletion() {
+    final newState = AppDataService.undoGameCompletion(_localState, _game.id);
+    setState(() {
+      _localState = newState;
+      _game = newState.getGameById(widget.gameId)!;
+      _loadActiveSetScores();
+    });
+    widget.onAppStateChanged(newState);
   }
 
   bool _shouldShowSideChangeReminder() {
@@ -292,8 +372,12 @@ class _ScorePageState extends State<ScorePage> {
             const SizedBox(height: 10),
             _buildSetOverview(),
             const SizedBox(height: 12),
-            _buildTargetPoints(),
+            _buildTargetPoints(locked: _isGameComplete || _isActiveSetCompleted),
             const SizedBox(height: 12),
+            if (_isGameComplete)
+              _buildLockBanner('Game completed — undo completion to edit scores')
+            else if (_isActiveSetCompleted)
+              _buildLockBanner('Set completed — undo completion to edit scores'),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -303,8 +387,8 @@ class _ScorePageState extends State<ScorePage> {
                     teamName: leftName,
                     score: _leftScore,
                     isLeading: _isLeftLeading,
-                    onIncrement: _isActiveSetCompleted ? null : () => _updateLeftScore(1),
-                    onDecrement: _isActiveSetCompleted ? null : () => _updateLeftScore(-1),
+                    onIncrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _addScore(isLeft: true),
+                    onDecrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _removeScore(isLeft: true),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -314,8 +398,8 @@ class _ScorePageState extends State<ScorePage> {
                     teamName: rightName,
                     score: _rightScore,
                     isLeading: _isRightLeading,
-                    onIncrement: _isActiveSetCompleted ? null : () => _updateRightScore(1),
-                    onDecrement: _isActiveSetCompleted ? null : () => _updateRightScore(-1),
+                    onIncrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _addScore(isLeft: false),
+                    onDecrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _removeScore(isLeft: false),
                   ),
                 ),
               ],
@@ -458,7 +542,7 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildTargetPoints() {
+  Widget _buildTargetPoints({bool locked = false}) {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 8,
@@ -472,9 +556,7 @@ class _ScorePageState extends State<ScorePage> {
           ChoiceChip(
             label: Text('$v'),
             selected: _targetPoints == v,
-            onSelected: _isActiveSetCompleted
-                ? null
-                : (_) => setState(() => _targetPoints = v),
+            onSelected: locked ? null : (_) => setState(() => _targetPoints = v),
             selectedColor: _kGoldLight,
             labelStyle: TextStyle(
               fontWeight: FontWeight.w600,
@@ -482,6 +564,33 @@ class _ScorePageState extends State<ScorePage> {
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildLockBanner(String message) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.lock_rounded, size: 16, color: Colors.black54),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black54,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -687,7 +796,12 @@ class _ScorePageState extends State<ScorePage> {
       );
       widget.onAppStateChanged(newState);
     }
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted) return;
+    if (widget.onSaveAndReturn != null) {
+      widget.onSaveAndReturn!();
+    } else {
+      Navigator.of(context).pop();
+    }
   }
 
   Widget _buildSectionHeader(String title, IconData icon) {
@@ -709,9 +823,7 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildGameplayButtons() {
-    final isSetCompleted = _isActiveSetCompleted;
-    final isGameComplete = _isGameComplete;
-    final disabled = isGameComplete || isSetCompleted;
+    final disabled = _isGameComplete || _isActiveSetCompleted;
     return Row(
       children: [
         Expanded(
@@ -724,9 +836,9 @@ class _ScorePageState extends State<ScorePage> {
         const SizedBox(width: 8),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: disabled ? null : _rotateActivePlayer,
+            onPressed: _rotateActivePlayer, // always enabled — manual correction
             icon: const Icon(Icons.rotate_right_rounded, size: 18),
-            label: const Text('Change Setter'),
+            label: const Text('Change Service'),
           ),
         ),
       ],
@@ -736,6 +848,8 @@ class _ScorePageState extends State<ScorePage> {
   Widget _buildMatchActions() {
     final isSetCompleted = _isActiveSetCompleted;
     final isGameComplete = _isGameComplete;
+    final isOneSet = _game.matchFormat == MatchFormat.oneSet;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -746,30 +860,37 @@ class _ScorePageState extends State<ScorePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ElevatedButton.icon(
-            onPressed: isGameComplete ? null : _toggleCompleteSet,
-            icon: Icon(
-              isSetCompleted ? Icons.undo_rounded : Icons.check_circle_outline_rounded,
-              size: 18,
+          // Complete Set — hidden for oneSet (one set == the game)
+          if (!isOneSet) ...[
+            ElevatedButton.icon(
+              onPressed: isGameComplete ? null : _toggleCompleteSet,
+              icon: Icon(
+                isSetCompleted
+                    ? Icons.undo_rounded
+                    : Icons.check_circle_outline_rounded,
+                size: 18,
+              ),
+              label: Text(isSetCompleted ? 'Undo Set Completion' : 'Complete Set'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isGameComplete
+                    ? null
+                    : isSetCompleted
+                        ? Colors.grey.shade500
+                        : _kGold,
+                foregroundColor: isGameComplete ? null : Colors.white,
+              ),
             ),
-            label: Text(isSetCompleted ? 'Undo Set' : 'Complete Set'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isGameComplete
-                  ? null
-                  : isSetCompleted
-                      ? Colors.grey.shade500
-                      : _kGold,
-              foregroundColor: isGameComplete ? null : Colors.white,
-            ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
+          // Complete Game / Undo Game Completion
           ElevatedButton.icon(
-            onPressed: _toggleCompleteGame,
+            onPressed: isGameComplete ? _undoGameCompletion : _doCompleteGame,
             icon: Icon(
               isGameComplete ? Icons.undo_rounded : Icons.emoji_events_rounded,
               size: 18,
             ),
-            label: Text(isGameComplete ? 'Undo Game Completion' : 'Complete Game'),
+            label: Text(
+                isGameComplete ? 'Undo Game Completion' : 'Complete Game'),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
               foregroundColor: Colors.white,
@@ -780,7 +901,7 @@ class _ScorePageState extends State<ScorePage> {
           OutlinedButton.icon(
             onPressed: _saveAndBack,
             icon: const Icon(Icons.arrow_back_rounded, size: 18),
-            label: const Text('Save & Back'),
+            label: const Text('Save & Return to Games'),
           ),
         ],
       ),
@@ -829,6 +950,14 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
     super.dispose();
   }
 
+  void _swapPlayers() {
+    setState(() {
+      final tmp = _p1.text;
+      _p1.text = _p2.text;
+      _p2.text = tmp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -861,7 +990,18 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
                 style: TextStyle(color: Colors.black45, fontSize: 13)),
             const SizedBox(height: 20),
             _field('Player 1', _p1, 'e.g. Alex'),
-            const SizedBox(height: 14),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton.icon(
+                onPressed: _swapPlayers,
+                icon: const Icon(Icons.swap_vert_rounded, size: 18, color: _kOlive),
+                label: const Text(
+                  'Swap Players',
+                  style: TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             _field('Player 2', _p2, 'e.g. Jordan'),
             const SizedBox(height: 24),
             SizedBox(

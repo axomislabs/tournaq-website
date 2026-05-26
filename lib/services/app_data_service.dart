@@ -346,6 +346,7 @@ class AppDataService {
   }) {
     final game = state.getGameById(gameId);
     if (game == null || game.currentSet == null) return state;
+    if (game.status == GameStatus.completed || game.currentSet!.isCompleted) return state;
 
     final updatedSet = game.currentSet!.copyWith(score1: score1, score2: score2);
     final updatedSets = List<GameSet>.from(game.sets);
@@ -504,6 +505,7 @@ class AppDataService {
   }) {
     final game = state.getGameById(gameId);
     if (game == null || setIndex >= game.sets.length) return state;
+    if (game.status == GameStatus.completed) return state;
 
     final set = game.sets[setIndex];
     final winner = winnerTeamId ??
@@ -574,6 +576,7 @@ class AppDataService {
       currentSetIndex: game.currentSetIndex,
       matchWinnerTeamId: winner,
       lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
     );
 
     return state.updateGame(finalGame);
@@ -605,7 +608,7 @@ class AppDataService {
   /// Marks the game as completed based on current sets.
   static AppState completeGame(AppState state, String gameId) {
     final game = state.getGameById(gameId);
-    if (game == null) return state;
+    if (game == null || game.status == GameStatus.completed) return state;
 
     final winner = _getMatchWinnerFromSets(game);
 
@@ -624,15 +627,34 @@ class AppDataService {
       currentSetIndex: game.currentSetIndex,
       matchWinnerTeamId: winner,
       lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
     );
 
     return state.updateGame(finalGame);
   }
 
   /// Reverts a completed game back to in-progress, clearing the match winner.
+  /// For oneSet games, also undoes Set 1 completion so isMatchComplete becomes false.
   static AppState undoGameCompletion(AppState state, String gameId) {
     final game = state.getGameById(gameId);
     if (game == null) return state;
+
+    var sets = game.sets;
+    if (game.matchFormat == MatchFormat.oneSet && sets.isNotEmpty && sets[0].isCompleted) {
+      final s = sets[0];
+      final resetSet = GameSet(
+        id: s.id,
+        setNumber: s.setNumber,
+        score1: s.score1,
+        score2: s.score2,
+        targetPoints: s.targetPoints,
+        winnerTeamId: null,
+        isCompleted: false,
+        completedAt: null,
+      );
+      sets = List<GameSet>.from(sets);
+      sets[0] = resetSet;
+    }
 
     final resetGame = Game(
       id: game.id,
@@ -645,10 +667,11 @@ class AppDataService {
       source: game.source,
       isLocalOnly: game.isLocalOnly,
       matchFormat: game.matchFormat,
-      sets: game.sets,
+      sets: sets,
       currentSetIndex: game.currentSetIndex,
       matchWinnerTeamId: null,
       lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
     );
 
     return state.updateGame(resetGame);

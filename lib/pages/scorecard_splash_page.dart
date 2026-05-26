@@ -6,12 +6,14 @@ class ScorecardSplashPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
   final String gameId;
+  final VoidCallback? onSaveAndReturn;
 
   const ScorecardSplashPage({
     super.key,
     required this.appState,
     required this.onAppStateChanged,
     required this.gameId,
+    this.onSaveAndReturn,
   });
 
   @override
@@ -44,6 +46,7 @@ class _ScorecardSplashPageState extends State<ScorecardSplashPage> {
         appState: state,
         onAppStateChanged: widget.onAppStateChanged,
         gameId: widget.gameId,
+        onSaveAndReturn: widget.onSaveAndReturn,
       ),
     ));
   }

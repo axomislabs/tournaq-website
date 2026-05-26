@@ -50,6 +50,18 @@ class _LandingPageState extends State<LandingPage> {
         appState: result.state,
         onAppStateChanged: _updateState,
         gameId: result.gameId,
+        onSaveAndReturn: () {
+          // Stack is LandingPage → ScorePage. Pop ScorePage, then push GamesPage
+          // so "Save & Return to Games" always lands on GamesPage, not Home.
+          Navigator.of(context).pop();
+          if (!context.mounted) return;
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => GamesPage(
+              appState: _localState,
+              onAppStateChanged: _updateState,
+            ),
+          ));
+        },
       ),
     ));
   }
