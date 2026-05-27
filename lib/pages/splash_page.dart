@@ -49,29 +49,61 @@ class _SplashPageState extends State<SplashPage> {
             opacity: const AlwaysStoppedAnimation(0.10),
           ),
           SafeArea(
-            child: Column(
-              children: [
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Image.asset(
-                    'assets/Tournaq_logo_text.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    color: const Color(0xFFF0D47A),
-                    backgroundColor:
-                        const Color(0xFFF0D47A).withValues(alpha: 0.2),
-                    strokeWidth: 2,
-                  ),
-                ),
-                const SizedBox(height: 48),
-              ],
+            child: OrientationBuilder(
+              builder: (context, orientation) {
+                if (orientation == Orientation.landscape) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 80),
+                          child: Image.asset(
+                            'assets/Tournaq_logo_text.png',
+                            fit: BoxFit.contain,
+                            height: 60,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            color: const Color(0xFFF0D47A),
+                            backgroundColor:
+                                const Color(0xFFF0D47A).withValues(alpha: 0.2),
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: Image.asset(
+                        'assets/Tournaq_logo_text.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const Spacer(),
+                    SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: const Color(0xFFF0D47A),
+                        backgroundColor:
+                            const Color(0xFFF0D47A).withValues(alpha: 0.2),
+                        strokeWidth: 2,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                  ],
+                );
+              },
             ),
           ),
         ],

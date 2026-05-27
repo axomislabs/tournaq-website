@@ -13,7 +13,12 @@ const _kGold = Color(0xFFA97800);
 const _kGoldLight = Color(0xFFFFF8E1);
 const _kOlive = Color(0xFF556B2F);
 const _kOliveLight = Color(0xFFEEF2E6);
-const _kLeadingBg = Color(0xFFFFF3C4);
+
+// Score card team backgrounds — always shown, stronger when leading
+const _kGoldCardBg = Color(0xFFFFE082);       // Team 1 base (amber 200)
+const _kGoldCardLeading = Color(0xFFFFBF00);   // Team 1 leading (deep amber)
+const _kOliveCardBg = Color(0xFFC8DC82);      // Team 2 base (light olive)
+const _kOliveCardLeading = Color(0xFF96C23C);  // Team 2 leading (rich olive)
 
 class _ScoreEvent {
   final bool isLeft;
@@ -77,7 +82,6 @@ class _ScorePageState extends State<ScorePage> {
   bool get _isTeam2Leading => _score2 > _score1;
   bool get _isLeftLeading => _isSwapped ? _isTeam2Leading : _isTeam1Leading;
   bool get _isRightLeading => _isSwapped ? _isTeam1Leading : _isTeam2Leading;
-  bool get _isTied => _score1 == _score2;
   bool get _isActiveSetCompleted => _game.currentSet?.isCompleted ?? false;
   bool get _isGameComplete => _game.isMatchComplete;
   bool get _isTeam1Serving => _activePlayerIndex % 2 == 0;
@@ -138,6 +142,8 @@ class _ScorePageState extends State<ScorePage> {
         prevService: prevService,
         changedService: changedService,
       ));
+      // Auto-swap sides when the side-change threshold is reached.
+      if (_shouldShowSideChangeReminder()) _isSwapped = !_isSwapped;
     });
   }
 
@@ -342,6 +348,106 @@ class _ScorePageState extends State<ScorePage> {
 
   // ── Build ─────────────────────────────────────────────────────────────────
 
+  void _showGameOptions(BuildContext context) {
+    final scoreLocked = _isGameComplete || _isActiveSetCompleted;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Game Options',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 4),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: scoreLocked ? Colors.grey.shade100 : const Color(0xFFFFF8E1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.swap_horiz,
+                      color: scoreLocked ? Colors.grey : _kGold,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    'Swap Teams',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: scoreLocked ? Colors.grey : Colors.black87,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Switch left and right sides',
+                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                  onTap: scoreLocked
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          _swap();
+                        },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: _kOliveLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.rotate_right_rounded,
+                      color: _kOlive,
+                      size: 20,
+                    ),
+                  ),
+                  title: const Text(
+                    'Change Service',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Advance to next server',
+                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _rotateActivePlayer();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
@@ -350,86 +456,174 @@ class _ScorePageState extends State<ScorePage> {
     final rightTeamId = _rightTeamId;
     final leftName = _localState.getTeamById(leftTeamId)?.name ?? 'Team 1';
     final rightName = _localState.getTeamById(rightTeamId)?.name ?? 'Team 2';
+    final scoreLocked = _isGameComplete || _isActiveSetCompleted;
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: const TournaQAppBar(title: 'Game Scorecard'),
-      body: ScrollablePage(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ── Gameplay Controls ──────────────────────────────────────
-            Center(
-              child: Text(
-                '$team1Name vs $team2Name',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                textAlign: TextAlign.center,
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          final isLandscape = orientation == Orientation.landscape;
+
+          final optionsButton = IconButton(
+            icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
+            tooltip: 'Game Options',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            visualDensity: VisualDensity.compact,
+            onPressed: () => _showGameOptions(context),
+          );
+
+          // ── Landscape: fills available height, no scroll ────────────
+          if (isLandscape) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: _buildSetOverview()),
+                        const SizedBox(width: 8),
+                        optionsButton,
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    if (_isGameComplete)
+                      _buildLockBanner('Game completed — undo completion to edit scores')
+                    else if (_isActiveSetCompleted)
+                      _buildLockBanner('Set completed — undo completion to edit scores'),
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: _buildScoreCard(
+                              teamId: leftTeamId,
+                              teamName: leftName,
+                              score: _leftScore,
+                              isLeading: _isLeftLeading,
+                              onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                              onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+                              compact: true,
+                              fillHeight: true,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildScoreCard(
+                              teamId: rightTeamId,
+                              teamName: rightName,
+                              score: _rightScore,
+                              isLeading: _isRightLeading,
+                              onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                              onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                              compact: true,
+                              fillHeight: true,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_shouldShowSideChangeReminder()) ...[
+                      const SizedBox(height: 4),
+                      Card(
+                        color: Colors.yellow[100],
+                        margin: EdgeInsets.zero,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          child: Text(
+                            'Side change — total score: ${_score1 + _score2}',
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            _buildSectionHeader('Gameplay Controls', Icons.sports_volleyball_rounded),
-            const SizedBox(height: 10),
-            _buildSetOverview(),
-            const SizedBox(height: 12),
-            _buildTargetPoints(locked: _isGameComplete || _isActiveSetCompleted),
-            const SizedBox(height: 12),
-            if (_isGameComplete)
-              _buildLockBanner('Game completed — undo completion to edit scores')
-            else if (_isActiveSetCompleted)
-              _buildLockBanner('Set completed — undo completion to edit scores'),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _buildScoreCard(
-                    teamId: leftTeamId,
-                    teamName: leftName,
-                    score: _leftScore,
-                    isLeading: _isLeftLeading,
-                    onIncrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _addScore(isLeft: true),
-                    onDecrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _removeScore(isLeft: true),
-                  ),
+            );
+          }
+
+          // ── Portrait: full layout ───────────────────────────────────
+          final portraitScoreCards = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _buildScoreCard(
+                  teamId: leftTeamId,
+                  teamName: leftName,
+                  score: _leftScore,
+                  isLeading: _isLeftLeading,
+                  onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                  onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildScoreCard(
-                    teamId: rightTeamId,
-                    teamName: rightName,
-                    score: _rightScore,
-                    isLeading: _isRightLeading,
-                    onIncrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _addScore(isLeft: false),
-                    onDecrement: (_isGameComplete || _isActiveSetCompleted) ? null : () => _removeScore(isLeft: false),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildStatusCard(team1Name: team1Name, team2Name: team2Name),
-            if (_shouldShowSideChangeReminder()) ...[
-              const SizedBox(height: 8),
-              Card(
-                color: Colors.yellow[100],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Text(
-                    'Side change — total score: ${_score1 + _score2}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                    textAlign: TextAlign.center,
-                  ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildScoreCard(
+                  teamId: rightTeamId,
+                  teamName: rightName,
+                  score: _rightScore,
+                  isLeading: _isRightLeading,
+                  onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                  onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
                 ),
               ),
             ],
-            const SizedBox(height: 12),
-            _buildGameplayButtons(),
-            const SizedBox(height: 24),
-            // ── Match Actions ──────────────────────────────────────────
-            _buildSectionHeader('Match Actions', Icons.emoji_events_rounded),
-            const SizedBox(height: 8),
-            _buildMatchActions(),
-            const SizedBox(height: 24),
-          ],
-        ),
+          );
+
+          return ScrollablePage(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Text(
+                    '$team1Name vs $team2Name',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildSectionHeader(
+                  'Gameplay Controls',
+                  Icons.sports_volleyball_rounded,
+                  trailing: optionsButton,
+                ),
+                const SizedBox(height: 10),
+                _buildSetOverview(),
+                const SizedBox(height: 12),
+                if (_isGameComplete)
+                  _buildLockBanner('Game completed — undo completion to edit scores')
+                else if (_isActiveSetCompleted)
+                  _buildLockBanner('Set completed — undo completion to edit scores'),
+                portraitScoreCards,
+                if (_shouldShowSideChangeReminder()) ...[
+                  const SizedBox(height: 8),
+                  Card(
+                    color: Colors.yellow[100],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Text(
+                        'Side change — total score: ${_score1 + _score2}',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                _buildSectionHeader('Match Actions', Icons.emoji_events_rounded),
+                const SizedBox(height: 8),
+                _buildMatchActions(),
+                const SizedBox(height: 24),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -448,6 +642,7 @@ class _ScorePageState extends State<ScorePage> {
         // Active non-completed set shows local unsaved scores.
         final displayScore1 = isActive && !isCompleted ? _score1 : (set?.score1 ?? 0);
         final displayScore2 = isActive && !isCompleted ? _score2 : (set?.score2 ?? 0);
+        final displayTarget = isActive ? _targetPoints : set?.targetPoints;
 
         return Expanded(
           child: Padding(
@@ -461,6 +656,7 @@ class _ScorePageState extends State<ScorePage> {
                 isCompleted: isCompleted,
                 displayScore1: displayScore1,
                 displayScore2: displayScore2,
+                displayTarget: displayTarget,
               ),
             ),
           ),
@@ -476,6 +672,7 @@ class _ScorePageState extends State<ScorePage> {
     required bool isCompleted,
     required int displayScore1,
     required int displayScore2,
+    int? displayTarget,
   }) {
     final Color borderColor;
     final Color bgColor;
@@ -508,7 +705,7 @@ class _ScorePageState extends State<ScorePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${isCompleted ? '● ' : ''}Set ${setIndex + 1}',
+            '${isCompleted ? '● ' : ''}Set ${setIndex + 1}${displayTarget != null ? ' · $displayTarget' : ''}',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -601,24 +798,34 @@ class _ScorePageState extends State<ScorePage> {
     required bool isLeading,
     required VoidCallback? onIncrement,
     required VoidCallback? onDecrement,
+    bool compact = false,
+    bool fillHeight = false,
   }) {
     final isTeam1 = teamId == _game.team1Id;
-    final leadColor = isTeam1 ? _kGold : _kOlive;
+    final teamColor = isTeam1 ? _kGold : _kOlive;
+    final cardBg = isTeam1
+        ? (isLeading ? _kGoldCardLeading : _kGoldCardBg)
+        : (isLeading ? _kOliveCardLeading : _kOliveCardBg);
     final disabled = onIncrement == null;
     final players = _getPlayerNames(teamId);
 
     return Card(
-      color: isLeading ? _kLeadingBg : Theme.of(context).colorScheme.surface,
+      color: cardBg,
       elevation: isLeading ? 6 : 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: isLeading
-            ? BorderSide(color: leadColor, width: 2)
-            : BorderSide.none,
+        side: BorderSide(
+          color: teamColor.withValues(alpha: isLeading ? 1.0 : 0.55),
+          width: isLeading ? 2.5 : 1.5,
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
+        padding: compact
+            ? const EdgeInsets.fromLTRB(8, 6, 8, 6)
+            : const EdgeInsets.fromLTRB(10, 12, 10, 10),
         child: Column(
+          mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: fillHeight ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.start,
           children: [
             GestureDetector(
               onTap: disabled ? null : () => _showLineupEditor(teamId, teamName),
@@ -629,8 +836,11 @@ class _ScorePageState extends State<ScorePage> {
                   Flexible(
                     child: Text(
                       teamName,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: fillHeight ? 18 : compact ? 12 : 13,
+                        color: Colors.black87,
+                      ),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -638,7 +848,7 @@ class _ScorePageState extends State<ScorePage> {
                   ),
                   if (!disabled) ...[
                     const SizedBox(width: 3),
-                    const Icon(Icons.edit_rounded, size: 11, color: Colors.black38),
+                    const Icon(Icons.edit_rounded, size: 11, color: Colors.black54),
                   ],
                 ],
               ),
@@ -647,20 +857,35 @@ class _ScorePageState extends State<ScorePage> {
               '/ $_targetPoints',
               style: TextStyle(
                 fontSize: 11,
-                color: isLeading ? leadColor : Colors.black38,
-                fontWeight: FontWeight.w500,
+                color: teamColor,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              '$score',
-              style: TextStyle(
-                fontSize: 56,
-                fontWeight: FontWeight.bold,
-                height: 1.05,
-                color: disabled ? Colors.black38 : isLeading ? leadColor : Colors.black87,
+            if (fillHeight)
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    '$score',
+                    style: TextStyle(
+                      fontSize: 120,
+                      fontWeight: FontWeight.bold,
+                      height: 1.0,
+                      color: disabled ? Colors.black38 : Colors.black87,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Text(
+                '$score',
+                style: TextStyle(
+                  fontSize: compact ? 38 : 56,
+                  fontWeight: FontWeight.bold,
+                  height: 1.0,
+                  color: disabled ? Colors.black38 : Colors.black87,
+                ),
               ),
-            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -668,36 +893,34 @@ class _ScorePageState extends State<ScorePage> {
                   icon: const Icon(Icons.remove),
                   onPressed: onDecrement,
                   tooltip: 'Decrease',
+                  iconSize: compact ? 18 : 24,
                   style: IconButton.styleFrom(
-                    backgroundColor: disabled
-                        ? Colors.grey.shade300
-                        : isLeading
-                            ? leadColor
-                            : null,
+                    backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
                     foregroundColor: disabled ? Colors.grey : Colors.white,
+                    minimumSize: compact ? const Size(36, 36) : null,
+                    tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
                   ),
                 ),
                 IconButton.filled(
                   icon: const Icon(Icons.add),
                   onPressed: onIncrement,
                   tooltip: 'Increase',
+                  iconSize: compact ? 18 : 24,
                   style: IconButton.styleFrom(
-                    backgroundColor: disabled
-                        ? Colors.grey.shade300
-                        : isLeading
-                            ? leadColor
-                            : null,
+                    backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
                     foregroundColor: disabled ? Colors.grey : Colors.white,
+                    minimumSize: compact ? const Size(36, 36) : null,
+                    tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Row(
               children: [
-                Expanded(child: _buildPlayerChip(teamId, players[0], 0)),
+                Expanded(child: _buildPlayerChip(teamId, players[0], 0, compact: compact)),
                 const SizedBox(width: 4),
-                Expanded(child: _buildPlayerChip(teamId, players[1], 1)),
+                Expanded(child: _buildPlayerChip(teamId, players[1], 1, compact: compact)),
               ],
             ),
           ],
@@ -706,15 +929,19 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildPlayerChip(String teamId, String name, int index) {
+  Widget _buildPlayerChip(String teamId, String name, int index, {bool compact = false}) {
     final active = _isPlayerActive(teamId, index);
+    final isTeam1 = teamId == _game.team1Id;
+    final activeColor = isTeam1 ? _kGold : _kOlive;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+      padding: compact
+          ? const EdgeInsets.symmetric(horizontal: 4, vertical: 2)
+          : const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
       decoration: BoxDecoration(
-        color: active ? _kGold : Colors.grey.shade100,
+        color: active ? activeColor : Colors.black12,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: active ? _kGold : Colors.grey.shade300,
+          color: active ? activeColor : Colors.black26,
         ),
       ),
       child: Text(
@@ -731,58 +958,6 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildStatusCard({
-    required String team1Name,
-    required String team2Name,
-  }) {
-    final Color bgColor;
-    final String statusText;
-    final bool team1Leading = _isTeam1Leading;
-
-    if (_isGameComplete) {
-      final winnerName = _game.matchWinnerTeamId != null
-          ? (_localState.getTeamById(_game.matchWinnerTeamId!)?.name ?? 'Unknown')
-          : null;
-      bgColor = _kOliveLight;
-      statusText = winnerName != null ? '$winnerName Wins!' : 'Match Complete';
-    } else if (_isTied) {
-      bgColor = Colors.grey.shade200;
-      statusText = 'Tied';
-    } else if (team1Leading) {
-      bgColor = _kGoldLight;
-      statusText = '$team1Name Leading';
-    } else {
-      bgColor = _kOliveLight;
-      statusText = '$team2Name Leading';
-    }
-
-    return Card(
-      color: bgColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: (!_isTied && !_isGameComplete)
-            ? BorderSide(color: team1Leading ? _kGold : _kOlive, width: 2)
-            : BorderSide.none,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Center(
-          child: Text(
-            statusText,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: (_isTied || _isGameComplete)
-                  ? Colors.black87
-                  : team1Leading
-                      ? _kGold
-                      : _kOlive,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   void _saveAndBack() {
     if (!_isActiveSetCompleted && (_score1 > 0 || _score2 > 0)) {
@@ -804,7 +979,7 @@ class _ScorePageState extends State<ScorePage> {
     }
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
+  Widget _buildSectionHeader(String title, IconData icon, {Widget? trailing}) {
     return Row(
       children: [
         Icon(icon, size: 15, color: _kOlive),
@@ -818,29 +993,10 @@ class _ScorePageState extends State<ScorePage> {
             letterSpacing: 0.4,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildGameplayButtons() {
-    final disabled = _isGameComplete || _isActiveSetCompleted;
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: disabled ? null : _swap,
-            icon: const Icon(Icons.swap_horiz, size: 18),
-            label: const Text('Swap'),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: _rotateActivePlayer, // always enabled — manual correction
-            icon: const Icon(Icons.rotate_right_rounded, size: 18),
-            label: const Text('Change Service'),
-          ),
-        ),
+        if (trailing != null) ...[
+          const Spacer(),
+          trailing,
+        ],
       ],
     );
   }
@@ -849,6 +1005,7 @@ class _ScorePageState extends State<ScorePage> {
     final isSetCompleted = _isActiveSetCompleted;
     final isGameComplete = _isGameComplete;
     final isOneSet = _game.matchFormat == MatchFormat.oneSet;
+    final scoreLocked = isGameComplete || isSetCompleted;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -860,6 +1017,10 @@ class _ScorePageState extends State<ScorePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _buildTargetPoints(locked: scoreLocked),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+          const SizedBox(height: 12),
           // Complete Set — hidden for oneSet (one set == the game)
           if (!isOneSet) ...[
             ElevatedButton.icon(
