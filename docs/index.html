@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legal – TournaQ</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --olive:       #556B2F;
+      --olive-dark:  #3A3E16;
+      --olive-light: #EEF2E6;
+      --gold:        #F0D47A;
+      --gold-dark:   #A97800;
+      --border:      #D6E0C2;
+      --radius:      14px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #F9FAF6;
+      color: #1A1A1A;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--olive-dark);
+      padding: 36px 20px 28px;
+      text-align: center;
+    }
+    header .app-name {
+      color: var(--gold);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    header .tagline {
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    header h1 {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      margin-top: 16px;
+      opacity: 0.75;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 32px 16px 60px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .card-link {
+      display: block;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 20px 18px;
+      margin-bottom: 14px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .card-link:hover {
+      box-shadow: 0 3px 10px rgba(85,107,47,0.12);
+      border-color: var(--olive);
+    }
+    .card-link .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-link .icon-box {
+      width: 42px;
+      height: 42px;
+      background: var(--olive-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .card-link h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--olive);
+    }
+    .card-link p {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .card-link .arrow {
+      font-size: 18px;
+      color: #bbb;
+      margin-left: auto;
+      align-self: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 12px;
+      color: #888;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="app-name">TournaQ</div>
+  <div class="tagline">Scoring, Games and Tournament Management</div>
+  <h1>Legal Documents</h1>
+</header>
+
+<main>
+
+  <a class="card-link" href="privacy-policy.html">
+    <div class="card-header">
+      <div class="icon-box">🔒</div>
+      <h2>Privacy Policy</h2>
+      <span class="arrow">›</span>
+    </div>
+    <p>How TournaQ handles your data, our use of Google AdMob, GDPR rights, and how to contact us about privacy.</p>
+  </a>
+
+  <a class="card-link" href="terms-of-use.html">
+    <div class="card-header">
+      <div class="icon-box">📋</div>
+      <h2>Terms of Use</h2>
+      <span class="arrow">›</span>
+    </div>
+    <p>The rules and conditions that apply when you use the TournaQ app, including licence, liability, and intellectual property.</p>
+  </a>
+
+  <a class="card-link" href="legal-notice.html">
+    <div class="card-header">
+      <div class="icon-box">⚖️</div>
+      <h2>Legal Notice</h2>
+      <span class="arrow">›</span>
+    </div>
+    <p>Mandatory information about the developer, applicable law, advertising, and intellectual property rights (EU Impressum).</p>
+  </a>
+
+</main>
+
+<footer>
+  © 2026 Martin Adam · TournaQ · <a href="mailto:team@tournaq.com" style="color:#556B2F;font-weight:600;">team@tournaq.com</a>
+</footer>
+
+</body>
+</html>

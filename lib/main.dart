@@ -1,22 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 
 import 'pages/splash_page.dart';
+import 'services/consent_service.dart';
 import 'services/local_storage_service.dart';
 import 'state/app_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await LocalStorageService.init();
-
-  if (defaultTargetPlatform == TargetPlatform.iOS ||
-      defaultTargetPlatform == TargetPlatform.android ||
-      kIsWeb) {
-    await gma.MobileAds.instance.initialize();
-  }
-
+  // MobileAds is initialized by ConsentService after the UMP consent flow.
   final savedState = LocalStorageService.loadAppState();
   runApp(MyApp(initialState: savedState));
 }
@@ -36,6 +28,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _appState = widget.initialState;
+    // Run UMP consent flow then initialize MobileAds once the first frame is
+    // rendered (a visible activity/ViewController is required on Android/iOS).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ConsentService.initialize();
+    });
   }
 
   void _updateAppState(AppState newState) {

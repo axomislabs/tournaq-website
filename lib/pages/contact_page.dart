@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../config/contact_links.dart';
+import '../services/consent_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
-import 'privacy_policy_page.dart';
-import 'terms_of_use_page.dart';
 
 const _kGold = Color(0xFFA97800);
 const _kGoldLight = Color(0xFFFFF8E1);
@@ -106,10 +105,7 @@ class _ContactPageState extends State<ContactPage> {
                       iconColor: _kOlive,
                       title: 'Privacy Policy',
                       subtitle: 'How we handle your data',
-                      trailing: Icons.chevron_right_rounded,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
-                      ),
+                      onTap: () => openExternalUrl(context, ContactLinks.privacyPolicy),
                     ),
                     _buildClickableCard(
                       context,
@@ -118,10 +114,25 @@ class _ContactPageState extends State<ContactPage> {
                       iconColor: _kGold,
                       title: 'Terms of Use',
                       subtitle: 'Rules for using TournaQ',
-                      trailing: Icons.chevron_right_rounded,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const TermsOfUsePage()),
-                      ),
+                      onTap: () => openExternalUrl(context, ContactLinks.termsOfUse),
+                    ),
+                    _buildClickableCard(
+                      context,
+                      icon: Icons.gavel_rounded,
+                      iconBg: _kOliveLight,
+                      iconColor: _kOlive,
+                      title: 'Legal Notice',
+                      subtitle: 'Developer & app information (EU)',
+                      onTap: () => openExternalUrl(context, ContactLinks.legalNotice),
+                    ),
+                    _buildClickableCard(
+                      context,
+                      icon: Icons.tune_rounded,
+                      iconBg: _kOliveLight,
+                      iconColor: _kOlive,
+                      title: 'Privacy Options',
+                      subtitle: 'Manage your ad consent choices',
+                      onTap: () => ConsentService.showPrivacyOptions(),
                     ),
                   ]),
                   const SizedBox(height: 32),

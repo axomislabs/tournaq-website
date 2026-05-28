@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
+import '../services/consent_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -34,17 +35,19 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android ||
         kIsWeb;
-    if (_adsSupported) {
+    if (_adsSupported && ConsentService.mobileAdsReady) {
       _initializeBannerAds();
     }
   }
+
+  static const _adRequest = gma.AdRequest(nonPersonalizedAds: true);
 
   void _initializeBannerAds() {
     // Test Banner Ad 1
     _bannerAd1 = gma.BannerAd(
       adUnitId: 'ca-app-pub-3940256099942544/6300978111',
       size: gma.AdSize.banner,
-      request: const gma.AdRequest(),
+      request: _adRequest,
       listener: gma.BannerAdListener(
         onAdLoaded: (gma.Ad ad) {
           if (mounted) {
@@ -64,7 +67,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
     _bannerAd2 = gma.BannerAd(
       adUnitId: 'ca-app-pub-3940256099942544/6300978111',
       size: gma.AdSize.mediumRectangle,
-      request: const gma.AdRequest(),
+      request: _adRequest,
       listener: gma.BannerAdListener(
         onAdLoaded: (gma.Ad ad) {
           if (mounted) {
