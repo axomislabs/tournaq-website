@@ -120,9 +120,9 @@ class AppDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/tournaq_logo.png',
-                  width: 210,
-                  fit: BoxFit.contain,
+                  'assets/tournaq-rectangle.png',
+                  width: double.infinity,
+                  fit: BoxFit.fitWidth,
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -130,8 +130,8 @@ class AppDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFFF0D47A),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,
                     height: 1.4,
                   ),

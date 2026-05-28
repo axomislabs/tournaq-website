@@ -52,16 +52,25 @@ class _SplashPageState extends State<SplashPage> {
             child: OrientationBuilder(
               builder: (context, orientation) {
                 if (orientation == Orientation.landscape) {
+                  final halfWidth = MediaQuery.of(context).size.width * 0.35;
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 80),
-                          child: Image.asset(
-                            'assets/Tournaq_logo_text.png',
-                            fit: BoxFit.contain,
-                            height: 60,
+                        Image.asset(
+                          'assets/tournaq-rectangle.png',
+                          width: halfWidth,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Scoring, Games and Tournament Management',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xFFF0D47A),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.2,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -82,11 +91,24 @@ class _SplashPageState extends State<SplashPage> {
                 return Column(
                   children: [
                     const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
-                      child: Image.asset(
-                        'assets/Tournaq_logo_text.png',
-                        fit: BoxFit.contain,
+                    Image.asset(
+                      'assets/tournaq-square.png',
+                      width: 300,
+                      fit: BoxFit.contain,
+                    ),
+                    const SizedBox(height: 20),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        'Scoring, Games and Tournament Management',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFFF0D47A),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.2,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                     const Spacer(),
