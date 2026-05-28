@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/game.dart';
 import '../models/game_set.dart';
+import 'gameplay_history_page.dart';
 import '../models/game_team_lineup.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -21,13 +22,13 @@ const _kOliveCardBg = Color(0xFFC8DC82);      // Team 2 base (light olive)
 const _kOliveCardLeading = Color(0xFF96C23C);  // Team 2 leading (rich olive)
 
 class _ScoreEvent {
-  final bool isLeft;
+  final bool isTeam1Score;
   final int setIndex;
   final int prevService;
   final bool changedService;
 
   const _ScoreEvent({
-    required this.isLeft,
+    required this.isTeam1Score,
     required this.setIndex,
     required this.prevService,
     required this.changedService,
@@ -100,7 +101,8 @@ class _ScorePageState extends State<ScorePage> {
     _score1 = _game.currentSet?.score1 ?? _game.result?.score1 ?? 0;
     _score2 = _game.currentSet?.score2 ?? _game.result?.score2 ?? 0;
     _targetPoints = _game.currentSet?.targetPoints ?? _game.result?.targetPoints ?? 15;
-    _scoreEvents.clear();
+    // _scoreEvents is intentionally NOT cleared here so that history
+    // accumulates across set switches for the full-match history view.
   }
 
   // ── State mutations ───────────────────────────────────────────────────────
@@ -137,7 +139,7 @@ class _ScorePageState extends State<ScorePage> {
       _applyDelta(isLeft: isLeft, delta: 1);
       if (changedService) _activePlayerIndex = (_activePlayerIndex + 1) % 4;
       _scoreEvents.add(_ScoreEvent(
-        isLeft: isLeft,
+        isTeam1Score: scoringIsTeam1,
         setIndex: _game.currentSetIndex,
         prevService: prevService,
         changedService: changedService,
@@ -148,9 +150,11 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   void _removeScore({required bool isLeft}) {
+    // Resolve which team the pressed side currently belongs to.
+    final removeTeam1 = isLeft ? !_isSwapped : _isSwapped;
     int eventIndex = -1;
     for (int i = _scoreEvents.length - 1; i >= 0; i--) {
-      if (_scoreEvents[i].isLeft == isLeft &&
+      if (_scoreEvents[i].isTeam1Score == removeTeam1 &&
           _scoreEvents[i].setIndex == _game.currentSetIndex) {
         eventIndex = i;
         break;
@@ -346,6 +350,41 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
+  // ── History ───────────────────────────────────────────────────────────────
+
+  List<GameHistoryEntry> _buildHistoryEntries() {
+    final entries = <GameHistoryEntry>[];
+    final setScores = <int, List<int>>{};
+
+    for (final event in _scoreEvents) {
+      final scores = setScores.putIfAbsent(event.setIndex, () => [0, 0]);
+      if (event.isTeam1Score) {
+        scores[0]++;
+      } else {
+        scores[1]++;
+      }
+
+      final target = event.setIndex == _game.currentSetIndex
+          ? _targetPoints
+          : (event.setIndex < _game.sets.length
+              ? _game.sets[event.setIndex].targetPoints
+              : _targetPoints);
+
+      entries.add(GameHistoryEntry(
+        isTeam1Score: event.isTeam1Score,
+        team1Score: scores[0],
+        team2Score: scores[1],
+        setIndex: event.setIndex,
+        targetPoints: target,
+        isTeam1Serving: event.prevService % 2 == 0,
+        servingPlayerIndex: event.prevService ~/ 2,
+        serviceChanged: event.changedService,
+      ));
+    }
+
+    return entries;
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   void _showGameOptions(BuildContext context) {
@@ -438,6 +477,44 @@ class _ScorePageState extends State<ScorePage> {
                   onTap: () {
                     Navigator.of(context).pop();
                     _rotateActivePlayer();
+                  },
+                ),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: _kGoldLight,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.history_rounded,
+                      color: _kGold,
+                      size: 20,
+                    ),
+                  ),
+                  title: const Text(
+                    'Gameplay History',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Point-by-point scoring timeline',
+                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
+                    final team2Name = _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => GameplayHistoryPage(
+                        team1Name: team1Name,
+                        team2Name: team2Name,
+                        team1Players: _getPlayerNames(_game.team1Id),
+                        team2Players: _getPlayerNames(_game.team2Id),
+                        entries: _buildHistoryEntries(),
+                      ),
+                    ));
                   },
                 ),
               ],
