@@ -66,7 +66,7 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.local_offer_rounded,
-                  label: 'Promo & Ads',
+                  label: 'Sponsoring & Promo',
                   iconBgColor: const Color(0xFFF0F0F0),
                   onTap: () {
                     Navigator.of(context).pop();
