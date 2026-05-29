@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
+import '../config/ad_config.dart';
 import '../config/contact_links.dart';
 import '../services/consent_service.dart';
 import '../state/app_state.dart';
@@ -43,14 +44,21 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android ||
         kIsWeb;
-    if (_adsSupported && ConsentService.mobileAdsReady) {
-      _loadBannerAd();
+    if (_adsSupported) {
+      if (ConsentService.mobileAdsReady) {
+        _loadBannerAd();
+      } else {
+        // Consent flow still in progress — wait for it then load.
+        ConsentService.initialize().then((_) {
+          if (mounted && !_isAdLoaded) _loadBannerAd();
+        });
+      }
     }
   }
 
   void _loadBannerAd() {
     _bannerAd = gma.BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
+      adUnitId: AdConfig.bannerAdUnitId,
       size: gma.AdSize.banner,
       request: _adRequest,
       listener: gma.BannerAdListener(
