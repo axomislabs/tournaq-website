@@ -4,11 +4,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 import '../config/ad_config.dart';
 import '../config/contact_links.dart';
 import '../services/consent_service.dart';
+import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
-import '../widgets/scrollable_page.dart';
 import 'coming_soon_page.dart';
 
 const _kGold = Color(0xFFA97800);
@@ -88,42 +88,66 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         onAppStateChanged: widget.onAppStateChanged,
       ),
       appBar: const TournaQAppBar(title: 'Sponsoring & Promo'),
-      body: ScrollablePage(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildIntroCard(),
-            const SizedBox(height: 24),
-            _buildSectionHeader('Sponsoring', Icons.campaign_rounded),
-            const SizedBox(height: 10),
-            _buildAdSection(),
-            const SizedBox(height: 24),
-            _buildSectionHeader('Opportunities', Icons.handshake_rounded),
-            const SizedBox(height: 10),
-            _buildComingSoonCard(
-              icon: Icons.stars_rounded,
-              title: 'Partner Spotlight',
-              subtitle: 'Future partners, clubs and organizations may be featured here.',
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/tournaq_background.png',
+              fit: BoxFit.cover,
+              opacity: const AlwaysStoppedAnimation(0.06),
             ),
-            const SizedBox(height: 8),
-            _buildComingSoonCard(
-              icon: Icons.emoji_events_rounded,
-              title: 'Tournament Partnerships',
-              subtitle: 'Support for tournament organizers and event partnerships.',
-            ),
-            const SizedBox(height: 8),
-            _buildComingSoonCard(
-              icon: Icons.celebration_rounded,
-              title: 'Promote Your Event',
-              subtitle: 'Future opportunities to showcase tournaments, leagues and events.',
-            ),
-            const SizedBox(height: 24),
-            _buildSectionHeader('Get Involved', Icons.chat_rounded),
-            const SizedBox(height: 10),
-            _buildFeedbackCard(),
-          ],
-        ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                child: _buildIntroCard(),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildSectionHeader('Sponsoring', Icons.campaign_rounded),
+                      const SizedBox(height: 10),
+                      _buildAdSection(),
+                      const SizedBox(height: 8),
+                      _buildInstagramCard(),
+                      const SizedBox(height: 8),
+                      _buildRatingCard(),
+                      const SizedBox(height: 24),
+                      _buildSectionHeader('Opportunities', Icons.handshake_rounded),
+                      const SizedBox(height: 10),
+                      _buildComingSoonCard(
+                        icon: Icons.stars_rounded,
+                        title: 'Partner Spotlight',
+                        subtitle: 'Future partners, clubs and organizations may be featured here.',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildComingSoonCard(
+                        icon: Icons.emoji_events_rounded,
+                        title: 'Tournament Partnerships',
+                        subtitle: 'Support for tournament organizers and event partnerships.',
+                      ),
+                      const SizedBox(height: 8),
+                      _buildComingSoonCard(
+                        icon: Icons.celebration_rounded,
+                        title: 'Promote Your Event',
+                        subtitle: 'Future opportunities to showcase tournaments, leagues and events.',
+                      ),
+                      const SizedBox(height: 24),
+                      _buildSectionHeader('Get Involved', Icons.chat_rounded),
+                      const SizedBox(height: 10),
+                      _buildFeedbackCard(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -279,6 +303,58 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
           ),
         ),
         onTap: () => _openComingSoon(title, subtitle),
+      ),
+    );
+  }
+
+  Widget _buildInstagramCard() {
+    return Card(
+      elevation: 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(color: _kOliveLight, shape: BoxShape.circle),
+          child: const Icon(Icons.camera_alt_rounded, color: _kOlive, size: 20),
+        ),
+        title: const Text(
+          'Follow the Journey',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        subtitle: const Text(
+          'Share events and games where TournaQ supported you — tag us on Instagram.',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black26, size: 22),
+        onTap: () => openExternalUrl(context, ContactLinks.instagram),
+      ),
+    );
+  }
+
+  Widget _buildRatingCard() {
+    return Card(
+      elevation: 1.5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: const BoxDecoration(color: _kGoldLight, shape: BoxShape.circle),
+          child: const Icon(Icons.star_rounded, color: _kGold, size: 20),
+        ),
+        title: const Text(
+          'Enjoying TournaQ?',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        subtitle: const Text(
+          'Ratings help us reach more players and organizers.',
+          style: TextStyle(fontSize: 12, color: Colors.black54),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black26, size: 22),
+        onTap: () => RatingService.showRatingDialog(context),
       ),
     );
   }

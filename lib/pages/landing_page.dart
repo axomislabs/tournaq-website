@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/quick_start_sheet.dart';
@@ -45,6 +46,7 @@ class _LandingPageState extends State<LandingPage> {
     );
     if (result == null || !context.mounted) return;
     _updateState(result.state);
+    await RatingService.onGameCreated(context);
     if (!context.mounted) return;
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ScorecardSplashPage(

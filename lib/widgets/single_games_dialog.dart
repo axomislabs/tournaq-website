@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/tournament.dart';
 import '../services/app_data_service.dart';
+import '../services/rating_service.dart';
 import '../state/app_state.dart';
 
 class SingleGamesDialog extends StatefulWidget {
@@ -39,7 +40,7 @@ class _SingleGamesDialogState extends State<SingleGamesDialog> {
     return _availableTeams.where((id) => id != _selectedTeam1Id).toList();
   }
 
-  void _createGame() {
+  Future<void> _createGame() async {
     if (_selectedTeam1Id == null || _selectedTeam2Id == null) {
       ScaffoldMessenger.of(
         context,
@@ -54,7 +55,6 @@ class _SingleGamesDialogState extends State<SingleGamesDialog> {
       return;
     }
 
-    // Determine the next round number
     final existingGames = widget.appState.getTournamentGames(
       widget.tournament.id,
     );
@@ -71,6 +71,8 @@ class _SingleGamesDialogState extends State<SingleGamesDialog> {
     );
 
     widget.onGameCreated(newState);
+    await RatingService.onGameCreated(context);
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 

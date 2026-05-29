@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/app_data_service.dart';
+import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -129,6 +130,7 @@ class _GamesPageState extends State<GamesPage> {
 
     if (result == null || !mounted) return;
     _updateState(result.state);
+    await RatingService.onGameCreated(context);
     if (!mounted) return;
 
     _navigateToScorecard(result.state, result.gameId);

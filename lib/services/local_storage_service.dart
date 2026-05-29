@@ -9,6 +9,7 @@ class LocalStorageService {
   static const _gamesBox = 'games_v1';
   static const _teamsBox = 'teams_v1';
   static const _playersBox = 'players_v1';
+  static const _prefsBox = 'prefs_v1';
 
   // ── Initialisation ─────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ class LocalStorageService {
     await Hive.openBox<String>(_gamesBox);
     await Hive.openBox<String>(_teamsBox);
     await Hive.openBox<String>(_playersBox);
+    await Hive.openBox<String>(_prefsBox);
   }
 
   // ── Box accessors ──────────────────────────────────────────────────────────
@@ -24,6 +26,7 @@ class LocalStorageService {
   static Box<String> get _games => Hive.box<String>(_gamesBox);
   static Box<String> get _teams => Hive.box<String>(_teamsBox);
   static Box<String> get _players => Hive.box<String>(_playersBox);
+  static Box<String> get _prefs => Hive.box<String>(_prefsBox);
 
   // ── Load ───────────────────────────────────────────────────────────────────
 
@@ -77,6 +80,9 @@ class LocalStorageService {
       _players.put(player.id, jsonEncode(player.toJson()));
 
   static Future<void> deletePlayer(String id) async => _players.delete(id);
+
+  static String? getPref(String key) => _prefs.get(key);
+  static Future<void> setPref(String key, String value) => _prefs.put(key, value);
 
   static Future<void> clearHistoryData() async {
     await _games.clear();
