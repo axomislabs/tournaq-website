@@ -144,9 +144,57 @@ class _ScorePageState extends State<ScorePage> {
         prevService: prevService,
         changedService: changedService,
       ));
-      // Auto-swap sides when the side-change threshold is reached.
-      if (_shouldShowSideChangeReminder()) _isSwapped = !_isSwapped;
     });
+    if (_shouldShowSideChangeReminder()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showSideChangeDialog();
+      });
+    }
+  }
+
+  Future<void> _showSideChangeDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        title: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(10)),
+              child: const Icon(Icons.swap_horiz_rounded, color: _kGold, size: 20),
+            ),
+            const SizedBox(width: 12),
+            const Text('Side Change', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          ],
+        ),
+        content: Text(
+          'Total score is ${_score1 + _score2}.\n\nTeams must switch sides now.',
+          style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _kOlive,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Sides Switched — Continue', style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (mounted) setState(() => _isSwapped = !_isSwapped);
   }
 
   void _removeScore({required bool isLeft}) {
@@ -603,21 +651,6 @@ class _ScorePageState extends State<ScorePage> {
                         ],
                       ),
                     ),
-                    if (_shouldShowSideChangeReminder()) ...[
-                      const SizedBox(height: 4),
-                      Card(
-                        color: Colors.yellow[100],
-                        margin: EdgeInsets.zero,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                          child: Text(
-                            'Side change — total score: ${_score1 + _score2}',
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -678,20 +711,6 @@ class _ScorePageState extends State<ScorePage> {
                 else if (_isActiveSetCompleted)
                   _buildLockBanner('Set completed — undo completion to edit scores'),
                 portraitScoreCards,
-                if (_shouldShowSideChangeReminder()) ...[
-                  const SizedBox(height: 8),
-                  Card(
-                    color: Colors.yellow[100],
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Text(
-                        'Side change — total score: ${_score1 + _score2}',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 24),
                 _buildSectionHeader('Match Actions', Icons.emoji_events_rounded),
                 const SizedBox(height: 8),
