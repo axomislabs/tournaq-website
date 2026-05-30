@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/app_user.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -59,7 +60,10 @@ class _UsersPageState extends State<UsersPage> {
       s = AppDataService.createUser(s, name: _randomName());
     }
     _updateState(s);
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Generated $count random players.')));
+    if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.snackbarGeneratedPlayers(count))));
+    }
   }
 
   Future<void> _showCreateSheet() async {
@@ -143,28 +147,22 @@ class _UsersPageState extends State<UsersPage> {
     }).toList();
   }
 
-  bool get _hasActiveFilters =>
-      _searchCtrl.text.isNotEmpty ||
-      _teamFilter.isNotEmpty ||
-      _tournamentFilter.isNotEmpty ||
-      _clubFilter.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredUsers;
     final total = _localState.users.length;
-    final countLabel = _hasActiveFilters ? '${filtered.length} of $total' : '$total';
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Players'),
+      appBar: TournaQAppBar(title: l10n.pagePlayers),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Create Player', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.btnCreatePlayer, style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -176,29 +174,29 @@ class _UsersPageState extends State<UsersPage> {
           OutlinedButton.icon(
             onPressed: () => _generateRandom(10),
             icon: const Icon(Icons.shuffle_rounded),
-            label: const Text('Generate 10 Random Players'),
+            label: Text(l10n.btnGenerate10RandomPlayers),
             style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           ),
           const SizedBox(height: 20),
           FilterBar(
             searchController: _searchCtrl,
-            hintText: 'Search players...',
+            hintText: l10n.hintSearchPlayers,
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Team', icon: Icons.group_rounded,
+                label: l10n.filterTeam, icon: Icons.group_rounded,
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Tournament', icon: Icons.emoji_events_rounded,
+                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
                 items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _tournamentFilter,
                 onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club', icon: Icons.home_rounded,
+                label: l10n.filterClub, icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
@@ -206,17 +204,17 @@ class _UsersPageState extends State<UsersPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Players ($countLabel)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n.sectionPlayersCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (total == 0)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No players yet.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noPlayersYet, style: const TextStyle(color: Colors.black45)),
             ))
           else if (filtered.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No players match the current filters.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noPlayersFiltered, style: const TextStyle(color: Colors.black45)),
             ))
           else
             ListView.builder(
@@ -241,10 +239,10 @@ class _UsersPageState extends State<UsersPage> {
                       }
                     },
                     itemBuilder: (_) => [
-                      actionMenuItem('assign_team', Icons.group_rounded, 'Assign to Team'),
-                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
+                      actionMenuItem('assign_team', Icons.group_rounded, l10n.menuAssignToTeam),
+                      actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
                       const PopupMenuDivider(),
-                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
+                      actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                     ],
                   ),
                 );

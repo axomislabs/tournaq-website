@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -59,7 +60,10 @@ class _TeamsPageState extends State<TeamsPage> {
       s = AppDataService.createTeam(s, name: _randomName(), scope: TeamScope.temporary);
     }
     _updateState(s);
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Generated $count random teams.')));
+    if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.snackbarGeneratedTeams(count))));
+    }
   }
 
   Future<void> _showCreateSheet() async {
@@ -138,28 +142,22 @@ class _TeamsPageState extends State<TeamsPage> {
     }).toList();
   }
 
-  bool get _hasActiveFilters =>
-      _searchCtrl.text.isNotEmpty ||
-      _playerFilter.isNotEmpty ||
-      _tournamentFilter.isNotEmpty ||
-      _clubFilter.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredTeams;
     final total = _localState.teams.length;
-    final countLabel = _hasActiveFilters ? '${filtered.length} of $total' : '$total';
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Teams'),
+      appBar: TournaQAppBar(title: l10n.pageTeams),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Create Team', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.btnCreateTeam, style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -171,29 +169,29 @@ class _TeamsPageState extends State<TeamsPage> {
           OutlinedButton.icon(
             onPressed: () => _generateRandom(10),
             icon: const Icon(Icons.shuffle_rounded),
-            label: const Text('Generate 10 Random Teams'),
+            label: Text(l10n.btnGenerate10RandomTeams),
             style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
           ),
           const SizedBox(height: 20),
           FilterBar(
             searchController: _searchCtrl,
-            hintText: 'Search teams...',
+            hintText: l10n.hintSearchTeams,
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Player', icon: Icons.person_rounded,
+                label: l10n.filterPlayer, icon: Icons.person_rounded,
                 items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Tournament', icon: Icons.emoji_events_rounded,
+                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
                 items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _tournamentFilter,
                 onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club', icon: Icons.home_rounded,
+                label: l10n.filterClub, icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
@@ -201,17 +199,17 @@ class _TeamsPageState extends State<TeamsPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Teams ($countLabel)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n.sectionTeamsCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (total == 0)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No teams yet.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noTeamsYet, style: const TextStyle(color: Colors.black45)),
             ))
           else if (filtered.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No teams match the current filters.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noTeamsFiltered, style: const TextStyle(color: Colors.black45)),
             ))
           else
             ListView.builder(
@@ -242,11 +240,11 @@ class _TeamsPageState extends State<TeamsPage> {
                       }
                     },
                     itemBuilder: (_) => [
-                      actionMenuItem('assign_player', Icons.edit_rounded, 'Edit Players'),
-                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, 'Assign to Tournament'),
-                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
+                      actionMenuItem('assign_player', Icons.edit_rounded, l10n.menuEditPlayers),
+                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, l10n.menuAssignToTournament),
+                      actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
                       const PopupMenuDivider(),
-                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
+                      actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                     ],
                   ),
                 );

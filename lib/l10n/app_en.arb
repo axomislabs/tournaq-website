@@ -8,16 +8,40 @@
   "@appTagline": { "description": "Subtitle shown on splash and drawer" },
 
   "navHome": "Home",
-  "@navHome": { "description": "Navigation drawer item" },
+  "@navHome": {},
 
   "navQuickStart": "Quick Start Game",
-  "@navQuickStart": { "description": "Navigation drawer item" },
+  "@navQuickStart": {},
 
   "navSponsoring": "Sponsoring & Promo",
-  "@navSponsoring": { "description": "Navigation drawer item" },
+  "@navSponsoring": {},
 
   "navContact": "Contact & About",
-  "@navContact": { "description": "Navigation drawer item" },
+  "@navContact": {},
+
+  "pageGames": "Games",
+  "@pageGames": {},
+
+  "pageTeams": "Teams",
+  "@pageTeams": {},
+
+  "pagePlayers": "Players",
+  "@pagePlayers": {},
+
+  "pageTournaments": "Tournaments",
+  "@pageTournaments": {},
+
+  "pageClubs": "Clubs",
+  "@pageClubs": {},
+
+  "pageGameScorecard": "Game Scorecard",
+  "@pageGameScorecard": {},
+
+  "pageGameplayHistory": "Match History",
+  "@pageGameplayHistory": {},
+
+  "pageTeamDetails": "Team Details",
+  "@pageTeamDetails": {},
 
   "btnStartGame": "Start Game",
   "@btnStartGame": {},
@@ -37,6 +61,12 @@
   "btnOk": "OK",
   "@btnOk": {},
 
+  "btnDelete": "Delete",
+  "@btnDelete": {},
+
+  "btnAssign": "Assign",
+  "@btnAssign": {},
+
   "btnGiveFeedback": "Give Feedback",
   "@btnGiveFeedback": {},
 
@@ -52,10 +82,34 @@
   "btnSaveAndReturn": "Save & Return to Games",
   "@btnSaveAndReturn": {},
 
-  "quickStartTitle": "Quick Start a Game",
+  "btnCreateTeam": "Create Team",
+  "@btnCreateTeam": {},
+
+  "btnCreatePlayer": "Create Player",
+  "@btnCreatePlayer": {},
+
+  "btnCreateTournament": "Create Tournament",
+  "@btnCreateTournament": {},
+
+  "btnCreateClub": "Create Club",
+  "@btnCreateClub": {},
+
+  "btnSavePlayers": "Save Players",
+  "@btnSavePlayers": {},
+
+  "btnDeleteHistory": "Delete History",
+  "@btnDeleteHistory": {},
+
+  "btnGenerate10RandomTeams": "Generate 10 Random Teams",
+  "@btnGenerate10RandomTeams": {},
+
+  "btnGenerate10RandomPlayers": "Generate 10 Random Players",
+  "@btnGenerate10RandomPlayers": {},
+
+  "quickStartTitle": "Quick Start Game",
   "@quickStartTitle": {},
 
-  "quickStartFormatQuestion": "How long is the match?",
+  "quickStartFormatQuestion": "How many sets?",
   "@quickStartFormatQuestion": {},
 
   "quickStartTeamQuestion": "How would you like to choose your teams?",
@@ -82,20 +136,239 @@
   "teamMethodRandom": "Generate Random Teams",
   "@teamMethodRandom": {},
 
+  "quickStartSelectTeam1": "Select Team 1",
+  "@quickStartSelectTeam1": {},
+
+  "quickStartSelectTeam2": "Select Team 2",
+  "@quickStartSelectTeam2": {},
+
+  "quickStartTeam1Name": "Team 1 Name",
+  "@quickStartTeam1Name": {},
+
+  "quickStartTeam2Name": "Team 2 Name",
+  "@quickStartTeam2Name": {},
+
+  "quickStartBack": "Back",
+  "@quickStartBack": {},
+
+  "quickStartReRoll": "Re-roll",
+  "@quickStartReRoll": {},
+
+  "sectionMatchHistory": "Match History",
+  "@sectionMatchHistory": {},
+
+  "sectionGameplayControls": "Gameplay Controls",
+  "@sectionGameplayControls": {},
+
+  "sectionMatchActions": "Match Actions",
+  "@sectionMatchActions": {},
+
+  "sectionSponsoring": "Sponsoring",
+  "@sectionSponsoring": {},
+
+  "sectionOpportunities": "Opportunities",
+  "@sectionOpportunities": {},
+
+  "sectionGetInvolved": "Get Involved",
+  "@sectionGetInvolved": {},
+
+  "sectionTeamsCount": "Teams ({count})",
+  "@sectionTeamsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "sectionPlayersCount": "Players ({count})",
+  "@sectionPlayersCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "sectionTournamentsCount": "Tournaments ({count})",
+  "@sectionTournamentsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "sectionClubsCount": "Clubs ({count})",
+  "@sectionClubsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "hintSearchTeams": "Search teams...",
+  "@hintSearchTeams": {},
+
+  "hintSearchPlayers": "Search players...",
+  "@hintSearchPlayers": {},
+
+  "hintSearchTournaments": "Search tournaments...",
+  "@hintSearchTournaments": {},
+
+  "hintSearchClubs": "Search clubs...",
+  "@hintSearchClubs": {},
+
+  "filterPlayer": "Player",
+  "@filterPlayer": {},
+
+  "filterTeam": "Team",
+  "@filterTeam": {},
+
+  "filterTournament": "Tournament",
+  "@filterTournament": {},
+
+  "filterClub": "Club",
+  "@filterClub": {},
+
+  "filterMode": "Mode",
+  "@filterMode": {},
+
+  "filterStatus": "Status",
+  "@filterStatus": {},
+
+  "filterSource": "Source",
+  "@filterSource": {},
+
   "sideChangeTitle": "Side Change",
   "@sideChangeTitle": {},
 
   "sideChangeBody": "Teams must switch sides now.",
   "@sideChangeBody": {},
 
+  "sideChangeBodyWithScore": "Total score is {score}.\n\nTeams must switch sides now.",
+  "@sideChangeBodyWithScore": {
+    "placeholders": {
+      "score": { "type": "int" }
+    }
+  },
+
   "sideChangeContinue": "Sides Switched — Continue",
   "@sideChangeContinue": {},
+
+  "scoreGameOptions": "Game Options",
+  "@scoreGameOptions": {},
+
+  "scoreSwapTeams": "Swap Teams",
+  "@scoreSwapTeams": {},
+
+  "scoreSwapSubtitle": "Switch left and right sides",
+  "@scoreSwapSubtitle": {},
+
+  "scoreChangeService": "Change Service",
+  "@scoreChangeService": {},
+
+  "scoreChangeServiceSubtitle": "Advance to next server",
+  "@scoreChangeServiceSubtitle": {},
+
+  "scoreGameplayHistory": "Gameplay History",
+  "@scoreGameplayHistory": {},
+
+  "scoreGameplayHistorySubtitle": "Point-by-point scoring timeline",
+  "@scoreGameplayHistorySubtitle": {},
+
+  "scoreHistoryCompact": "History",
+  "@scoreHistoryCompact": {},
+
+  "scoreTargetScore": "Target score:",
+  "@scoreTargetScore": {},
+
+  "scoreLockBannerGameComplete": "Game completed — undo completion to edit scores",
+  "@scoreLockBannerGameComplete": {},
+
+  "scoreLockBannerSetComplete": "Set completed — undo completion to edit scores",
+  "@scoreLockBannerSetComplete": {},
+
+  "scoreTooltipDecrease": "Decrease",
+  "@scoreTooltipDecrease": {},
+
+  "scoreTooltipIncrease": "Increase",
+  "@scoreTooltipIncrease": {},
+
+  "gameStatusCompleted": "Completed",
+  "@gameStatusCompleted": {},
+
+  "gameStatusInProgress": "In Progress",
+  "@gameStatusInProgress": {},
+
+  "gameStatusPending": "Pending",
+  "@gameStatusPending": {},
+
+  "gameMenuScorecard": "Scoreboard",
+  "@gameMenuScorecard": {},
+
+  "gameMenuDelete": "Delete Game",
+  "@gameMenuDelete": {},
+
+  "gameTileQuick": "Quick",
+  "@gameTileQuick": {},
+
+  "setHeader": "Set {n}  ·  to {target}",
+  "@setHeader": {
+    "placeholders": {
+      "n": { "type": "int" },
+      "target": { "type": "int" }
+    }
+  },
+
+  "setFinalScore": "Final: {s1} – {s2}",
+  "@setFinalScore": {
+    "placeholders": {
+      "s1": { "type": "int" },
+      "s2": { "type": "int" }
+    }
+  },
 
   "comingSoon": "Coming Soon",
   "@comingSoon": {},
 
+  "comingSoonLabel": "COMING SOON",
+  "@comingSoonLabel": {},
+
   "comingSoonBody": "Your feedback can help shape this feature before it launches.",
   "@comingSoonBody": {},
+
+  "landingQuickStartSubtitle": "Beach Volleyball Match",
+  "@landingQuickStartSubtitle": {},
+
+  "landingMatchHistoryTitle": "Match History",
+  "@landingMatchHistoryTitle": {},
+
+  "landingMatchHistorySubtitle": "Browse and review past games",
+  "@landingMatchHistorySubtitle": {},
+
+  "landingTournamentManagement": "Tournament Management",
+  "@landingTournamentManagement": {},
+
+  "landingTournamentManagementSub": "Create and manage tournaments with multiple formats.",
+  "@landingTournamentManagementSub": {},
+
+  "landingTournamentManagementDesc": "Organize structured competitions, formats, and match results in one place.",
+  "@landingTournamentManagementDesc": {},
+
+  "landingAdminTitle": "Player, Team & Club Administration",
+  "@landingAdminTitle": {},
+
+  "landingAdminSub": "Organize players, teams and clubs.",
+  "@landingAdminSub": {},
+
+  "landingAdminDesc": "Organize Players, Teams and Clubs.",
+  "@landingAdminDesc": {},
+
+  "landingAdminPageTitle": "Administration",
+  "@landingAdminPageTitle": {},
+
+  "landingCloudTitle": "Cloud Services",
+  "@landingCloudTitle": {},
+
+  "landingCloudSub": "Cloud synchronization and connected features.",
+  "@landingCloudSub": {},
+
+  "landingCloudDesc": "Future connected features for syncing, sharing, and accessing TournaQ across devices.",
+  "@landingCloudDesc": {},
 
   "promoSupportTitle": "Support TournaQ",
   "@promoSupportTitle": {},
@@ -112,7 +385,7 @@
   "promoRateTitle": "Enjoying TournaQ?",
   "@promoRateTitle": {},
 
-  "promoRateSubtitle": "Ratings help us reach more players and organizers.",
+  "promoRateSubtitle": "Your rating helps us grow and improve TournaQ.",
   "@promoRateSubtitle": {},
 
   "promoHelpTitle": "Help Shape TournaQ",
@@ -120,6 +393,87 @@
 
   "promoHelpSubtitle": "We welcome suggestions and ideas for future features and partnerships.",
   "@promoHelpSubtitle": {},
+
+  "promoAdPlaceholder": "Advertisement",
+  "@promoAdPlaceholder": {},
+
+  "promoAdNotSupported": "Ads available on iOS & Android",
+  "@promoAdNotSupported": {},
+
+  "promoAdThankYou": "Thank you for supporting TournaQ.",
+  "@promoAdThankYou": {},
+
+  "promoPartnerSpotlight": "Partner Spotlight",
+  "@promoPartnerSpotlight": {},
+
+  "promoPartnerSpotlightSub": "Future partners, clubs and organizations may be featured here.",
+  "@promoPartnerSpotlightSub": {},
+
+  "promoTournamentPartnerships": "Tournament Partnerships",
+  "@promoTournamentPartnerships": {},
+
+  "promoTournamentPartnershipsSub": "Support for tournament organizers and event partnerships.",
+  "@promoTournamentPartnershipsSub": {},
+
+  "promoPromoteEvent": "Promote Your Event",
+  "@promoPromoteEvent": {},
+
+  "promoPromoteEventSub": "Future opportunities to showcase tournaments, leagues and events.",
+  "@promoPromoteEventSub": {},
+
+  "contactInstagram": "Instagram",
+  "@contactInstagram": {},
+
+  "contactInstagramHandle": "@tournaq",
+  "@contactInstagramHandle": {},
+
+  "contactSectionSocial": "Social",
+  "@contactSectionSocial": {},
+
+  "contactSectionSupport": "Contact & Support",
+  "@contactSectionSupport": {},
+
+  "contactEmailLabel": "Email",
+  "@contactEmailLabel": {},
+
+  "contactFeedbackForm": "Feedback Form",
+  "@contactFeedbackForm": {},
+
+  "contactFeedbackSubtitle": "Feedback, bugs and feature requests",
+  "@contactFeedbackSubtitle": {},
+
+  "contactWebsite": "Website",
+  "@contactWebsite": {},
+
+  "contactWebsiteSubtitle": "Coming soon",
+  "@contactWebsiteSubtitle": {},
+
+  "contactSectionLegal": "Legal",
+  "@contactSectionLegal": {},
+
+  "contactPrivacyPolicy": "Privacy Policy",
+  "@contactPrivacyPolicy": {},
+
+  "contactPrivacyPolicySub": "How we handle your data",
+  "@contactPrivacyPolicySub": {},
+
+  "contactTermsOfUse": "Terms of Use",
+  "@contactTermsOfUse": {},
+
+  "contactTermsOfUseSub": "Rules for using TournaQ",
+  "@contactTermsOfUseSub": {},
+
+  "contactLegalNotice": "Legal Notice",
+  "@contactLegalNotice": {},
+
+  "contactLegalNoticeSub": "Developer & app information (EU)",
+  "@contactLegalNoticeSub": {},
+
+  "contactPrivacyOptions": "Privacy Options",
+  "@contactPrivacyOptions": {},
+
+  "contactPrivacyOptionsSub": "Manage your ad consent choices",
+  "@contactPrivacyOptionsSub": {},
 
   "ratingDialogBody": "A quick rating helps us reach more players and tournament organizers.",
   "@ratingDialogBody": {},
@@ -130,20 +484,171 @@
   "deleteHistoryBody": "This will permanently delete all local game records. This cannot be undone.",
   "@deleteHistoryBody": {},
 
-  "noGamesYet": "No scoring history yet",
+  "dialogDeleteTitle": "Delete {name}?",
+  "@dialogDeleteTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "dialogDeleteBody": "This cannot be undone.",
+  "@dialogDeleteBody": {},
+
+  "dialogRemovePlayer": "Remove Player",
+  "@dialogRemovePlayer": {},
+
+  "dialogRemovePlayerBody": "Remove this player from the team?",
+  "@dialogRemovePlayerBody": {},
+
+  "dialogRemoveFromTournament": "Remove from Tournament",
+  "@dialogRemoveFromTournament": {},
+
+  "dialogRemoveFromTournamentBody": "Remove this team from the tournament?",
+  "@dialogRemoveFromTournamentBody": {},
+
+  "dialogRemoveFromClub": "Remove from Club",
+  "@dialogRemoveFromClub": {},
+
+  "dialogRemoveFromClubBody": "Remove this team from the club?",
+  "@dialogRemoveFromClubBody": {},
+
+  "menuEditPlayers": "Edit Players",
+  "@menuEditPlayers": {},
+
+  "menuAssignToTournament": "Assign to Tournament",
+  "@menuAssignToTournament": {},
+
+  "menuAssignToClub": "Assign to Club",
+  "@menuAssignToClub": {},
+
+  "menuAssignToTeam": "Assign to Team",
+  "@menuAssignToTeam": {},
+
+  "menuAssignPlayer": "Assign Player",
+  "@menuAssignPlayer": {},
+
+  "menuAssignTeam": "Assign Team",
+  "@menuAssignTeam": {},
+
+  "menuAssignTournament": "Assign Tournament",
+  "@menuAssignTournament": {},
+
+  "menuGenerateGames": "Generate Games",
+  "@menuGenerateGames": {},
+
+  "menuAddToTournament": "Add to Tournament",
+  "@menuAddToTournament": {},
+
+  "menuAddToClub": "Add to Club",
+  "@menuAddToClub": {},
+
+  "noGamesYet": "No games yet",
   "@noGamesYet": {},
 
   "noGamesYetSubtitle": "Start scoring to track gameplay.",
   "@noGamesYetSubtitle": {},
 
+  "noGamesYetHint": "Use Quick Start above or create a tournament.",
+  "@noGamesYetHint": {},
+
+  "noGamesFiltered": "No games match the current filters",
+  "@noGamesFiltered": {},
+
+  "noGamesFilteredHint": "Try clearing some filters.",
+  "@noGamesFilteredHint": {},
+
   "noTeamsYet": "No teams yet.",
   "@noTeamsYet": {},
+
+  "noTeamsFiltered": "No teams match the current filters.",
+  "@noTeamsFiltered": {},
+
+  "noPlayersYet": "No players yet.",
+  "@noPlayersYet": {},
+
+  "noPlayersFiltered": "No players match the current filters.",
+  "@noPlayersFiltered": {},
 
   "noTournamentsYet": "No tournaments yet.",
   "@noTournamentsYet": {},
 
+  "noTournamentsFiltered": "No tournaments match the current filters.",
+  "@noTournamentsFiltered": {},
+
   "noClubsYet": "No clubs yet.",
   "@noClubsYet": {},
+
+  "noClubsFiltered": "No clubs match the current filters.",
+  "@noClubsFiltered": {},
+
+  "noScoringHistoryYet": "No scoring history yet",
+  "@noScoringHistoryYet": {},
+
+  "noPlayersInTeam": "No players yet.",
+  "@noPlayersInTeam": {},
+
+  "noTournamentsInTeam": "Not in any tournaments yet.",
+  "@noTournamentsInTeam": {},
+
+  "noClubsInTeam": "Not in any clubs yet.",
+  "@noClubsInTeam": {},
+
+  "teamNotFound": "Team not found.",
+  "@teamNotFound": {},
+
+  "snackbarGeneratedTeams": "Generated {count} random teams.",
+  "@snackbarGeneratedTeams": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "snackbarGeneratedPlayers": "Generated {count} random players.",
+  "@snackbarGeneratedPlayers": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "snackbarGamesAlreadyGenerated": "Games already generated for this tournament.",
+  "@snackbarGamesAlreadyGenerated": {},
+
+  "snackbarAddTeamsFirst": "Add at least 2 teams before generating games.",
+  "@snackbarAddTeamsFirst": {},
+
+  "teamScopeLabel": "Scope: {name}",
+  "@teamScopeLabel": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "editPlayerNamesSubtitle": "Edit player names",
+  "@editPlayerNamesSubtitle": {},
+
+  "playerOne": "Player 1",
+  "@playerOne": {},
+
+  "playerTwo": "Player 2",
+  "@playerTwo": {},
+
+  "navSettings": "Settings",
+  "@navSettings": {},
+
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {},
+
+  "langAutomatic": "Automatic",
+  "@langAutomatic": {},
+
+  "langEnglish": "English",
+  "@langEnglish": {},
+
+  "langGerman": "Deutsch",
+  "@langGerman": {},
+
+  "langSpanish": "Español",
+  "@langSpanish": {},
 
   "errorLinkNotAvailable": "Link not available yet",
   "@errorLinkNotAvailable": {},
@@ -155,5 +660,416 @@
   "@errorCouldNotOpenEmail": {},
 
   "errorStoreNotAvailable": "Could not open the store — please search for TournaQ manually.",
-  "@errorStoreNotAvailable": {}
+  "@errorStoreNotAvailable": {},
+
+  "gameOptions": "Game Options",
+  "@gameOptions": {},
+
+  "swapTeams": "Swap Teams",
+  "@swapTeams": {},
+
+  "swapTeamsSubtitle": "Switch left and right sides",
+  "@swapTeamsSubtitle": {},
+
+  "changeService": "Change Service",
+  "@changeService": {},
+
+  "changeServiceSubtitle": "Advance to next server",
+  "@changeServiceSubtitle": {},
+
+  "gameplayHistorySubtitle": "Point-by-point scoring timeline",
+  "@gameplayHistorySubtitle": {},
+
+  "historyShort": "History",
+  "@historyShort": {},
+
+  "completeSet": "Complete Set",
+  "@completeSet": {},
+
+  "undoSetCompletion": "Undo Set Completion",
+  "@undoSetCompletion": {},
+
+  "completeGame": "Complete Game",
+  "@completeGame": {},
+
+  "undoGameCompletion": "Undo Game Completion",
+  "@undoGameCompletion": {},
+
+  "targetScore": "Target score:",
+  "@targetScore": {},
+
+  "swapPlayers": "Swap Players",
+  "@swapPlayers": {},
+
+  "lockBannerGame": "Game completed — undo completion to edit scores",
+  "@lockBannerGame": {},
+
+  "lockBannerSet": "Set completed — undo completion to edit scores",
+  "@lockBannerSet": {},
+
+  "gameTileWinner": "Winner: {name}",
+  "@gameTileWinner": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "gameTileMatch": "Match: {status}",
+  "@gameTileMatch": {
+    "placeholders": { "status": { "type": "String" } }
+  },
+
+  "menuGameScorecard": "Game Scorecard",
+  "@menuGameScorecard": {},
+
+  "btnDeleteGame": "Delete Game",
+  "@btnDeleteGame": {},
+
+  "pagePlayerDetails": "Player Details",
+  "@pagePlayerDetails": {},
+
+  "pageClubDetails": "Club Details",
+  "@pageClubDetails": {},
+
+  "playerNotFound": "Player not found.",
+  "@playerNotFound": {},
+
+  "clubNotFound": "Club not found.",
+  "@clubNotFound": {},
+
+  "dialogRemoveFromTeam": "Remove from Team",
+  "@dialogRemoveFromTeam": {},
+
+  "dialogRemoveFromTeamBody": "Remove this player from the team?",
+  "@dialogRemoveFromTeamBody": {},
+
+  "dialogRemovePlayerFromClubBody": "Remove this player from the club?",
+  "@dialogRemovePlayerFromClubBody": {},
+
+  "dialogRemoveTournamentFromClub": "Remove Tournament",
+  "@dialogRemoveTournamentFromClub": {},
+
+  "dialogRemoveTournamentFromClubBody": "Remove this tournament from the club?",
+  "@dialogRemoveTournamentFromClubBody": {},
+
+  "notAssignedToTeams": "Not assigned to any teams.",
+  "@notAssignedToTeams": {},
+
+  "notAssignedToClubs": "Not assigned to any clubs.",
+  "@notAssignedToClubs": {},
+
+  "userEmailLabel": "Email: {email}",
+  "@userEmailLabel": {
+    "placeholders": { "email": { "type": "String" } }
+  },
+
+  "userRoleLabel": "Role: {role}",
+  "@userRoleLabel": {
+    "placeholders": { "role": { "type": "String" } }
+  },
+
+  "menuAddPlayer": "Add Player",
+  "@menuAddPlayer": {},
+
+  "menuAddTeam": "Add Team",
+  "@menuAddTeam": {},
+
+  "menuAddTournament": "Add Tournament",
+  "@menuAddTournament": {},
+
+  "labelName": "Name",
+  "@labelName": {},
+
+  "btnSuggest": "Suggest",
+  "@btnSuggest": {},
+
+  "labelEmailOptional": "Email (optional)",
+  "@labelEmailOptional": {},
+
+  "labelRoleOptional": "Role (optional)",
+  "@labelRoleOptional": {},
+
+  "labelScope": "Scope",
+  "@labelScope": {},
+
+  "hintClubName": "Club name",
+  "@hintClubName": {},
+
+  "labelAssignToTeams": "Assign to Teams",
+  "@labelAssignToTeams": {},
+
+  "labelAssignToClubs": "Assign to Clubs",
+  "@labelAssignToClubs": {},
+
+  "labelAssignToTournaments": "Assign to Tournaments",
+  "@labelAssignToTournaments": {},
+
+  "labelAssignPlayers": "Assign Players",
+  "@labelAssignPlayers": {},
+
+  "labelAssignTeams": "Assign Teams",
+  "@labelAssignTeams": {},
+
+  "labelAssignTournaments": "Assign Tournaments",
+  "@labelAssignTournaments": {},
+
+  "scopeTemporary": "Temporary",
+  "@scopeTemporary": {},
+
+  "scopeTournament": "Tournament",
+  "@scopeTournament": {},
+
+  "scopeClub": "Club",
+  "@scopeClub": {},
+
+  "labelMode": "Mode",
+  "@labelMode": {},
+
+  "hybridConfigureGroups": "Configure Hybrid Groups",
+  "@hybridConfigureGroups": {},
+
+  "hybridGroupsConfigured": "{count} groups configured — tap to edit",
+  "@hybridGroupsConfigured": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "labelAssignExistingTeams": "Assign Existing Teams",
+  "@labelAssignExistingTeams": {},
+
+  "filterAllClubs": "All clubs",
+  "@filterAllClubs": {},
+
+  "noTeamsInClub": "No teams in this club.",
+  "@noTeamsInClub": {},
+
+  "noTeamsAvailableYet": "No teams available yet.",
+  "@noTeamsAvailableYet": {},
+
+  "labelAvailable": "Available",
+  "@labelAvailable": {},
+
+  "hintDragTeamsHere": "Tap or drag teams here",
+  "@hintDragTeamsHere": {},
+
+  "labelSelectedCount": "Selected ({count})",
+  "@labelSelectedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "labelGenerateRandomTeams": "Generate Random Teams",
+  "@labelGenerateRandomTeams": {},
+
+  "labelNone": "None",
+  "@labelNone": {},
+
+  "labelClubForRandomTeams": "Club for random teams",
+  "@labelClubForRandomTeams": {},
+
+  "radioNoClub": "No club",
+  "@radioNoClub": {},
+
+  "radioAddToExistingClub": "Add to existing club",
+  "@radioAddToExistingClub": {},
+
+  "hintSelectClub": "Select a club",
+  "@hintSelectClub": {},
+
+  "radioCreateNewClub": "Create new club",
+  "@radioCreateNewClub": {},
+
+  "hintClubNameRandom": "Club name (leave blank for random)",
+  "@hintClubNameRandom": {},
+
+  "tooltipSuggestName": "Suggest a name",
+  "@tooltipSuggestName": {},
+
+  "noTeamsFoundSearch": "No teams found.",
+  "@noTeamsFoundSearch": {},
+
+  "quickStartShort": "Quick Start",
+  "@quickStartShort": {},
+
+  "formatBestOfThreeShort": "Best of Three",
+  "@formatBestOfThreeShort": {},
+
+  "teamMethodExistingSubtitle": "Choose from your saved teams",
+  "@teamMethodExistingSubtitle": {},
+
+  "teamMethodNewSubtitle": "Name your teams on the fly",
+  "@teamMethodNewSubtitle": {},
+
+  "teamMethodRandomSubtitle": "Let us pick fun team names",
+  "@teamMethodRandomSubtitle": {},
+
+  "quickStartChooseTeams": "Choose your teams",
+  "@quickStartChooseTeams": {},
+
+  "quickStartSelectTeamsTitle": "Select Teams",
+  "@quickStartSelectTeamsTitle": {},
+
+  "quickStartNotEnoughTeams": "Not enough teams",
+  "@quickStartNotEnoughTeams": {},
+
+  "quickStartNotEnoughTeamsBody": "You need at least 2 saved teams.\nTry creating or generating teams instead.",
+  "@quickStartNotEnoughTeamsBody": {},
+
+  "teamOne": "Team 1",
+  "@teamOne": {},
+
+  "teamTwo": "Team 2",
+  "@teamTwo": {},
+
+  "quickStartChooseTeam1": "Choose Team 1",
+  "@quickStartChooseTeam1": {},
+
+  "quickStartChooseTeam2": "Choose Team 2",
+  "@quickStartChooseTeam2": {},
+
+  "quickStartCreateTeamsTitle": "Create Teams",
+  "@quickStartCreateTeamsTitle": {},
+
+  "hintTeam1Example": "e.g. Red Eagles",
+  "@hintTeam1Example": {},
+
+  "hintTeam2Example": "e.g. Blue Lions",
+  "@hintTeam2Example": {},
+
+  "quickStartRandomTeamsTitle": "Random Teams",
+  "@quickStartRandomTeamsTitle": {},
+
+  "quickStartReRollTeams": "Re-roll Teams",
+  "@quickStartReRollTeams": {},
+
+  "btnStart": "Start",
+  "@btnStart": {},
+
+  "labelVs": "vs",
+  "@labelVs": {},
+
+  "hybridModeSetup": "Hybrid Mode Setup",
+  "@hybridModeSetup": {},
+
+  "btnDone": "Done",
+  "@btnDone": {},
+
+  "hybridAvailableModes": "Available Modes",
+  "@hybridAvailableModes": {},
+
+  "hybridRemaining": "{count} remaining",
+  "@hybridRemaining": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "hybridDragHint": "Long-press to drag into a group, or tap to add to the first group.",
+  "@hybridDragHint": {},
+
+  "hybridAllModesAssigned": "All modes assigned to groups.",
+  "@hybridAllModesAssigned": {},
+
+  "hybridModeGroups": "Mode Groups",
+  "@hybridModeGroups": {},
+
+  "hybridAddGroup": "Add Group",
+  "@hybridAddGroup": {},
+
+  "hybridAddGroupHint": "Add a group above, then drag or tap modes into it.",
+  "@hybridAddGroupHint": {},
+
+  "hybridGroupN": "Group {n}",
+  "@hybridGroupN": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "hybridDragModesHere": "Drag modes here",
+  "@hybridDragModesHere": {},
+
+  "hybridTip": "Tip: Each group defines a round of play. Teams cycle through all mode groups.",
+  "@hybridTip": {},
+
+  "pageTournamentDetails": "Tournament Details",
+  "@pageTournamentDetails": {},
+
+  "tournamentNotFound": "Tournament not found.",
+  "@tournamentNotFound": {},
+
+  "assignAllTeamsInTournament": "All teams are already in this tournament.",
+  "@assignAllTeamsInTournament": {},
+
+  "assignTournamentAllClubs": "Tournament is already in all clubs.",
+  "@assignTournamentAllClubs": {},
+
+  "snackbarAddTeamsFirstCreate": "Add at least 2 teams before creating games.",
+  "@snackbarAddTeamsFirstCreate": {},
+
+  "dialogClearAllGames": "Clear All Games",
+  "@dialogClearAllGames": {},
+
+  "dialogClearAllGamesBody": "Are you sure you want to delete all games in this tournament?",
+  "@dialogClearAllGamesBody": {},
+
+  "btnClear": "Clear",
+  "@btnClear": {},
+
+  "btnCreateGame": "Create Game",
+  "@btnCreateGame": {},
+
+  "btnClearGames": "Clear Games",
+  "@btnClearGames": {},
+
+  "tournamentModeLabel": "Mode: {name}",
+  "@tournamentModeLabel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "tournamentStatusLabel": "Status: {name}",
+  "@tournamentStatusLabel": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "tournamentTeamsLabel": "Teams: {count}",
+  "@tournamentTeamsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "tournamentGamesLabel": "Games: {count}",
+  "@tournamentGamesLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "sectionHybridGroups": "Hybrid Groups",
+  "@sectionHybridGroups": {},
+
+  "noHybridGroupsYet": "No hybrid groups configured yet.",
+  "@noHybridGroupsYet": {},
+
+  "noTeamsAssignedYet": "No teams assigned yet.",
+  "@noTeamsAssignedYet": {},
+
+  "nPlayersCount": "{count} player(s)",
+  "@nPlayersCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "sectionLeagueStandings": "League Standings",
+  "@sectionLeagueStandings": {},
+
+  "labelUnknown": "Unknown",
+  "@labelUnknown": {},
+
+  "sectionGamesCount": "Games ({count})",
+  "@sectionGamesCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "noGamesCreatedYet": "No games created yet.",
+  "@noGamesCreatedYet": {},
+
+  "notInAnyClubsYet": "Not in any clubs yet.",
+  "@notInAnyClubsYet": {},
+
+  "clubPlayersAndTeams": "{players} player(s) • {teams} team(s)",
+  "@clubPlayersAndTeams": {
+    "placeholders": {
+      "players": { "type": "int" },
+      "teams": { "type": "int" }
+    }
+  }
 }

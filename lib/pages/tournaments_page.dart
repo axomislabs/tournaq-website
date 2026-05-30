@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../services/app_data_service.dart';
@@ -91,15 +92,16 @@ class _TournamentsPageState extends State<TournamentsPage> {
   void _generateGames(String tournamentId) {
     final tournament = _localState.getTournamentById(tournamentId);
     if (tournament == null) return;
+    final l10n = AppLocalizations.of(context)!;
     if (tournament.gameIds.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Games already generated for this tournament.')),
+        SnackBar(content: Text(l10n.snackbarGamesAlreadyGenerated)),
       );
       return;
     }
     if (tournament.teamIds.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least 2 teams before generating games.')),
+        SnackBar(content: Text(l10n.snackbarAddTeamsFirst)),
       );
       return;
     }
@@ -147,32 +149,25 @@ class _TournamentsPageState extends State<TournamentsPage> {
     }).toList();
   }
 
-  bool get _hasActiveFilters =>
-      _searchCtrl.text.isNotEmpty ||
-      _teamFilter.isNotEmpty ||
-      _playerFilter.isNotEmpty ||
-      _clubFilter.isNotEmpty ||
-      _modeFilter.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredTournaments;
     final total = _localState.tournaments.length;
-    final countLabel = _hasActiveFilters ? '${filtered.length} of $total' : '$total';
     final modeItems = TournamentModeType.values
         .map((m) => (id: m.name, name: TournamentMode.fromType(m).displayName))
         .toList();
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Tournaments'),
+      appBar: TournaQAppBar(title: l10n.pageTournaments),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.btnCreateTournament, style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -183,29 +178,29 @@ class _TournamentsPageState extends State<TournamentsPage> {
           const SizedBox(height: 20),
           FilterBar(
             searchController: _searchCtrl,
-            hintText: 'Search tournaments...',
+            hintText: l10n.hintSearchTournaments,
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Team', icon: Icons.group_rounded,
+                label: l10n.filterTeam, icon: Icons.group_rounded,
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Player', icon: Icons.person_rounded,
+                label: l10n.filterPlayer, icon: Icons.person_rounded,
                 items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Club', icon: Icons.home_rounded,
+                label: l10n.filterClub, icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
                 onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Mode', icon: Icons.tune_rounded,
+                label: l10n.filterMode, icon: Icons.tune_rounded,
                 items: modeItems,
                 selectedIds: _modeFilter,
                 onToggle: (id, v) => setState(() { if (v) { _modeFilter.add(id); } else { _modeFilter.remove(id); } }),
@@ -213,17 +208,17 @@ class _TournamentsPageState extends State<TournamentsPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Tournaments ($countLabel)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n.sectionTournamentsCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (total == 0)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No tournaments yet.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noTournamentsYet, style: const TextStyle(color: Colors.black45)),
             ))
           else if (filtered.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No tournaments match the current filters.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noTournamentsFiltered, style: const TextStyle(color: Colors.black45)),
             ))
           else
             ListView.builder(
@@ -249,11 +244,11 @@ class _TournamentsPageState extends State<TournamentsPage> {
                       }
                     },
                     itemBuilder: (_) => [
-                      actionMenuItem('assign_team', Icons.group_rounded, 'Assign Team'),
-                      actionMenuItem('assign_club', Icons.home_rounded, 'Assign to Club'),
-                      actionMenuItem('generate_games', Icons.auto_awesome_rounded, 'Generate Games'),
+                      actionMenuItem('assign_team', Icons.group_rounded, l10n.menuAssignTeam),
+                      actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
+                      actionMenuItem('generate_games', Icons.auto_awesome_rounded, l10n.menuGenerateGames),
                       const PopupMenuDivider(),
-                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
+                      actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                     ],
                   ),
                 );

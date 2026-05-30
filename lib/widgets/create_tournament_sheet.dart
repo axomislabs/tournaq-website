@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/club.dart';
 import '../models/team.dart';
 import '../models/tournament_mode.dart';
@@ -158,13 +158,13 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final clubs = widget.appState.clubs;
 
     return TournaQSheet(
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          // Header
           Row(children: [
             Container(
               padding: const EdgeInsets.all(10),
@@ -172,19 +172,18 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               child: const Icon(Icons.emoji_events_rounded, color: AppColors.gold, size: 22),
             ),
             const SizedBox(width: 12),
-            const Text('Create Tournament', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+            Text(l10n.btnCreateTournament, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
           ]),
           const SizedBox(height: 24),
 
-          // ── Name ────────────────────────────────────────────────────
           Row(children: [
-            const Expanded(child: Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
+            Expanded(child: Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
             GestureDetector(
               onTap: _suggestName,
-              child: const Row(children: [
-                Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
-                SizedBox(width: 4),
-                Text('Suggest', style: TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
+              child: Row(children: [
+                const Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
+                const SizedBox(width: 4),
+                Text(l10n.btnSuggest, style: const TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
               ]),
             ),
           ]),
@@ -200,8 +199,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           ),
           const SizedBox(height: 16),
 
-          // ── Mode ────────────────────────────────────────────────────
-          const Text('Mode', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          Text(l10n.labelMode, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
           const SizedBox(height: 8),
           DropdownButtonFormField<TournamentModeType>(
             initialValue: _mode,
@@ -215,7 +213,6 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
             onChanged: (v) { if (v != null) setState(() => _mode = v); },
           ),
 
-          // Hybrid setup button
           if (_mode == TournamentModeType.hybrid) ...[
             const SizedBox(height: 10),
             OutlinedButton.icon(
@@ -223,8 +220,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               icon: const Icon(Icons.tune_rounded, size: 18),
               label: Text(
                 _hybridGroups.isEmpty
-                    ? 'Configure Hybrid Groups'
-                    : '${_hybridGroups.length} group${_hybridGroups.length == 1 ? '' : 's'} configured — tap to edit',
+                    ? l10n.hybridConfigureGroups
+                    : l10n.hybridGroupsConfigured(_hybridGroups.length),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.gold,
@@ -239,32 +236,29 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           const Divider(height: 1),
           const SizedBox(height: 20),
 
-          // ── Existing Teams ───────────────────────────────────────────
-          const Text('Assign Existing Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          Text(l10n.labelAssignExistingTeams, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
           const SizedBox(height: 10),
 
           if (widget.appState.teams.isEmpty)
-            const Text('No teams available yet.', style: TextStyle(color: Colors.black45, fontSize: 13))
+            Text(l10n.noTeamsAvailableYet, style: const TextStyle(color: Colors.black45, fontSize: 13))
           else ...[
-            // Club filter
             if (clubs.isNotEmpty) ...[
-              _buildClubFilter(clubs),
+              _buildClubFilter(l10n, clubs),
               const SizedBox(height: 10),
             ],
-            _useDragDrop ? _buildDragDropSection() : _buildSearchableSection(),
+            _useDragDrop ? _buildDragDropSection(l10n) : _buildSearchableSection(l10n),
           ],
 
           const SizedBox(height: 24),
           const Divider(height: 1),
           const SizedBox(height: 20),
 
-          // ── Random Teams ─────────────────────────────────────────────
-          const Text('Generate Random Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          Text(l10n.labelGenerateRandomTeams, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8, runSpacing: 4,
             children: [0, 4, 6, 8, 10, 12, 16].map((n) => ChoiceChip(
-              label: Text(n == 0 ? 'None' : '$n'),
+              label: Text(n == 0 ? l10n.labelNone : '$n'),
               selected: _randomTeamCount == n,
               selectedColor: AppColors.goldCream,
               checkmarkColor: AppColors.gold,
@@ -274,17 +268,16 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
 
           if (_randomTeamCount > 0) ...[
             const SizedBox(height: 14),
-            const Text('Club for random teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            Text(l10n.labelClubForRandomTeams, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 4),
-            _buildRandomClubSection(clubs),
+            _buildRandomClubSection(l10n, clubs),
           ],
 
-          // ── Tournament Club Assignment ────────────────────────────────
           if (clubs.isNotEmpty) ...[
             const SizedBox(height: 24),
             const Divider(height: 1),
             const SizedBox(height: 20),
-            const Text('Assign to Clubs', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+            Text(l10n.labelAssignToClubs, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8, runSpacing: 4,
@@ -302,12 +295,11 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
 
           const SizedBox(height: 28),
 
-          // Create button
           SizedBox(width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: _canCreate ? _create : null,
               icon: const Icon(Icons.check_rounded),
-              label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              label: Text(l10n.btnCreateTournament, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.gold,
                 foregroundColor: Colors.white,
@@ -322,12 +314,12 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
     );
   }
 
-  Widget _buildClubFilter(List<Club> clubs) {
+  Widget _buildClubFilter(AppLocalizations l10n, List<Club> clubs) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(children: [
         FilterChip(
-          label: const Text('All clubs'),
+          label: Text(l10n.filterAllClubs),
           selected: _clubFilterId == null,
           selectedColor: AppColors.goldCream,
           checkmarkColor: AppColors.gold,
@@ -347,16 +339,15 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
     );
   }
 
-  Widget _buildDragDropSection() {
+  Widget _buildDragDropSection(AppLocalizations l10n) {
     final available = _filteredTeams.where((t) => !_selectedTeamIds.contains(t.id)).toList();
     final allSelected = widget.appState.teams.where((t) => _selectedTeamIds.contains(t.id)).toList();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      // Available chips (draggable + tappable)
       if (available.isEmpty && allSelected.isEmpty)
-        const Text('No teams in this club.', style: TextStyle(color: Colors.black45, fontSize: 13))
+        Text(l10n.noTeamsInClub, style: const TextStyle(color: Colors.black45, fontSize: 13))
       else if (available.isNotEmpty) ...[
-        const Text('Available', style: TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w600)),
+        Text(l10n.labelAvailable, style: const TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         Wrap(
           spacing: 8, runSpacing: 6,
@@ -385,7 +376,6 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         const SizedBox(height: 10),
       ],
 
-      // Drop zone showing all selected teams
       DragTarget<String>(
         onWillAcceptWithDetails: (d) => !_selectedTeamIds.contains(d.data),
         onAcceptWithDetails: (d) => setState(() => _selectedTeamIds.add(d.data)),
@@ -408,14 +398,11 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                 ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Icon(Icons.drag_indicator_rounded, size: 16, color: Colors.grey[400]),
                     const SizedBox(width: 6),
-                    Text(
-                      'Tap or drag teams here',
-                      style: TextStyle(color: Colors.grey[400], fontSize: 13),
-                    ),
+                    Text(l10n.hintDragTeamsHere, style: TextStyle(color: Colors.grey[400], fontSize: 13)),
                   ])
                 : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(
-                      'Selected (${allSelected.length})',
+                      l10n.labelSelectedCount(allSelected.length),
                       style: const TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 6),
@@ -449,14 +436,13 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
     ]);
   }
 
-  Widget _buildSearchableSection() {
+  Widget _buildSearchableSection(AppLocalizations l10n) {
     final searched = _searchedTeams;
     final allSelected = widget.appState.teams.where((t) => _selectedTeamIds.contains(t.id)).toList();
 
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      // Selected chips
       if (allSelected.isNotEmpty) ...[
-        Text('Selected (${allSelected.length})', style: const TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w600)),
+        Text(l10n.labelSelectedCount(allSelected.length), style: const TextStyle(fontSize: 12, color: Colors.black45, fontWeight: FontWeight.w600)),
         const SizedBox(height: 6),
         Wrap(
           spacing: 8, runSpacing: 6,
@@ -471,11 +457,10 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         const SizedBox(height: 10),
       ],
 
-      // Search field
       TextField(
         controller: _teamSearchCtrl,
         decoration: InputDecoration(
-          hintText: 'Search teams...',
+          hintText: l10n.hintSearchTeams,
           prefixIcon: const Icon(Icons.search_rounded, size: 20),
           isDense: true,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -485,9 +470,9 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
       const SizedBox(height: 8),
 
       if (searched.isEmpty)
-        const Padding(
-          padding: EdgeInsets.all(8),
-          child: Text('No teams found.', style: TextStyle(color: Colors.black45, fontSize: 13)),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(l10n.noTeamsFoundSearch, style: const TextStyle(color: Colors.black45, fontSize: 13)),
         )
       else
         ...searched.map((t) => CheckboxListTile(
@@ -505,7 +490,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
     ]);
   }
 
-  Widget _buildRandomClubSection(List<Club> clubs) {
+  Widget _buildRandomClubSection(AppLocalizations l10n, List<Club> clubs) {
     return RadioGroup<String>(
       groupValue: _randomClubMode,
       onChanged: (v) { if (v != null) setState(() => _randomClubMode = v); },
@@ -513,7 +498,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
       RadioListTile<String>(
         dense: true,
         contentPadding: EdgeInsets.zero,
-        title: const Text('No club', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.radioNoClub, style: const TextStyle(fontSize: 14)),
         value: 'none',
         activeColor: AppColors.gold,
       ),
@@ -521,7 +506,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         RadioListTile<String>(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          title: const Text('Add to existing club', style: TextStyle(fontSize: 14)),
+          title: Text(l10n.radioAddToExistingClub, style: const TextStyle(fontSize: 14)),
           value: 'existing',
           activeColor: AppColors.gold,
         ),
@@ -530,7 +515,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           padding: const EdgeInsets.only(left: 32, bottom: 8),
           child: DropdownButtonFormField<String>(
             initialValue: _randomExistingClubId,
-            hint: const Text('Select a club', style: TextStyle(fontSize: 13)),
+            hint: Text(l10n.hintSelectClub, style: const TextStyle(fontSize: 13)),
             decoration: InputDecoration(
               isDense: true,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -545,7 +530,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
       RadioListTile<String>(
         dense: true,
         contentPadding: EdgeInsets.zero,
-        title: const Text('Create new club', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.radioCreateNewClub, style: const TextStyle(fontSize: 14)),
         value: 'new',
         activeColor: AppColors.gold,
       ),
@@ -557,7 +542,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               controller: _newClubCtrl,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                hintText: 'Club name (leave blank for random)',
+                hintText: l10n.hintClubNameRandom,
                 isDense: true,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -567,9 +552,9 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
             const SizedBox(width: 8),
             GestureDetector(
               onTap: () => setState(() => _newClubCtrl.text = _clubSuggestions[_rng.nextInt(_clubSuggestions.length)]),
-              child: const Tooltip(
-                message: 'Suggest a name',
-                child: Icon(Icons.shuffle_rounded, size: 20, color: AppColors.gold),
+              child: Tooltip(
+                message: l10n.tooltipSuggestName,
+                child: const Icon(Icons.shuffle_rounded, size: 20, color: AppColors.gold),
               ),
             ),
           ]),

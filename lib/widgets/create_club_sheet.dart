@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import 'sheet_helpers.dart';
@@ -60,6 +61,7 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
   }
 
   Widget _buildPortrait(
+    AppLocalizations l10n,
     List<({String id, String name})> players,
     List<({String id, String name})> teams,
     List<({String id, String name})> tournaments,
@@ -72,11 +74,11 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
             decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
             child: const Icon(Icons.shield_rounded, color: AppColors.gold, size: 22)),
           const SizedBox(width: 12),
-          const Text('Create Club', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          Text(l10n.btnCreateClub, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: 24),
 
-        const Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+        Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
         TextField(
           controller: _nameCtrl,
@@ -84,21 +86,21 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            hintText: 'Club name',
+            hintText: l10n.hintClubName,
           ),
           onChanged: (_) => setState(() {}),
         ),
 
-        _buildChipSection('Assign Players', players, _playerIds),
-        _buildChipSection('Assign Teams', teams, _teamIds),
-        _buildChipSection('Assign Tournaments', tournaments, _tournamentIds),
+        _buildChipSection(l10n.labelAssignPlayers, players, _playerIds),
+        _buildChipSection(l10n.labelAssignTeams, teams, _teamIds),
+        _buildChipSection(l10n.labelAssignTournaments, tournaments, _tournamentIds),
         const SizedBox(height: 24),
 
         SizedBox(width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded),
-            label: const Text('Create Club', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: Text(l10n.btnCreateClub, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -113,6 +115,7 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
   }
 
   Widget _buildLandscape(
+    AppLocalizations l10n,
     List<({String id, String name})> players,
     List<({String id, String name})> teams,
     List<({String id, String name})> tournaments,
@@ -120,17 +123,16 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        // Header row: icon + title + Create button
         Row(children: [
           Container(padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
             child: const Icon(Icons.shield_rounded, color: AppColors.gold, size: 18)),
           const SizedBox(width: 10),
-          const Expanded(child: Text('Create Club', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+          Expanded(child: Text(l10n.btnCreateClub, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
           ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded, size: 16),
-            label: const Text('Create', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            label: Text(l10n.btnCreate, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -143,7 +145,7 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
         ]),
         const SizedBox(height: 12),
 
-        const Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+        Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
         const SizedBox(height: 6),
         TextField(
           controller: _nameCtrl,
@@ -152,20 +154,21 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             isDense: true,
-            hintText: 'Club name',
+            hintText: l10n.hintClubName,
           ),
           onChanged: (_) => setState(() {}),
         ),
 
-        _buildChipSection('Players', players, _playerIds),
-        _buildChipSection('Teams', teams, _teamIds),
-        _buildChipSection('Tournaments', tournaments, _tournamentIds),
+        _buildChipSection(l10n.pagePlayers, players, _playerIds),
+        _buildChipSection(l10n.pageTeams, teams, _teamIds),
+        _buildChipSection(l10n.pageTournaments, tournaments, _tournamentIds),
       ]),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final players = widget.appState.users.map((u) => (id: u.id, name: u.name)).toList();
     final teams = widget.appState.teams.map((t) => (id: t.id, name: t.name)).toList();
     final tournaments = widget.appState.tournaments.map((t) => (id: t.id, name: t.name)).toList();
@@ -173,8 +176,8 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(players, teams, tournaments)
-            : _buildPortrait(players, teams, tournaments),
+            ? _buildLandscape(l10n, players, teams, tournaments)
+            : _buildPortrait(l10n, players, teams, tournaments),
       ),
     );
   }

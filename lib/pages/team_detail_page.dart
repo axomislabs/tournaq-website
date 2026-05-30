@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -76,14 +76,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   }
 
   Future<void> _removePlayer(String userId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove Player'),
-        content: const Text('Remove this player from the team?'),
+        title: Text(l10n.dialogRemovePlayer),
+        content: Text(l10n.dialogRemovePlayerBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -95,6 +96,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   // ── Tournament ────────────────────────────────────────────────────────────
 
   Future<void> _assignTournament() async {
+    final l10n = AppLocalizations.of(context)!;
     final team = _team;
     if (team == null) return;
     final items = _localState.tournaments
@@ -102,7 +104,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Tournament', items: items,
+      context: context, title: l10n.menuAssignToTournament, items: items,
       emptyMessage: 'Team is already in all tournaments.',
     );
     if (selected != null && mounted) {
@@ -111,14 +113,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   }
 
   Future<void> _removeFromTournament(String tournamentId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove from Tournament'),
-        content: const Text('Remove this team from the tournament?'),
+        title: Text(l10n.dialogRemoveFromTournament),
+        content: Text(l10n.dialogRemoveFromTournamentBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -130,12 +133,13 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   // ── Club ──────────────────────────────────────────────────────────────────
 
   Future<void> _assignClub() async {
+    final l10n = AppLocalizations.of(context)!;
     final items = _localState.clubs
         .where((c) => !c.teamIds.contains(widget.teamId))
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Club', items: items,
+      context: context, title: l10n.menuAssignToClub, items: items,
       emptyMessage: 'Team is already in all clubs.',
     );
     if (selected != null && mounted) {
@@ -144,14 +148,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   }
 
   Future<void> _removeFromClub(String clubId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove from Club'),
-        content: const Text('Remove this team from the club?'),
+        title: Text(l10n.dialogRemoveFromClub),
+        content: Text(l10n.dialogRemoveFromClubBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -162,11 +167,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final team = _team;
     if (team == null) {
       return Scaffold(
-        appBar: const TournaQAppBar(title: 'Team Details'),
-        body: const Center(child: Text('Team not found.')),
+        appBar: TournaQAppBar(title: l10n.pageTeamDetails),
+        body: Center(child: Text(l10n.teamNotFound)),
       );
     }
 
@@ -176,13 +182,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Team Details'),
+      appBar: TournaQAppBar(title: l10n.pageTeamDetails),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header card
             Card(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: Padding(
@@ -192,23 +197,23 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
                   children: [
                     Text(team.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text('Scope: ${team.scope.name}', style: const TextStyle(color: Colors.black54)),
+                    Text(l10n.teamScopeLabel(team.scope.name), style: const TextStyle(color: Colors.black54)),
                     const SizedBox(height: 16),
                     Wrap(spacing: 10, runSpacing: 8, children: [
                       ElevatedButton.icon(
                         onPressed: _editPlayers,
                         icon: const Icon(Icons.edit_rounded, size: 16),
-                        label: const Text('Edit Players'),
+                        label: Text(l10n.menuEditPlayers),
                       ),
                       ElevatedButton.icon(
                         onPressed: _assignTournament,
                         icon: const Icon(Icons.emoji_events_rounded, size: 16),
-                        label: const Text('Add to Tournament'),
+                        label: Text(l10n.menuAddToTournament),
                       ),
                       ElevatedButton.icon(
                         onPressed: _assignClub,
                         icon: const Icon(Icons.home_rounded, size: 16),
-                        label: const Text('Add to Club'),
+                        label: Text(l10n.menuAddToClub),
                       ),
                     ]),
                   ],
@@ -218,13 +223,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Players section
-            Text('Players (${teamUsers.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionPlayersCount(teamUsers.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (teamUsers.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No players yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noPlayersInTeam, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...teamUsers.map((user) => Card(
@@ -245,13 +249,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Tournaments section
-            Text('Tournaments (${teamTournaments.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionTournamentsCount(teamTournaments.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (teamTournaments.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('Not in any tournaments yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noTournamentsInTeam, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...teamTournaments.map((tournament) => Card(
@@ -272,13 +275,12 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Clubs section
-            Text('Clubs (${teamClubs.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionClubsCount(teamClubs.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (teamClubs.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('Not in any clubs yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noClubsInTeam, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...teamClubs.map((club) => Card(
@@ -358,16 +360,17 @@ class _EditPlayersSheetState extends State<_EditPlayersSheet> {
   }
 
   Widget _buildPortrait(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(widget.teamName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        const Text('Edit player names', style: TextStyle(color: Colors.black45, fontSize: 13)),
+        Text(l10n.editPlayerNamesSubtitle, style: const TextStyle(color: Colors.black45, fontSize: 13)),
         const SizedBox(height: 20),
-        _field('Player 1', _p1),
+        _field(l10n.playerOne, _p1),
         const SizedBox(height: 14),
-        _field('Player 2', _p2),
+        _field(l10n.playerTwo, _p2),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
@@ -379,7 +382,7 @@ class _EditPlayersSheetState extends State<_EditPlayersSheet> {
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Save Players', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            child: Text(l10n.btnSavePlayers, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
           ),
         ),
       ]),
@@ -387,13 +390,14 @@ class _EditPlayersSheetState extends State<_EditPlayersSheet> {
   }
 
   Widget _buildLandscape(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(widget.teamName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-            const Text('Edit player names', style: TextStyle(color: Colors.black45, fontSize: 12)),
+            Text(l10n.editPlayerNamesSubtitle, style: const TextStyle(color: Colors.black45, fontSize: 12)),
           ])),
           const SizedBox(width: 12),
           ElevatedButton(
@@ -405,14 +409,14 @@ class _EditPlayersSheetState extends State<_EditPlayersSheet> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            child: Text(l10n.btnSave, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
           ),
         ]),
         const SizedBox(height: 12),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: _compactField('Player 1', _p1)),
+          Expanded(child: _compactField(l10n.playerOne, _p1)),
           const SizedBox(width: 12),
-          Expanded(child: _compactField('Player 2', _p2)),
+          Expanded(child: _compactField(l10n.playerTwo, _p2)),
         ]),
       ]),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 /// Shows a dropdown-based assignment dialog.
 /// Returns the selected ID on confirm, null on cancel or if no items.
@@ -27,15 +28,16 @@ Future<bool> showConfirmDeleteDialog(
   BuildContext context,
   String label,
 ) async {
+  final l10n = AppLocalizations.of(context)!;
   final result = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: Text('Delete $label?'),
-      content: const Text('This cannot be undone.'),
+      title: Text(l10n.dialogDeleteTitle(label)),
+      content: Text(l10n.dialogDeleteBody),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(false),
-          child: const Text('Cancel'),
+          child: Text(l10n.btnCancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(ctx).pop(true),
@@ -43,7 +45,7 @@ Future<bool> showConfirmDeleteDialog(
             backgroundColor: Colors.red[400],
             foregroundColor: Colors.white,
           ),
-          child: const Text('Delete'),
+          child: Text(l10n.btnDelete),
         ),
       ],
     ),
@@ -84,11 +86,11 @@ class _AssignDialogState extends State<_AssignDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(null),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.btnCancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.of(context).pop(_selected),
-          child: const Text('Assign'),
+          child: Text(AppLocalizations.of(context)!.btnAssign),
         ),
       ],
     );

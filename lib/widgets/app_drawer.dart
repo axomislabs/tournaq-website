@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../app/app_assets.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
 import '../pages/contact_page.dart';
 import '../pages/games_page.dart';
 import '../pages/promo_ads_page.dart';
+import '../pages/settings_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final AppState appState;
@@ -18,6 +20,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Drawer(
@@ -31,7 +34,7 @@ class AppDrawer extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildHeader(topPadding),
+          _buildHeader(context, topPadding),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -39,7 +42,7 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.home_rounded,
-                  label: 'Home',
+                  label: l10n.navHome,
                   iconBgColor: AppColors.goldCream,
                   onTap: () {
                     Navigator.of(context).pop();
@@ -49,7 +52,7 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.sports_basketball_rounded,
-                  label: 'Quick Start Game',
+                  label: l10n.navQuickStart,
                   iconBgColor: AppColors.goldCream,
                   onTap: () {
                     Navigator.of(context).pop();
@@ -68,7 +71,7 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.local_offer_rounded,
-                  label: 'Sponsoring & Promo',
+                  label: l10n.navSponsoring,
                   iconBgColor: AppColors.surfaceGray,
                   onTap: () {
                     Navigator.of(context).pop();
@@ -83,12 +86,27 @@ class AppDrawer extends StatelessWidget {
                 _buildNavItem(
                   context,
                   icon: Icons.contact_support_rounded,
-                  label: 'Contact & About',
+                  label: l10n.navContact,
                   iconBgColor: AppColors.oliveLight,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => ContactPage(
+                        appState: appState,
+                        onAppStateChanged: onAppStateChanged,
+                      ),
+                    ));
+                  },
+                ),
+                _buildNavItem(
+                  context,
+                  icon: Icons.settings_rounded,
+                  label: l10n.navSettings,
+                  iconBgColor: AppColors.surfaceGray,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => SettingsPage(
                         appState: appState,
                         onAppStateChanged: onAppStateChanged,
                       ),
@@ -103,7 +121,8 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(double topPadding) {
+  Widget _buildHeader(BuildContext context, double topPadding) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       color: AppColors.oliveMedium,
@@ -127,8 +146,8 @@ class AppDrawer extends StatelessWidget {
                   fit: BoxFit.fitWidth,
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Scoring, Games and Tournament Management',
+                Text(
+                  l10n.appTagline,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.goldLight,

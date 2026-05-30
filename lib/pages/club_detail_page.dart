@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/club.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -46,6 +46,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   // ── Players ──────────────────────────────────────────────────────────────
 
   Future<void> _assignPlayer() async {
+    final l10n = AppLocalizations.of(context)!;
     final club = _club;
     if (club == null) return;
     final items = _localState.users
@@ -53,7 +54,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
         .map((u) => (id: u.id, name: u.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Add Player', items: items,
+      context: context, title: l10n.menuAddPlayer, items: items,
       emptyMessage: 'All players are already in this club.',
     );
     if (selected != null && mounted) {
@@ -62,14 +63,15 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   }
 
   Future<void> _removePlayer(String playerId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove Player'),
-        content: const Text('Remove this player from the club?'),
+        title: Text(l10n.dialogRemovePlayer),
+        content: Text(l10n.dialogRemovePlayerFromClubBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -81,6 +83,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   // ── Teams ─────────────────────────────────────────────────────────────────
 
   Future<void> _assignTeam() async {
+    final l10n = AppLocalizations.of(context)!;
     final club = _club;
     if (club == null) return;
     final items = _localState.teams
@@ -88,7 +91,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Add Team', items: items,
+      context: context, title: l10n.menuAddTeam, items: items,
       emptyMessage: 'All teams are already in this club.',
     );
     if (selected != null && mounted) {
@@ -97,14 +100,15 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   }
 
   Future<void> _removeTeam(String teamId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove Team'),
-        content: const Text('Remove this team from the club?'),
+        title: Text(l10n.dialogRemoveFromClub),
+        content: Text(l10n.dialogRemoveFromClubBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -116,6 +120,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   // ── Tournaments ───────────────────────────────────────────────────────────
 
   Future<void> _assignTournament() async {
+    final l10n = AppLocalizations.of(context)!;
     final club = _club;
     if (club == null) return;
     final items = _localState.tournaments
@@ -123,7 +128,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Add Tournament', items: items,
+      context: context, title: l10n.menuAddTournament, items: items,
       emptyMessage: 'All tournaments are already in this club.',
     );
     if (selected != null && mounted) {
@@ -132,14 +137,15 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   }
 
   Future<void> _removeTournament(String tournamentId) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove Tournament'),
-        content: const Text('Remove this tournament from the club?'),
+        title: Text(l10n.dialogRemoveTournamentFromClub),
+        content: Text(l10n.dialogRemoveTournamentFromClubBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Remove')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
+          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
         ],
       ),
     );
@@ -152,11 +158,12 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final club = _club;
     if (club == null) {
       return Scaffold(
-        appBar: const TournaQAppBar(title: 'Club Details'),
-        body: const Center(child: Text('Club not found.')),
+        appBar: TournaQAppBar(title: l10n.pageClubDetails),
+        body: Center(child: Text(l10n.clubNotFound)),
       );
     }
 
@@ -166,13 +173,12 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Club Details'),
+      appBar: TournaQAppBar(title: l10n.pageClubDetails),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header card
             Card(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: Padding(
@@ -186,17 +192,17 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
                       ElevatedButton.icon(
                         onPressed: _assignPlayer,
                         icon: const Icon(Icons.person_rounded, size: 16),
-                        label: const Text('Add Player'),
+                        label: Text(l10n.menuAddPlayer),
                       ),
                       ElevatedButton.icon(
                         onPressed: _assignTeam,
                         icon: const Icon(Icons.group_rounded, size: 16),
-                        label: const Text('Add Team'),
+                        label: Text(l10n.menuAddTeam),
                       ),
                       ElevatedButton.icon(
                         onPressed: _assignTournament,
                         icon: const Icon(Icons.emoji_events_rounded, size: 16),
-                        label: const Text('Add Tournament'),
+                        label: Text(l10n.menuAddTournament),
                       ),
                     ]),
                   ],
@@ -206,13 +212,12 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Players section
-            Text('Players (${players.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionPlayersCount(players.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (players.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No players yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noPlayersInTeam, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...players.map((u) => Card(
@@ -233,13 +238,12 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Teams section
-            Text('Teams (${teams.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionTeamsCount(teams.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (teams.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No teams yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noTeamsYet, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...teams.map((t) => Card(
@@ -260,13 +264,12 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
             const SizedBox(height: 20),
 
-            // Tournaments section
-            Text('Tournaments (${tournaments.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionTournamentsCount(tournaments.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             if (tournaments.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('No tournaments yet.', style: TextStyle(color: Colors.black45)),
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(l10n.noTournamentsYet, style: const TextStyle(color: Colors.black45)),
               ))
             else
               ...tournaments.map((t) => Card(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/game.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
@@ -66,6 +67,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   }
 
   Future<void> _showAssignTeamDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     final tournament = _tournament;
     if (tournament == null) return;
     final items = _localState.teams
@@ -73,8 +75,8 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign Team', items: items,
-      emptyMessage: 'All teams are already in this tournament.',
+      context: context, title: l10n.menuAssignTeam, items: items,
+      emptyMessage: l10n.assignAllTeamsInTournament,
     );
     if (selected != null && mounted) {
       _updateState(AppDataService.assignTeamToTournament(_localState, teamId: selected, tournamentId: widget.tournamentId));
@@ -82,13 +84,14 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   }
 
   Future<void> _assignClub() async {
+    final l10n = AppLocalizations.of(context)!;
     final items = _localState.clubs
         .where((c) => !c.tournamentIds.contains(widget.tournamentId))
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Club', items: items,
-      emptyMessage: 'Tournament is already in all clubs.',
+      context: context, title: l10n.menuAssignToClub, items: items,
+      emptyMessage: l10n.assignTournamentAllClubs,
     );
     if (selected != null && mounted) {
       _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: widget.tournamentId, clubId: selected));
@@ -96,13 +99,12 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   }
 
   void _generateGames() {
+    final l10n = AppLocalizations.of(context)!;
     final tournament = _tournament;
     if (tournament == null) return;
     if (tournament.teamIds.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Add at least two teams before generating games.'),
-        ),
+        SnackBar(content: Text(l10n.snackbarAddTeamsFirst)),
       );
       return;
     }
@@ -115,13 +117,12 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   }
 
   void _showSingleGamesDialog() {
+    final l10n = AppLocalizations.of(context)!;
     final tournament = _tournament;
     if (tournament == null) return;
     if (tournament.teamIds.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Add at least two teams before creating games.'),
-        ),
+        SnackBar(content: Text(l10n.snackbarAddTeamsFirstCreate)),
       );
       return;
     }
@@ -157,24 +158,23 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
   }
 
   void _resetGames() {
+    final l10n = AppLocalizations.of(context)!;
     final tournament = _tournament;
     if (tournament == null) return;
 
     showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Games'),
-        content: const Text(
-          'Are you sure you want to delete all games in this tournament?',
-        ),
+        title: Text(l10n.dialogClearAllGames),
+        content: Text(l10n.dialogClearAllGamesBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Clear'),
+            child: Text(l10n.btnClear),
           ),
         ],
       ),
@@ -191,11 +191,12 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final tournament = _tournament;
     if (tournament == null) {
       return Scaffold(
-        appBar: const TournaQAppBar(title: 'Tournament Details'),
-        body: const Center(child: Text('Tournament not found.')),
+        appBar: TournaQAppBar(title: l10n.pageTournamentDetails),
+        body: Center(child: Text(l10n.tournamentNotFound)),
       );
     }
 
@@ -220,16 +221,13 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                   children: [
                     Text(
                       tournament.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    Text('Mode: ${tournament.mode.displayName}'),
-                    Text('Status: ${tournament.status.name}'),
-                    Text('Teams: ${tournament.teamIds.length}'),
-                    Text('Games: ${tournament.gameIds.length}'),
+                    Text(l10n.tournamentModeLabel(tournament.mode.displayName)),
+                    Text(l10n.tournamentStatusLabel(tournament.status.name)),
+                    Text(l10n.tournamentTeamsLabel(tournament.teamIds.length)),
+                    Text(l10n.tournamentGamesLabel(tournament.gameIds.length)),
                     const SizedBox(height: 16),
                     Wrap(
                       spacing: 12,
@@ -237,44 +235,36 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                       children: [
                         ElevatedButton(
                           onPressed: _showAssignTeamDialog,
-                          child: const Text('Assign Team'),
+                          child: Text(l10n.menuAssignTeam),
                         ),
                         ElevatedButton(
                           onPressed: _assignClub,
-                          child: const Text('Assign to Club'),
+                          child: Text(l10n.menuAssignToClub),
                         ),
-                        if (tournament.mode.type ==
-                            TournamentModeType.singleGame)
+                        if (tournament.mode.type == TournamentModeType.singleGame)
                           ElevatedButton(
                             onPressed: _showSingleGamesDialog,
-                            child: const Text('Create Game'),
+                            child: Text(l10n.btnCreateGame),
                           )
-                        else if (tournament.mode.type ==
-                            TournamentModeType.hybrid) ...[
+                        else if (tournament.mode.type == TournamentModeType.hybrid) ...[
                           ElevatedButton(
                             onPressed: _showHybridModeSetup,
-                            child: const Text('Configure Hybrid Groups'),
+                            child: Text(l10n.hybridConfigureGroups),
                           ),
                           ElevatedButton(
-                            onPressed: tournament.hybridGroups.isNotEmpty
-                                ? _generateGames
-                                : null,
-                            child: const Text('Generate Games'),
+                            onPressed: tournament.hybridGroups.isNotEmpty ? _generateGames : null,
+                            child: Text(l10n.menuGenerateGames),
                           ),
                         ] else
                           ElevatedButton(
-                            onPressed: tournament.gameIds.isEmpty
-                                ? _generateGames
-                                : null,
-                            child: const Text('Generate Games'),
+                            onPressed: tournament.gameIds.isEmpty ? _generateGames : null,
+                            child: Text(l10n.menuGenerateGames),
                           ),
                         if (tournament.gameIds.isNotEmpty)
                           ElevatedButton(
                             onPressed: _resetGames,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red[400],
-                            ),
-                            child: const Text('Clear Games'),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
+                            child: Text(l10n.btnClearGames),
                           ),
                       ],
                     ),
@@ -284,19 +274,14 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
             ),
             const SizedBox(height: 20),
             if (tournament.mode.type == TournamentModeType.hybrid) ...[
-              const Text(
-                'Hybrid Groups',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              Text(l10n.sectionHybridGroups, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               if (tournament.hybridGroups.isEmpty)
-                const Text('No hybrid groups configured yet.')
+                Text(l10n.noHybridGroupsYet)
               else
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: List.generate(tournament.hybridGroups.length, (
-                    groupIndex,
-                  ) {
+                  children: List.generate(tournament.hybridGroups.length, (groupIndex) {
                     final group = tournament.hybridGroups[groupIndex];
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -304,9 +289,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                         padding: const EdgeInsets.all(12),
                         child: Wrap(
                           spacing: 8,
-                          children: group
-                              .map((mode) => Chip(label: Text(mode.name)))
-                              .toList(),
+                          children: group.map((mode) => Chip(label: Text(mode.name))).toList(),
                         ),
                       ),
                     );
@@ -315,52 +298,39 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
               const SizedBox(height: 20),
             ],
             Text(
-              'Teams (${_teams.length})',
+              l10n.sectionTeamsCount(_teams.length),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             if (_teams.isEmpty)
-              const Center(child: Text('No teams assigned yet.'))
+              Center(child: Text(l10n.noTeamsAssignedYet))
             else
               Column(
-                children: _teams
-                    .map(
-                      (team) => Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          title: Text(team.name),
-                          subtitle: Text(
-                            '${_localState.getUsersForTeam(team.id).length} player(s)',
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => TeamDetailPage(
-                                  appState: _localState,
-                                  onAppStateChanged: _updateState,
-                                  teamId: team.id,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                children: _teams.map((team) => Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    title: Text(team.name),
+                    subtitle: Text(l10n.nPlayersCount(_localState.getUsersForTeam(team.id).length)),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => TeamDetailPage(
+                        appState: _localState,
+                        onAppStateChanged: _updateState,
+                        teamId: team.id,
                       ),
-                    )
-                    .toList(),
+                    )),
+                  ),
+                )).toList(),
               ),
             const SizedBox(height: 20),
             if (standings.isNotEmpty) ...[
-              const Text(
-                'League Standings',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              Text(l10n.sectionLeagueStandings, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Card(
                 child: Column(
                   children: standings.map((standing) {
                     final team = _localState.getTeamById(standing.teamId);
                     return ListTile(
-                      title: Text(team?.name ?? 'Unknown'),
+                      title: Text(team?.name ?? l10n.labelUnknown),
                       subtitle: Text(
                         'W:${standing.wins} D:${standing.draws} L:${standing.losses} PF:${standing.pointsFor} PA:${standing.pointsAgainst}',
                       ),
@@ -374,59 +344,54 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
               const SizedBox(height: 20),
             ],
             Text(
-              'Games (${_games.length})',
+              l10n.sectionGamesCount(_games.length),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             if (_games.isEmpty)
-              const Center(child: Text('No games created yet.'))
+              Center(child: Text(l10n.noGamesCreatedYet))
             else
               Column(
-                children: _games
-                    .map(
-                      (game) => GameTile(
-                        game: game,
+                children: _games.map((game) => GameTile(
+                  game: game,
+                  appState: _localState,
+                  onScoreTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ScorePage(
                         appState: _localState,
-                        onScoreTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ScorePage(
-                              appState: _localState,
-                              onAppStateChanged: _updateState,
-                              gameId: game.id,
-                            ),
-                          ),
-                        ),
-                        onDeleteTap: () async {
-                          final t1 = _localState.getTeamById(game.team1Id)?.name ?? 'Unknown';
-                          final t2 = _localState.getTeamById(game.team2Id)?.name ?? 'Unknown';
-                          final ok = await showConfirmDeleteDialog(context, '$t1 vs $t2');
-                          if (ok && mounted) {
-                            _updateState(AppDataService.deleteGame(_localState, game.id));
-                          }
-                        },
+                        onAppStateChanged: _updateState,
+                        gameId: game.id,
                       ),
-                    )
-                    .toList(),
+                    ),
+                  ),
+                  onDeleteTap: () async {
+                    final t1 = _localState.getTeamById(game.team1Id)?.name ?? l10n.labelUnknown;
+                    final t2 = _localState.getTeamById(game.team2Id)?.name ?? l10n.labelUnknown;
+                    final ok = await showConfirmDeleteDialog(context, '$t1 vs $t2');
+                    if (ok && mounted) {
+                      _updateState(AppDataService.deleteGame(_localState, game.id));
+                    }
+                  },
+                )).toList(),
               ),
 
-            // Clubs section
             const SizedBox(height: 20),
             Builder(builder: (context) {
               final clubs = _localState.getTournamentClubs(widget.tournamentId);
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Clubs (${clubs.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(l10n.sectionClubsCount(clubs.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
                   if (clubs.isEmpty)
-                    const Center(child: Text('Not in any clubs yet.', style: TextStyle(color: Colors.black45)))
+                    Center(child: Text(l10n.notInAnyClubsYet, style: const TextStyle(color: Colors.black45)))
                   else
                     ...clubs.map((club) => Card(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       child: ListTile(
                         leading: const Icon(Icons.home_rounded),
                         title: Text(club.name),
-                        subtitle: Text('${club.playerIds.length} player(s) • ${club.teamIds.length} team(s)'),
+                        subtitle: Text(l10n.clubPlayersAndTeams(club.playerIds.length, club.teamIds.length)),
                         onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => ClubDetailPage(appState: _localState, onAppStateChanged: _updateState, clubId: club.id),
                         )),

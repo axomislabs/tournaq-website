@@ -42,7 +42,7 @@ library;
 
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/game.dart';
 import '../models/game_set.dart';
 import 'gameplay_history_page.dart';
@@ -199,6 +199,7 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Future<void> _showSideChangeDialog() async {
+    final l10n = AppLocalizations.of(context)!;
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -216,11 +217,11 @@ class _ScorePageState extends State<ScorePage> {
               child: const Icon(Icons.swap_horiz_rounded, color: _kGold, size: 20),
             ),
             const SizedBox(width: 12),
-            const Text('Side Change', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            Text(l10n.sideChangeTitle, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
           ],
         ),
         content: Text(
-          'Total score is ${_score1 + _score2}.\n\nTeams must switch sides now.',
+          l10n.sideChangeBodyWithScore(_score1 + _score2),
           style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
         ),
         actions: [
@@ -234,7 +235,7 @@ class _ScorePageState extends State<ScorePage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Sides Switched — Continue', style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(l10n.sideChangeContinue, style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -518,18 +519,19 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildGameOptionsPortrait(BuildContext sheetCtx, bool scoreLocked, VoidCallback openHistory) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Game Options', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        Text(l10n.gameOptions, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
         _gameOptionTile(
           sheetCtx,
           icon: Icons.swap_horiz,
           iconBg: scoreLocked ? Colors.grey.shade100 : AppColors.goldCream,
           iconColor: scoreLocked ? Colors.grey : _kGold,
-          label: 'Swap Teams',
-          subtitle: 'Switch left and right sides',
+          label: l10n.swapTeams,
+          subtitle: l10n.swapTeamsSubtitle,
           enabled: !scoreLocked,
           onTap: () { Navigator.of(sheetCtx).pop(); _swap(); },
         ),
@@ -538,8 +540,8 @@ class _ScorePageState extends State<ScorePage> {
           icon: Icons.rotate_right_rounded,
           iconBg: _kOliveLight,
           iconColor: _kOlive,
-          label: 'Change Service',
-          subtitle: 'Advance to next server',
+          label: l10n.changeService,
+          subtitle: l10n.changeServiceSubtitle,
           enabled: true,
           onTap: () { Navigator.of(sheetCtx).pop(); _rotateActivePlayer(); },
         ),
@@ -548,8 +550,8 @@ class _ScorePageState extends State<ScorePage> {
           icon: Icons.history_rounded,
           iconBg: _kGoldLight,
           iconColor: _kGold,
-          label: 'Gameplay History',
-          subtitle: 'Point-by-point scoring timeline',
+          label: l10n.pageGameplayHistory,
+          subtitle: l10n.gameplayHistorySubtitle,
           enabled: true,
           onTap: openHistory,
         ),
@@ -558,17 +560,18 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildGameOptionsLandscape(BuildContext sheetCtx, bool scoreLocked, VoidCallback openHistory) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('Game Options', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        Text(l10n.gameOptions, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(child: _gameOptionCompact(
             icon: Icons.swap_horiz,
             iconBg: scoreLocked ? Colors.grey.shade100 : AppColors.goldCream,
             iconColor: scoreLocked ? Colors.grey : _kGold,
-            label: 'Swap Teams',
+            label: l10n.swapTeams,
             enabled: !scoreLocked,
             onTap: () { Navigator.of(sheetCtx).pop(); _swap(); },
           )),
@@ -577,7 +580,7 @@ class _ScorePageState extends State<ScorePage> {
             icon: Icons.rotate_right_rounded,
             iconBg: _kOliveLight,
             iconColor: _kOlive,
-            label: 'Change Service',
+            label: l10n.changeService,
             enabled: true,
             onTap: () { Navigator.of(sheetCtx).pop(); _rotateActivePlayer(); },
           )),
@@ -586,7 +589,7 @@ class _ScorePageState extends State<ScorePage> {
             icon: Icons.history_rounded,
             iconBg: _kGoldLight,
             iconColor: _kGold,
-            label: 'History',
+            label: l10n.historyShort,
             enabled: true,
             onTap: openHistory,
           )),
@@ -660,7 +663,7 @@ class _ScorePageState extends State<ScorePage> {
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Game Scorecard'),
+      appBar: TournaQAppBar(title: AppLocalizations.of(context)!.pageGameScorecard),
       body: OrientationBuilder(
         builder: (context, orientation) {
           final isLandscape = orientation == Orientation.landscape;
@@ -692,12 +695,12 @@ class _ScorePageState extends State<ScorePage> {
                     if (_isGameComplete)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: _buildLockBanner('Game completed — undo completion to edit scores'),
+                        child: _buildLockBanner(AppLocalizations.of(context)!.lockBannerGame),
                       )
                     else if (_isActiveSetCompleted)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: _buildLockBanner('Set completed — undo completion to edit scores'),
+                        child: _buildLockBanner(AppLocalizations.of(context)!.lockBannerSet),
                       ),
                     const SizedBox(height: 4),
                     Expanded(
@@ -778,7 +781,7 @@ class _ScorePageState extends State<ScorePage> {
                 ),
                 const SizedBox(height: 8),
                 _buildSectionHeader(
-                  'Gameplay Controls',
+                  AppLocalizations.of(context)!.sectionGameplayControls,
                   Icons.sports_volleyball_rounded,
                   trailing: optionsButton,
                 ),
@@ -786,12 +789,12 @@ class _ScorePageState extends State<ScorePage> {
                 _buildSetOverview(),
                 const SizedBox(height: 12),
                 if (_isGameComplete)
-                  _buildLockBanner('Game completed — undo completion to edit scores')
+                  _buildLockBanner(AppLocalizations.of(context)!.lockBannerGame)
                 else if (_isActiveSetCompleted)
-                  _buildLockBanner('Set completed — undo completion to edit scores'),
+                  _buildLockBanner(AppLocalizations.of(context)!.lockBannerSet),
                 portraitScoreCards,
                 const SizedBox(height: 24),
-                _buildSectionHeader('Match Actions', Icons.emoji_events_rounded),
+                _buildSectionHeader(AppLocalizations.of(context)!.sectionMatchActions, Icons.emoji_events_rounded),
                 const SizedBox(height: 8),
                 _buildMatchActions(),
                 const SizedBox(height: 24),
@@ -915,14 +918,15 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildTargetPoints({bool locked = false}) {
+    final l10n = AppLocalizations.of(context)!;
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 8,
       runSpacing: 6,
       children: [
-        const Text(
-          'Target score:',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        Text(
+          l10n.targetScore,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         for (final v in [11, 15, 21])
           ChoiceChip(
@@ -1276,6 +1280,7 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Widget _buildMatchActions() {
+    final l10n = AppLocalizations.of(context)!;
     final isSetCompleted = _isActiveSetCompleted;
     final isGameComplete = _isGameComplete;
     final isOneSet = _game.matchFormat == MatchFormat.oneSet;
@@ -1305,7 +1310,7 @@ class _ScorePageState extends State<ScorePage> {
                     : Icons.check_circle_outline_rounded,
                 size: 18,
               ),
-              label: Text(isSetCompleted ? 'Undo Set Completion' : 'Complete Set'),
+              label: Text(isSetCompleted ? l10n.undoSetCompletion : l10n.completeSet),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isGameComplete
                     ? null
@@ -1324,8 +1329,7 @@ class _ScorePageState extends State<ScorePage> {
               isGameComplete ? Icons.undo_rounded : Icons.emoji_events_rounded,
               size: 18,
             ),
-            label: Text(
-                isGameComplete ? 'Undo Game Completion' : 'Complete Game'),
+            label: Text(isGameComplete ? l10n.undoGameCompletion : l10n.completeGame),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
               foregroundColor: Colors.white,
@@ -1336,7 +1340,7 @@ class _ScorePageState extends State<ScorePage> {
           OutlinedButton.icon(
             onPressed: _saveAndBack,
             icon: const Icon(Icons.arrow_back_rounded, size: 18),
-            label: const Text('Save & Return to Games'),
+            label: Text(l10n.btnSaveAndReturn),
           ),
         ],
       ),
@@ -1442,9 +1446,9 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text(
-                      'Save Players',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    child: Text(
+                      AppLocalizations.of(context)!.btnSavePlayers,
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                     ),
                   ),
                 ],
@@ -1454,7 +1458,7 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _compactField('Player 1', _p1, 'e.g. Alex')),
+                  Expanded(child: _compactField(AppLocalizations.of(context)!.playerOne, _p1, 'e.g. Alex')),
                   Padding(
                     padding: const EdgeInsets.only(top: 20, left: 8, right: 8),
                     child: GestureDetector(
@@ -1462,7 +1466,7 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
                       child: const Icon(Icons.swap_horiz_rounded, size: 22, color: _kOlive),
                     ),
                   ),
-                  Expanded(child: _compactField('Player 2', _p2, 'e.g. Jordan')),
+                  Expanded(child: _compactField(AppLocalizations.of(context)!.playerTwo, _p2, 'e.g. Jordan')),
                 ],
               ),
             ],
@@ -1503,23 +1507,23 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
                 Text(widget.teamName,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
-                const Text('Edit player names',
-                    style: TextStyle(color: Colors.black45, fontSize: 13)),
+                Text(AppLocalizations.of(context)!.editPlayerNamesSubtitle,
+                    style: const TextStyle(color: Colors.black45, fontSize: 13)),
                 const SizedBox(height: 20),
-                _field('Player 1', _p1, 'e.g. Alex'),
+                _field(AppLocalizations.of(context)!.playerOne, _p1, 'e.g. Alex'),
                 const SizedBox(height: 8),
                 Center(
                   child: TextButton.icon(
                     onPressed: _swapPlayers,
                     icon: const Icon(Icons.swap_vert_rounded, size: 18, color: _kOlive),
-                    label: const Text(
-                      'Swap Players',
-                      style: TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
+                    label: Text(
+                      AppLocalizations.of(context)!.swapPlayers,
+                      style: const TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
-                _field('Player 2', _p2, 'e.g. Jordan'),
+                _field(AppLocalizations.of(context)!.playerTwo, _p2, 'e.g. Jordan'),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -1532,8 +1536,8 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Save Players',
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                    child: Text(AppLocalizations.of(context)!.btnSavePlayers,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/tournaq_app_bar.dart';
 
 const _kGold = AppColors.goldDark;
@@ -47,7 +48,8 @@ class GameplayHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (entries.isEmpty) return _buildEmpty(context);
+    final l10n = AppLocalizations.of(context)!;
+    if (entries.isEmpty) return _buildEmpty(context, l10n);
 
     // Group entries by set
     final sets = <int, List<GameHistoryEntry>>{};
@@ -60,14 +62,14 @@ class GameplayHistoryPage extends StatelessWidget {
     final rows = <Widget>[];
     for (final si in setIndices) {
       final setEntries = sets[si]!;
-      rows.add(_buildSetHeader(si, setEntries.last.targetPoints));
+      rows.add(_buildSetHeader(l10n, si, setEntries.last.targetPoints));
       rows.addAll(setEntries.map(_buildRow));
-      rows.add(_buildSetFooter(setEntries.last));
+      rows.add(_buildSetFooter(l10n, setEntries.last));
     }
     rows.add(const SizedBox(height: 32));
 
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'Gameplay History'),
+      appBar: TournaQAppBar(title: l10n.pageGameplayHistory),
       body: Column(
         children: [
           _buildTeamHeader(),
@@ -80,23 +82,23 @@ class GameplayHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty(BuildContext context) {
+  Widget _buildEmpty(BuildContext context, AppLocalizations l10n) {
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'Gameplay History'),
+      appBar: TournaQAppBar(title: l10n.pageGameplayHistory),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.history_rounded, size: 52, color: Colors.black26),
+            const Icon(Icons.history_rounded, size: 52, color: Colors.black26),
             const SizedBox(height: 14),
-            const Text(
-              'No scoring history yet',
-              style: TextStyle(fontSize: 16, color: Colors.black45, fontWeight: FontWeight.w600),
+            Text(
+              l10n.noScoringHistoryYet,
+              style: const TextStyle(fontSize: 16, color: Colors.black45, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Start scoring to track gameplay.',
-              style: TextStyle(fontSize: 13, color: Colors.black38),
+            Text(
+              l10n.noGamesYetSubtitle,
+              style: const TextStyle(fontSize: 13, color: Colors.black38),
             ),
           ],
         ),
@@ -149,7 +151,7 @@ class GameplayHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSetHeader(int setIndex, int targetPoints) {
+  Widget _buildSetHeader(AppLocalizations l10n, int setIndex, int targetPoints) {
     return Container(
       color: Colors.grey.shade100,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -159,7 +161,7 @@ class GameplayHistoryPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              'Set ${setIndex + 1}  ·  to $targetPoints',
+              l10n.setHeader(setIndex + 1, targetPoints),
               style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -174,12 +176,12 @@ class GameplayHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSetFooter(GameHistoryEntry last) {
+  Widget _buildSetFooter(AppLocalizations l10n, GameHistoryEntry last) {
     return Container(
       color: Colors.grey.shade50,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Text(
-        'Final: ${last.team1Score} – ${last.team2Score}',
+        l10n.setFinalScore(last.team1Score, last.team2Score),
         style: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w600,

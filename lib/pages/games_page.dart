@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/app_data_service.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -90,17 +91,18 @@ class _GamesPageState extends State<GamesPage> {
   }
 
   Future<void> _deleteHistoryData() async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete All Match History?'),
-        content: const Text('This will permanently delete all local game records. This cannot be undone.'),
+        title: Text(l10n.deleteHistoryTitle),
+        content: Text(l10n.deleteHistoryBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -150,9 +152,10 @@ class _GamesPageState extends State<GamesPage> {
     final filtered = _filteredGames;
     final total = _localState.games.length;
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Games'),
+      appBar: TournaQAppBar(title: l10n.pageGames),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -168,13 +171,13 @@ class _GamesPageState extends State<GamesPage> {
             child: Row(children: [
               const Icon(Icons.sports_score_rounded, size: 20, color: AppColors.oliveMedium),
               const SizedBox(width: 8),
-              const Text('Match History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              Text(l10n.sectionMatchHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               const Spacer(),
               if (total > 0)
                 TextButton.icon(
                   onPressed: _deleteHistoryData,
                   icon: const Icon(Icons.delete_outline, size: 16),
-                  label: const Text('Delete History', style: TextStyle(fontSize: 12)),
+                  label: Text(l10n.btnDeleteHistory, style: const TextStyle(fontSize: 12)),
                   style: TextButton.styleFrom(foregroundColor: Colors.red.shade400),
                 ),
             ]),
@@ -204,6 +207,7 @@ class _GamesPageState extends State<GamesPage> {
   }
 
   Widget _buildEmptyState(int total) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
@@ -211,14 +215,12 @@ class _GamesPageState extends State<GamesPage> {
           const Icon(Icons.sports_score_rounded, size: 48, color: Colors.black26),
           const SizedBox(height: 12),
           Text(
-            total == 0 ? 'No games yet' : 'No games match the current filters',
+            total == 0 ? l10n.noGamesYet : l10n.noGamesFiltered,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black45),
           ),
           const SizedBox(height: 4),
           Text(
-            total == 0
-                ? 'Use Quick Start above or create a tournament.'
-                : 'Try clearing some filters.',
+            total == 0 ? l10n.noGamesYetHint : l10n.noGamesFilteredHint,
             style: const TextStyle(color: Colors.black38, fontSize: 13),
             textAlign: TextAlign.center,
           ),
@@ -228,6 +230,7 @@ class _GamesPageState extends State<GamesPage> {
   }
 
   Widget _buildQuickStartCard() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -248,14 +251,14 @@ class _GamesPageState extends State<GamesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(children: [
-            Icon(Icons.flash_on_rounded, color: Colors.white, size: 22),
-            SizedBox(width: 8),
-            Text('Quick Start Game', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+          Row(children: [
+            const Icon(Icons.flash_on_rounded, color: Colors.white, size: 22),
+            const SizedBox(width: 8),
+            Text(l10n.navQuickStart, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
           ]),
           const SizedBox(height: 2),
           Text(
-            'Beach Volleyball Match',
+            l10n.landingQuickStartSubtitle,
             style: TextStyle(color: Colors.white.withValues(alpha: 0.95), fontSize: 13, fontWeight: FontWeight.w600),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -264,7 +267,7 @@ class _GamesPageState extends State<GamesPage> {
           ElevatedButton.icon(
             onPressed: _showQuickStart,
             icon: const Icon(Icons.play_arrow_rounded),
-            label: const Text('Quick Start Game', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.navQuickStart, style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,

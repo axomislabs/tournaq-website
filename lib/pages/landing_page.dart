@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -72,12 +73,13 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       drawer: AppDrawer(
         appState: _localState,
         onAppStateChanged: _updateState,
       ),
-      appBar: const TournaQAppBar(title: 'Home'),
+      appBar: TournaQAppBar(title: l10n.navHome),
       body: ScrollablePage(
         padding: EdgeInsets.zero,
         child: Column(
@@ -95,13 +97,14 @@ class _LandingPageState extends State<LandingPage> {
   // ── Action Cards ──────────────────────────────────────────────────────────
 
   Widget _buildActionCards(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         children: [
           _buildPrimaryCard(
-            title: 'Quick Start Game',
-            subtitle: 'Beach Volleyball Match',
+            title: l10n.navQuickStart,
+            subtitle: l10n.landingQuickStartSubtitle,
             icon: Icons.flash_on_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
@@ -109,8 +112,8 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 12),
           _buildPrimaryCard(
-            title: 'Match History',
-            subtitle: 'Browse and review past games',
+            title: l10n.landingMatchHistoryTitle,
+            subtitle: l10n.landingMatchHistorySubtitle,
             icon: Icons.sports_score_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
@@ -201,14 +204,15 @@ class _LandingPageState extends State<LandingPage> {
   // ── Bottom: Coming Soon Section ───────────────────────────────────────────
 
   Widget _buildUpcomingSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Coming Soon',
-            style: TextStyle(
+          Text(
+            l10n.comingSoon,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: Colors.black87,
@@ -218,27 +222,27 @@ class _LandingPageState extends State<LandingPage> {
           const SizedBox(height: 12),
           _buildAnnouncementCard(
             context,
-            title: 'Tournament Management',
-            subtitle: 'Create and manage tournaments with multiple formats.',
+            title: l10n.landingTournamentManagement,
+            subtitle: l10n.landingTournamentManagementSub,
             icon: Icons.emoji_events_rounded,
-            description: 'Organize structured competitions, formats, and match results in one place.',
+            description: l10n.landingTournamentManagementDesc,
           ),
           const SizedBox(height: 10),
           _buildAnnouncementCard(
             context,
-            title: 'Player, Team & Club Administration',
-            subtitle: 'Organize players, teams and clubs.',
+            title: l10n.landingAdminTitle,
+            subtitle: l10n.landingAdminSub,
             icon: Icons.group_rounded,
-            description: 'Organize Players, Teams and Clubs.',
-            pageTitle: 'Administration',
+            description: l10n.landingAdminDesc,
+            pageTitle: l10n.landingAdminPageTitle,
           ),
           const SizedBox(height: 10),
           _buildAnnouncementCard(
             context,
-            title: 'Cloud Services',
-            subtitle: 'Cloud synchronization and connected features.',
+            title: l10n.landingCloudTitle,
+            subtitle: l10n.landingCloudSub,
             icon: Icons.cloud_rounded,
-            description: 'Future connected features for syncing, sharing, and accessing TournaQ across devices.',
+            description: l10n.landingCloudDesc,
           ),
         ],
       ),
@@ -308,9 +312,9 @@ class _LandingPageState extends State<LandingPage> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppColors.comingSoonBorder),
               ),
-              child: const Text(
-                'Coming Soon',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.comingSoon,
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: AppColors.oliveMedium,

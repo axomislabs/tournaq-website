@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 // ignore: unused_import
 import '../models/club.dart';
+import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -123,12 +124,6 @@ class _ClubsPageState extends State<ClubsPage> {
     });
   }
 
-  bool get _hasActiveFilters =>
-      _searchCtrl.text.isNotEmpty ||
-      _playerFilter.isNotEmpty ||
-      _teamFilter.isNotEmpty ||
-      _tournamentFilter.isNotEmpty;
-
   List<Club> get _filteredClubs {
     final q = _searchCtrl.text.toLowerCase();
     return _localState.clubs.where((club) {
@@ -142,20 +137,20 @@ class _ClubsPageState extends State<ClubsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredClubs;
     final total = _localState.clubs.length;
-    final countLabel = _hasActiveFilters ? '${filtered.length} of $total' : '$total';
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Clubs'),
+      appBar: TournaQAppBar(title: l10n.pageClubs),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Create Club', style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.btnCreateClub, style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -166,23 +161,23 @@ class _ClubsPageState extends State<ClubsPage> {
           const SizedBox(height: 20),
           FilterBar(
             searchController: _searchCtrl,
-            hintText: 'Search clubs...',
+            hintText: l10n.hintSearchClubs,
             onClearAll: _clearAll,
             groups: [
               FilterGroup(
-                label: 'Player', icon: Icons.person_rounded,
+                label: l10n.filterPlayer, icon: Icons.person_rounded,
                 items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Team', icon: Icons.group_rounded,
+                label: l10n.filterTeam, icon: Icons.group_rounded,
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: 'Tournament', icon: Icons.emoji_events_rounded,
+                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
                 items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _tournamentFilter,
                 onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
@@ -190,17 +185,17 @@ class _ClubsPageState extends State<ClubsPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Text('Clubs ($countLabel)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(l10n.sectionClubsCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (total == 0)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No clubs yet.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noClubsYet, style: const TextStyle(color: Colors.black45)),
             ))
           else if (filtered.isEmpty)
-            const Center(child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Text('No clubs match the current filters.', style: TextStyle(color: Colors.black45)),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(l10n.noClubsFiltered, style: const TextStyle(color: Colors.black45)),
             ))
           else
             ListView.builder(
@@ -226,11 +221,11 @@ class _ClubsPageState extends State<ClubsPage> {
                       }
                     },
                     itemBuilder: (_) => [
-                      actionMenuItem('assign_player', Icons.person_rounded, 'Assign Player'),
-                      actionMenuItem('assign_team', Icons.group_rounded, 'Assign Team'),
-                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, 'Assign Tournament'),
+                      actionMenuItem('assign_player', Icons.person_rounded, l10n.menuAssignPlayer),
+                      actionMenuItem('assign_team', Icons.group_rounded, l10n.menuAssignTeam),
+                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, l10n.menuAssignTournament),
                       const PopupMenuDivider(),
-                      actionMenuItem('delete', Icons.delete_outline, 'Delete', destructive: true),
+                      actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                     ],
                   ),
                 );

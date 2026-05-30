@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../app/app_colors.dart';
 import '../app/app_links.dart';
+import '../l10n/app_localizations.dart';
 import '../services/consent_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
@@ -50,6 +51,7 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       drawer: AppDrawer(appState: widget.appState, onAppStateChanged: widget.onAppStateChanged),
       appBar: const TournaQAppBar(title: 'Contact & About'),
@@ -58,87 +60,87 @@ class _ContactPageState extends State<ContactPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-                  _buildSection('Social', Icons.people_alt_rounded, [
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.camera_alt_rounded,
-                      iconBg: AppColors.instagramPink,
-                      iconColor: Colors.white,
-                      title: 'Instagram',
-                      subtitle: '@tournaq',
-                      onTap: () => _launchInstagram(context),
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
-                  _buildSection('Contact & Support', Icons.support_agent_rounded, [
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.email_rounded,
-                      iconBg: _kGoldLight,
-                      iconColor: _kGold,
-                      title: 'Email',
-                      subtitle: AppLinks.contactEmail,
-                      onTap: () => _launchEmail(context),
-                    ),
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.feedback_rounded,
-                      iconBg: _kGoldLight,
-                      iconColor: _kGold,
-                      title: 'Feedback Form',
-                      subtitle: 'Feedback, bugs and feature requests',
-                      onTap: () => _launchFeedback(context),
-                    ),
-                    _buildDisabledCard(
-                      icon: Icons.language_rounded,
-                      iconBg: AppColors.disabledIconBg,
-                      iconColor: Colors.black26,
-                      title: 'Website',
-                      subtitle: 'Coming soon',
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
-                  _buildSection('Legal', Icons.gavel_rounded, [
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.shield_rounded,
-                      iconBg: _kOliveLight,
-                      iconColor: _kOlive,
-                      title: 'Privacy Policy',
-                      subtitle: 'How we handle your data',
-                      onTap: () => openExternalUrl(context, AppLinks.privacyPolicy),
-                    ),
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.description_rounded,
-                      iconBg: _kGoldLight,
-                      iconColor: _kGold,
-                      title: 'Terms of Use',
-                      subtitle: 'Rules for using TournaQ',
-                      onTap: () => openExternalUrl(context, AppLinks.termsOfUse),
-                    ),
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.gavel_rounded,
-                      iconBg: _kOliveLight,
-                      iconColor: _kOlive,
-                      title: 'Legal Notice',
-                      subtitle: 'Developer & app information (EU)',
-                      onTap: () => openExternalUrl(context, AppLinks.legalNotice),
-                    ),
-                    _buildClickableCard(
-                      context,
-                      icon: Icons.tune_rounded,
-                      iconBg: _kOliveLight,
-                      iconColor: _kOlive,
-                      title: 'Privacy Options',
-                      subtitle: 'Manage your ad consent choices',
-                      onTap: () => ConsentService.showPrivacyOptions(),
-                    ),
-                  ]),
-                  const SizedBox(height: 32),
-                  _buildFooter(),
-                ],
+            _buildSection(l10n.contactSectionSocial, Icons.people_alt_rounded, [
+              _buildClickableCard(
+                context,
+                icon: Icons.camera_alt_rounded,
+                iconBg: AppColors.instagramPink,
+                iconColor: Colors.white,
+                title: l10n.contactInstagram,
+                subtitle: l10n.contactInstagramHandle,
+                onTap: () => _launchInstagram(context),
+              ),
+            ]),
+            const SizedBox(height: 20),
+            _buildSection(l10n.contactSectionSupport, Icons.support_agent_rounded, [
+              _buildClickableCard(
+                context,
+                icon: Icons.email_rounded,
+                iconBg: _kGoldLight,
+                iconColor: _kGold,
+                title: l10n.contactEmailLabel,
+                subtitle: AppLinks.contactEmail,
+                onTap: () => _launchEmail(context),
+              ),
+              _buildClickableCard(
+                context,
+                icon: Icons.feedback_rounded,
+                iconBg: _kGoldLight,
+                iconColor: _kGold,
+                title: l10n.contactFeedbackForm,
+                subtitle: l10n.contactFeedbackSubtitle,
+                onTap: () => _launchFeedback(context),
+              ),
+              _buildDisabledCard(
+                icon: Icons.language_rounded,
+                iconBg: AppColors.disabledIconBg,
+                iconColor: Colors.black26,
+                title: l10n.contactWebsite,
+                subtitle: l10n.contactWebsiteSubtitle,
+              ),
+            ]),
+            const SizedBox(height: 20),
+            _buildSection(l10n.contactSectionLegal, Icons.gavel_rounded, [
+              _buildClickableCard(
+                context,
+                icon: Icons.shield_rounded,
+                iconBg: _kOliveLight,
+                iconColor: _kOlive,
+                title: l10n.contactPrivacyPolicy,
+                subtitle: l10n.contactPrivacyPolicySub,
+                onTap: () => openExternalUrl(context, AppLinks.privacyPolicy),
+              ),
+              _buildClickableCard(
+                context,
+                icon: Icons.description_rounded,
+                iconBg: _kGoldLight,
+                iconColor: _kGold,
+                title: l10n.contactTermsOfUse,
+                subtitle: l10n.contactTermsOfUseSub,
+                onTap: () => openExternalUrl(context, AppLinks.termsOfUse),
+              ),
+              _buildClickableCard(
+                context,
+                icon: Icons.gavel_rounded,
+                iconBg: _kOliveLight,
+                iconColor: _kOlive,
+                title: l10n.contactLegalNotice,
+                subtitle: l10n.contactLegalNoticeSub,
+                onTap: () => openExternalUrl(context, AppLinks.legalNotice),
+              ),
+              _buildClickableCard(
+                context,
+                icon: Icons.tune_rounded,
+                iconBg: _kOliveLight,
+                iconColor: _kOlive,
+                title: l10n.contactPrivacyOptions,
+                subtitle: l10n.contactPrivacyOptionsSub,
+                onTap: () => ConsentService.showPrivacyOptions(),
+              ),
+            ]),
+            const SizedBox(height: 32),
+            _buildFooter(),
+          ],
         ),
       ),
     );

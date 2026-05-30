@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/game.dart';
 import '../state/app_state.dart';
 import 'assign_dialog.dart';
@@ -24,7 +24,7 @@ class GameTile extends StatelessWidget {
     style: TextStyle(color: AppColors.inverseSurface, fontWeight: FontWeight.w700, fontSize: 12),
   );
 
-  Widget _buildSubtitle() {
+  Widget _buildSubtitle(AppLocalizations l10n) {
     final rows = <Widget>[];
     const metaStyle = TextStyle(fontSize: 12, color: Colors.black54);
 
@@ -42,22 +42,21 @@ class GameTile extends StatelessWidget {
           rows.add(Text('Set ${i + 1}: –', style: const TextStyle(fontSize: 13)));
         }
       }
-      // Match status
       if (game.matchWinnerTeamId != null) {
         final wName = appState.getTeamById(game.matchWinnerTeamId!)?.name ?? 'Unknown';
-        rows.add(Text('Winner: $wName', style: metaStyle));
+        rows.add(Text(l10n.gameTileWinner(wName), style: metaStyle));
       }
-      final statusLabel = game.isMatchComplete ? 'Completed' : 'In Progress';
-      rows.add(Text('Match: $statusLabel', style: metaStyle));
+      final statusLabel = game.isMatchComplete ? l10n.gameStatusCompleted : l10n.gameStatusInProgress;
+      rows.add(Text(l10n.gameTileMatch(statusLabel), style: metaStyle));
     } else {
       // Legacy GameResult path
       final score = game.result != null
           ? '${game.result!.score1} – ${game.result!.score2}'
-          : 'Pending';
+          : l10n.gameStatusPending;
       rows.add(Text(score, style: const TextStyle(fontSize: 13)));
       if (game.result?.winnerTeamId != null) {
         final wName = appState.getTeamById(game.result!.winnerTeamId!)?.name ?? 'Unknown';
-        rows.add(Text('Winner: $wName', style: metaStyle));
+        rows.add(Text(l10n.gameTileWinner(wName), style: metaStyle));
       }
     }
 
@@ -69,6 +68,7 @@ class GameTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final team1Name = appState.getTeamById(game.team1Id)?.name ?? 'Unknown';
     final team2Name = appState.getTeamById(game.team2Id)?.name ?? 'Unknown';
     final isQuick = game.source == GameSource.quickLocal;
@@ -87,9 +87,9 @@ class GameTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.comingSoonBorder),
                 ),
-                child: const Text(
-                  'Quick',
-                  style: TextStyle(
+                child: Text(
+                  l10n.gameTileQuick,
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: AppColors.gold,
@@ -98,7 +98,7 @@ class GameTile extends StatelessWidget {
               ),
           ],
         ),
-        subtitle: _buildSubtitle(),
+        subtitle: _buildSubtitle(l10n),
         onTap: onScoreTap,
         trailing: PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, size: 20),
@@ -111,10 +111,10 @@ class GameTile extends StatelessWidget {
             }
           },
           itemBuilder: (_) => [
-            actionMenuItem('score', Icons.score_rounded, 'Game Scorecard'),
+            actionMenuItem('score', Icons.score_rounded, l10n.menuGameScorecard),
             if (onDeleteTap != null) ...[
               const PopupMenuDivider(),
-              actionMenuItem('delete', Icons.delete_outline, 'Delete Game', destructive: true),
+              actionMenuItem('delete', Icons.delete_outline, l10n.btnDeleteGame, destructive: true),
             ],
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app/app_assets.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
 import 'landing_page.dart';
 
@@ -65,10 +66,10 @@ class _SplashPageState extends State<SplashPage> {
                           fit: BoxFit.contain,
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          'Scoring, Games and Tournament Management',
+                        Text(
+                          AppLocalizations.of(context)!.appTagline,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.goldLight,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -99,12 +100,12 @@ class _SplashPageState extends State<SplashPage> {
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 20),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 32),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: Text(
-                        'Scoring, Games and Tournament Management',
+                        AppLocalizations.of(context)!.appTagline,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.goldLight,
                           fontSize: 20,
                           fontWeight: FontWeight.w500,

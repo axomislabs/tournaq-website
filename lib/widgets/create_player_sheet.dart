@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import 'sheet_helpers.dart';
@@ -79,7 +80,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
     ]);
   }
 
-  Widget _buildPortrait(List<({String id, String name})> teams, List<({String id, String name})> clubs) {
+  Widget _buildPortrait(AppLocalizations l10n, List<({String id, String name})> teams, List<({String id, String name})> clubs) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -88,18 +89,18 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
             decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
             child: const Icon(Icons.person_rounded, color: AppColors.gold, size: 22)),
           const SizedBox(width: 12),
-          const Text('Create Player', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          Text(l10n.btnCreatePlayer, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: 24),
 
         Row(children: [
-          const Expanded(child: Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
+          Expanded(child: Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
           GestureDetector(
             onTap: _suggestName,
-            child: const Row(children: [
-              Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
-              SizedBox(width: 4),
-              Text('Suggest', style: TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
+            child: Row(children: [
+              const Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
+              const SizedBox(width: 4),
+              Text(l10n.btnSuggest, style: const TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
             ]),
           ),
         ]),
@@ -113,7 +114,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ),
         const SizedBox(height: 16),
 
-        const Text('Email (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+        Text(l10n.labelEmailOptional, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
         TextField(
           controller: _emailCtrl,
@@ -124,7 +125,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ),
         const SizedBox(height: 16),
 
-        const Text('Role (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+        Text(l10n.labelRoleOptional, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
         TextField(
           controller: _roleCtrl,
@@ -133,15 +134,15 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
             hintText: 'e.g. Captain, Goalkeeper'),
         ),
 
-        _buildChipSection('Assign to Teams', teams, _teamIds),
-        _buildChipSection('Assign to Clubs', clubs, _clubIds),
+        _buildChipSection(l10n.labelAssignToTeams, teams, _teamIds),
+        _buildChipSection(l10n.labelAssignToClubs, clubs, _clubIds),
         const SizedBox(height: 24),
 
         SizedBox(width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded),
-            label: const Text('Create Player', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: Text(l10n.btnCreatePlayer, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -155,24 +156,23 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
     );
   }
 
-  Widget _buildLandscape(List<({String id, String name})> teams, List<({String id, String name})> clubs) {
+  Widget _buildLandscape(AppLocalizations l10n, List<({String id, String name})> teams, List<({String id, String name})> clubs) {
     final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(10));
     const fieldPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 10);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        // Header row: icon + title + Create button
         Row(children: [
           Container(padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
             child: const Icon(Icons.person_rounded, color: AppColors.gold, size: 18)),
           const SizedBox(width: 10),
-          const Expanded(child: Text('Create Player', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+          Expanded(child: Text(l10n.btnCreatePlayer, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
           ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded, size: 16),
-            label: const Text('Create', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            label: Text(l10n.btnCreate, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
@@ -185,17 +185,16 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ]),
         const SizedBox(height: 12),
 
-        // Name + Email side-by-side
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              const Expanded(child: Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54))),
+              Expanded(child: Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54))),
               GestureDetector(
                 onTap: _suggestName,
-                child: const Row(children: [
-                  Icon(Icons.shuffle_rounded, size: 12, color: AppColors.gold),
-                  SizedBox(width: 3),
-                  Text('Suggest', style: TextStyle(fontSize: 11, color: AppColors.gold, fontWeight: FontWeight.w600)),
+                child: Row(children: [
+                  const Icon(Icons.shuffle_rounded, size: 12, color: AppColors.gold),
+                  const SizedBox(width: 3),
+                  Text(l10n.btnSuggest, style: const TextStyle(fontSize: 11, color: AppColors.gold, fontWeight: FontWeight.w600)),
                 ]),
               ),
             ]),
@@ -209,7 +208,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
           ])),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Email (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            Text(l10n.labelEmailOptional, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 6),
             TextField(
               controller: _emailCtrl,
@@ -220,8 +219,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ]),
         const SizedBox(height: 10),
 
-        // Role (full width, compact)
-        const Text('Role (optional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+        Text(l10n.labelRoleOptional, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
         const SizedBox(height: 6),
         TextField(
           controller: _roleCtrl,
@@ -233,22 +231,23 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
           ),
         ),
 
-        _buildChipSection('Teams', teams, _teamIds),
-        _buildChipSection('Clubs', clubs, _clubIds),
+        _buildChipSection(l10n.pageTeams, teams, _teamIds),
+        _buildChipSection(l10n.pageClubs, clubs, _clubIds),
       ]),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final teams = widget.appState.teams.map((t) => (id: t.id, name: t.name)).toList();
     final clubs = widget.appState.clubs.map((c) => (id: c.id, name: c.name)).toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(teams, clubs)
-            : _buildPortrait(teams, clubs),
+            ? _buildLandscape(l10n, teams, clubs)
+            : _buildPortrait(l10n, teams, clubs),
       ),
     );
   }

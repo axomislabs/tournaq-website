@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-
+import '../l10n/app_localizations.dart';
 import '../models/tournament_mode.dart';
 
 class HybridModeSetupPage extends StatefulWidget {
@@ -51,37 +51,31 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hybrid Mode Setup'),
+        title: Text(l10n.hybridModeSetup),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           TextButton(
             onPressed: _confirm,
-            child: const Text(
-              'Done',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-            ),
+            child: Text(l10n.btnDone, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           ),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ── Available Modes ──────────────────────────────────────────────
           Row(children: [
-            const Text('Available Modes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(l10n.hybridAvailableModes, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const Spacer(),
-            Text('${_available.length} remaining', style: const TextStyle(fontSize: 12, color: Colors.black45)),
+            Text(l10n.hybridRemaining(_available.length), style: const TextStyle(fontSize: 12, color: Colors.black45)),
           ]),
           const SizedBox(height: 4),
-          const Text(
-            'Long-press to drag into a group, or tap to add to the first group.',
-            style: TextStyle(fontSize: 12, color: Colors.black45),
-          ),
+          Text(l10n.hybridDragHint, style: const TextStyle(fontSize: 12, color: Colors.black45)),
           const SizedBox(height: 12),
           _available.isEmpty
-              ? _emptyBox('All modes assigned to groups.')
+              ? _emptyBox(l10n.hybridAllModesAssigned)
               : Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -103,24 +97,21 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                     child: ActionChip(
                       label: Text(_label(mode)),
                       avatar: const Icon(Icons.add_rounded, size: 14),
-                      onPressed: _groups.isEmpty
-                          ? null
-                          : () => _addToGroup(mode, 0),
+                      onPressed: _groups.isEmpty ? null : () => _addToGroup(mode, 0),
                     ),
                   )).toList(),
                 ),
 
           const SizedBox(height: 24),
 
-          // ── Groups ──────────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Mode Groups', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(l10n.hybridModeGroups, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ElevatedButton.icon(
                 onPressed: _addGroup,
                 icon: const Icon(Icons.add_rounded, size: 16),
-                label: const Text('Add Group'),
+                label: Text(l10n.hybridAddGroup),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.gold,
                   foregroundColor: Colors.white,
@@ -134,21 +125,18 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
           const SizedBox(height: 12),
 
           if (_groups.isEmpty)
-            _emptyBox('Add a group above, then drag or tap modes into it.')
+            _emptyBox(l10n.hybridAddGroupHint)
           else
-            ...List.generate(_groups.length, _buildGroupCard),
+            ...List.generate(_groups.length, (i) => _buildGroupCard(l10n, i)),
 
           const SizedBox(height: 24),
-          const Text(
-            'Tip: Each group defines a round of play. Teams cycle through all mode groups.',
-            style: TextStyle(fontSize: 12, color: Colors.black45),
-          ),
+          Text(l10n.hybridTip, style: const TextStyle(fontSize: 12, color: Colors.black45)),
         ],
       ),
     );
   }
 
-  Widget _buildGroupCard(int gi) {
+  Widget _buildGroupCard(AppLocalizations l10n, int gi) {
     final group = _groups[gi];
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -171,7 +159,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('Group ${gi + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(l10n.hybridGroupN(gi + 1), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               const Spacer(),
               IconButton(
                 icon: const Icon(Icons.delete_outline, size: 20, color: Colors.black38),
@@ -203,10 +191,7 @@ class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
                       ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           Icon(Icons.drag_indicator_rounded, size: 16, color: Colors.grey[400]),
                           const SizedBox(width: 6),
-                          Text(
-                            'Drag modes here',
-                            style: TextStyle(color: Colors.grey[400], fontSize: 13),
-                          ),
+                          Text(l10n.hybridDragModesHere, style: TextStyle(color: Colors.grey[400], fontSize: 13)),
                         ])
                       : Wrap(
                           spacing: 8,
