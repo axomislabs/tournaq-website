@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
-const Color _kGold = Color(0xFFB08B1E);
-const Color _kGoldPale = Color(0xFFFFF8E1);
+const Color _kGold = AppColors.gold;
+const Color _kGoldPale = AppColors.goldCream;
 
 class FilterGroup {
   final String label;

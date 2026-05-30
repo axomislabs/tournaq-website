@@ -1,10 +1,29 @@
+/// How a team was created and how long it should be kept.
+///
+/// [temporary] — created for a single quick game; can be cleaned up later.
+/// [tournament] — created as part of a tournament structure.
+/// [club] — a standing team belonging to a club (persisted long-term).
+///
+/// Note: Scope is informational in v1. No automatic cleanup is implemented —
+/// all teams persist in Hive until explicitly deleted.
 enum TeamScope {
   temporary,
   tournament,
   club,
 }
 
+/// A team that participates in games and tournaments.
+///
+/// Teams hold references to their member [AppUser]s and [Tournament]s by ID.
+/// The team's display name is the primary label shown throughout the scoring
+/// and tournament UI.
+///
+/// Design decision — [schemaVersion]:
+///   Added to prepare for future Hive or Firestore migration. When the Team
+///   schema changes (e.g. adding a logoUrl), increment this version and add
+///   a migration path in [LocalStorageService] or a future repository layer.
 class Team {
+  static const int schemaVersion = 1;
   final String id;
   final String name;
   final List<String> userIds;
@@ -58,6 +77,7 @@ class Team {
   }
 
   Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
         'id': id,
         'name': name,
         'userIds': userIds,

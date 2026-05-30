@@ -1,0 +1,159 @@
+{
+  "@@locale": "en",
+
+  "appName": "TournaQ",
+  "@appName": { "description": "Application name" },
+
+  "appTagline": "Scoring, Games and Tournament Management",
+  "@appTagline": { "description": "Subtitle shown on splash and drawer" },
+
+  "navHome": "Home",
+  "@navHome": { "description": "Navigation drawer item" },
+
+  "navQuickStart": "Quick Start Game",
+  "@navQuickStart": { "description": "Navigation drawer item" },
+
+  "navSponsoring": "Sponsoring & Promo",
+  "@navSponsoring": { "description": "Navigation drawer item" },
+
+  "navContact": "Contact & About",
+  "@navContact": { "description": "Navigation drawer item" },
+
+  "btnStartGame": "Start Game",
+  "@btnStartGame": {},
+
+  "btnCancel": "Cancel",
+  "@btnCancel": {},
+
+  "btnCreate": "Create",
+  "@btnCreate": {},
+
+  "btnRemove": "Remove",
+  "@btnRemove": {},
+
+  "btnSave": "Save",
+  "@btnSave": {},
+
+  "btnOk": "OK",
+  "@btnOk": {},
+
+  "btnGiveFeedback": "Give Feedback",
+  "@btnGiveFeedback": {},
+
+  "btnEmailUs": "Email Us",
+  "@btnEmailUs": {},
+
+  "btnRateTournaQ": "Rate TournaQ",
+  "@btnRateTournaQ": {},
+
+  "btnNotNow": "Not Now",
+  "@btnNotNow": {},
+
+  "btnSaveAndReturn": "Save & Return to Games",
+  "@btnSaveAndReturn": {},
+
+  "quickStartTitle": "Quick Start a Game",
+  "@quickStartTitle": {},
+
+  "quickStartFormatQuestion": "How long is the match?",
+  "@quickStartFormatQuestion": {},
+
+  "quickStartTeamQuestion": "How would you like to choose your teams?",
+  "@quickStartTeamQuestion": {},
+
+  "formatOneSet": "One Set",
+  "@formatOneSet": {},
+
+  "formatOneSetSubtitle": "Single set to decide the winner",
+  "@formatOneSetSubtitle": {},
+
+  "formatBestOfThree": "Best of Three Sets",
+  "@formatBestOfThree": {},
+
+  "formatBestOfThreeSubtitle": "First to win two sets wins the match",
+  "@formatBestOfThreeSubtitle": {},
+
+  "teamMethodExisting": "Select Existing Teams",
+  "@teamMethodExisting": {},
+
+  "teamMethodNew": "Create New Teams",
+  "@teamMethodNew": {},
+
+  "teamMethodRandom": "Generate Random Teams",
+  "@teamMethodRandom": {},
+
+  "sideChangeTitle": "Side Change",
+  "@sideChangeTitle": {},
+
+  "sideChangeBody": "Teams must switch sides now.",
+  "@sideChangeBody": {},
+
+  "sideChangeContinue": "Sides Switched — Continue",
+  "@sideChangeContinue": {},
+
+  "comingSoon": "Coming Soon",
+  "@comingSoon": {},
+
+  "comingSoonBody": "Your feedback can help shape this feature before it launches.",
+  "@comingSoonBody": {},
+
+  "promoSupportTitle": "Support TournaQ",
+  "@promoSupportTitle": {},
+
+  "promoSupportSubtitle": "Advertising and sponsorship help support the continued development of TournaQ.",
+  "@promoSupportSubtitle": {},
+
+  "promoFollowTitle": "Follow the Journey",
+  "@promoFollowTitle": {},
+
+  "promoFollowSubtitle": "Share events and games where TournaQ supported you — tag us on Instagram.",
+  "@promoFollowSubtitle": {},
+
+  "promoRateTitle": "Enjoying TournaQ?",
+  "@promoRateTitle": {},
+
+  "promoRateSubtitle": "Ratings help us reach more players and organizers.",
+  "@promoRateSubtitle": {},
+
+  "promoHelpTitle": "Help Shape TournaQ",
+  "@promoHelpTitle": {},
+
+  "promoHelpSubtitle": "We welcome suggestions and ideas for future features and partnerships.",
+  "@promoHelpSubtitle": {},
+
+  "ratingDialogBody": "A quick rating helps us reach more players and tournament organizers.",
+  "@ratingDialogBody": {},
+
+  "deleteHistoryTitle": "Delete All Match History?",
+  "@deleteHistoryTitle": {},
+
+  "deleteHistoryBody": "This will permanently delete all local game records. This cannot be undone.",
+  "@deleteHistoryBody": {},
+
+  "noGamesYet": "No scoring history yet",
+  "@noGamesYet": {},
+
+  "noGamesYetSubtitle": "Start scoring to track gameplay.",
+  "@noGamesYetSubtitle": {},
+
+  "noTeamsYet": "No teams yet.",
+  "@noTeamsYet": {},
+
+  "noTournamentsYet": "No tournaments yet.",
+  "@noTournamentsYet": {},
+
+  "noClubsYet": "No clubs yet.",
+  "@noClubsYet": {},
+
+  "errorLinkNotAvailable": "Link not available yet",
+  "@errorLinkNotAvailable": {},
+
+  "errorCouldNotOpenLink": "Could not open link",
+  "@errorCouldNotOpenLink": {},
+
+  "errorCouldNotOpenEmail": "Could not open email app",
+  "@errorCouldNotOpenEmail": {},
+
+  "errorStoreNotAvailable": "Could not open the store — please search for TournaQ manually.",
+  "@errorStoreNotAvailable": {}
+}

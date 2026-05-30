@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app/app_assets.dart';
+import '../app/app_colors.dart';
 import '../state/app_state.dart';
 import 'landing_page.dart';
 
@@ -39,12 +41,12 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF3A3E16),
+      backgroundColor: AppColors.splashBackground,
       body: Stack(
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/tournaq_background.png',
+            AppAssets.background,
             fit: BoxFit.cover,
             opacity: const AlwaysStoppedAnimation(0.10),
           ),
@@ -58,7 +60,7 @@ class _SplashPageState extends State<SplashPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Image.asset(
-                          'assets/tournaq-rectangle.png',
+                          AppAssets.logoRectangle,
                           width: halfWidth,
                           fit: BoxFit.contain,
                         ),
@@ -67,7 +69,7 @@ class _SplashPageState extends State<SplashPage> {
                           'Scoring, Games and Tournament Management',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Color(0xFFF0D47A),
+                            color: AppColors.goldLight,
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                             letterSpacing: 0.2,
@@ -78,9 +80,9 @@ class _SplashPageState extends State<SplashPage> {
                           width: 22,
                           height: 22,
                           child: CircularProgressIndicator(
-                            color: const Color(0xFFF0D47A),
+                            color: AppColors.goldLight,
                             backgroundColor:
-                                const Color(0xFFF0D47A).withValues(alpha: 0.2),
+                                AppColors.goldLight.withValues(alpha: 0.2),
                             strokeWidth: 2,
                           ),
                         ),
@@ -92,7 +94,7 @@ class _SplashPageState extends State<SplashPage> {
                   children: [
                     const Spacer(),
                     Image.asset(
-                      'assets/tournaq-square.png',
+                      AppAssets.logoSquare,
                       width: 300,
                       fit: BoxFit.contain,
                     ),
@@ -103,7 +105,7 @@ class _SplashPageState extends State<SplashPage> {
                         'Scoring, Games and Tournament Management',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Color(0xFFF0D47A),
+                          color: AppColors.goldLight,
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0.2,
@@ -116,9 +118,9 @@ class _SplashPageState extends State<SplashPage> {
                       width: 22,
                       height: 22,
                       child: CircularProgressIndicator(
-                        color: const Color(0xFFF0D47A),
+                        color: AppColors.goldLight,
                         backgroundColor:
-                            const Color(0xFFF0D47A).withValues(alpha: 0.2),
+                            AppColors.goldLight.withValues(alpha: 0.2),
                         strokeWidth: 2,
                       ),
                     ),

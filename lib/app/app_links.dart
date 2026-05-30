@@ -1,0 +1,31 @@
+/// Central registry of external URLs and contact addresses used in TournaQ.
+///
+/// Single source of truth for all outbound links. Keeping them here means:
+///   - URLs can be audited and updated in one place.
+///   - Future CMS-driven or remote-config link management is easy to add.
+///   - Legal and support links are visible to non-developer team members.
+abstract final class AppLinks {
+  // ── Support & Feedback ────────────────────────────────────────────────────
+
+  static const String feedbackForm =
+      'https://docs.google.com/forms/d/e/1FAIpQLSc9XrG02hfj0Gt4bgWZJtmuGdJehVBpVMW7j_oWBfLtEgWZmQ/viewform?usp=publish-editor';
+
+  static const String contactEmail = 'team@tournaq.com';
+
+  // ── Social ────────────────────────────────────────────────────────────────
+
+  static const String instagram =
+      'https://www.instagram.com/tournaq?igsh=MWd5cThxOGh6dmdnMQ%3D%3D&utm_source=qr';
+
+  /// Not yet launched. Set when the marketing site goes live.
+  static const String website = '';
+
+  // ── Legal (GitHub Pages) ──────────────────────────────────────────────────
+
+  static const String _legalBase =
+      'https://fbt5wd7kw2-dotcom.github.io/tournaq-legal';
+
+  static const String privacyPolicy = '$_legalBase/privacy-policy.html';
+  static const String termsOfUse = '$_legalBase/terms-of-use.html';
+  static const String legalNotice = '$_legalBase/legal-notice.html';
+}

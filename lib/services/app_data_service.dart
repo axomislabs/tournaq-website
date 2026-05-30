@@ -10,6 +10,33 @@ import '../models/game_result.dart';
 import '../services/tournament_logic_service.dart';
 import '../state/app_state.dart';
 
+/// Central application service layer for all entity mutations.
+///
+/// Every operation follows the same pattern:
+///   1. Receive the current [AppState] and any required parameters.
+///   2. Create or update the relevant model objects.
+///   3. Return a new [AppState] reflecting the change.
+///
+/// Nothing in this class persists to storage — that is the caller's
+/// responsibility. Pages call [LocalStorageService.saveAppState] (or granular
+/// save methods) after receiving the updated state.
+///
+/// Design rationale — static methods on a single service class:
+///   TournaQ v1 uses a static service model rather than injected repositories.
+///   This is intentional: it avoids dependency injection overhead for a
+///   single-user local app, keeps pages thin, and makes the data flow easy
+///   to follow. The trade-off is reduced testability compared to injected
+///   fakes — acceptable for v1's scope.
+///
+/// Separation of concerns:
+///   - Scoring operations (set completion, score updates) live here.
+///   - Pairing and standings logic is delegated to [TournamentLogicService].
+///   - UI has no business logic — it calls this service and receives state.
+///
+/// Future: Before Firebase migration, extract entity-specific methods into
+///   dedicated service classes (GameService, TeamService, TournamentService)
+///   each backed by a Repository interface. [AppDataService] can remain as a
+///   facade that delegates to those services.
 class AppDataService {
   // USER OPERATIONS
   static AppState createUser(
@@ -782,26 +809,7 @@ class AppDataService {
   // PRIVATE HELPERS
 
   static AppState clearLocalHistoryData(AppState state) {
-    var updated = state.copyWith(games: []);
-
-    final tempTeamIds = state.teams
-        .where((t) => t.scope == TeamScope.temporary)
-        .map((t) => t.id)
-        .toSet();
-
-    // Remove users who only belong to temporary teams
-    for (final user in state.users) {
-      if (user.teamIds.isNotEmpty && user.teamIds.every(tempTeamIds.contains)) {
-        updated = updated.removeUser(user.id);
-      }
-    }
-
-    // Remove temporary teams (and their club/tournament associations)
-    for (final teamId in tempTeamIds) {
-      updated = AppDataService.deleteTeam(updated, teamId);
-    }
-
-    return updated;
+    return const AppState();
   }
 
   static String? _getMatchWinnerFromSets(Game game) {

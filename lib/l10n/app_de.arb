@@ -1,0 +1,68 @@
+{
+  "@@locale": "de",
+
+  "appName": "TournaQ",
+  "appTagline": "Spielstand, Spiele und Turnierorganisation",
+
+  "navHome": "Startseite",
+  "navQuickStart": "Schnellstart",
+  "navSponsoring": "Sponsoring & Promo",
+  "navContact": "Kontakt & Info",
+
+  "btnStartGame": "Spiel starten",
+  "btnCancel": "Abbrechen",
+  "btnCreate": "Erstellen",
+  "btnRemove": "Entfernen",
+  "btnSave": "Speichern",
+  "btnOk": "OK",
+  "btnGiveFeedback": "Feedback geben",
+  "btnEmailUs": "E-Mail senden",
+  "btnRateTournaQ": "TournaQ bewerten",
+  "btnNotNow": "Nicht jetzt",
+  "btnSaveAndReturn": "Speichern & zurück zu Spielen",
+
+  "quickStartTitle": "Schnellstart",
+  "quickStartFormatQuestion": "Wie lange dauert das Match?",
+  "quickStartTeamQuestion": "Wie möchtest du die Teams auswählen?",
+
+  "formatOneSet": "Ein Satz",
+  "formatOneSetSubtitle": "Einzelsatz entscheidet den Sieger",
+  "formatBestOfThree": "Best of Three",
+  "formatBestOfThreeSubtitle": "Wer zuerst zwei Sätze gewinnt, gewinnt das Match",
+
+  "teamMethodExisting": "Bestehende Teams wählen",
+  "teamMethodNew": "Neue Teams erstellen",
+  "teamMethodRandom": "Zufällige Teams generieren",
+
+  "sideChangeTitle": "Seitenwechsel",
+  "sideChangeBody": "Die Teams müssen jetzt die Seiten wechseln.",
+  "sideChangeContinue": "Seiten gewechselt — Weiter",
+
+  "comingSoon": "Demnächst",
+  "comingSoonBody": "Dein Feedback kann helfen, diese Funktion zu gestalten.",
+
+  "promoSupportTitle": "TournaQ unterstützen",
+  "promoSupportSubtitle": "Werbung und Sponsoring helfen, TournaQ weiterzuentwickeln.",
+  "promoFollowTitle": "Folge der Reise",
+  "promoFollowSubtitle": "Teile Events, bei denen TournaQ dabei war — markiere uns auf Instagram.",
+  "promoRateTitle": "TournaQ gefällt dir?",
+  "promoRateSubtitle": "Bewertungen helfen uns, mehr Spieler und Organisatoren zu erreichen.",
+  "promoHelpTitle": "Gestalte TournaQ mit",
+  "promoHelpSubtitle": "Wir freuen uns über Vorschläge und Ideen für neue Funktionen.",
+
+  "ratingDialogBody": "Eine kurze Bewertung hilft uns, mehr Spieler und Turnierorganisatoren zu erreichen.",
+
+  "deleteHistoryTitle": "Gesamte Spielhistorie löschen?",
+  "deleteHistoryBody": "Alle lokalen Spielaufzeichnungen werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.",
+
+  "noGamesYet": "Noch keine Spielhistorie",
+  "noGamesYetSubtitle": "Starte ein Spiel, um den Spielverlauf zu verfolgen.",
+  "noTeamsYet": "Noch keine Teams.",
+  "noTournamentsYet": "Noch keine Turniere.",
+  "noClubsYet": "Noch keine Vereine.",
+
+  "errorLinkNotAvailable": "Link noch nicht verfügbar",
+  "errorCouldNotOpenLink": "Link konnte nicht geöffnet werden",
+  "errorCouldNotOpenEmail": "E-Mail-App konnte nicht geöffnet werden",
+  "errorStoreNotAvailable": "Store konnte nicht geöffnet werden — bitte suche manuell nach TournaQ."
+}

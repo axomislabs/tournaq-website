@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
 import '../models/game.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
+import 'sheet_helpers.dart';
 
 enum _TeamMethod { existing, createNew, random }
 
@@ -123,148 +125,192 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        final isLandscape = orientation == Orientation.landscape;
+        return TournaQSheet(
+          body: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(24, 8, 24, isLandscape ? 16 : 40),
+            child: _buildCurrentStep(isLandscape),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 4),
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
-                child: _buildCurrentStep(),
-              ),
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildCurrentStep() {
-    if (_format == null) return _buildFormatPicker();
-    if (_method == null) return _buildMethodPicker();
-    return _buildTeamPicker();
+  Widget _buildCurrentStep(bool isLandscape) {
+    if (_format == null) return _buildFormatPicker(isLandscape);
+    if (_method == null) return _buildMethodPicker(isLandscape);
+    return _buildTeamPicker(isLandscape);
   }
 
   // ── Step 1: Format ────────────────────────────────────────────────────────
 
-  Widget _buildFormatPicker() {
+  Widget _buildFormatPicker(bool isLandscape) {
+    final card1 = _buildOptionCard(
+      icon: Icons.filter_1_rounded,
+      label: 'One Set',
+      subtitle: 'Single set to decide the winner',
+      onTap: () => setState(() => _format = MatchFormat.oneSet),
+      compact: isLandscape,
+    );
+    final card2 = _buildOptionCard(
+      icon: Icons.filter_3_rounded,
+      label: 'Best of Three Sets',
+      subtitle: 'First to win two sets wins the match',
+      onTap: () => setState(() => _format = MatchFormat.bestOfThree),
+      compact: isLandscape,
+    );
+
+    if (isLandscape) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 4,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _compactHeader(Icons.flash_on_rounded, 'Quick Start'),
+              const SizedBox(height: 6),
+              const Text('How long is the match?', style: TextStyle(color: Colors.black54, fontSize: 14)),
+            ]),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 6,
+            child: Column(children: [
+              card1,
+              const SizedBox(height: 8),
+              card2,
+            ]),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFF8E1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.flash_on_rounded, color: Color(0xFFB08B1E), size: 22),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Quick Start a Game',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
+        _fullHeader(Icons.flash_on_rounded, 'Quick Start a Game'),
         const SizedBox(height: 8),
-        const Text(
-          'How long is the match?',
-          style: TextStyle(color: Colors.black54, fontSize: 15),
-        ),
+        const Text('How long is the match?', style: TextStyle(color: Colors.black54, fontSize: 15)),
         const SizedBox(height: 24),
-        _buildOptionCard(
-          icon: Icons.filter_1_rounded,
-          label: 'One Set',
-          subtitle: 'Single set to decide the winner',
-          onTap: () => setState(() => _format = MatchFormat.oneSet),
-        ),
+        card1,
         const SizedBox(height: 12),
-        _buildOptionCard(
-          icon: Icons.filter_3_rounded,
-          label: 'Best of Three Sets',
-          subtitle: 'First to win two sets wins the match',
-          onTap: () => setState(() => _format = MatchFormat.bestOfThree),
-        ),
+        card2,
       ],
     );
   }
 
   // ── Step 2: Team method ───────────────────────────────────────────────────
 
-  Widget _buildMethodPicker() {
+  Widget _buildMethodPicker(bool isLandscape) {
+    final title = _format == MatchFormat.oneSet ? 'One Set' : 'Best of Three';
+    final card1 = _buildOptionCard(
+      icon: Icons.group_rounded,
+      label: 'Select Existing Teams',
+      subtitle: 'Choose from your saved teams',
+      onTap: () => setState(() => _method = _TeamMethod.existing),
+      compact: isLandscape,
+    );
+    final card2 = _buildOptionCard(
+      icon: Icons.edit_rounded,
+      label: 'Create New Teams',
+      subtitle: 'Name your teams on the fly',
+      onTap: () => setState(() => _method = _TeamMethod.createNew),
+      compact: isLandscape,
+    );
+    final card3 = _buildOptionCard(
+      icon: Icons.casino_rounded,
+      label: 'Generate Random Teams',
+      subtitle: 'Let us pick fun team names',
+      onTap: () => setState(() => _method = _TeamMethod.random),
+      compact: isLandscape,
+    );
+
+    if (isLandscape) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 4,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              _buildCompactBackHeader(title, onBack: () => setState(() => _format = null)),
+              const SizedBox(height: 6),
+              const Text('Choose your teams', style: TextStyle(color: Colors.black54, fontSize: 14)),
+            ]),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 6,
+            child: Column(children: [
+              card1,
+              const SizedBox(height: 8),
+              card2,
+              const SizedBox(height: 8),
+              card3,
+            ]),
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildBackHeader(
-          _format == MatchFormat.oneSet ? 'One Set' : 'Best of Three',
-          onBack: () => setState(() => _format = null),
-        ),
+        _buildBackHeader(title, onBack: () => setState(() => _format = null)),
         const SizedBox(height: 8),
         const Text(
           'How would you like to choose your teams?',
           style: TextStyle(color: Colors.black54, fontSize: 15),
         ),
         const SizedBox(height: 24),
-        _buildOptionCard(
-          icon: Icons.group_rounded,
-          label: 'Select Existing Teams',
-          subtitle: 'Choose from your saved teams',
-          onTap: () => setState(() => _method = _TeamMethod.existing),
-        ),
+        card1,
         const SizedBox(height: 12),
-        _buildOptionCard(
-          icon: Icons.edit_rounded,
-          label: 'Create New Teams',
-          subtitle: 'Name your teams on the fly',
-          onTap: () => setState(() => _method = _TeamMethod.createNew),
-        ),
+        card2,
         const SizedBox(height: 12),
-        _buildOptionCard(
-          icon: Icons.casino_rounded,
-          label: 'Generate Random Teams',
-          subtitle: 'Let us pick fun team names',
-          onTap: () => setState(() => _method = _TeamMethod.random),
-        ),
+        card3,
       ],
     );
   }
 
   // ── Step 3: Team picker ───────────────────────────────────────────────────
 
-  Widget _buildTeamPicker() {
+  Widget _buildTeamPicker(bool isLandscape) {
     switch (_method!) {
       case _TeamMethod.existing:
-        return _buildExistingTeams();
+        return _buildExistingTeams(isLandscape);
       case _TeamMethod.createNew:
-        return _buildCreateNew();
+        return _buildCreateNew(isLandscape);
       case _TeamMethod.random:
-        return _buildRandom();
+        return _buildRandom(isLandscape);
     }
   }
 
   // ── Shared helpers ────────────────────────────────────────────────────────
+
+  Widget _fullHeader(IconData icon, String title) {
+    return Row(children: [
+      Container(
+        padding: const EdgeInsets.all(8),
+        decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
+        child: Icon(icon, color: AppColors.gold, size: 22),
+      ),
+      const SizedBox(width: 12),
+      Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+    ]);
+  }
+
+  Widget _compactHeader(IconData icon, String title) {
+    return Row(children: [
+      Container(
+        padding: const EdgeInsets.all(7),
+        decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
+        child: Icon(icon, color: AppColors.gold, size: 18),
+      ),
+      const SizedBox(width: 10),
+      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+    ]);
+  }
 
   Widget _buildBackHeader(String title, {VoidCallback? onBack}) {
     return Row(
@@ -283,36 +329,59 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     );
   }
 
+  Widget _buildCompactBackHeader(String title, {VoidCallback? onBack}) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: onBack ?? () => setState(() => _method = null),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
+            child: const Icon(Icons.arrow_back_ios_new_rounded, size: 14),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+      ],
+    );
+  }
+
   Widget _buildOptionCard({
     required IconData icon,
     required String label,
     required String subtitle,
     required VoidCallback onTap,
+    bool compact = false,
   }) {
+    final iconSize = compact ? 36.0 : 44.0;
+    final padding = compact
+        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+        : const EdgeInsets.all(16);
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: padding,
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFEEEEEE)),
+          border: Border.all(color: AppColors.divider),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
-              child: Icon(icon, color: const Color(0xFFB08B1E), size: 22),
+              width: iconSize,
+              height: iconSize,
+              decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
+              child: Icon(icon, color: AppColors.gold, size: compact ? 18 : 22),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                  Text(subtitle, style: const TextStyle(color: Colors.black45, fontSize: 13)),
+                  Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: compact ? 14 : 15)),
+                  Text(subtitle, style: TextStyle(color: Colors.black45, fontSize: compact ? 12 : 13)),
                 ],
               ),
             ),
@@ -334,7 +403,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFB08B1E),
+          backgroundColor: AppColors.gold,
           foregroundColor: Colors.white,
           disabledBackgroundColor: Colors.grey[200],
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -344,24 +413,40 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     );
   }
 
-  Widget _buildExistingTeams() {
+  Widget _buildCompactStartButton({required VoidCallback? onPressed}) {
+    return ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.play_arrow_rounded, size: 18),
+        label: const Text('Start Game', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.gold,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: Colors.grey[200],
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+    );
+  }
+
+  Widget _buildExistingTeams(bool isLandscape) {
     final teams = _state.teams;
+    final backHeader = isLandscape
+        ? _buildCompactBackHeader('Select Teams')
+        : _buildBackHeader('Select Teams');
 
     if (teams.length < 2) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBackHeader('Select Teams'),
-          const SizedBox(height: 48),
+          backHeader,
+          SizedBox(height: isLandscape ? 16 : 48),
           const Center(
             child: Column(
               children: [
                 Icon(Icons.group_off_rounded, size: 52, color: Colors.black26),
                 SizedBox(height: 12),
-                Text(
-                  'Not enough teams',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                ),
+                Text('Not enough teams', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 SizedBox(height: 4),
                 Text(
                   'You need at least 2 saved teams.\nTry creating or generating teams instead.',
@@ -375,24 +460,62 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       );
     }
 
+    final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(12));
+    final fieldPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+    final canStart = _team1Id != null && _team2Id != null && _team1Id != _team2Id;
+
+    if (isLandscape) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: _buildCompactBackHeader('Select Teams')),
+          const SizedBox(width: 12),
+          _buildCompactStartButton(
+            onPressed: canStart ? () => _startGame(_team1Id!, _team2Id!) : null,
+          ),
+        ]),
+        const SizedBox(height: 12),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Team 1', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 6),
+            DropdownButtonFormField<String>(
+              initialValue: _team1Id,
+              isDense: true,
+              decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+              hint: const Text('Choose Team 1', style: TextStyle(fontSize: 13)),
+              items: teams.where((t) => t.id != _team2Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name, style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (v) => setState(() => _team1Id = v),
+            ),
+          ])),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Team 2', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 6),
+            DropdownButtonFormField<String>(
+              initialValue: _team2Id,
+              isDense: true,
+              decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
+              hint: const Text('Choose Team 2', style: TextStyle(fontSize: 13)),
+              items: teams.where((t) => t.id != _team1Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name, style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (v) => setState(() => _team2Id = v),
+            ),
+          ])),
+        ]),
+      ]);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildBackHeader('Select Teams'),
+        backHeader,
         const SizedBox(height: 24),
         const Text('Team 1', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: _team1Id,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
+          decoration: InputDecoration(border: fieldBorder, contentPadding: fieldPadding),
           hint: const Text('Choose Team 1'),
-          items: teams
-              .where((t) => t.id != _team2Id)
-              .map((t) => DropdownMenuItem(value: t.id, child: Text(t.name)))
-              .toList(),
+          items: teams.where((t) => t.id != _team2Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))).toList(),
           onChanged: (v) => setState(() => _team1Id = v),
         ),
         const SizedBox(height: 20),
@@ -400,28 +523,56 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: _team2Id,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
+          decoration: InputDecoration(border: fieldBorder, contentPadding: fieldPadding),
           hint: const Text('Choose Team 2'),
-          items: teams
-              .where((t) => t.id != _team1Id)
-              .map((t) => DropdownMenuItem(value: t.id, child: Text(t.name)))
-              .toList(),
+          items: teams.where((t) => t.id != _team1Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))).toList(),
           onChanged: (v) => setState(() => _team2Id = v),
         ),
         const SizedBox(height: 28),
-        _buildStartButton(
-          onPressed: (_team1Id != null && _team2Id != null && _team1Id != _team2Id)
-              ? () => _startGame(_team1Id!, _team2Id!)
-              : null,
-        ),
+        _buildStartButton(onPressed: canStart ? () => _startGame(_team1Id!, _team2Id!) : null),
       ],
     );
   }
 
-  Widget _buildCreateNew() {
+  Widget _buildCreateNew(bool isLandscape) {
+    final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(12));
+    final fieldPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14);
+    final canStart = _team1Controller.text.trim().isNotEmpty && _team2Controller.text.trim().isNotEmpty;
+
+    if (isLandscape) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: _buildCompactBackHeader('Create Teams')),
+          const SizedBox(width: 12),
+          _buildCompactStartButton(onPressed: canStart ? _startWithNewTeams : null),
+        ]),
+        const SizedBox(height: 12),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Team 1 Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _team1Controller,
+              decoration: InputDecoration(hintText: 'e.g. Red Eagles', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), isDense: true),
+              textCapitalization: TextCapitalization.words,
+              onChanged: (_) => setState(() {}),
+            ),
+          ])),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('Team 2 Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 6),
+            TextField(
+              controller: _team2Controller,
+              decoration: InputDecoration(hintText: 'e.g. Blue Lions', border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), isDense: true),
+              textCapitalization: TextCapitalization.words,
+              onChanged: (_) => setState(() {}),
+            ),
+          ])),
+        ]),
+      ]);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -431,11 +582,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         const SizedBox(height: 8),
         TextField(
           controller: _team1Controller,
-          decoration: InputDecoration(
-            hintText: 'e.g. Red Eagles',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
+          decoration: InputDecoration(hintText: 'e.g. Red Eagles', border: fieldBorder, contentPadding: fieldPadding),
           textCapitalization: TextCapitalization.words,
           onChanged: (_) => setState(() {}),
         ),
@@ -444,25 +591,58 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         const SizedBox(height: 8),
         TextField(
           controller: _team2Controller,
-          decoration: InputDecoration(
-            hintText: 'e.g. Blue Lions',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
+          decoration: InputDecoration(hintText: 'e.g. Blue Lions', border: fieldBorder, contentPadding: fieldPadding),
           textCapitalization: TextCapitalization.words,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 28),
-        _buildStartButton(
-          onPressed: (_team1Controller.text.trim().isNotEmpty && _team2Controller.text.trim().isNotEmpty)
-              ? _startWithNewTeams
-              : null,
-        ),
+        _buildStartButton(onPressed: canStart ? _startWithNewTeams : null),
       ],
     );
   }
 
-  Widget _buildRandom() {
+  Widget _buildRandom(bool isLandscape) {
+    if (isLandscape) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: _buildCompactBackHeader('Random Teams')),
+          const SizedBox(width: 12),
+          OutlinedButton.icon(
+            onPressed: _generateRandomNames,
+            icon: const Icon(Icons.refresh_rounded, size: 16),
+            label: const Text('Re-roll', style: TextStyle(fontSize: 13)),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton.icon(
+            onPressed: _startWithRandomTeams,
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
+            label: const Text('Start', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.gold,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Expanded(child: _buildRandomTeamBadge(_randomTeam1Name, compact: true)),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Text('vs', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Colors.black38)),
+          ),
+          Expanded(child: _buildRandomTeamBadge(_randomTeam2Name, compact: true)),
+        ]),
+      ]);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -496,20 +676,27 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     );
   }
 
-  Widget _buildRandomTeamBadge(String name) {
+  Widget _buildRandomTeamBadge(String name, {bool compact = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 24, vertical: compact ? 10 : 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1),
+        color: AppColors.goldCream,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8C84E), width: 1.5),
+        border: Border.all(color: AppColors.goldBadgeBorder, width: 1.5),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.casino_rounded, color: Color(0xFFB08B1E), size: 20),
-          const SizedBox(width: 10),
-          Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.black87)),
+          Icon(Icons.casino_rounded, color: AppColors.gold, size: compact ? 16 : 20),
+          SizedBox(width: compact ? 8 : 10),
+          Flexible(
+            child: Text(
+              name,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: compact ? 15 : 18, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

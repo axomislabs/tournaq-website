@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/game.dart';
 import '../services/app_data_service.dart';
+import '../app/app_colors.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -165,7 +166,7 @@ class _GamesPageState extends State<GamesPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(children: [
-              const Icon(Icons.sports_score_rounded, size: 20, color: Color(0xFF6E7640)),
+              const Icon(Icons.sports_score_rounded, size: 20, color: AppColors.oliveMedium),
               const SizedBox(width: 8),
               const Text('Match History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
               const Spacer(),
@@ -230,14 +231,14 @@ class _GamesPageState extends State<GamesPage> {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFFB08B1E), Color(0xFFC9A030)],
+          colors: [AppColors.gold, AppColors.goldGradientEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFB08B1E).withValues(alpha: 0.28),
+            color: AppColors.gold.withValues(alpha: 0.28),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),
@@ -266,7 +267,7 @@ class _GamesPageState extends State<GamesPage> {
             label: const Text('Quick Start Game', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFFB08B1E),
+              foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),

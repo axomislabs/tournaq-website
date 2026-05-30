@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app/app_assets.dart';
+import '../app/app_colors.dart';
 import '../state/app_state.dart';
 import '../pages/contact_page.dart';
 import '../pages/games_page.dart';
@@ -38,7 +40,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.home_rounded,
                   label: 'Home',
-                  iconBgColor: const Color(0xFFFFF8E1),
+                  iconBgColor: AppColors.goldCream,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).popUntil((r) => r.isFirst);
@@ -48,7 +50,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.sports_basketball_rounded,
                   label: 'Quick Start Game',
-                  iconBgColor: const Color(0xFFFFF8E1),
+                  iconBgColor: AppColors.goldCream,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -61,13 +63,13 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Divider(height: 1, color: Color(0xFFEEEEEE)),
+                  child: Divider(height: 1, color: AppColors.divider),
                 ),
                 _buildNavItem(
                   context,
                   icon: Icons.local_offer_rounded,
                   label: 'Sponsoring & Promo',
-                  iconBgColor: const Color(0xFFF0F0F0),
+                  iconBgColor: AppColors.surfaceGray,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -82,7 +84,7 @@ class AppDrawer extends StatelessWidget {
                   context,
                   icon: Icons.contact_support_rounded,
                   label: 'Contact & About',
-                  iconBgColor: const Color(0xFFEEF2E6),
+                  iconBgColor: AppColors.oliveLight,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
@@ -104,12 +106,12 @@ class AppDrawer extends StatelessWidget {
   Widget _buildHeader(double topPadding) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFF6E7640),
+      color: AppColors.oliveMedium,
       child: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/tournaq_background.png',
+              AppAssets.background,
               fit: BoxFit.cover,
               opacity: const AlwaysStoppedAnimation(0.10),
             ),
@@ -120,7 +122,7 @@ class AppDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/tournaq-rectangle.png',
+                  AppAssets.logoRectangle,
                   width: double.infinity,
                   fit: BoxFit.fitWidth,
                 ),
@@ -129,7 +131,7 @@ class AppDrawer extends StatelessWidget {
                   'Scoring, Games and Tournament Management',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFFF0D47A),
+                    color: AppColors.goldLight,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,

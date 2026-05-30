@@ -5,6 +5,34 @@ import '../models/team.dart';
 import '../models/tournament.dart';
 import '../models/game.dart';
 
+/// Central, immutable application state tree for TournaQ.
+///
+/// Architecture principle:
+///   Every entity lives exactly once in this tree. Pages and widgets receive
+///   [AppState] as a parameter and return a new [AppState] (via [copyWith])
+///   when they make changes. Nothing mutates in place — all writes produce a
+///   new object and bubble up through the [onAppStateChanged] callback chain
+///   to [_MyAppState] in main.dart, which persists the new state via
+///   [LocalStorageService.saveAppState].
+///
+/// Storage model (v1):
+///   - [games], [teams], [users] are persisted to Hive on every state change.
+///   - [tournaments] and [clubs] are in-memory only in v1. They are rebuilt
+///     from the app's navigation flow on each session.
+///
+/// Design decision — normalized IDs, not embedded objects:
+///   Entities reference each other by ID (e.g. [Team.userIds],
+///   [Tournament.teamIds]). This prevents duplicate copies and makes updates
+///   O(1) — only the owning list needs to change. Look up cross-references
+///   using the typed accessor methods (e.g. [getTeamById], [getUserById]).
+///
+/// Future directions:
+///   - A repository abstraction layer (e.g. GameRepository) will be inserted
+///     between [AppState] and [LocalStorageService] before Firebase migration.
+///   - The tournament and club lists will be persisted once their data models
+///     stabilize.
+///   - [AppState] itself may split into domain-specific sub-states
+///     (ScoringState, TournamentState) once the feature set grows.
 class AppState {
   final List<AppUser> users;
   final List<Team> teams;

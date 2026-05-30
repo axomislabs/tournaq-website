@@ -8,6 +8,11 @@ enum GameStatus {
   completed,
 }
 
+/// Where a [Game] originated.
+///
+/// Design decision: games created outside a tournament ([quickLocal]) must
+/// work without any tournament structure. This enum is the flag that drives
+/// UI branching (e.g. hiding tournament-specific controls in quick games).
 enum GameSource {
   tournament,
   quickLocal,
@@ -19,7 +24,38 @@ enum MatchFormat {
   custom,
 }
 
+/// A single match between two teams.
+///
+/// The core domain object in TournaQ. A [Game] is self-contained: it holds
+/// all score data, set progression, and lineup information needed to replay
+/// or display the match result without querying any other entity.
+///
+/// Match lifecycle:
+///   [GameStatus.scheduled] → score page opened → [GameStatus.inProgress]
+///   → all required sets completed → [GameStatus.completed]
+///
+/// Set model:
+///   A [Game] contains a list of [GameSet] objects. Each set tracks its own
+///   score independently. [currentSetIndex] points to the active set.
+///   [completeCurrentSet] in [AppDataService] advances this index and records
+///   the set winner. The match winner is computed from set wins via
+///   [matchWinnerTeamId] (set explicitly) or derived from [team1SetsWon] /
+///   [team2SetsWon].
+///
+/// Design decision — [result] field:
+///   The legacy [GameResult] field is kept for backwards compatibility with
+///   previously serialized games. New code uses [sets], [matchWinnerTeamId],
+///   and the computed helpers ([team1SetsWon], [isMatchComplete]).
+///
+/// Design decision — [isLocalOnly]:
+///   Reserved for future multi-device sync. Local-only games will be
+///   excluded from Firebase upload until the user explicitly publishes them.
+///
+/// Firebase: Each [Game] will map to a Firestore document in a `games`
+///   collection, with [sets] stored as a subcollection or embedded array.
+///   [tournamentId] will become a document reference.
 class Game {
+  static const int schemaVersion = 1;
   final String id;
   final String? tournamentId;
   final String team1Id;
@@ -133,6 +169,7 @@ class Game {
   }
 
   Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
         'id': id,
         'tournamentId': tournamentId,
         'team1Id': team1Id,

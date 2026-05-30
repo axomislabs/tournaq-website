@@ -4,6 +4,24 @@ import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../state/app_state.dart';
 
+/// Pure logic for tournament pairing and standings.
+///
+/// This service is intentionally stateless — it takes a [Tournament] and
+/// [AppState] snapshot and returns results. No persistence, no UI coupling.
+///
+/// Supported tournament modes and their pairing strategies:
+///   league            → full round-robin (every team plays every other team)
+///   singleElimination → standard bracket seeded by team registration order
+///   doubleElimination → double-bracket (losers side not yet fully implemented)
+///   swiss             → each round pairs teams with similar win counts
+///   randomizer        → completely random one-round pairing
+///   hybrid            → groups of different modes (see [HybridModeSetupPage])
+///   kingOfTheCourt    → not yet implemented (returns empty pairings)
+///   manual            → organizer creates games manually, no auto-pairing
+///
+/// Future: As tournament modes mature, consider splitting each into its own
+///   strategy class implementing a common [PairingStrategy] interface. This
+///   would make adding new modes (e.g. double round-robin) non-breaking.
 class TournamentLogicService {
   // Generate all pairings for a tournament based on its mode
   static List<({String team1Id, String team2Id})> generatePairings(

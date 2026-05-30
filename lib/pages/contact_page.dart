@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../config/contact_links.dart';
+import '../app/app_colors.dart';
+import '../app/app_links.dart';
 import '../services/consent_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
@@ -8,10 +9,10 @@ import '../widgets/app_drawer.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 
-const _kGold = Color(0xFFA97800);
-const _kGoldLight = Color(0xFFFFF8E1);
-const _kOlive = Color(0xFF556B2F);
-const _kOliveLight = Color(0xFFEEF2E6);
+const _kGold = AppColors.goldDark;
+const _kGoldLight = AppColors.goldCream;
+const _kOlive = AppColors.olive;
+const _kOliveLight = AppColors.oliveLight;
 
 class ContactPage extends StatefulWidget {
   final AppState appState;
@@ -39,13 +40,13 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   Future<void> _launchInstagram(BuildContext context) =>
-      openExternalUrl(context, ContactLinks.instagram);
+      openExternalUrl(context, AppLinks.instagram);
 
   Future<void> _launchEmail(BuildContext context) =>
-      openEmail(context, ContactLinks.contactEmail);
+      openEmail(context, AppLinks.contactEmail);
 
   Future<void> _launchFeedback(BuildContext context) =>
-      openExternalUrl(context, ContactLinks.feedbackForm);
+      openExternalUrl(context, AppLinks.feedbackForm);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +62,7 @@ class _ContactPageState extends State<ContactPage> {
                     _buildClickableCard(
                       context,
                       icon: Icons.camera_alt_rounded,
-                      iconBg: const Color(0xFFE1306C),
+                      iconBg: AppColors.instagramPink,
                       iconColor: Colors.white,
                       title: 'Instagram',
                       subtitle: '@tournaq',
@@ -76,7 +77,7 @@ class _ContactPageState extends State<ContactPage> {
                       iconBg: _kGoldLight,
                       iconColor: _kGold,
                       title: 'Email',
-                      subtitle: ContactLinks.contactEmail,
+                      subtitle: AppLinks.contactEmail,
                       onTap: () => _launchEmail(context),
                     ),
                     _buildClickableCard(
@@ -90,7 +91,7 @@ class _ContactPageState extends State<ContactPage> {
                     ),
                     _buildDisabledCard(
                       icon: Icons.language_rounded,
-                      iconBg: const Color(0xFFF5F5F5),
+                      iconBg: AppColors.disabledIconBg,
                       iconColor: Colors.black26,
                       title: 'Website',
                       subtitle: 'Coming soon',
@@ -105,7 +106,7 @@ class _ContactPageState extends State<ContactPage> {
                       iconColor: _kOlive,
                       title: 'Privacy Policy',
                       subtitle: 'How we handle your data',
-                      onTap: () => openExternalUrl(context, ContactLinks.privacyPolicy),
+                      onTap: () => openExternalUrl(context, AppLinks.privacyPolicy),
                     ),
                     _buildClickableCard(
                       context,
@@ -114,7 +115,7 @@ class _ContactPageState extends State<ContactPage> {
                       iconColor: _kGold,
                       title: 'Terms of Use',
                       subtitle: 'Rules for using TournaQ',
-                      onTap: () => openExternalUrl(context, ContactLinks.termsOfUse),
+                      onTap: () => openExternalUrl(context, AppLinks.termsOfUse),
                     ),
                     _buildClickableCard(
                       context,
@@ -123,7 +124,7 @@ class _ContactPageState extends State<ContactPage> {
                       iconColor: _kOlive,
                       title: 'Legal Notice',
                       subtitle: 'Developer & app information (EU)',
-                      onTap: () => openExternalUrl(context, ContactLinks.legalNotice),
+                      onTap: () => openExternalUrl(context, AppLinks.legalNotice),
                     ),
                     _buildClickableCard(
                       context,
@@ -154,7 +155,7 @@ class _ContactPageState extends State<ContactPage> {
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 0,
-      color: const Color(0xFFF9F9F9),
+      color: AppColors.disabledCardBg,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
         leading: Container(
@@ -230,7 +231,7 @@ class _ContactPageState extends State<ContactPage> {
     final versionLabel = _version != null ? 'TournaQ v$_version' : 'TournaQ';
     return Column(
       children: [
-        const Divider(color: Color(0xFFEEEEEE)),
+        const Divider(color: AppColors.divider),
         const SizedBox(height: 12),
         Text(
           versionLabel,

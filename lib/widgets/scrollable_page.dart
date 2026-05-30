@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/app_assets.dart';
 
 class ScrollablePage extends StatelessWidget {
   final EdgeInsetsGeometry padding;
@@ -15,7 +16,7 @@ class ScrollablePage extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/tournaq_background.png'),
+          image: AssetImage(AppAssets.background),
           fit: BoxFit.cover,
           opacity: 0.06,
         ),

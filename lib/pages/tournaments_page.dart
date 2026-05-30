@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../services/app_data_service.dart';
@@ -173,7 +174,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB08B1E),
+              backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

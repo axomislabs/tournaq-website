@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
 import '../models/team.dart';
 import '../services/app_data_service.dart';
@@ -7,6 +8,7 @@ import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
+import '../widgets/sheet_helpers.dart';
 import 'club_detail_page.dart';
 import 'tournament_detail_page.dart';
 import 'user_detail_page.dart';
@@ -336,77 +338,114 @@ class _EditPlayersSheetState extends State<_EditPlayersSheet> {
     super.dispose();
   }
 
+  void _save(BuildContext context) {
+    final n1 = _p1.text.trim().isEmpty ? widget.initialP1 : _p1.text.trim();
+    final n2 = _p2.text.trim().isEmpty ? widget.initialP2 : _p2.text.trim();
+    widget.onSave(n1, n2);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40, height: 4,
-                decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-              ),
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        final isLandscape = orientation == Orientation.landscape;
+        return TournaQSheet(
+          body: isLandscape ? _buildLandscape(context) : _buildPortrait(context),
+        );
+      },
+    );
+  }
+
+  Widget _buildPortrait(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 36),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(widget.teamName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 4),
+        const Text('Edit player names', style: TextStyle(color: Colors.black45, fontSize: 13)),
+        const SizedBox(height: 20),
+        _field('Player 1', _p1),
+        const SizedBox(height: 14),
+        _field('Player 2', _p2),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => _save(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.gold,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            const SizedBox(height: 16),
-            Text(widget.teamName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            const Text('Edit player names',
-                style: TextStyle(color: Colors.black45, fontSize: 13)),
-            const SizedBox(height: 20),
-            _field('Player 1', _p1),
-            const SizedBox(height: 14),
-            _field('Player 2', _p2),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  final n1 = _p1.text.trim().isEmpty ? widget.initialP1 : _p1.text.trim();
-                  final n2 = _p2.text.trim().isEmpty ? widget.initialP2 : _p2.text.trim();
-                  widget.onSave(n1, n2);
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB08B1E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('Save Players',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-              ),
-            ),
-          ],
+            child: const Text('Save Players', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+          ),
         ),
-      ),
+      ]),
+    );
+  }
+
+  Widget _buildLandscape(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(widget.teamName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            const Text('Edit player names', style: TextStyle(color: Colors.black45, fontSize: 12)),
+          ])),
+          const SizedBox(width: 12),
+          ElevatedButton(
+            onPressed: () => _save(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.gold,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+          ),
+        ]),
+        const SizedBox(height: 12),
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: _compactField('Player 1', _p1)),
+          const SizedBox(width: 12),
+          Expanded(child: _compactField('Player 2', _p2)),
+        ]),
+      ]),
     );
   }
 
   Widget _field(String label, TextEditingController ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: ctrl,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          ),
-          textCapitalization: TextCapitalization.words,
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+      const SizedBox(height: 6),
+      TextField(
+        controller: ctrl,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ),
-      ],
-    );
+        textCapitalization: TextCapitalization.words,
+      ),
+    ]);
+  }
+
+  Widget _compactField(String label, TextEditingController ctrl) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Colors.black54)),
+      const SizedBox(height: 5),
+      TextField(
+        controller: ctrl,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(9)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          isDense: true,
+        ),
+        textCapitalization: TextCapitalization.words,
+      ),
+    ]);
   }
 }

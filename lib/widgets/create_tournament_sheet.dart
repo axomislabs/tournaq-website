@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
 import '../models/club.dart';
 import '../models/team.dart';
@@ -7,6 +8,7 @@ import '../models/tournament_mode.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import 'hybrid_mode_setup_page.dart';
+import 'sheet_helpers.dart';
 
 class CreateTournamentSheet extends StatefulWidget {
   final AppState appState;
@@ -158,180 +160,163 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
   Widget build(BuildContext context) {
     final clubs = widget.appState.clubs;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          // Drag handle
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Center(child: Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-            )),
+    return TournaQSheet(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          // Header
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
+              child: const Icon(Icons.emoji_events_rounded, color: AppColors.gold, size: 22),
+            ),
+            const SizedBox(width: 12),
+            const Text('Create Tournament', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          ]),
+          const SizedBox(height: 24),
+
+          // ── Name ────────────────────────────────────────────────────
+          Row(children: [
+            const Expanded(child: Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
+            GestureDetector(
+              onTap: _suggestName,
+              child: const Row(children: [
+                Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
+                SizedBox(width: 4),
+                Text('Suggest', style: TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
+              ]),
+            ),
+          ]),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _nameCtrl,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+            onChanged: (_) => setState(() {}),
           ),
-          Flexible(child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              // Header
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(color: Color(0xFFFFF8E1), shape: BoxShape.circle),
-                  child: const Icon(Icons.emoji_events_rounded, color: Color(0xFFB08B1E), size: 22),
-                ),
-                const SizedBox(width: 12),
-                const Text('Create Tournament', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
-              ]),
-              const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-              // ── Name ────────────────────────────────────────────────────
-              Row(children: [
-                const Expanded(child: Text('Name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
-                GestureDetector(
-                  onTap: _suggestName,
-                  child: const Row(children: [
-                    Icon(Icons.shuffle_rounded, size: 14, color: Color(0xFFB08B1E)),
-                    SizedBox(width: 4),
-                    Text('Suggest', style: TextStyle(fontSize: 12, color: Color(0xFFB08B1E), fontWeight: FontWeight.w600)),
-                  ]),
-                ),
-              ]),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _nameCtrl,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                onChanged: (_) => setState(() {}),
+          // ── Mode ────────────────────────────────────────────────────
+          const Text('Mode', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<TournamentModeType>(
+            initialValue: _mode,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+            items: TournamentModeType.values.map((m) => DropdownMenuItem(
+              value: m, child: Text(TournamentMode.fromType(m).displayName),
+            )).toList(),
+            onChanged: (v) { if (v != null) setState(() => _mode = v); },
+          ),
+
+          // Hybrid setup button
+          if (_mode == TournamentModeType.hybrid) ...[
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: _openHybridSetup,
+              icon: const Icon(Icons.tune_rounded, size: 18),
+              label: Text(
+                _hybridGroups.isEmpty
+                    ? 'Configure Hybrid Groups'
+                    : '${_hybridGroups.length} group${_hybridGroups.length == 1 ? '' : 's'} configured — tap to edit',
               ),
-              const SizedBox(height: 16),
-
-              // ── Mode ────────────────────────────────────────────────────
-              const Text('Mode', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<TournamentModeType>(
-                initialValue: _mode,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                items: TournamentModeType.values.map((m) => DropdownMenuItem(
-                  value: m, child: Text(TournamentMode.fromType(m).displayName),
-                )).toList(),
-                onChanged: (v) { if (v != null) setState(() => _mode = v); },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.gold,
+                side: const BorderSide(color: AppColors.gold),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
+            ),
+          ],
 
-              // Hybrid setup button
-              if (_mode == TournamentModeType.hybrid) ...[
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: _openHybridSetup,
-                  icon: const Icon(Icons.tune_rounded, size: 18),
-                  label: Text(
-                    _hybridGroups.isEmpty
-                        ? 'Configure Hybrid Groups'
-                        : '${_hybridGroups.length} group${_hybridGroups.length == 1 ? '' : 's'} configured — tap to edit',
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFB08B1E),
-                    side: const BorderSide(color: Color(0xFFB08B1E)),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ],
+          const SizedBox(height: 24),
+          const Divider(height: 1),
+          const SizedBox(height: 20),
 
-              const SizedBox(height: 24),
-              const Divider(height: 1),
-              const SizedBox(height: 20),
+          // ── Existing Teams ───────────────────────────────────────────
+          const Text('Assign Existing Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 10),
 
-              // ── Existing Teams ───────────────────────────────────────────
-              const Text('Assign Existing Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          if (widget.appState.teams.isEmpty)
+            const Text('No teams available yet.', style: TextStyle(color: Colors.black45, fontSize: 13))
+          else ...[
+            // Club filter
+            if (clubs.isNotEmpty) ...[
+              _buildClubFilter(clubs),
               const SizedBox(height: 10),
+            ],
+            _useDragDrop ? _buildDragDropSection() : _buildSearchableSection(),
+          ],
 
-              if (widget.appState.teams.isEmpty)
-                const Text('No teams available yet.', style: TextStyle(color: Colors.black45, fontSize: 13))
-              else ...[
-                // Club filter
-                if (clubs.isNotEmpty) ...[
-                  _buildClubFilter(clubs),
-                  const SizedBox(height: 10),
-                ],
-                _useDragDrop ? _buildDragDropSection() : _buildSearchableSection(),
-              ],
+          const SizedBox(height: 24),
+          const Divider(height: 1),
+          const SizedBox(height: 20),
 
-              const SizedBox(height: 24),
-              const Divider(height: 1),
-              const SizedBox(height: 20),
+          // ── Random Teams ─────────────────────────────────────────────
+          const Text('Generate Random Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8, runSpacing: 4,
+            children: [0, 4, 6, 8, 10, 12, 16].map((n) => ChoiceChip(
+              label: Text(n == 0 ? 'None' : '$n'),
+              selected: _randomTeamCount == n,
+              selectedColor: AppColors.goldCream,
+              checkmarkColor: AppColors.gold,
+              onSelected: (_) => setState(() => _randomTeamCount = n),
+            )).toList(),
+          ),
 
-              // ── Random Teams ─────────────────────────────────────────────
-              const Text('Generate Random Teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8, runSpacing: 4,
-                children: [0, 4, 6, 8, 10, 12, 16].map((n) => ChoiceChip(
-                  label: Text(n == 0 ? 'None' : '$n'),
-                  selected: _randomTeamCount == n,
-                  selectedColor: const Color(0xFFFFF8E1),
-                  checkmarkColor: const Color(0xFFB08B1E),
-                  onSelected: (_) => setState(() => _randomTeamCount = n),
-                )).toList(),
+          if (_randomTeamCount > 0) ...[
+            const SizedBox(height: 14),
+            const Text('Club for random teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
+            const SizedBox(height: 4),
+            _buildRandomClubSection(clubs),
+          ],
+
+          // ── Tournament Club Assignment ────────────────────────────────
+          if (clubs.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            const Divider(height: 1),
+            const SizedBox(height: 20),
+            const Text('Assign to Clubs', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8, runSpacing: 4,
+              children: clubs.map((c) => FilterChip(
+                label: Text(c.name),
+                selected: _tournamentClubIds.contains(c.id),
+                selectedColor: AppColors.goldCream,
+                checkmarkColor: AppColors.gold,
+                onSelected: (v) => setState(() {
+                  if (v) { _tournamentClubIds.add(c.id); } else { _tournamentClubIds.remove(c.id); }
+                }),
+              )).toList(),
+            ),
+          ],
+
+          const SizedBox(height: 28),
+
+          // Create button
+          SizedBox(width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _canCreate ? _create : null,
+              icon: const Icon(Icons.check_rounded),
+              label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.gold,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey[200],
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-
-              if (_randomTeamCount > 0) ...[
-                const SizedBox(height: 14),
-                const Text('Club for random teams', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
-                const SizedBox(height: 4),
-                _buildRandomClubSection(clubs),
-              ],
-
-              // ── Tournament Club Assignment ────────────────────────────────
-              if (clubs.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                const Divider(height: 1),
-                const SizedBox(height: 20),
-                const Text('Assign to Clubs', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8, runSpacing: 4,
-                  children: clubs.map((c) => FilterChip(
-                    label: Text(c.name),
-                    selected: _tournamentClubIds.contains(c.id),
-                    selectedColor: const Color(0xFFFFF8E1),
-                    checkmarkColor: const Color(0xFFB08B1E),
-                    onSelected: (v) => setState(() {
-                      if (v) { _tournamentClubIds.add(c.id); } else { _tournamentClubIds.remove(c.id); }
-                    }),
-                  )).toList(),
-                ),
-              ],
-
-              const SizedBox(height: 28),
-
-              // Create button
-              SizedBox(width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _canCreate ? _create : null,
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text('Create Tournament', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFB08B1E),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey[200],
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-            ]),
-          )),
+            ),
+          ),
         ]),
       ),
     );
@@ -344,8 +329,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         FilterChip(
           label: const Text('All clubs'),
           selected: _clubFilterId == null,
-          selectedColor: const Color(0xFFFFF8E1),
-          checkmarkColor: const Color(0xFFB08B1E),
+          selectedColor: AppColors.goldCream,
+          checkmarkColor: AppColors.gold,
           onSelected: (_) => setState(() => _clubFilterId = null),
         ),
         ...clubs.map((c) => Padding(
@@ -353,8 +338,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           child: FilterChip(
             label: Text(c.name),
             selected: _clubFilterId == c.id,
-            selectedColor: const Color(0xFFFFF8E1),
-            checkmarkColor: const Color(0xFFB08B1E),
+            selectedColor: AppColors.goldCream,
+            checkmarkColor: AppColors.gold,
             onSelected: (_) => setState(() => _clubFilterId = _clubFilterId == c.id ? null : c.id),
           ),
         )),
@@ -382,7 +367,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               color: Colors.transparent,
               child: Chip(
                 label: Text(t.name),
-                backgroundColor: const Color(0xFFB08B1E),
+                backgroundColor: AppColors.gold,
                 labelStyle: const TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
@@ -412,9 +397,9 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
             padding: const EdgeInsets.all(12),
             constraints: const BoxConstraints(minHeight: 56),
             decoration: BoxDecoration(
-              color: isHovering ? const Color(0xFFFFF8E1) : Colors.grey[50],
+              color: isHovering ? AppColors.goldCream : Colors.grey[50],
               border: Border.all(
-                color: isHovering ? const Color(0xFFB08B1E) : Colors.grey[300]!,
+                color: isHovering ? AppColors.gold : Colors.grey[300]!,
                 width: isHovering ? 2 : 1,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -439,8 +424,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                       children: [
                         ...allSelected.map((t) => Chip(
                           label: Text(t.name),
-                          backgroundColor: const Color(0xFFFFF8E1),
-                          deleteIconColor: const Color(0xFFB08B1E),
+                          backgroundColor: AppColors.goldCream,
+                          deleteIconColor: AppColors.gold,
                           labelStyle: const TextStyle(fontSize: 13),
                           onDeleted: () => setState(() => _selectedTeamIds.remove(t.id)),
                         )),
@@ -451,7 +436,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
                               label: Text(
                                 widget.appState.getTeamById(candidateData.first!)?.name ?? '',
                               ),
-                              backgroundColor: const Color(0xFFFFF8E1),
+                              backgroundColor: AppColors.goldCream,
                               labelStyle: const TextStyle(fontSize: 13),
                             ),
                           ),
@@ -477,8 +462,8 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           spacing: 8, runSpacing: 6,
           children: allSelected.map((t) => Chip(
             label: Text(t.name),
-            backgroundColor: const Color(0xFFFFF8E1),
-            deleteIconColor: const Color(0xFFB08B1E),
+            backgroundColor: AppColors.goldCream,
+            deleteIconColor: AppColors.gold,
             labelStyle: const TextStyle(fontSize: 13),
             onDeleted: () => setState(() => _selectedTeamIds.remove(t.id)),
           )).toList(),
@@ -510,7 +495,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           title: Text(t.name, style: const TextStyle(fontSize: 14)),
           subtitle: Text(t.scope.name, style: const TextStyle(fontSize: 12)),
           value: _selectedTeamIds.contains(t.id),
-          activeColor: const Color(0xFFB08B1E),
+          activeColor: AppColors.gold,
           controlAffinity: ListTileControlAffinity.leading,
           contentPadding: EdgeInsets.zero,
           onChanged: (v) => setState(() {
@@ -530,7 +515,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         contentPadding: EdgeInsets.zero,
         title: const Text('No club', style: TextStyle(fontSize: 14)),
         value: 'none',
-        activeColor: const Color(0xFFB08B1E),
+        activeColor: AppColors.gold,
       ),
       if (clubs.isNotEmpty)
         RadioListTile<String>(
@@ -538,7 +523,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
           contentPadding: EdgeInsets.zero,
           title: const Text('Add to existing club', style: TextStyle(fontSize: 14)),
           value: 'existing',
-          activeColor: const Color(0xFFB08B1E),
+          activeColor: AppColors.gold,
         ),
       if (_randomClubMode == 'existing' && clubs.isNotEmpty)
         Padding(
@@ -562,7 +547,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
         contentPadding: EdgeInsets.zero,
         title: const Text('Create new club', style: TextStyle(fontSize: 14)),
         value: 'new',
-        activeColor: const Color(0xFFB08B1E),
+        activeColor: AppColors.gold,
       ),
       if (_randomClubMode == 'new')
         Padding(
@@ -584,7 +569,7 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
               onTap: () => setState(() => _newClubCtrl.text = _clubSuggestions[_rng.nextInt(_clubSuggestions.length)]),
               child: const Tooltip(
                 message: 'Suggest a name',
-                child: Icon(Icons.shuffle_rounded, size: 20, color: Color(0xFFB08B1E)),
+                child: Icon(Icons.shuffle_rounded, size: 20, color: AppColors.gold),
               ),
             ),
           ]),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 import '../widgets/tournaq_app_bar.dart';
 
-const _kGold = Color(0xFFA97800);
-const _kGoldCardBg = Color(0xFFFFE082);
-const _kOlive = Color(0xFF556B2F);
-const _kOliveCardBg = Color(0xFFC8DC82);
+const _kGold = AppColors.goldDark;
+const _kGoldCardBg = AppColors.goldCardBg;
+const _kOlive = AppColors.olive;
+const _kOliveCardBg = AppColors.oliveCardBg;
 
 class GameHistoryEntry {
   final bool isTeam1Score;

@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' as gma;
 import '../config/ad_config.dart';
-import '../config/contact_links.dart';
+import '../app/app_colors.dart';
+import '../app/app_links.dart';
+import '../app/app_assets.dart';
 import '../services/consent_service.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
@@ -11,10 +13,10 @@ import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
 
-const _kGold = Color(0xFFA97800);
-const _kGoldLight = Color(0xFFFFF8E1);
-const _kOlive = Color(0xFF556B2F);
-const _kOliveLight = Color(0xFFEEF2E6);
+const _kGold = AppColors.goldDark;
+const _kGoldLight = AppColors.goldCream;
+const _kOlive = AppColors.olive;
+const _kOliveLight = AppColors.oliveLight;
 
 class PromoAdsPage extends StatefulWidget {
   final AppState appState;
@@ -62,7 +64,9 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
       size: gma.AdSize.banner,
       request: _adRequest,
       listener: gma.BannerAdListener(
-        onAdLoaded: (_) { if (mounted) setState(() => _isAdLoaded = true); },
+        onAdLoaded: (_) {
+          if (mounted) setState(() => _isAdLoaded = true);
+        },
         onAdFailedToLoad: (ad, _) => ad.dispose(),
       ),
     )..load();
@@ -75,9 +79,12 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
   }
 
   void _openComingSoon(String title, String description) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ComingSoonPage(title: title, shortDescription: description),
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) =>
+            ComingSoonPage(title: title, shortDescription: description),
+      ),
+    );
   }
 
   @override
@@ -92,7 +99,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/tournaq_background.png',
+              AppAssets.background,
               fit: BoxFit.cover,
               opacity: const AlwaysStoppedAnimation(0.06),
             ),
@@ -118,24 +125,30 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
                       const SizedBox(height: 8),
                       _buildRatingCard(),
                       const SizedBox(height: 24),
-                      _buildSectionHeader('Opportunities', Icons.handshake_rounded),
+                      _buildSectionHeader(
+                        'Opportunities',
+                        Icons.handshake_rounded,
+                      ),
                       const SizedBox(height: 10),
                       _buildComingSoonCard(
                         icon: Icons.stars_rounded,
                         title: 'Partner Spotlight',
-                        subtitle: 'Future partners, clubs and organizations may be featured here.',
+                        subtitle:
+                            'Future partners, clubs and organizations may be featured here.',
                       ),
                       const SizedBox(height: 8),
                       _buildComingSoonCard(
                         icon: Icons.emoji_events_rounded,
                         title: 'Tournament Partnerships',
-                        subtitle: 'Support for tournament organizers and event partnerships.',
+                        subtitle:
+                            'Support for tournament organizers and event partnerships.',
                       ),
                       const SizedBox(height: 8),
                       _buildComingSoonCard(
                         icon: Icons.celebration_rounded,
                         title: 'Promote Your Event',
-                        subtitle: 'Future opportunities to showcase tournaments, leagues and events.',
+                        subtitle:
+                            'Future opportunities to showcase tournaments, leagues and events.',
                       ),
                       const SizedBox(height: 24),
                       _buildSectionHeader('Get Involved', Icons.chat_rounded),
@@ -181,8 +194,15 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
             Container(
               width: 40,
               height: 40,
-              decoration: const BoxDecoration(color: _kGoldLight, shape: BoxShape.circle),
-              child: const Icon(Icons.favorite_rounded, color: _kGold, size: 20),
+              decoration: const BoxDecoration(
+                color: _kGoldLight,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.favorite_rounded,
+                color: _kGold,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 14),
             const Expanded(
@@ -201,7 +221,11 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
                   SizedBox(height: 4),
                   Text(
                     'Advertising and sponsorship help support the continued development of TournaQ.',
-                    style: TextStyle(fontSize: 12, color: Colors.black54, height: 1.5),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                      height: 1.5,
+                    ),
                   ),
                 ],
               ),
@@ -263,7 +287,11 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
             const SizedBox(height: 12),
             const Text(
               'Thank you for supporting TournaQ.',
-              style: TextStyle(fontSize: 12, color: Colors.black38, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.black38,
+                fontWeight: FontWeight.w500,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -285,21 +313,34 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(color: _kOliveLight, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: _kOliveLight,
+            shape: BoxShape.circle,
+          ),
           child: Icon(icon, color: _kOlive, size: 20),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF8E1),
+            color: AppColors.goldCream,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFB0BA78)),
+            border: Border.all(color: AppColors.comingSoonBorder),
           ),
           child: const Text(
             'Coming Soon',
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF6E7640)),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.oliveMedium,
+            ),
           ),
         ),
         onTap: () => _openComingSoon(title, subtitle),
@@ -316,7 +357,10 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(color: _kOliveLight, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: _kOliveLight,
+            shape: BoxShape.circle,
+          ),
           child: const Icon(Icons.camera_alt_rounded, color: _kOlive, size: 20),
         ),
         title: const Text(
@@ -327,8 +371,12 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
           'Share events and games where TournaQ supported you — tag us on Instagram.',
           style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black26, size: 22),
-        onTap: () => openExternalUrl(context, ContactLinks.instagram),
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          color: Colors.black26,
+          size: 22,
+        ),
+        onTap: () => openExternalUrl(context, AppLinks.instagram),
       ),
     );
   }
@@ -342,7 +390,10 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: const BoxDecoration(color: _kGoldLight, shape: BoxShape.circle),
+          decoration: const BoxDecoration(
+            color: _kGoldLight,
+            shape: BoxShape.circle,
+          ),
           child: const Icon(Icons.star_rounded, color: _kGold, size: 20),
         ),
         title: const Text(
@@ -350,10 +401,14 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         subtitle: const Text(
-          'Ratings help us reach more players and organizers.',
+          'Your rating helps us grow and improve TournaQ.',
           style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black26, size: 22),
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          color: Colors.black26,
+          size: 22,
+        ),
         onTap: () => RatingService.showRatingDialog(context),
       ),
     );
@@ -374,37 +429,49 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
                 SizedBox(width: 8),
                 Text(
                   'Help Shape TournaQ',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: _kOlive),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: _kOlive,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             const Text(
               'We welcome suggestions and ideas for future features and partnerships.',
-              style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.black54,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: () => openExternalUrl(context, ContactLinks.feedbackForm),
+              onPressed: () => openExternalUrl(context, AppLinks.feedbackForm),
               icon: const Icon(Icons.feedback_rounded, size: 17),
               label: const Text('Give Feedback'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kOlive,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: () => openEmail(context, ContactLinks.contactEmail),
+              onPressed: () => openEmail(context, AppLinks.contactEmail),
               icon: const Icon(Icons.email_rounded, size: 17),
               label: const Text('Email Us'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: _kOlive,
                 side: BorderSide(color: _kOlive.withValues(alpha: 0.5)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'local_storage_service.dart';
-import '../config/contact_links.dart';
+import '../app/app_colors.dart';
+import '../app/app_links.dart';
 import '../utils/url_utils.dart';
 
 class RatingService {
@@ -57,7 +58,7 @@ class RatingService {
         actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         title: const Row(
           children: [
-            Icon(Icons.star_rounded, color: Color(0xFFA97800), size: 22),
+            Icon(Icons.star_rounded, color: AppColors.goldDark, size: 22),
             SizedBox(width: 8),
             Text(
               'Enjoying TournaQ?',
@@ -77,7 +78,7 @@ class RatingService {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              openExternalUrl(ctx, ContactLinks.feedbackForm);
+              openExternalUrl(ctx, AppLinks.feedbackForm);
             },
             child: const Text('Give Feedback'),
           ),
@@ -87,7 +88,7 @@ class RatingService {
               await requestReview(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF556B2F),
+              backgroundColor: AppColors.olive,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),

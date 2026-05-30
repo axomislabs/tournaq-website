@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -102,8 +103,8 @@ class _LandingPageState extends State<LandingPage> {
             title: 'Quick Start Game',
             subtitle: 'Beach Volleyball Match',
             icon: Icons.flash_on_rounded,
-            gradientColors: const [Color(0xFFB08B1E), Color(0xFFC9A030)],
-            shadowColor: Color(0xFFB08B1E),
+            gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
+            shadowColor: AppColors.gold,
             onTap: () => _handleQuickGame(context),
           ),
           const SizedBox(height: 12),
@@ -111,8 +112,8 @@ class _LandingPageState extends State<LandingPage> {
             title: 'Match History',
             subtitle: 'Browse and review past games',
             icon: Icons.sports_score_rounded,
-            gradientColors: const [Color(0xFFB08B1E), Color(0xFFC9A030)],
-            shadowColor: Color(0xFFB08B1E),
+            gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
+            shadowColor: AppColors.gold,
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => GamesPage(
                 appState: _localState,
@@ -274,10 +275,10 @@ class _LandingPageState extends State<LandingPage> {
               width: 44,
               height: 44,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFF8E1),
+                color: AppColors.goldCream,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: const Color(0xFF6E7640), size: 22),
+              child: Icon(icon, color: AppColors.oliveMedium, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -303,16 +304,16 @@ class _LandingPageState extends State<LandingPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF8E1),
+                color: AppColors.goldCream,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFB0BA78)),
+                border: Border.all(color: AppColors.comingSoonBorder),
               ),
               child: const Text(
                 'Coming Soon',
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6E7640),
+                  color: AppColors.oliveMedium,
                 ),
               ),
             ),

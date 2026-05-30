@@ -1,4 +1,20 @@
+/// A registered player or team member in TournaQ.
+///
+/// [AppUser] represents a named person who can be assigned to [Team]s and
+/// [Club]s. The model is intentionally lightweight for v1 — no authentication,
+/// no passwords, no remote identity. Users are local identifiers only.
+///
+/// Design decision — local identity without auth:
+///   v1 is a single-device, local-first app. "Users" here are roster entries
+///   (player names for scorecards and lineups), not authentication principals.
+///   When Firebase Auth is introduced, this model will gain a `uid` field
+///   linking it to a Firebase user document, but the local [id] field will
+///   remain as the primary key within Hive.
+///
+/// [role] is a free-text field reserved for future use (e.g. "Captain",
+///   "Coach"). It is not used in any current scoring or tournament logic.
 class AppUser {
+  static const int schemaVersion = 1;
   final String id;
   final String name;
   final String? email;
@@ -41,6 +57,7 @@ class AppUser {
   }
 
   Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
         'id': id,
         'name': name,
         'email': email,

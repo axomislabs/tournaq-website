@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../app/app_assets.dart';
+import '../app/app_colors.dart';
 
 class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -13,13 +15,13 @@ class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
-      foregroundColor: const Color(0xFFF0D47A),
+      foregroundColor: AppColors.goldLight,
       flexibleSpace: Stack(
         fit: StackFit.expand,
         children: [
-          Container(color: const Color(0xFF6E7640)),
+          Container(color: AppColors.oliveMedium),
           Image.asset(
-            'assets/tournaq_background.png',
+            AppAssets.background,
             fit: BoxFit.cover,
             opacity: const AlwaysStoppedAnimation(0.10),
           ),
@@ -29,7 +31,7 @@ class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
         title,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
-          color: Color(0xFFF0D47A),
+          color: AppColors.goldLight,
           fontSize: 25,
           fontWeight: FontWeight.w700,
         ),

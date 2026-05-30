@@ -1,4 +1,47 @@
+/// Score Page — primary live scoring interface for TournaQ.
+///
+/// Responsibilities:
+///   - Display current match state (score, set progression, active server)
+///   - Handle point scoring with full undo support
+///   - Manage service rotation across up to 4 player positions
+///   - Enforce side-change reminders at configurable score thresholds
+///   - Allow team-side swap (display-only, does not affect stored team order)
+///   - Support set completion and match completion workflows
+///   - Show gameplay history ([GameplayHistoryPage])
+///   - Allow in-game player name editing ([GameTeamLineup])
+///
+/// Intentionally does NOT:
+///   - Persist state directly — calls [AppDataService] which returns a new
+///     [AppState]; the caller ([LandingPage], [GamesPage]) persists via
+///     [LocalStorageService].
+///   - Implement tournament bracket logic — that lives in
+///     [TournamentLogicService].
+///   - Know about clubs, user accounts, or Firebase.
+///
+/// State management:
+///   [_ScoreEvent] records each point for undo. The undo stack replays events
+///   in reverse to restore exact pre-point state including service position.
+///
+/// Display vs. stored team order:
+///   [_isSwapped] flips the visual left/right assignment of team1/team2
+///   without touching the underlying [Game] object. This means stored results
+///   always reference team1Id/team2Id regardless of how the user oriented the
+///   screen.
+///
+/// Side-change logic:
+///   A blocking dialog ([_showSideChangeDialog]) is presented when the total
+///   score crosses a [_sideChangeThreshold]. The swap itself is applied only
+///   after the user confirms, making it impossible to accidentally skip it.
+///
+/// Future:
+///   - Extract scoring control widgets into lib/features/scoring/widgets/
+///   - Landscape vs. portrait layouts could be separate widget classes
+///   - Live scoring sync (Firebase Realtime Database) can be layered in via
+///     a stream subscription without changing the local scoring logic
+library;
+
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
 import '../models/game.dart';
 import '../models/game_set.dart';
@@ -9,17 +52,20 @@ import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
+import '../widgets/sheet_helpers.dart';
 
-const _kGold = Color(0xFFA97800);
-const _kGoldLight = Color(0xFFFFF8E1);
-const _kOlive = Color(0xFF556B2F);
-const _kOliveLight = Color(0xFFEEF2E6);
+// File-local color constants — mirror values from AppColors.
+// These are kept local to avoid importing app/ in a frequently-rebuilt widget.
+const _kGold = AppColors.goldDark;
+const _kGoldLight = AppColors.goldCream;
+const _kOlive = AppColors.olive;
+const _kOliveLight = AppColors.oliveLight;
 
 // Score card team backgrounds — always shown, stronger when leading
-const _kGoldCardBg = Color(0xFFFFE082);       // Team 1 base (amber 200)
-const _kGoldCardLeading = Color(0xFFFFBF00);   // Team 1 leading (deep amber)
-const _kOliveCardBg = Color(0xFFC8DC82);      // Team 2 base (light olive)
-const _kOliveCardLeading = Color(0xFF96C23C);  // Team 2 leading (rich olive)
+const _kGoldCardBg = AppColors.goldCardBg;
+const _kGoldCardLeading = AppColors.goldCardLeading;
+const _kOliveCardBg = AppColors.oliveCardBg;
+const _kOliveCardLeading = AppColors.oliveCardLeading;
 
 class _ScoreEvent {
   final bool isTeam1Score;
@@ -441,134 +487,163 @@ class _ScorePageState extends State<ScorePage> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Game Options',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: scoreLocked ? Colors.grey.shade100 : const Color(0xFFFFF8E1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.swap_horiz,
-                      color: scoreLocked ? Colors.grey : _kGold,
-                      size: 20,
-                    ),
-                  ),
-                  title: Text(
-                    'Swap Teams',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: scoreLocked ? Colors.grey : Colors.black87,
-                    ),
-                  ),
-                  subtitle: const Text(
-                    'Switch left and right sides',
-                    style: TextStyle(fontSize: 12, color: Colors.black45),
-                  ),
-                  onTap: scoreLocked
-                      ? null
-                      : () {
-                          Navigator.of(context).pop();
-                          _swap();
-                        },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: _kOliveLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.rotate_right_rounded,
-                      color: _kOlive,
-                      size: 20,
-                    ),
-                  ),
-                  title: const Text(
-                    'Change Service',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text(
-                    'Advance to next server',
-                    style: TextStyle(fontSize: 12, color: Colors.black45),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    _rotateActivePlayer();
-                  },
-                ),
-                ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                  leading: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: _kGoldLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.history_rounded,
-                      color: _kGold,
-                      size: 20,
-                    ),
-                  ),
-                  title: const Text(
-                    'Gameplay History',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text(
-                    'Point-by-point scoring timeline',
-                    style: TextStyle(fontSize: 12, color: Colors.black45),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
-                    final team2Name = _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => GameplayHistoryPage(
-                        team1Name: team1Name,
-                        team2Name: team2Name,
-                        team1Players: _getPlayerNames(_game.team1Id),
-                        team2Players: _getPlayerNames(_game.team2Id),
-                        entries: _buildHistoryEntries(),
-                      ),
-                    ));
-                  },
-                ),
-              ],
+      builder: (sheetCtx) {
+        void openHistory() {
+          Navigator.of(sheetCtx).pop();
+          final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
+          final team2Name = _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => GameplayHistoryPage(
+              team1Name: team1Name,
+              team2Name: team2Name,
+              team1Players: _getPlayerNames(_game.team1Id),
+              team2Players: _getPlayerNames(_game.team2Id),
+              entries: _buildHistoryEntries(),
             ),
-          ),
+          ));
+        }
+
+        return OrientationBuilder(
+          builder: (_, orientation) {
+            final isLandscape = orientation == Orientation.landscape;
+            return TournaQSheet(
+              body: isLandscape
+                  ? _buildGameOptionsLandscape(sheetCtx, scoreLocked, openHistory)
+                  : _buildGameOptionsPortrait(sheetCtx, scoreLocked, openHistory),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildGameOptionsPortrait(BuildContext sheetCtx, bool scoreLocked, VoidCallback openHistory) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('Game Options', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        _gameOptionTile(
+          sheetCtx,
+          icon: Icons.swap_horiz,
+          iconBg: scoreLocked ? Colors.grey.shade100 : AppColors.goldCream,
+          iconColor: scoreLocked ? Colors.grey : _kGold,
+          label: 'Swap Teams',
+          subtitle: 'Switch left and right sides',
+          enabled: !scoreLocked,
+          onTap: () { Navigator.of(sheetCtx).pop(); _swap(); },
         ),
+        _gameOptionTile(
+          sheetCtx,
+          icon: Icons.rotate_right_rounded,
+          iconBg: _kOliveLight,
+          iconColor: _kOlive,
+          label: 'Change Service',
+          subtitle: 'Advance to next server',
+          enabled: true,
+          onTap: () { Navigator.of(sheetCtx).pop(); _rotateActivePlayer(); },
+        ),
+        _gameOptionTile(
+          sheetCtx,
+          icon: Icons.history_rounded,
+          iconBg: _kGoldLight,
+          iconColor: _kGold,
+          label: 'Gameplay History',
+          subtitle: 'Point-by-point scoring timeline',
+          enabled: true,
+          onTap: openHistory,
+        ),
+      ]),
+    );
+  }
+
+  Widget _buildGameOptionsLandscape(BuildContext sheetCtx, bool scoreLocked, VoidCallback openHistory) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const Text('Game Options', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 10),
+        Row(children: [
+          Expanded(child: _gameOptionCompact(
+            icon: Icons.swap_horiz,
+            iconBg: scoreLocked ? Colors.grey.shade100 : AppColors.goldCream,
+            iconColor: scoreLocked ? Colors.grey : _kGold,
+            label: 'Swap Teams',
+            enabled: !scoreLocked,
+            onTap: () { Navigator.of(sheetCtx).pop(); _swap(); },
+          )),
+          const SizedBox(width: 10),
+          Expanded(child: _gameOptionCompact(
+            icon: Icons.rotate_right_rounded,
+            iconBg: _kOliveLight,
+            iconColor: _kOlive,
+            label: 'Change Service',
+            enabled: true,
+            onTap: () { Navigator.of(sheetCtx).pop(); _rotateActivePlayer(); },
+          )),
+          const SizedBox(width: 10),
+          Expanded(child: _gameOptionCompact(
+            icon: Icons.history_rounded,
+            iconBg: _kGoldLight,
+            iconColor: _kGold,
+            label: 'History',
+            enabled: true,
+            onTap: openHistory,
+          )),
+        ]),
+      ]),
+    );
+  }
+
+  Widget _gameOptionTile(
+    BuildContext sheetCtx, {
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String label,
+    required String subtitle,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+      leading: Container(
+        width: 40, height: 40,
+        decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: enabled ? Colors.black87 : Colors.grey)),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black45)),
+      onTap: enabled ? onTap : null,
+    );
+  }
+
+  Widget _gameOptionCompact({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String label,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: enabled ? onTap : null,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: 38, height: 38,
+            decoration: BoxDecoration(color: enabled ? iconBg : Colors.grey.shade100, shape: BoxShape.circle),
+            child: Icon(icon, color: enabled ? iconColor : Colors.grey, size: 20),
+          ),
+          const SizedBox(height: 6),
+          Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: enabled ? Colors.black87 : Colors.grey), textAlign: TextAlign.center),
+        ]),
       ),
     );
   }
@@ -614,11 +689,17 @@ class _ScorePageState extends State<ScorePage> {
                         optionsButton,
                       ],
                     ),
-                    const SizedBox(height: 4),
                     if (_isGameComplete)
-                      _buildLockBanner('Game completed — undo completion to edit scores')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: _buildLockBanner('Game completed — undo completion to edit scores'),
+                      )
                     else if (_isActiveSetCompleted)
-                      _buildLockBanner('Set completed — undo completion to edit scores'),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: _buildLockBanner('Set completed — undo completion to edit scores'),
+                      ),
+                    const SizedBox(height: 4),
                     Expanded(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -631,8 +712,7 @@ class _ScorePageState extends State<ScorePage> {
                               isLeading: _isLeftLeading,
                               onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
                               onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
-                              compact: true,
-                              fillHeight: true,
+                              landscape: true,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -644,8 +724,7 @@ class _ScorePageState extends State<ScorePage> {
                               isLeading: _isRightLeading,
                               onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
                               onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
-                              compact: true,
-                              fillHeight: true,
+                              landscape: true,
                             ),
                           ),
                         ],
@@ -806,7 +885,7 @@ class _ScorePageState extends State<ScorePage> {
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: isCompleted
-                  ? const Color(0xFF303030)
+                  ? AppColors.inverseSurface
                   : isActive
                       ? _kGold
                       : Colors.grey,
@@ -896,6 +975,7 @@ class _ScorePageState extends State<ScorePage> {
     required VoidCallback? onDecrement,
     bool compact = false,
     bool fillHeight = false,
+    bool landscape = false,
   }) {
     final isTeam1 = teamId == _game.team1Id;
     final teamColor = isTeam1 ? _kGold : _kOlive;
@@ -904,6 +984,207 @@ class _ScorePageState extends State<ScorePage> {
         : (isLeading ? _kOliveCardLeading : _kOliveCardBg);
     final disabled = onIncrement == null;
     final players = _getPlayerNames(teamId);
+
+    EdgeInsets cardPadding;
+    if (landscape) {
+      cardPadding = const EdgeInsets.fromLTRB(12, 10, 12, 10);
+    } else if (compact) {
+      cardPadding = const EdgeInsets.fromLTRB(8, 4, 8, 4);
+    } else {
+      cardPadding = const EdgeInsets.fromLTRB(10, 12, 10, 10);
+    }
+
+    final teamNameWidget = GestureDetector(
+      onTap: disabled ? null : () => _showLineupEditor(teamId, teamName),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              teamName,
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: landscape ? 16 : compact ? 12 : 13,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+          if (!disabled) ...[
+            const SizedBox(width: 3),
+            Icon(Icons.edit_rounded, size: landscape ? 12 : 11, color: Colors.black54),
+          ],
+        ],
+      ),
+    );
+
+    final targetWidget = Text(
+      '/ $_targetPoints',
+      style: TextStyle(
+        fontSize: 11,
+        color: teamColor,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    final buttonsRow = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        IconButton.filled(
+          icon: const Icon(Icons.remove),
+          onPressed: onDecrement,
+          tooltip: 'Decrease',
+          iconSize: compact ? 18 : 24,
+          style: IconButton.styleFrom(
+            backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+            foregroundColor: disabled ? Colors.grey : Colors.white,
+            fixedSize: compact ? const Size(40, 22) : null,
+            tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
+          ),
+        ),
+        IconButton.filled(
+          icon: const Icon(Icons.add),
+          onPressed: onIncrement,
+          tooltip: 'Increase',
+          iconSize: compact ? 18 : 24,
+          style: IconButton.styleFrom(
+            backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+            foregroundColor: disabled ? Colors.grey : Colors.white,
+            fixedSize: compact ? const Size(40, 22) : null,
+            tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
+          ),
+        ),
+      ],
+    );
+
+    final chipsRow = Row(
+      children: [
+        Expanded(child: _buildPlayerChip(teamId, players[0], 0, compact: compact || landscape)),
+        const SizedBox(width: 4),
+        Expanded(child: _buildPlayerChip(teamId, players[1], 1, compact: compact || landscape)),
+      ],
+    );
+
+    Widget cardContent;
+    if (landscape) {
+      // Landscape: all mandatory element heights scale proportionally with h so
+      // they can NEVER sum to more than h, regardless of how small h becomes
+      // (e.g. h=57.5 when the soft keyboard is open behind the player editor).
+      //
+      // Proportions: name 28% + buttons 47% + spacer 3% = 78% of h (≤ h).
+      // The remaining 22% goes to the optional score FittedBox.
+      // Optional elements (target label, player chips) are only shown when the
+      // leftover budget after mandatory + score accommodates them.
+      cardContent = LayoutBuilder(
+        builder: (context, constraints) {
+          final h = constraints.maxHeight;
+
+          // Mandatory heights — proportional, clamped to sensible maxima.
+          final nameH   = (h * 0.28).clamp(0.0, 21.0);
+          final btnH    = (h * 0.47).clamp(0.0, 48.0);
+          final spacerH = (h * 0.03).clamp(0.0,  2.0);
+          // Icon scales with button, never below 12 px.
+          final iconSize = (btnH * 0.55).clamp(12.0, 24.0);
+
+          const kTargetH = 15.0;
+          const kChipH   = 18.0;
+
+          // Budget remaining for optional + score elements.
+          var remaining = h - nameH - btnH - spacerH;
+
+          final showTarget = remaining >= kTargetH + kChipH + 4;
+          if (showTarget) remaining -= kTargetH;
+
+          final showChips = remaining >= kChipH + 2;
+          if (showChips) remaining -= kChipH;
+
+          // Score takes all remaining space (always ≥ 0 by construction).
+          final scoreH = remaining.clamp(0.0, double.infinity);
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: nameH, child: teamNameWidget),
+              if (showTarget) SizedBox(height: kTargetH, child: targetWidget),
+              if (scoreH > 0)
+                SizedBox(
+                  height: scoreH,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      '$score',
+                      style: TextStyle(
+                        fontSize: 120,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                        color: disabled ? Colors.black38 : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+              SizedBox(
+                height: btnH,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton.filled(
+                      icon: const Icon(Icons.remove),
+                      onPressed: onDecrement,
+                      tooltip: 'Decrease',
+                      iconSize: iconSize,
+                      style: IconButton.styleFrom(
+                        backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+                        foregroundColor: disabled ? Colors.grey : Colors.white,
+                        fixedSize: Size(btnH, btnH),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                    IconButton.filled(
+                      icon: const Icon(Icons.add),
+                      onPressed: onIncrement,
+                      tooltip: 'Increase',
+                      iconSize: iconSize,
+                      style: IconButton.styleFrom(
+                        backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+                        foregroundColor: disabled ? Colors.grey : Colors.white,
+                        fixedSize: Size(btnH, btnH),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: spacerH),
+              if (showChips) SizedBox(height: kChipH, child: chipsRow),
+            ],
+          );
+        },
+      );
+    } else {
+      cardContent = Column(
+        mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          teamNameWidget,
+          if (!compact) targetWidget,
+          Text(
+            '$score',
+            style: TextStyle(
+              fontSize: compact ? 22 : 56,
+              fontWeight: FontWeight.bold,
+              height: 1.0,
+              color: disabled ? Colors.black38 : Colors.black87,
+            ),
+          ),
+          buttonsRow,
+          SizedBox(height: compact ? 2 : 4),
+          chipsRow,
+        ],
+      );
+    }
 
     return Card(
       color: cardBg,
@@ -916,111 +1197,8 @@ class _ScorePageState extends State<ScorePage> {
         ),
       ),
       child: Padding(
-        padding: compact
-            ? const EdgeInsets.fromLTRB(8, 6, 8, 6)
-            : const EdgeInsets.fromLTRB(10, 12, 10, 10),
-        child: Column(
-          mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
-          mainAxisAlignment: fillHeight ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: disabled ? null : () => _showLineupEditor(teamId, teamName),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      teamName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: fillHeight ? 18 : compact ? 12 : 13,
-                        color: Colors.black87,
-                      ),
-                      textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                  if (!disabled) ...[
-                    const SizedBox(width: 3),
-                    const Icon(Icons.edit_rounded, size: 11, color: Colors.black54),
-                  ],
-                ],
-              ),
-            ),
-            Text(
-              '/ $_targetPoints',
-              style: TextStyle(
-                fontSize: 11,
-                color: teamColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            if (fillHeight)
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    '$score',
-                    style: TextStyle(
-                      fontSize: 120,
-                      fontWeight: FontWeight.bold,
-                      height: 1.0,
-                      color: disabled ? Colors.black38 : Colors.black87,
-                    ),
-                  ),
-                ),
-              )
-            else
-              Text(
-                '$score',
-                style: TextStyle(
-                  fontSize: compact ? 38 : 56,
-                  fontWeight: FontWeight.bold,
-                  height: 1.0,
-                  color: disabled ? Colors.black38 : Colors.black87,
-                ),
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton.filled(
-                  icon: const Icon(Icons.remove),
-                  onPressed: onDecrement,
-                  tooltip: 'Decrease',
-                  iconSize: compact ? 18 : 24,
-                  style: IconButton.styleFrom(
-                    backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
-                    foregroundColor: disabled ? Colors.grey : Colors.white,
-                    minimumSize: compact ? const Size(36, 36) : null,
-                    tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
-                  ),
-                ),
-                IconButton.filled(
-                  icon: const Icon(Icons.add),
-                  onPressed: onIncrement,
-                  tooltip: 'Increase',
-                  iconSize: compact ? 18 : 24,
-                  style: IconButton.styleFrom(
-                    backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
-                    foregroundColor: disabled ? Colors.grey : Colors.white,
-                    minimumSize: compact ? const Size(36, 36) : null,
-                    tapTargetSize: compact ? MaterialTapTargetSize.shrinkWrap : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(child: _buildPlayerChip(teamId, players[0], 0, compact: compact)),
-                const SizedBox(width: 4),
-                Expanded(child: _buildPlayerChip(teamId, players[1], 1, compact: compact)),
-              ],
-            ),
-          ],
-        ),
+        padding: cardPadding,
+        child: cardContent,
       ),
     );
   }
@@ -1115,7 +1293,7 @@ class _ScorePageState extends State<ScorePage> {
         children: [
           _buildTargetPoints(locked: scoreLocked),
           const SizedBox(height: 12),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+          const Divider(height: 1, color: AppColors.divider),
           const SizedBox(height: 12),
           // Complete Set — hidden for oneSet (one set == the game)
           if (!isOneSet) ...[
@@ -1215,81 +1393,158 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
     });
   }
 
+  void _saveAndClose() {
+    final name1 = _p1.text.trim().isEmpty ? 'Player 1' : _p1.text.trim();
+    final name2 = _p2.text.trim().isEmpty ? 'Player 2' : _p2.text.trim();
+    widget.onSave(name1, name2);
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    final mq = MediaQuery.of(context);
+    final keyboardH = mq.viewInsets.bottom;
+    final screenH = mq.size.height;
+    final isLandscape = mq.size.width > mq.size.height;
+
+    if (isLandscape) {
+      // Landscape: side-by-side fields + header save button.
+      // Total height ≈ 130px, well within the ~160px available above keyboard.
+      return Padding(
+        padding: EdgeInsets.only(bottom: keyboardH),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header: team name on left, Save button on right.
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.teamName,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: _saveAndClose,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kGold,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Save Players',
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Player 1 | swap icon | Player 2 — all on one row.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: _compactField('Player 1', _p1, 'e.g. Alex')),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20, left: 8, right: 8),
+                    child: GestureDetector(
+                      onTap: _swapPlayers,
+                      child: const Icon(Icons.swap_horiz_rounded, size: 22, color: _kOlive),
+                    ),
+                  ),
+                  Expanded(child: _compactField('Player 2', _p2, 'e.g. Jordan')),
+                ],
+              ),
+            ],
+          ),
         ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+      );
+    }
+
+    // Portrait: existing stacked layout.
+    // Cap the sheet at the space above the keyboard so it never overflows.
+    final maxSheetH = ((screenH - keyboardH) * 0.97).clamp(120.0, screenH * 0.9);
+    return Padding(
+      padding: EdgeInsets.only(bottom: keyboardH),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxSheetH),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(widget.teamName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            const Text('Edit player names',
-                style: TextStyle(color: Colors.black45, fontSize: 13)),
-            const SizedBox(height: 20),
-            _field('Player 1', _p1, 'e.g. Alex'),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton.icon(
-                onPressed: _swapPlayers,
-                icon: const Icon(Icons.swap_vert_rounded, size: 18, color: _kOlive),
-                label: const Text(
-                  'Swap Players',
-                  style: TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
+                const SizedBox(height: 16),
+                Text(widget.teamName,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 4),
+                const Text('Edit player names',
+                    style: TextStyle(color: Colors.black45, fontSize: 13)),
+                const SizedBox(height: 20),
+                _field('Player 1', _p1, 'e.g. Alex'),
+                const SizedBox(height: 8),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _swapPlayers,
+                    icon: const Icon(Icons.swap_vert_rounded, size: 18, color: _kOlive),
+                    label: const Text(
+                      'Swap Players',
+                      style: TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _field('Player 2', _p2, 'e.g. Jordan'),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  final name1 =
-                      _p1.text.trim().isEmpty ? 'Player 1' : _p1.text.trim();
-                  final name2 =
-                      _p2.text.trim().isEmpty ? 'Player 2' : _p2.text.trim();
-                  widget.onSave(name1, name2);
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _kGold,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                const SizedBox(height: 8),
+                _field('Player 2', _p2, 'e.g. Jordan'),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveAndClose,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kGold,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Save Players',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                  ),
                 ),
-                child: const Text('Save Players',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
+  // Full-height field used in portrait layout.
   Widget _field(String label, TextEditingController ctrl, String hint) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1307,6 +1562,32 @@ class _LineupEditorSheetState extends State<_LineupEditorSheet> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+          textCapitalization: TextCapitalization.words,
+        ),
+      ],
+    );
+  }
+
+  // Compact field used in landscape layout — smaller label + dense TextField.
+  Widget _compactField(String label, TextEditingController ctrl, String hint) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+                color: Colors.black54)),
+        const SizedBox(height: 4),
+        TextField(
+          controller: ctrl,
+          decoration: InputDecoration(
+            hintText: hint,
+            isDense: true,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
           textCapitalization: TextCapitalization.words,
         ),

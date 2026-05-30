@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 import '../models/app_user.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -165,7 +166,7 @@ class _UsersPageState extends State<UsersPage> {
             icon: const Icon(Icons.add_rounded),
             label: const Text('Create Player', style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB08B1E),
+              backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

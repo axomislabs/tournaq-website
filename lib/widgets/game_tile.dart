@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 
 import '../models/game.dart';
 import '../state/app_state.dart';
@@ -20,7 +21,7 @@ class GameTile extends StatelessWidget {
 
   static const _dot = TextSpan(
     text: '● ',
-    style: TextStyle(color: Color(0xFF303030), fontWeight: FontWeight.w700, fontSize: 12),
+    style: TextStyle(color: AppColors.inverseSurface, fontWeight: FontWeight.w700, fontSize: 12),
   );
 
   Widget _buildSubtitle() {
@@ -82,16 +83,16 @@ class GameTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF8E1),
+                  color: AppColors.goldCream,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFB0BA78)),
+                  border: Border.all(color: AppColors.comingSoonBorder),
                 ),
                 child: const Text(
                   'Quick',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFFB08B1E),
+                    color: AppColors.gold,
                   ),
                 ),
               ),
