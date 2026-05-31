@@ -1,0 +1,2456 @@
+
+
+===== pubspec.yaml =====
+name: tournamaster
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.0
+  google_mobile_ads: ^5.1.0
+  uuid: ^4.0.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  url_launcher: ^6.3.0
+  package_info_plus: ^8.0.0
+  in_app_review: ^2.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/tournaq_icon.png"
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  generate: true
+
+  uses-material-design: true
+
+  assets:
+    - assets/
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
+
+
+===== lib/main.dart =====
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+import 'app/app_theme.dart';
+import 'l10n/app_localizations.dart';
+import 'pages/splash_page.dart';
+import 'services/consent_service.dart';
+import 'services/local_storage_service.dart';
+import 'services/locale_service.dart';
+import 'state/app_state.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalStorageService.init();
+  // MobileAds is initialized by ConsentService after the UMP consent flow.
+  final savedState = LocalStorageService.loadAppState();
+  runApp(MyApp(initialState: savedState));
+}
+
+class MyApp extends StatefulWidget {
+  final AppState initialState;
+  const MyApp({super.key, required this.initialState});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late AppState _appState;
+  Locale? _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _appState = widget.initialState;
+    _locale = LocaleService.loadLocale();
+    // Run UMP consent flow then initialize MobileAds once the first frame is
+    // rendered (a visible activity/ViewController is required on Android/iOS).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ConsentService.initialize();
+    });
+  }
+
+  void _updateAppState(AppState newState) {
+    setState(() => _appState = newState);
+    LocalStorageService.saveAppState(newState); // fire-and-forget
+  }
+
+  void _setLocale(Locale? locale) {
+    setState(() => _locale = locale);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    LocaleService.register(_setLocale);
+    return MaterialApp(
+      title: 'TournaQ',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.buildTheme(),
+      locale: _locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: SplashPage(
+        appState: _appState,
+        onAppStateChanged: _updateAppState,
+      ),
+    );
+  }
+}
+
+
+===== lib/state/app_state.dart =====
+import 'package:uuid/uuid.dart';
+import '../models/app_user.dart';
+import '../models/club.dart';
+import '../models/team.dart';
+import '../models/tournament.dart';
+import '../models/game.dart';
+
+/// Central, immutable application state tree for TournaQ.
+///
+/// Architecture principle:
+///   Every entity lives exactly once in this tree. Pages and widgets receive
+///   [AppState] as a parameter and return a new [AppState] (via [copyWith])
+///   when they make changes. Nothing mutates in place — all writes produce a
+///   new object and bubble up through the [onAppStateChanged] callback chain
+///   to [_MyAppState] in main.dart, which persists the new state via
+///   [LocalStorageService.saveAppState].
+///
+/// Storage model (v1):
+///   - [games], [teams], [users] are persisted to Hive on every state change.
+///   - [tournaments] and [clubs] are in-memory only in v1. They are rebuilt
+///     from the app's navigation flow on each session.
+///
+/// Design decision — normalized IDs, not embedded objects:
+///   Entities reference each other by ID (e.g. [Team.userIds],
+///   [Tournament.teamIds]). This prevents duplicate copies and makes updates
+///   O(1) — only the owning list needs to change. Look up cross-references
+///   using the typed accessor methods (e.g. [getTeamById], [getUserById]).
+///
+/// Future directions:
+///   - A repository abstraction layer (e.g. GameRepository) will be inserted
+///     between [AppState] and [LocalStorageService] before Firebase migration.
+///   - The tournament and club lists will be persisted once their data models
+///     stabilize.
+///   - [AppState] itself may split into domain-specific sub-states
+///     (ScoringState, TournamentState) once the feature set grows.
+class AppState {
+  final List<AppUser> users;
+  final List<Team> teams;
+  final List<Tournament> tournaments;
+  final List<Game> games;
+  final List<Club> clubs;
+
+  const AppState({
+    this.users = const [],
+    this.teams = const [],
+    this.tournaments = const [],
+    this.games = const [],
+    this.clubs = const [],
+  });
+
+  AppState copyWith({
+    List<AppUser>? users,
+    List<Team>? teams,
+    List<Tournament>? tournaments,
+    List<Game>? games,
+    List<Club>? clubs,
+  }) {
+    return AppState(
+      users: users ?? this.users,
+      teams: teams ?? this.teams,
+      tournaments: tournaments ?? this.tournaments,
+      games: games ?? this.games,
+      clubs: clubs ?? this.clubs,
+    );
+  }
+
+  // User lookups
+  AppUser? getUserById(String userId) {
+    try {
+      return users.firstWhere((u) => u.id == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Team lookups
+  Team? getTeamById(String teamId) {
+    try {
+      return teams.firstWhere((t) => t.id == teamId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Team> getTeamsByIds(List<String> teamIds) {
+    return teams.where((t) => teamIds.contains(t.id)).toList();
+  }
+
+  List<AppUser> getUsersForTeam(String teamId) {
+    final team = getTeamById(teamId);
+    if (team == null) return [];
+    return users.where((u) => team.userIds.contains(u.id)).toList();
+  }
+
+  // Tournament lookups
+  Tournament? getTournamentById(String tournamentId) {
+    try {
+      return tournaments.firstWhere((t) => t.id == tournamentId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Tournament> getTeamTournaments(String teamId) {
+    return tournaments.where((t) => t.teamIds.contains(teamId)).toList();
+  }
+
+  // Game lookups
+  Game? getGameById(String gameId) {
+    try {
+      return games.firstWhere((g) => g.id == gameId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Game> getTournamentGames(String tournamentId) {
+    return games.where((g) => g.tournamentId == tournamentId).toList();
+  }
+
+  List<Game> getQuickGames() {
+    return games.where((g) => g.source == GameSource.quickLocal).toList();
+  }
+
+  List<Game> getTeamGames(String teamId) {
+    return games.where((g) => g.isTeamInvolved(teamId)).toList();
+  }
+
+  // Club lookups
+  Club? getClubById(String clubId) {
+    try {
+      return clubs.firstWhere((c) => c.id == clubId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Club> getClubsByIds(List<String> clubIds) {
+    return clubs.where((c) => clubIds.contains(c.id)).toList();
+  }
+
+  List<Club> getPlayerClubs(String playerId) {
+    return clubs.where((c) => c.playerIds.contains(playerId)).toList();
+  }
+
+  List<Club> getTeamClubs(String teamId) {
+    return clubs.where((c) => c.teamIds.contains(teamId)).toList();
+  }
+
+  List<Club> getTournamentClubs(String tournamentId) {
+    return clubs.where((c) => c.tournamentIds.contains(tournamentId)).toList();
+  }
+
+  // State mutation helpers — users
+  AppState addUser(AppUser user) {
+    return copyWith(users: [...users, user]);
+  }
+
+  AppState updateUser(AppUser user) {
+    return copyWith(
+      users: users.map((u) => u.id == user.id ? user : u).toList(),
+    );
+  }
+
+  AppState removeUser(String userId) {
+    return copyWith(users: users.where((u) => u.id != userId).toList());
+  }
+
+  // State mutation helpers — teams
+  AppState addTeam(Team team) {
+    return copyWith(teams: [...teams, team]);
+  }
+
+  AppState updateTeam(Team team) {
+    return copyWith(
+      teams: teams.map((t) => t.id == team.id ? team : t).toList(),
+    );
+  }
+
+  AppState removeTeam(String teamId) {
+    return copyWith(teams: teams.where((t) => t.id != teamId).toList());
+  }
+
+  // State mutation helpers — tournaments
+  AppState addTournament(Tournament tournament) {
+    return copyWith(tournaments: [...tournaments, tournament]);
+  }
+
+  AppState updateTournament(Tournament tournament) {
+    return copyWith(
+      tournaments: tournaments
+          .map((t) => t.id == tournament.id ? tournament : t)
+          .toList(),
+    );
+  }
+
+  AppState removeTournament(String tournamentId) {
+    return copyWith(
+      tournaments: tournaments.where((t) => t.id != tournamentId).toList(),
+    );
+  }
+
+  // State mutation helpers — games
+  AppState addGame(Game game) {
+    return copyWith(games: [...games, game]);
+  }
+
+  AppState updateGame(Game game) {
+    return copyWith(
+      games: games.map((g) => g.id == game.id ? game : g).toList(),
+    );
+  }
+
+  AppState removeGame(String gameId) {
+    return copyWith(games: games.where((g) => g.id != gameId).toList());
+  }
+
+  // State mutation helpers — clubs
+  AppState addClub(Club club) {
+    return copyWith(clubs: [...clubs, club]);
+  }
+
+  AppState updateClub(Club club) {
+    return copyWith(
+      clubs: clubs.map((c) => c.id == club.id ? club : c).toList(),
+    );
+  }
+
+  AppState removeClub(String clubId) {
+    return copyWith(clubs: clubs.where((c) => c.id != clubId).toList());
+  }
+
+  static String generateId() {
+    return const Uuid().v4();
+  }
+}
+
+
+===== lib/services/app_data_service.dart =====
+import '../models/app_user.dart';
+import '../models/club.dart';
+import '../models/game_set.dart';
+import '../models/game_team_lineup.dart';
+import '../models/team.dart';
+import '../models/tournament.dart';
+import '../models/tournament_mode.dart';
+import '../models/game.dart';
+import '../models/game_result.dart';
+import '../services/tournament_logic_service.dart';
+import '../state/app_state.dart';
+
+/// Central application service layer for all entity mutations.
+///
+/// Every operation follows the same pattern:
+///   1. Receive the current [AppState] and any required parameters.
+///   2. Create or update the relevant model objects.
+///   3. Return a new [AppState] reflecting the change.
+///
+/// Nothing in this class persists to storage — that is the caller's
+/// responsibility. Pages call [LocalStorageService.saveAppState] (or granular
+/// save methods) after receiving the updated state.
+///
+/// Design rationale — static methods on a single service class:
+///   TournaQ v1 uses a static service model rather than injected repositories.
+///   This is intentional: it avoids dependency injection overhead for a
+///   single-user local app, keeps pages thin, and makes the data flow easy
+///   to follow. The trade-off is reduced testability compared to injected
+///   fakes — acceptable for v1's scope.
+///
+/// Separation of concerns:
+///   - Scoring operations (set completion, score updates) live here.
+///   - Pairing and standings logic is delegated to [TournamentLogicService].
+///   - UI has no business logic — it calls this service and receives state.
+///
+/// Future: Before Firebase migration, extract entity-specific methods into
+///   dedicated service classes (GameService, TeamService, TournamentService)
+///   each backed by a Repository interface. [AppDataService] can remain as a
+///   facade that delegates to those services.
+class AppDataService {
+  // USER OPERATIONS
+  static AppState createUser(
+    AppState state, {
+    required String name,
+    String? email,
+    String? role,
+  }) {
+    final user = AppUser(
+      id: AppState.generateId(),
+      name: name,
+      email: email,
+      role: role,
+    );
+    return state.addUser(user);
+  }
+
+  static AppState deleteUser(AppState state, String userId) {
+    var updatedState = state.removeUser(userId);
+    // Remove player from all clubs
+    for (final club in state.clubs) {
+      if (club.playerIds.contains(userId)) {
+        updatedState = updatedState.updateClub(club.removePlayerId(userId));
+      }
+    }
+    return updatedState;
+  }
+
+  static AppState updateUser(AppState state, AppUser user) {
+    return state.updateUser(user);
+  }
+
+  // TEAM OPERATIONS
+  static AppState createTeam(
+    AppState state, {
+    required String name,
+    required TeamScope scope,
+  }) {
+    final team = Team(id: AppState.generateId(), name: name, scope: scope);
+    return state.addTeam(team);
+  }
+
+  static AppState deleteTeam(AppState state, String teamId) {
+    var updatedState = state;
+    // Remove team from all users
+    for (final user in state.users) {
+      if (user.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateUser(user.removeTeamId(teamId));
+      }
+    }
+    // Remove team from all tournaments
+    for (final tournament in state.tournaments) {
+      if (tournament.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateTournament(
+          tournament.removeTeamId(teamId),
+        );
+      }
+    }
+    // Remove team from all clubs
+    for (final club in state.clubs) {
+      if (club.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateClub(club.removeTeamId(teamId));
+      }
+    }
+    return updatedState.removeTeam(teamId);
+  }
+
+  static AppState updateTeam(AppState state, Team team) {
+    return state.updateTeam(team);
+  }
+
+  /// Creates a team and automatically adds two default placeholder players.
+  static AppState createTeamWithPlayers(
+    AppState state, {
+    required String name,
+    required TeamScope scope,
+  }) {
+    final teamId = AppState.generateId();
+    final p1Id = AppState.generateId();
+    final p2Id = AppState.generateId();
+
+    final p1 = AppUser(id: p1Id, name: 'Player 1 $name', teamIds: [teamId]);
+    final p2 = AppUser(id: p2Id, name: 'Player 2 $name', teamIds: [teamId]);
+    final team = Team(id: teamId, name: name, scope: scope, userIds: [p1Id, p2Id]);
+
+    return state.addUser(p1).addUser(p2).addTeam(team);
+  }
+
+  // TEAM-USER ASSIGNMENTS
+  static AppState assignUserToTeam(
+    AppState state, {
+    required String userId,
+    required String teamId,
+  }) {
+    final user = state.getUserById(userId);
+    final team = state.getTeamById(teamId);
+
+    if (user == null || team == null) return state;
+
+    var updatedState = state.updateUser(user.addTeamId(teamId));
+    updatedState = updatedState.updateTeam(team.addUserId(userId));
+    return updatedState;
+  }
+
+  static AppState removeUserFromTeam(
+    AppState state, {
+    required String userId,
+    required String teamId,
+  }) {
+    final user = state.getUserById(userId);
+    final team = state.getTeamById(teamId);
+
+    if (user == null || team == null) return state;
+
+    var updatedState = state.updateUser(user.removeTeamId(teamId));
+    updatedState = updatedState.updateTeam(team.removeUserId(userId));
+    return updatedState;
+  }
+
+  /// Updates or creates two named players on a team, keeping AppState.users consistent.
+  static AppState updateTeamPlayers(
+    AppState state, {
+    required String teamId,
+    required String player1Name,
+    required String player2Name,
+  }) {
+    final team = state.getTeamById(teamId);
+    if (team == null) return state;
+
+    var updatedState = state;
+    final names = [player1Name, player2Name];
+    final newUserIds = <String>[];
+
+    for (int i = 0; i < 2; i++) {
+      if (i < team.userIds.length) {
+        final userId = team.userIds[i];
+        final user = state.getUserById(userId);
+        if (user != null) {
+          updatedState = updatedState.updateUser(user.copyWith(name: names[i]));
+          newUserIds.add(userId);
+        } else {
+          final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+          updatedState = updatedState.addUser(newUser);
+          newUserIds.add(newUser.id);
+        }
+      } else {
+        final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+        updatedState = updatedState.addUser(newUser);
+        newUserIds.add(newUser.id);
+      }
+    }
+
+    if (newUserIds.length != team.userIds.length ||
+        !newUserIds.every((id) => team.userIds.contains(id))) {
+      updatedState = updatedState.updateTeam(team.copyWith(userIds: newUserIds));
+    }
+
+    return updatedState;
+  }
+
+  // TOURNAMENT OPERATIONS
+  static AppState createTournament(
+    AppState state, {
+    required String name,
+    required TournamentMode mode,
+  }) {
+    final tournament = Tournament(
+      id: AppState.generateId(),
+      name: name,
+      mode: mode,
+    );
+    return state.addTournament(tournament);
+  }
+
+  static AppState deleteTournament(AppState state, String tournamentId) {
+    var updatedState = state;
+    // Remove tournament from all teams
+    for (final team in state.teams) {
+      if (team.tournamentIds.contains(tournamentId)) {
+        updatedState = updatedState.updateTeam(
+          team.removeTournamentId(tournamentId),
+        );
+      }
+    }
+    // Delete all games in tournament
+    final tournamentGames = state.getTournamentGames(tournamentId);
+    for (final game in tournamentGames) {
+      updatedState = updatedState.removeGame(game.id);
+    }
+    // Remove tournament from all clubs
+    for (final club in state.clubs) {
+      if (club.tournamentIds.contains(tournamentId)) {
+        updatedState = updatedState.updateClub(
+          club.removeTournamentId(tournamentId),
+        );
+      }
+    }
+    return updatedState.removeTournament(tournamentId);
+  }
+
+  static AppState updateTournament(AppState state, Tournament tournament) {
+    return state.updateTournament(tournament);
+  }
+
+  // TEAM-TOURNAMENT ASSIGNMENTS
+  static AppState assignTeamToTournament(
+    AppState state, {
+    required String teamId,
+    required String tournamentId,
+  }) {
+    final team = state.getTeamById(teamId);
+    final tournament = state.getTournamentById(tournamentId);
+
+    if (team == null || tournament == null) return state;
+
+    var updatedState = state.updateTeam(team.addTournamentId(tournamentId));
+    updatedState = updatedState.updateTournament(tournament.addTeamId(teamId));
+    return updatedState;
+  }
+
+  static AppState removeTeamFromTournament(
+    AppState state, {
+    required String teamId,
+    required String tournamentId,
+  }) {
+    final team = state.getTeamById(teamId);
+    final tournament = state.getTournamentById(tournamentId);
+
+    if (team == null || tournament == null) return state;
+
+    var updatedState = state.updateTeam(team.removeTournamentId(tournamentId));
+    updatedState = updatedState.updateTournament(
+      tournament.removeTeamId(teamId),
+    );
+    return updatedState;
+  }
+
+  // GAME OPERATIONS
+
+  static AppState createGame(
+    AppState state, {
+    required String tournamentId,
+    required String team1Id,
+    required String team2Id,
+    required int round,
+    MatchFormat matchFormat = MatchFormat.oneSet,
+  }) {
+    final initialSet = GameSet(
+      id: AppState.generateId(),
+      setNumber: 1,
+    );
+    final game = Game(
+      id: AppState.generateId(),
+      tournamentId: tournamentId,
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: round,
+      matchFormat: matchFormat,
+      sets: [initialSet],
+      status: GameStatus.inProgress,
+    );
+
+    var updatedState = state.addGame(game);
+    final tournament = state.getTournamentById(tournamentId);
+    if (tournament != null) {
+      updatedState = updatedState.updateTournament(
+        tournament.addGameId(game.id),
+      );
+    }
+    return updatedState;
+  }
+
+  static AppState generateGamesForTournament(
+    AppState state,
+    Tournament tournament,
+  ) {
+    if (tournament.gameIds.isNotEmpty) return state;
+
+    final pairings = TournamentLogicService.generatePairings(state, tournament);
+    var updatedState = state;
+    var round = 1;
+
+    for (final pairing in pairings) {
+      updatedState = createGame(
+        updatedState,
+        tournamentId: tournament.id,
+        team1Id: pairing.team1Id,
+        team2Id: pairing.team2Id,
+        round: round,
+      );
+      round++;
+    }
+
+    return updatedState;
+  }
+
+  static AppState createQuickGame(
+    AppState state, {
+    required String team1Id,
+    required String team2Id,
+    MatchFormat matchFormat = MatchFormat.oneSet,
+  }) {
+    final initialSet = GameSet(
+      id: AppState.generateId(),
+      setNumber: 1,
+    );
+    final game = Game(
+      id: AppState.generateId(),
+      team1Id: team1Id,
+      team2Id: team2Id,
+      round: 1,
+      source: GameSource.quickLocal,
+      isLocalOnly: true,
+      matchFormat: matchFormat,
+      sets: [initialSet],
+      status: GameStatus.inProgress,
+    );
+    return state.addGame(game);
+  }
+
+  // SET OPERATIONS
+
+  /// Returns the active GameSet for a game, or null if the game doesn't exist.
+  static GameSet? getCurrentSet(AppState state, String gameId) {
+    return state.getGameById(gameId)?.currentSet;
+  }
+
+  /// Updates score1/score2 on the current set without completing it.
+  static AppState updateCurrentSetScore(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.currentSet == null) return state;
+    if (game.status == GameStatus.completed || game.currentSet!.isCompleted) return state;
+
+    final updatedSet = game.currentSet!.copyWith(score1: score1, score2: score2);
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[game.currentSetIndex] = updatedSet;
+
+    return state.updateGame(game.copyWith(
+      sets: updatedSets,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Marks the current set as completed with final scores, then resolves match outcome.
+  static AppState completeCurrentSet(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.currentSet == null) return state;
+
+    final winner = winnerTeamId ??
+        (score1 > score2
+            ? game.team1Id
+            : score2 > score1
+                ? game.team2Id
+                : null);
+
+    final completedSet = game.currentSet!.copyWith(
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winner,
+      isCompleted: true,
+      completedAt: DateTime.now(),
+    );
+
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[game.currentSetIndex] = completedSet;
+
+    // Resolve match outcome on the updated game
+    return _resolveMatchOutcome(state, game.copyWith(sets: updatedSets));
+  }
+
+  /// Advances to the next set. Adds a new GameSet if it doesn't exist yet.
+  static AppState moveToNextSet(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.isMatchComplete) return state;
+
+    final nextIndex = game.currentSetIndex + 1;
+    if (nextIndex >= game.maxSets) return state;
+
+    var sets = List<GameSet>.from(game.sets);
+    while (sets.length <= nextIndex) {
+      sets.add(GameSet(
+        id: AppState.generateId(),
+        setNumber: sets.length + 1,
+        targetPoints: game.currentSet?.targetPoints ?? 15,
+      ));
+    }
+
+    return state.updateGame(game.copyWith(
+      sets: sets,
+      currentSetIndex: nextIndex,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Upserts a team lineup for a game (replaces existing entry for that teamId).
+  static AppState updateGameLineup(
+    AppState state,
+    String gameId,
+    GameTeamLineup lineup,
+  ) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final updatedLineups = [
+      ...game.lineups.where((l) => l.teamId != lineup.teamId),
+      lineup,
+    ];
+    return state.updateGame(game.copyWith(lineups: updatedLineups));
+  }
+
+  /// Replaces a specific GameSet within a game by id.
+  static AppState updateGameSet(
+    AppState state,
+    String gameId,
+    GameSet updatedSet,
+  ) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    final sets =
+        game.sets.map((s) => s.id == updatedSet.id ? updatedSet : s).toList();
+    return state.updateGame(game.copyWith(sets: sets));
+  }
+
+  /// Returns the winning team id based on current sets, or null if undecided.
+  static String? calculateMatchWinner(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return null;
+    if (game.team1SetsWon >= game.setsToWin) return game.team1Id;
+    if (game.team2SetsWon >= game.setsToWin) return game.team2Id;
+    return null;
+  }
+
+  // BACKWARDS COMPATIBILITY — use completeCurrentSet for new code
+  static AppState updateGameResult(
+    AppState state, {
+    required String gameId,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    // If the game has sets, delegate to completeCurrentSet
+    if (game.sets.isNotEmpty) {
+      return completeCurrentSet(
+        state,
+        gameId: gameId,
+        score1: score1,
+        score2: score2,
+        targetPoints: targetPoints,
+        winnerTeamId: winnerTeamId,
+      );
+    }
+
+    // Legacy path for games without sets
+    final result = GameResult(
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winnerTeamId,
+    );
+    return state.updateGame(game.copyWith(
+      result: result,
+      status: GameStatus.completed,
+    ));
+  }
+
+  /// Completes a specific set by index without auto-completing the game.
+  static AppState completeSet(
+    AppState state, {
+    required String gameId,
+    required int setIndex,
+    required int score1,
+    required int score2,
+    required int targetPoints,
+    String? winnerTeamId,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex >= game.sets.length) return state;
+    if (game.status == GameStatus.completed) return state;
+
+    final set = game.sets[setIndex];
+    final winner = winnerTeamId ??
+        (score1 > score2
+            ? game.team1Id
+            : score2 > score1
+                ? game.team2Id
+                : null);
+
+    final completedSet = GameSet(
+      id: set.id,
+      setNumber: set.setNumber,
+      score1: score1,
+      score2: score2,
+      targetPoints: targetPoints,
+      winnerTeamId: winner,
+      isCompleted: true,
+      completedAt: DateTime.now(),
+    );
+
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[setIndex] = completedSet;
+
+    return state.updateGame(game.copyWith(
+      sets: updatedSets,
+      status: GameStatus.inProgress,
+    ));
+  }
+
+  /// Undoes completion of a specific set by index.
+  static AppState undoSetCompletion(
+    AppState state, {
+    required String gameId,
+    required int setIndex,
+  }) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex >= game.sets.length) return state;
+
+    final set = game.sets[setIndex];
+    final resetSet = GameSet(
+      id: set.id,
+      setNumber: set.setNumber,
+      score1: set.score1,
+      score2: set.score2,
+      targetPoints: set.targetPoints,
+      winnerTeamId: null,
+      isCompleted: false,
+      completedAt: null,
+    );
+
+    final updatedSets = List<GameSet>.from(game.sets);
+    updatedSets[setIndex] = resetSet;
+
+    final winner = _getMatchWinnerFromSets(game.copyWith(sets: updatedSets));
+
+    final finalGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: winner != null ? GameStatus.completed : GameStatus.inProgress,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: updatedSets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: winner,
+      lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
+    );
+
+    return state.updateGame(finalGame);
+  }
+
+  /// Changes the active set to setIndex, creating intermediate sets lazily.
+  static AppState setActiveSet(AppState state, String gameId, int setIndex) {
+    final game = state.getGameById(gameId);
+    if (game == null || setIndex < 0 || setIndex >= game.maxSets) return state;
+
+    var sets = List<GameSet>.from(game.sets);
+    while (sets.length <= setIndex) {
+      sets.add(GameSet(
+        id: AppState.generateId(),
+        setNumber: sets.length + 1,
+        targetPoints: game.currentSet?.targetPoints ?? 15,
+      ));
+    }
+
+    return state.updateGame(game.copyWith(
+      sets: sets,
+      currentSetIndex: setIndex,
+      status: game.status == GameStatus.scheduled
+          ? GameStatus.inProgress
+          : game.status,
+    ));
+  }
+
+  /// Marks the game as completed based on current sets.
+  static AppState completeGame(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null || game.status == GameStatus.completed) return state;
+
+    final winner = _getMatchWinnerFromSets(game);
+
+    final finalGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: GameStatus.completed,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: game.sets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: winner,
+      lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
+    );
+
+    return state.updateGame(finalGame);
+  }
+
+  /// Reverts a completed game back to in-progress, clearing the match winner.
+  /// For oneSet games, also undoes Set 1 completion so isMatchComplete becomes false.
+  static AppState undoGameCompletion(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    var sets = game.sets;
+    if (game.matchFormat == MatchFormat.oneSet && sets.isNotEmpty && sets[0].isCompleted) {
+      final s = sets[0];
+      final resetSet = GameSet(
+        id: s.id,
+        setNumber: s.setNumber,
+        score1: s.score1,
+        score2: s.score2,
+        targetPoints: s.targetPoints,
+        winnerTeamId: null,
+        isCompleted: false,
+        completedAt: null,
+      );
+      sets = List<GameSet>.from(sets);
+      sets[0] = resetSet;
+    }
+
+    final resetGame = Game(
+      id: game.id,
+      tournamentId: game.tournamentId,
+      team1Id: game.team1Id,
+      team2Id: game.team2Id,
+      round: game.round,
+      status: GameStatus.inProgress,
+      result: game.result,
+      source: game.source,
+      isLocalOnly: game.isLocalOnly,
+      matchFormat: game.matchFormat,
+      sets: sets,
+      currentSetIndex: game.currentSetIndex,
+      matchWinnerTeamId: null,
+      lineups: game.lineups,
+      hasShownScorecardIntro: game.hasShownScorecardIntro,
+    );
+
+    return state.updateGame(resetGame);
+  }
+
+  /// Returns the winning team id based on completed sets, or null if undecided.
+  static String? calculateMatchWinnerFromSets(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return null;
+    return _getMatchWinnerFromSets(game);
+  }
+
+  static AppState deleteGame(AppState state, String gameId) {
+    final game = state.getGameById(gameId);
+    if (game == null) return state;
+
+    var updatedState = state.removeGame(gameId);
+    final tournament = game.tournamentId != null
+        ? state.getTournamentById(game.tournamentId!)
+        : null;
+    if (tournament != null) {
+      updatedState = updatedState.updateTournament(
+        tournament.removeGameId(gameId),
+      );
+    }
+    return updatedState;
+  }
+
+  // CLUB OPERATIONS
+  static AppState createClub(AppState state, {required String name}) {
+    final club = Club(id: AppState.generateId(), name: name);
+    return state.addClub(club);
+  }
+
+  static AppState updateClub(AppState state, Club club) {
+    return state.updateClub(club);
+  }
+
+  static AppState deleteClub(AppState state, String clubId) {
+    return state.removeClub(clubId);
+  }
+
+  // CLUB-PLAYER ASSIGNMENTS
+  static AppState assignPlayerToClub(
+    AppState state, {
+    required String playerId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getUserById(playerId) == null) return state;
+    return state.updateClub(club.addPlayerId(playerId));
+  }
+
+  static AppState removePlayerFromClub(
+    AppState state, {
+    required String playerId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removePlayerId(playerId));
+  }
+
+  // CLUB-TEAM ASSIGNMENTS
+  static AppState assignTeamToClub(
+    AppState state, {
+    required String teamId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getTeamById(teamId) == null) return state;
+    return state.updateClub(club.addTeamId(teamId));
+  }
+
+  static AppState removeTeamFromClub(
+    AppState state, {
+    required String teamId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removeTeamId(teamId));
+  }
+
+  // CLUB-TOURNAMENT ASSIGNMENTS
+  static AppState assignTournamentToClub(
+    AppState state, {
+    required String tournamentId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null || state.getTournamentById(tournamentId) == null) {
+      return state;
+    }
+    return state.updateClub(club.addTournamentId(tournamentId));
+  }
+
+  static AppState removeTournamentFromClub(
+    AppState state, {
+    required String tournamentId,
+    required String clubId,
+  }) {
+    final club = state.getClubById(clubId);
+    if (club == null) return state;
+    return state.updateClub(club.removeTournamentId(tournamentId));
+  }
+
+  // PRIVATE HELPERS
+
+  static AppState clearLocalHistoryData(AppState state) {
+    return const AppState();
+  }
+
+  static String? _getMatchWinnerFromSets(Game game) {
+    if (game.team1SetsWon >= game.setsToWin) return game.team1Id;
+    if (game.team2SetsWon >= game.setsToWin) return game.team2Id;
+    return null;
+  }
+
+  static AppState _resolveMatchOutcome(AppState state, Game game) {
+    String? matchWinner;
+    GameStatus status = game.status;
+
+    if (game.team1SetsWon >= game.setsToWin) {
+      matchWinner = game.team1Id;
+      status = GameStatus.completed;
+    } else if (game.team2SetsWon >= game.setsToWin) {
+      matchWinner = game.team2Id;
+      status = GameStatus.completed;
+    } else if (game.sets.every((s) => s.isCompleted)) {
+      // All sets played but no winner reached setsToWin (e.g. custom format draw)
+      status = GameStatus.completed;
+    }
+
+    return state.updateGame(game.copyWith(
+      matchWinnerTeamId: matchWinner ?? game.matchWinnerTeamId,
+      status: status,
+    ));
+  }
+}
+
+
+===== lib/services/local_storage_service.dart =====
+import 'dart:convert';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/app_user.dart';
+import '../models/club.dart';
+import '../models/game.dart';
+import '../models/team.dart';
+import '../models/tournament.dart';
+import '../state/app_state.dart';
+
+/// Local persistence layer for TournaQ.
+///
+/// Wraps Hive key-value storage behind a typed interface so that the rest of
+/// the app never imports Hive directly. This isolation means Hive can be
+/// swapped out (or supplemented with a Firebase layer) without changing any
+/// page or widget code.
+///
+/// Storage layout (v1):
+///   games_v1        — [Game] objects, keyed by [Game.id]
+///   teams_v1        — [Team] objects, keyed by [Team.id]
+///   players_v1      — [AppUser] objects, keyed by [AppUser.id]
+///   clubs_v1        — [Club] objects, keyed by [Club.id]
+///   tournaments_v1  — [Tournament] objects, keyed by [Tournament.id]
+///   prefs_v1        — Arbitrary string key→value preferences (e.g. rating counts)
+///
+/// Design decision — full-state save vs. granular ops:
+///   [saveAppState] clears and rewrites all boxes on each change. This is
+///   simple and correct for v1 data volumes (hundreds of records). If
+///   write frequency or record counts grow, replace with the granular
+///   [saveGame]/[saveTeam]/[savePlayer] calls instead.
+///
+/// Firebase readiness:
+///   Introduce a Repository interface (e.g. GameRepository) above this class
+///   before Firebase migration. The repository pattern lets you run Hive and
+///   Firestore simultaneously during a transition period.
+class LocalStorageService {
+  static const _gamesBox = 'games_v1';
+  static const _teamsBox = 'teams_v1';
+  static const _playersBox = 'players_v1';
+  static const _clubsBox = 'clubs_v1';
+  static const _tournamentsBox = 'tournaments_v1';
+  static const _prefsBox = 'prefs_v1';
+
+  // ── Initialisation ─────────────────────────────────────────────────────────
+
+  static Future<void> init() async {
+    await Hive.initFlutter();
+    await Hive.openBox<String>(_gamesBox);
+    await Hive.openBox<String>(_teamsBox);
+    await Hive.openBox<String>(_playersBox);
+    await Hive.openBox<String>(_clubsBox);
+    await Hive.openBox<String>(_tournamentsBox);
+    await Hive.openBox<String>(_prefsBox);
+  }
+
+  // ── Box accessors ──────────────────────────────────────────────────────────
+
+  static Box<String> get _games => Hive.box<String>(_gamesBox);
+  static Box<String> get _teams => Hive.box<String>(_teamsBox);
+  static Box<String> get _players => Hive.box<String>(_playersBox);
+  static Box<String> get _clubs => Hive.box<String>(_clubsBox);
+  static Box<String> get _tournaments => Hive.box<String>(_tournamentsBox);
+  static Box<String> get _prefs => Hive.box<String>(_prefsBox);
+
+  // ── Load ───────────────────────────────────────────────────────────────────
+
+  static AppState loadAppState() {
+    final games = _games.values
+        .map((s) => _tryDecode(s, Game.fromJson))
+        .whereType<Game>()
+        .toList();
+    final teams = _teams.values
+        .map((s) => _tryDecode(s, Team.fromJson))
+        .whereType<Team>()
+        .toList();
+    final players = _players.values
+        .map((s) => _tryDecode(s, AppUser.fromJson))
+        .whereType<AppUser>()
+        .toList();
+    final clubs = _clubs.values
+        .map((s) => _tryDecode(s, Club.fromJson))
+        .whereType<Club>()
+        .toList();
+    final tournaments = _tournaments.values
+        .map((s) => _tryDecode(s, Tournament.fromJson))
+        .whereType<Tournament>()
+        .toList();
+
+    return AppState(
+      games: games,
+      teams: teams,
+      users: players,
+      clubs: clubs,
+      tournaments: tournaments,
+    );
+  }
+
+  // ── Save ───────────────────────────────────────────────────────────────────
+
+  static Future<void> saveAppState(AppState state) async {
+    await _games.clear();
+    for (final g in state.games) {
+      await _games.put(g.id, jsonEncode(g.toJson()));
+    }
+    await _teams.clear();
+    for (final t in state.teams) {
+      await _teams.put(t.id, jsonEncode(t.toJson()));
+    }
+    await _players.clear();
+    for (final u in state.users) {
+      await _players.put(u.id, jsonEncode(u.toJson()));
+    }
+    await _clubs.clear();
+    for (final c in state.clubs) {
+      await _clubs.put(c.id, jsonEncode(c.toJson()));
+    }
+    await _tournaments.clear();
+    for (final t in state.tournaments) {
+      await _tournaments.put(t.id, jsonEncode(t.toJson()));
+    }
+  }
+
+  // ── Granular ops ───────────────────────────────────────────────────────────
+
+  static Future<void> saveGame(Game game) async =>
+      _games.put(game.id, jsonEncode(game.toJson()));
+
+  static Future<void> deleteGame(String id) async => _games.delete(id);
+
+  static Future<void> saveTeam(Team team) async =>
+      _teams.put(team.id, jsonEncode(team.toJson()));
+
+  static Future<void> deleteTeam(String id) async => _teams.delete(id);
+
+  static Future<void> savePlayer(AppUser player) async =>
+      _players.put(player.id, jsonEncode(player.toJson()));
+
+  static Future<void> deletePlayer(String id) async => _players.delete(id);
+
+  static String? getPref(String key) => _prefs.get(key);
+  static Future<void> setPref(String key, String value) => _prefs.put(key, value);
+
+  static Future<void> clearHistoryData() async {
+    await _games.clear();
+    await _teams.clear();
+    await _players.clear();
+    await _clubs.clear();
+    await _tournaments.clear();
+  }
+
+  // ── Private ────────────────────────────────────────────────────────────────
+
+  static T? _tryDecode<T>(String raw, T Function(Map<String, dynamic>) fromJson) {
+    try {
+      return fromJson(Map<String, dynamic>.from(jsonDecode(raw) as Map));
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+
+===== lib/services/tournament_logic_service.dart =====
+import 'dart:math';
+
+import '../models/tournament.dart';
+import '../models/tournament_mode.dart';
+import '../state/app_state.dart';
+
+/// Pure logic for tournament pairing and standings.
+///
+/// This service is intentionally stateless — it takes a [Tournament] and
+/// [AppState] snapshot and returns results. No persistence, no UI coupling.
+///
+/// Supported tournament modes and their pairing strategies:
+///   league            → full round-robin (every team plays every other team)
+///   singleElimination → standard bracket seeded by team registration order
+///   doubleElimination → double-bracket (losers side not yet fully implemented)
+///   swiss             → each round pairs teams with similar win counts
+///   randomizer        → completely random one-round pairing
+///   hybrid            → groups of different modes (see [HybridModeSetupPage])
+///   kingOfTheCourt    → not yet implemented (returns empty pairings)
+///   manual            → organizer creates games manually, no auto-pairing
+///
+/// Future: As tournament modes mature, consider splitting each into its own
+///   strategy class implementing a common [PairingStrategy] interface. This
+///   would make adding new modes (e.g. double round-robin) non-breaking.
+class TournamentLogicService {
+  // Generate all pairings for a tournament based on its mode
+  static List<({String team1Id, String team2Id})> generatePairings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    switch (tournament.mode.type) {
+      case TournamentModeType.league:
+        return _generateRoundRobinPairings(tournament.teamIds);
+      case TournamentModeType.singleElimination:
+        return _generateSingleEliminationBracket(tournament.teamIds);
+      case TournamentModeType.doubleElimination:
+        return _generateDoubleEliminationBracket(tournament.teamIds);
+      case TournamentModeType.swiss:
+        return _generateSwissPairings(tournament.teamIds);
+      case TournamentModeType.randomizer:
+        return _generateRandomPairings(tournament.teamIds);
+      case TournamentModeType.hybrid:
+        return _generateHybridPairings(state, tournament);
+      default:
+        return [];
+    }
+  }
+
+  // Round-robin: every team plays every other team once
+  static List<({String team1Id, String team2Id})> _generateRoundRobinPairings(
+    List<String> teamIds,
+  ) {
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < teamIds.length; i++) {
+      for (var j = i + 1; j < teamIds.length; j++) {
+        pairs.add((team1Id: teamIds[i], team2Id: teamIds[j]));
+      }
+    }
+    return pairs;
+  }
+
+  // Single elimination bracket
+  static List<({String team1Id, String team2Id})>
+  _generateSingleEliminationBracket(List<String> teamIds) {
+    // Simple pairing: teams in order
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < teamIds.length - 1; i += 2) {
+      pairs.add((team1Id: teamIds[i], team2Id: teamIds[i + 1]));
+    }
+    return pairs;
+  }
+
+  // Double elimination bracket
+  static List<({String team1Id, String team2Id})>
+  _generateDoubleEliminationBracket(List<String> teamIds) {
+    // For now, same as single elimination. Real implementation would track winners/losers bracket
+    return _generateSingleEliminationBracket(teamIds);
+  }
+
+  // Swiss system (simplified): random pairings each round
+  static List<({String team1Id, String team2Id})> _generateSwissPairings(
+    List<String> teamIds,
+  ) {
+    // Simplified: just return round-robin structure
+    return _generateRoundRobinPairings(teamIds);
+  }
+
+  static List<({String team1Id, String team2Id})> _generateRandomPairings(
+    List<String> teamIds,
+  ) {
+    final shuffled = [...teamIds]..shuffle(Random());
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (var i = 0; i < shuffled.length - 1; i += 2) {
+      pairs.add((team1Id: shuffled[i], team2Id: shuffled[i + 1]));
+    }
+    return pairs;
+  }
+
+  static List<({String team1Id, String team2Id})> _generateHybridPairings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    if (tournament.hybridGroups.isEmpty) return [];
+
+    final pairs = <({String team1Id, String team2Id})>[];
+    for (final group in tournament.hybridGroups) {
+      if (group.isEmpty) continue;
+
+      final groupMode = group.first;
+      final tempTournament = tournament.copyWith(
+        mode: TournamentMode.fromType(groupMode),
+      );
+
+      pairs.addAll(generatePairings(state, tempTournament));
+    }
+
+    return pairs;
+  }
+
+  // Calculate tournament standings for league/round-robin
+  static List<TournamentStanding> calculateStandings(
+    AppState state,
+    Tournament tournament,
+  ) {
+    final standings = <String, TournamentStanding>{};
+
+    // Initialize standings for all teams
+    for (final teamId in tournament.teamIds) {
+      standings[teamId] = TournamentStanding(
+        teamId: teamId,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        pointsFor: 0,
+        pointsAgainst: 0,
+      );
+    }
+
+    // Process all games
+    final tournamentGames = state.getTournamentGames(tournament.id);
+    for (final game in tournamentGames) {
+      if (game.result == null) continue;
+
+      final result = game.result!;
+      final standing1 = standings[game.team1Id];
+      final standing2 = standings[game.team2Id];
+
+      if (standing1 == null || standing2 == null) continue;
+
+      standing1.pointsFor += result.score1;
+      standing1.pointsAgainst += result.score2;
+      standing2.pointsFor += result.score2;
+      standing2.pointsAgainst += result.score1;
+
+      if (result.winnerTeamId == game.team1Id) {
+        standing1.wins += 1;
+        standing2.losses += 1;
+      } else if (result.winnerTeamId == game.team2Id) {
+        standing2.wins += 1;
+        standing1.losses += 1;
+      } else {
+        standing1.draws += 1;
+        standing2.draws += 1;
+      }
+    }
+
+    // Sort by wins, then by point difference
+    final sortedStandings = standings.values.toList();
+    sortedStandings.sort((a, b) {
+      final winDiff = b.wins.compareTo(a.wins);
+      if (winDiff != 0) return winDiff;
+      return b.pointDifference.compareTo(a.pointDifference);
+    });
+
+    return sortedStandings;
+  }
+}
+
+class TournamentStanding {
+  final String teamId;
+  int wins;
+  int draws;
+  int losses;
+  int pointsFor;
+  int pointsAgainst;
+
+  TournamentStanding({
+    required this.teamId,
+    required this.wins,
+    required this.draws,
+    required this.losses,
+    required this.pointsFor,
+    required this.pointsAgainst,
+  });
+
+  int get pointDifference => pointsFor - pointsAgainst;
+  int get totalGames => wins + draws + losses;
+  int get points => wins * 3 + draws;
+}
+
+
+===== lib/models/app_user.dart =====
+/// A registered player or team member in TournaQ.
+///
+/// [AppUser] represents a named person who can be assigned to [Team]s and
+/// [Club]s. The model is intentionally lightweight for v1 — no authentication,
+/// no passwords, no remote identity. Users are local identifiers only.
+///
+/// Design decision — local identity without auth:
+///   v1 is a single-device, local-first app. "Users" here are roster entries
+///   (player names for scorecards and lineups), not authentication principals.
+///   When Firebase Auth is introduced, this model will gain a `uid` field
+///   linking it to a Firebase user document, but the local [id] field will
+///   remain as the primary key within Hive.
+///
+/// [role] is a free-text field reserved for future use (e.g. "Captain",
+///   "Coach"). It is not used in any current scoring or tournament logic.
+class AppUser {
+  static const int schemaVersion = 1;
+  final String id;
+  final String name;
+  final String? email;
+  final List<String> teamIds;
+  final String? role;
+
+  const AppUser({
+    required this.id,
+    required this.name,
+    this.email,
+    this.teamIds = const [],
+    this.role,
+  });
+
+  AppUser copyWith({
+    String? id,
+    String? name,
+    String? email,
+    List<String>? teamIds,
+    String? role,
+  }) {
+    return AppUser(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      teamIds: teamIds ?? this.teamIds,
+      role: role ?? this.role,
+    );
+  }
+
+  AppUser addTeamId(String teamId) {
+    if (teamIds.contains(teamId)) return this;
+    return copyWith(teamIds: [...teamIds, teamId]);
+  }
+
+  AppUser removeTeamId(String teamId) {
+    return copyWith(
+      teamIds: teamIds.where((id) => id != teamId).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
+        'id': id,
+        'name': name,
+        'email': email,
+        'teamIds': teamIds,
+        'role': role,
+      };
+
+  factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        email: json['email'] as String?,
+        teamIds: List<String>.from(json['teamIds'] as List? ?? []),
+        role: json['role'] as String?,
+      );
+}
+
+
+===== lib/models/club.dart =====
+/// A club groups players, teams, and tournaments under a single organization.
+///
+/// Clubs are currently in-memory only — they are NOT persisted to Hive in v1
+/// because the full club management workflow is still evolving. This means
+/// clubs are rebuilt from scratch on each app launch, which is intentional
+/// for the initial release scope.
+///
+/// Future: Once club workflows stabilize, add a clubs_v1 Hive box in
+/// [LocalStorageService] and drive persistence through [toJson]/[fromJson].
+/// The serialization methods below are already implemented to remove the
+/// blocker when that moment arrives.
+///
+/// Firebase note: In a Firebase-backed version, Club documents would live in
+/// a `clubs` Firestore collection with subcollection references rather than
+/// embedding ID lists directly.
+class Club {
+  static const int schemaVersion = 1;
+
+  final String id;
+  final String name;
+  final List<String> playerIds;
+  final List<String> teamIds;
+  final List<String> tournamentIds;
+
+  const Club({
+    required this.id,
+    required this.name,
+    this.playerIds = const [],
+    this.teamIds = const [],
+    this.tournamentIds = const [],
+  });
+
+  Club copyWith({
+    String? id,
+    String? name,
+    List<String>? playerIds,
+    List<String>? teamIds,
+    List<String>? tournamentIds,
+  }) {
+    return Club(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      playerIds: playerIds ?? this.playerIds,
+      teamIds: teamIds ?? this.teamIds,
+      tournamentIds: tournamentIds ?? this.tournamentIds,
+    );
+  }
+
+  Club addPlayerId(String playerId) {
+    if (playerIds.contains(playerId)) return this;
+    return copyWith(playerIds: [...playerIds, playerId]);
+  }
+
+  Club removePlayerId(String playerId) {
+    return copyWith(playerIds: playerIds.where((id) => id != playerId).toList());
+  }
+
+  Club addTeamId(String teamId) {
+    if (teamIds.contains(teamId)) return this;
+    return copyWith(teamIds: [...teamIds, teamId]);
+  }
+
+  Club removeTeamId(String teamId) {
+    return copyWith(teamIds: teamIds.where((id) => id != teamId).toList());
+  }
+
+  Club addTournamentId(String tournamentId) {
+    if (tournamentIds.contains(tournamentId)) return this;
+    return copyWith(tournamentIds: [...tournamentIds, tournamentId]);
+  }
+
+  Club removeTournamentId(String tournamentId) {
+    return copyWith(
+      tournamentIds: tournamentIds.where((id) => id != tournamentId).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
+        'id': id,
+        'name': name,
+        'playerIds': playerIds,
+        'teamIds': teamIds,
+        'tournamentIds': tournamentIds,
+      };
+
+  factory Club.fromJson(Map<String, dynamic> json) => Club(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        playerIds: List<String>.from(json['playerIds'] as List? ?? []),
+        teamIds: List<String>.from(json['teamIds'] as List? ?? []),
+        tournamentIds: List<String>.from(json['tournamentIds'] as List? ?? []),
+      );
+}
+
+
+===== lib/models/game.dart =====
+import 'game_result.dart';
+import 'game_set.dart';
+import 'game_team_lineup.dart';
+
+enum GameStatus {
+  scheduled,
+  inProgress,
+  completed,
+}
+
+/// Where a [Game] originated.
+///
+/// Design decision: games created outside a tournament ([quickLocal]) must
+/// work without any tournament structure. This enum is the flag that drives
+/// UI branching (e.g. hiding tournament-specific controls in quick games).
+enum GameSource {
+  tournament,
+  quickLocal,
+}
+
+enum MatchFormat {
+  oneSet,
+  bestOfThree,
+  custom,
+}
+
+/// A single match between two teams.
+///
+/// The core domain object in TournaQ. A [Game] is self-contained: it holds
+/// all score data, set progression, and lineup information needed to replay
+/// or display the match result without querying any other entity.
+///
+/// Match lifecycle:
+///   [GameStatus.scheduled] → score page opened → [GameStatus.inProgress]
+///   → all required sets completed → [GameStatus.completed]
+///
+/// Set model:
+///   A [Game] contains a list of [GameSet] objects. Each set tracks its own
+///   score independently. [currentSetIndex] points to the active set.
+///   [completeCurrentSet] in [AppDataService] advances this index and records
+///   the set winner. The match winner is computed from set wins via
+///   [matchWinnerTeamId] (set explicitly) or derived from [team1SetsWon] /
+///   [team2SetsWon].
+///
+/// Design decision — [result] field:
+///   The legacy [GameResult] field is kept for backwards compatibility with
+///   previously serialized games. New code uses [sets], [matchWinnerTeamId],
+///   and the computed helpers ([team1SetsWon], [isMatchComplete]).
+///
+/// Design decision — [isLocalOnly]:
+///   Reserved for future multi-device sync. Local-only games will be
+///   excluded from Firebase upload until the user explicitly publishes them.
+///
+/// Firebase: Each [Game] will map to a Firestore document in a `games`
+///   collection, with [sets] stored as a subcollection or embedded array.
+///   [tournamentId] will become a document reference.
+class Game {
+  static const int schemaVersion = 1;
+  final String id;
+  final String? tournamentId;
+  final String team1Id;
+  final String team2Id;
+  final int round;
+  final GameStatus status;
+  final GameResult? result; // kept for backwards compatibility
+  final GameSource source;
+  final bool isLocalOnly;
+  final MatchFormat matchFormat;
+  final List<GameSet> sets;
+  final int currentSetIndex;
+  final String? matchWinnerTeamId;
+  final List<GameTeamLineup> lineups;
+  final bool hasShownScorecardIntro;
+
+  const Game({
+    required this.id,
+    this.tournamentId,
+    required this.team1Id,
+    required this.team2Id,
+    required this.round,
+    this.status = GameStatus.scheduled,
+    this.result,
+    this.source = GameSource.tournament,
+    this.isLocalOnly = false,
+    this.matchFormat = MatchFormat.oneSet,
+    this.sets = const [],
+    this.currentSetIndex = 0,
+    this.matchWinnerTeamId,
+    this.lineups = const [],
+    this.hasShownScorecardIntro = false,
+  });
+
+  // ── Match format helpers ──────────────────────────────────────────────────
+
+  int get maxSets => switch (matchFormat) {
+        MatchFormat.oneSet => 1,
+        MatchFormat.bestOfThree => 3,
+        MatchFormat.custom => sets.length,
+      };
+
+  int get setsToWin => switch (matchFormat) {
+        MatchFormat.oneSet => 1,
+        MatchFormat.bestOfThree => 2,
+        MatchFormat.custom => (sets.length / 2).ceil(),
+      };
+
+  // ── Set helpers ───────────────────────────────────────────────────────────
+
+  GameSet? get currentSet =>
+      currentSetIndex < sets.length ? sets[currentSetIndex] : null;
+
+  int get team1SetsWon =>
+      sets.where((s) => s.isCompleted && s.winnerTeamId == team1Id).length;
+
+  int get team2SetsWon =>
+      sets.where((s) => s.isCompleted && s.winnerTeamId == team2Id).length;
+
+  bool get isMatchComplete =>
+      status == GameStatus.completed ||
+      matchWinnerTeamId != null ||
+      team1SetsWon >= setsToWin ||
+      team2SetsWon >= setsToWin;
+
+  // ── Existing helpers ──────────────────────────────────────────────────────
+
+  bool isTeamInvolved(String teamId) =>
+      team1Id == teamId || team2Id == teamId;
+
+  String getOpponentTeamId(String teamId) {
+    if (team1Id == teamId) return team2Id;
+    if (team2Id == teamId) return team1Id;
+    return '';
+  }
+
+  Game copyWith({
+    String? id,
+    String? tournamentId,
+    String? team1Id,
+    String? team2Id,
+    int? round,
+    GameStatus? status,
+    GameResult? result,
+    GameSource? source,
+    bool? isLocalOnly,
+    MatchFormat? matchFormat,
+    List<GameSet>? sets,
+    int? currentSetIndex,
+    String? matchWinnerTeamId,
+    List<GameTeamLineup>? lineups,
+    bool? hasShownScorecardIntro,
+  }) {
+    return Game(
+      id: id ?? this.id,
+      tournamentId: tournamentId ?? this.tournamentId,
+      team1Id: team1Id ?? this.team1Id,
+      team2Id: team2Id ?? this.team2Id,
+      round: round ?? this.round,
+      status: status ?? this.status,
+      result: result ?? this.result,
+      source: source ?? this.source,
+      isLocalOnly: isLocalOnly ?? this.isLocalOnly,
+      matchFormat: matchFormat ?? this.matchFormat,
+      sets: sets ?? this.sets,
+      currentSetIndex: currentSetIndex ?? this.currentSetIndex,
+      matchWinnerTeamId: matchWinnerTeamId ?? this.matchWinnerTeamId,
+      lineups: lineups ?? this.lineups,
+      hasShownScorecardIntro: hasShownScorecardIntro ?? this.hasShownScorecardIntro,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
+        'id': id,
+        'tournamentId': tournamentId,
+        'team1Id': team1Id,
+        'team2Id': team2Id,
+        'round': round,
+        'status': status.name,
+        'result': result?.toJson(),
+        'source': source.name,
+        'isLocalOnly': isLocalOnly,
+        'matchFormat': matchFormat.name,
+        'sets': sets.map((s) => s.toJson()).toList(),
+        'currentSetIndex': currentSetIndex,
+        'matchWinnerTeamId': matchWinnerTeamId,
+        'lineups': lineups.map((l) => l.toJson()).toList(),
+        'hasShownScorecardIntro': hasShownScorecardIntro,
+      };
+
+  factory Game.fromJson(Map<String, dynamic> json) => Game(
+        id: json['id'] as String,
+        tournamentId: json['tournamentId'] as String?,
+        team1Id: json['team1Id'] as String,
+        team2Id: json['team2Id'] as String,
+        round: json['round'] as int,
+        status: GameStatus.values.firstWhere(
+          (e) => e.name == json['status'],
+          orElse: () => GameStatus.scheduled,
+        ),
+        result: json['result'] != null
+            ? GameResult.fromJson(Map<String, dynamic>.from(json['result'] as Map))
+            : null,
+        source: GameSource.values.firstWhere(
+          (e) => e.name == json['source'],
+          orElse: () => GameSource.quickLocal,
+        ),
+        isLocalOnly: json['isLocalOnly'] as bool? ?? false,
+        matchFormat: MatchFormat.values.firstWhere(
+          (e) => e.name == json['matchFormat'],
+          orElse: () => MatchFormat.oneSet,
+        ),
+        sets: (json['sets'] as List<dynamic>? ?? [])
+            .map((s) => GameSet.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList(),
+        currentSetIndex: json['currentSetIndex'] as int? ?? 0,
+        matchWinnerTeamId: json['matchWinnerTeamId'] as String?,
+        lineups: (json['lineups'] as List<dynamic>? ?? [])
+            .map((l) => GameTeamLineup.fromJson(Map<String, dynamic>.from(l as Map)))
+            .toList(),
+        hasShownScorecardIntro: json['hasShownScorecardIntro'] as bool? ?? false,
+      );
+}
+
+
+===== lib/models/game_result.dart =====
+class GameResult {
+  final int score1;
+  final int score2;
+  final int targetPoints;
+  final String? winnerTeamId;
+
+  const GameResult({
+    required this.score1,
+    required this.score2,
+    required this.targetPoints,
+    this.winnerTeamId,
+  });
+
+  int get pointDifference => score1 - score2;
+
+  GameResult copyWith({
+    int? score1,
+    int? score2,
+    int? targetPoints,
+    String? winnerTeamId,
+  }) {
+    return GameResult(
+      score1: score1 ?? this.score1,
+      score2: score2 ?? this.score2,
+      targetPoints: targetPoints ?? this.targetPoints,
+      winnerTeamId: winnerTeamId ?? this.winnerTeamId,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'score1': score1,
+        'score2': score2,
+        'targetPoints': targetPoints,
+        'winnerTeamId': winnerTeamId,
+      };
+
+  factory GameResult.fromJson(Map<String, dynamic> json) => GameResult(
+        score1: json['score1'] as int,
+        score2: json['score2'] as int,
+        targetPoints: json['targetPoints'] as int? ?? 15,
+        winnerTeamId: json['winnerTeamId'] as String?,
+      );
+}
+
+
+===== lib/models/game_set.dart =====
+class GameSet {
+  final String id;
+  final int setNumber;
+  final int score1;
+  final int score2;
+  final int targetPoints;
+  final String? winnerTeamId;
+  final bool isCompleted;
+  final DateTime? completedAt;
+
+  const GameSet({
+    required this.id,
+    required this.setNumber,
+    this.score1 = 0,
+    this.score2 = 0,
+    this.targetPoints = 15,
+    this.winnerTeamId,
+    this.isCompleted = false,
+    this.completedAt,
+  });
+
+  int get pointDifference => score1 - score2;
+  bool get isDraw => isCompleted && winnerTeamId == null;
+
+  GameSet copyWith({
+    String? id,
+    int? setNumber,
+    int? score1,
+    int? score2,
+    int? targetPoints,
+    String? winnerTeamId,
+    bool? isCompleted,
+    DateTime? completedAt,
+  }) {
+    return GameSet(
+      id: id ?? this.id,
+      setNumber: setNumber ?? this.setNumber,
+      score1: score1 ?? this.score1,
+      score2: score2 ?? this.score2,
+      targetPoints: targetPoints ?? this.targetPoints,
+      winnerTeamId: winnerTeamId ?? this.winnerTeamId,
+      isCompleted: isCompleted ?? this.isCompleted,
+      completedAt: completedAt ?? this.completedAt,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'setNumber': setNumber,
+        'score1': score1,
+        'score2': score2,
+        'targetPoints': targetPoints,
+        'winnerTeamId': winnerTeamId,
+        'isCompleted': isCompleted,
+        'completedAt': completedAt?.toIso8601String(),
+      };
+
+  factory GameSet.fromJson(Map<String, dynamic> json) => GameSet(
+        id: json['id'] as String,
+        setNumber: json['setNumber'] as int,
+        score1: json['score1'] as int? ?? 0,
+        score2: json['score2'] as int? ?? 0,
+        targetPoints: json['targetPoints'] as int? ?? 15,
+        winnerTeamId: json['winnerTeamId'] as String?,
+        isCompleted: json['isCompleted'] as bool? ?? false,
+        completedAt: json['completedAt'] != null
+            ? DateTime.parse(json['completedAt'] as String)
+            : null,
+      );
+}
+
+
+===== lib/models/game_team_lineup.dart =====
+class GameTeamLineup {
+  final String teamId;
+  final List<String> playerNames;
+
+  const GameTeamLineup({
+    required this.teamId,
+    this.playerNames = const [],
+  });
+
+  String playerName(int index) {
+    if (index < playerNames.length && playerNames[index].isNotEmpty) {
+      return playerNames[index];
+    }
+    return 'Player ${index + 1}';
+  }
+
+  GameTeamLineup copyWith({String? teamId, List<String>? playerNames}) {
+    return GameTeamLineup(
+      teamId: teamId ?? this.teamId,
+      playerNames: playerNames ?? this.playerNames,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'teamId': teamId,
+        'playerNames': playerNames,
+      };
+
+  factory GameTeamLineup.fromJson(Map<String, dynamic> json) => GameTeamLineup(
+        teamId: json['teamId'] as String,
+        playerNames: List<String>.from(json['playerNames'] as List? ?? []),
+      );
+}
+
+
+===== lib/models/team.dart =====
+/// How a team was created and how long it should be kept.
+///
+/// [temporary] — created for a single quick game; can be cleaned up later.
+/// [tournament] — created as part of a tournament structure.
+/// [club] — a standing team belonging to a club (persisted long-term).
+///
+/// Note: Scope is informational in v1. No automatic cleanup is implemented —
+/// all teams persist in Hive until explicitly deleted.
+enum TeamScope {
+  temporary,
+  tournament,
+  club,
+}
+
+/// A team that participates in games and tournaments.
+///
+/// Teams hold references to their member [AppUser]s and [Tournament]s by ID.
+/// The team's display name is the primary label shown throughout the scoring
+/// and tournament UI.
+///
+/// Design decision — [schemaVersion]:
+///   Added to prepare for future Hive or Firestore migration. When the Team
+///   schema changes (e.g. adding a logoUrl), increment this version and add
+///   a migration path in [LocalStorageService] or a future repository layer.
+class Team {
+  static const int schemaVersion = 1;
+  final String id;
+  final String name;
+  final List<String> userIds;
+  final List<String> tournamentIds;
+  final TeamScope scope;
+
+  const Team({
+    required this.id,
+    required this.name,
+    this.userIds = const [],
+    this.tournamentIds = const [],
+    this.scope = TeamScope.temporary,
+  });
+
+  Team copyWith({
+    String? id,
+    String? name,
+    List<String>? userIds,
+    List<String>? tournamentIds,
+    TeamScope? scope,
+  }) {
+    return Team(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      userIds: userIds ?? this.userIds,
+      tournamentIds: tournamentIds ?? this.tournamentIds,
+      scope: scope ?? this.scope,
+    );
+  }
+
+  Team addUserId(String userId) {
+    if (userIds.contains(userId)) return this;
+    return copyWith(userIds: [...userIds, userId]);
+  }
+
+  Team removeUserId(String userId) {
+    return copyWith(
+      userIds: userIds.where((id) => id != userId).toList(),
+    );
+  }
+
+  Team addTournamentId(String tournamentId) {
+    if (tournamentIds.contains(tournamentId)) return this;
+    return copyWith(tournamentIds: [...tournamentIds, tournamentId]);
+  }
+
+  Team removeTournamentId(String tournamentId) {
+    return copyWith(
+      tournamentIds: tournamentIds.where((id) => id != tournamentId).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
+        'id': id,
+        'name': name,
+        'userIds': userIds,
+        'tournamentIds': tournamentIds,
+        'scope': scope.name,
+      };
+
+  factory Team.fromJson(Map<String, dynamic> json) => Team(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        userIds: List<String>.from(json['userIds'] as List? ?? []),
+        tournamentIds: List<String>.from(json['tournamentIds'] as List? ?? []),
+        scope: TeamScope.values.firstWhere(
+          (e) => e.name == json['scope'],
+          orElse: () => TeamScope.temporary,
+        ),
+      );
+}
+
+
+===== lib/models/tournament.dart =====
+import 'tournament_mode.dart';
+
+enum TournamentStatus { draft, inProgress, completed }
+
+/// A tournament organizes teams into a structured competition with a defined
+/// [TournamentMode] (league, elimination, swiss, etc.).
+///
+/// Design decision: Tournament objects hold only IDs referencing teams and
+/// games — not the objects themselves. This keeps [AppState] as a normalized
+/// store where entities have a single canonical copy.
+///
+/// Persistence note: Tournaments are NOT persisted to Hive in v1. The
+/// tournament workflow requires all referenced teams and games to be available
+/// simultaneously, so the most reliable approach is to reconstruct state from
+/// the persisted games/teams and let the tournament scaffold be rebuilt on
+/// each session. This is a conscious v1 trade-off that avoids complex
+/// cross-entity migration logic.
+///
+/// Future: Add tournaments_v1 Hive persistence once the data model and
+/// tournament workflows are stable. [toJson]/[fromJson] are implemented below
+/// to unblock this.
+///
+/// Firebase: In a Firebase-backed version, Tournament maps to a top-level
+/// `tournaments` collection. gameIds would become a subcollection or array
+/// of document references.
+class Tournament {
+  static const int schemaVersion = 1;
+
+  final String id;
+  final String name;
+  final TournamentMode mode;
+  final List<String> teamIds;
+  final List<String> gameIds;
+  final TournamentStatus status;
+  final List<List<TournamentModeType>> hybridGroups;
+
+  const Tournament({
+    required this.id,
+    required this.name,
+    required this.mode,
+    this.teamIds = const [],
+    this.gameIds = const [],
+    this.status = TournamentStatus.draft,
+    this.hybridGroups = const [],
+  });
+
+  Tournament copyWith({
+    String? id,
+    String? name,
+    TournamentMode? mode,
+    List<String>? teamIds,
+    List<String>? gameIds,
+    TournamentStatus? status,
+    List<List<TournamentModeType>>? hybridGroups,
+  }) {
+    return Tournament(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      mode: mode ?? this.mode,
+      teamIds: teamIds ?? this.teamIds,
+      gameIds: gameIds ?? this.gameIds,
+      status: status ?? this.status,
+      hybridGroups: hybridGroups ?? this.hybridGroups,
+    );
+  }
+
+  Tournament addTeamId(String teamId) {
+    if (teamIds.contains(teamId)) return this;
+    return copyWith(teamIds: [...teamIds, teamId]);
+  }
+
+  Tournament removeTeamId(String teamId) {
+    return copyWith(teamIds: teamIds.where((id) => id != teamId).toList());
+  }
+
+  Tournament addGameId(String gameId) {
+    if (gameIds.contains(gameId)) return this;
+    return copyWith(gameIds: [...gameIds, gameId]);
+  }
+
+  Tournament removeGameId(String gameId) {
+    return copyWith(gameIds: gameIds.where((id) => id != gameId).toList());
+  }
+
+  Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
+        'id': id,
+        'name': name,
+        'modeType': mode.type.name,
+        'teamIds': teamIds,
+        'gameIds': gameIds,
+        'status': status.name,
+        'hybridGroups': hybridGroups
+            .map((group) => group.map((t) => t.name).toList())
+            .toList(),
+      };
+
+  factory Tournament.fromJson(Map<String, dynamic> json) {
+    final modeType = TournamentModeType.values.firstWhere(
+      (e) => e.name == json['modeType'],
+      orElse: () => TournamentModeType.singleGame,
+    );
+    return Tournament(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      mode: TournamentMode.fromType(modeType),
+      teamIds: List<String>.from(json['teamIds'] as List? ?? []),
+      gameIds: List<String>.from(json['gameIds'] as List? ?? []),
+      status: TournamentStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () => TournamentStatus.draft,
+      ),
+      hybridGroups: (json['hybridGroups'] as List? ?? [])
+          .map((group) => (group as List)
+              .map((name) => TournamentModeType.values.firstWhere(
+                    (e) => e.name == name,
+                    orElse: () => TournamentModeType.singleGame,
+                  ))
+              .toList())
+          .toList(),
+    );
+  }
+}
+
+
+===== lib/models/tournament_mode.dart =====
+enum TournamentModeType {
+  singleGame,
+  league,
+  singleElimination,
+  doubleElimination,
+  swiss,
+  kingOfTheCourt,
+  randomizer,
+  manual,
+  hybrid,
+}
+
+class TournamentMode {
+  final TournamentModeType type;
+  final String displayName;
+
+  const TournamentMode({
+    required this.type,
+    required this.displayName,
+  });
+
+  static TournamentMode fromType(TournamentModeType type) {
+    return TournamentMode(
+      type: type,
+      displayName: _getDisplayName(type),
+    );
+  }
+
+  static String _getDisplayName(TournamentModeType type) {
+    switch (type) {
+      case TournamentModeType.singleGame:
+        return 'Single Games';
+      case TournamentModeType.league:
+        return 'League';
+      case TournamentModeType.singleElimination:
+        return 'Single Elimination';
+      case TournamentModeType.doubleElimination:
+        return 'Double Elimination';
+      case TournamentModeType.swiss:
+        return 'Swiss';
+      case TournamentModeType.kingOfTheCourt:
+        return 'King of the Court';
+      case TournamentModeType.randomizer:
+        return 'Randomizer';
+      case TournamentModeType.manual:
+        return 'Manual Tournament';
+      case TournamentModeType.hybrid:
+        return 'Hybrid Modes';
+    }
+  }
+}
