@@ -42,10 +42,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pageClubs => 'Clubs';
 
   @override
-  String get pageGameScorecard => 'Game Scorecard';
+  String get pageGameScorecard => 'Scoreboard';
 
   @override
-  String get pageGameplayHistory => 'Gameplay History';
+  String get pageGameplayHistory => 'Match History';
 
   @override
   String get pageTeamDetails => 'Team Details';
@@ -114,10 +114,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnGenerate10RandomPlayers => 'Generate 10 Random Players';
 
   @override
-  String get quickStartTitle => 'Quick Start a Game';
+  String get quickStartTitle => 'Quick Start Game';
 
   @override
-  String get quickStartFormatQuestion => 'How long is the match?';
+  String get quickStartFormatQuestion => 'How many sets?';
 
   @override
   String get quickStartTeamQuestion =>
@@ -299,7 +299,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameStatusPending => 'Pending';
 
   @override
-  String get gameMenuScorecard => 'Game Scorecard';
+  String get gameMenuScorecard => 'Scoreboard';
 
   @override
   String get gameMenuDelete => 'Delete Game';

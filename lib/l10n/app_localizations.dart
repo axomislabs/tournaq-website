@@ -169,13 +169,13 @@ abstract class AppLocalizations {
   /// No description provided for @pageGameScorecard.
   ///
   /// In en, this message translates to:
-  /// **'Game Scorecard'**
+  /// **'Scoreboard'**
   String get pageGameScorecard;
 
   /// No description provided for @pageGameplayHistory.
   ///
   /// In en, this message translates to:
-  /// **'Gameplay History'**
+  /// **'Match History'**
   String get pageGameplayHistory;
 
   /// No description provided for @pageTeamDetails.
@@ -313,13 +313,13 @@ abstract class AppLocalizations {
   /// No description provided for @quickStartTitle.
   ///
   /// In en, this message translates to:
-  /// **'Quick Start a Game'**
+  /// **'Quick Start Game'**
   String get quickStartTitle;
 
   /// No description provided for @quickStartFormatQuestion.
   ///
   /// In en, this message translates to:
-  /// **'How long is the match?'**
+  /// **'How many sets?'**
   String get quickStartFormatQuestion;
 
   /// No description provided for @quickStartTeamQuestion.
@@ -655,7 +655,7 @@ abstract class AppLocalizations {
   /// No description provided for @gameMenuScorecard.
   ///
   /// In en, this message translates to:
-  /// **'Game Scorecard'**
+  /// **'Scoreboard'**
   String get gameMenuScorecard;
 
   /// No description provided for @gameMenuDelete.
