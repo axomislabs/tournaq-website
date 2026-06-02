@@ -67,7 +67,10 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      drawer: AppDrawer(appState: widget.appState, onAppStateChanged: widget.onAppStateChanged),
+      drawer: AppDrawer(
+        appState: widget.appState,
+        onAppStateChanged: widget.onAppStateChanged,
+      ),
       appBar: TournaQAppBar(title: l10n.navContact),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -86,47 +89,55 @@ class _ContactPageState extends State<ContactPage> {
               ),
             ]),
             const SizedBox(height: 20),
-            _buildSection(l10n.contactSectionSupport, Icons.support_agent_rounded, [
-              _buildClickableCard(
-                context,
-                icon: Icons.email_rounded,
-                iconBg: _kGoldLight,
-                iconColor: _kGold,
-                title: l10n.contactEmailLabel,
-                subtitle: AppLinks.contactEmail,
-                onTap: () => _launchEmail(context),
-              ),
-              _buildClickableCard(
-                context,
-                icon: Icons.feedback_rounded,
-                iconBg: _kGoldLight,
-                iconColor: _kGold,
-                title: l10n.contactFeedbackForm,
-                subtitle: l10n.contactFeedbackSubtitle,
-                onTap: () => _launchFeedback(context),
-              ),
-              _buildClickableCard(
-                context,
-                icon: Icons.language_rounded,
-                iconBg: _kOliveLight,
-                iconColor: _kOlive,
-                title: l10n.contactWebsite,
-                subtitle: l10n.contactWebsiteSubtitle,
-                onTap: () => _launchWebsite(context),
-              ),
-            ]),
+            _buildSection(
+              l10n.contactSectionSupport,
+              Icons.support_agent_rounded,
+              [
+                _buildClickableCard(
+                  context,
+                  icon: Icons.email_rounded,
+                  iconBg: _kGoldLight,
+                  iconColor: _kGold,
+                  title: l10n.contactEmailLabel,
+                  subtitle: AppLinks.contactEmail,
+                  onTap: () => _launchEmail(context),
+                ),
+                _buildClickableCard(
+                  context,
+                  icon: Icons.feedback_rounded,
+                  iconBg: _kGoldLight,
+                  iconColor: _kGold,
+                  title: l10n.contactFeedbackForm,
+                  subtitle: l10n.contactFeedbackSubtitle,
+                  onTap: () => _launchFeedback(context),
+                ),
+                _buildClickableCard(
+                  context,
+                  icon: Icons.language_rounded,
+                  iconBg: _kOliveLight,
+                  iconColor: _kOlive,
+                  title: l10n.contactWebsite,
+                  subtitle: l10n.contactWebsiteSubtitle,
+                  onTap: () => _launchWebsite(context),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
-            _buildSection(l10n.contactSectionResources, Icons.library_books_rounded, [
-              _buildClickableCard(
-                context,
-                icon: Icons.menu_book_rounded,
-                iconBg: _kGoldLight,
-                iconColor: _kGold,
-                title: l10n.contactUserGuide,
-                subtitle: l10n.contactUserGuideSub,
-                onTap: () => _launchUserGuide(context),
-              ),
-            ]),
+            _buildSection(
+              l10n.contactSectionResources,
+              Icons.library_books_rounded,
+              [
+                _buildClickableCard(
+                  context,
+                  icon: Icons.menu_book_rounded,
+                  iconBg: _kGoldLight,
+                  iconColor: _kGold,
+                  title: l10n.contactUserGuide,
+                  subtitle: l10n.contactUserGuideSub,
+                  onTap: () => _launchUserGuide(context),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             _buildSection(l10n.contactSectionLegal, Icons.shield_rounded, [
               _buildClickableCard(
@@ -209,17 +220,25 @@ class _ContactPageState extends State<ContactPage> {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(
+            color: iconBg,
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Icon(icon, color: iconColor, size: 20),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
+        ),
         trailing: Icon(trailing, size: 18, color: Colors.black38),
         onTap: onTap,
       ),
     );
   }
-
 
   Widget _buildFooter() {
     final versionLabel = _version != null ? 'TournaQ v$_version' : 'TournaQ';
@@ -229,7 +248,11 @@ class _ContactPageState extends State<ContactPage> {
         const SizedBox(height: 12),
         Text(
           versionLabel,
-          style: const TextStyle(fontSize: 12, color: Colors.black38, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black38,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
