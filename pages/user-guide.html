@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-base="../" data-i18n-title="page.guide.title">
 
 <head>
     <meta charset="UTF-8" />
@@ -8,11 +8,10 @@
     <title>TournaQ – User Guide</title>
 
     <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/i18n.js" defer></script>
 
     <style>
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         .guide-nav {
             background: white;
@@ -112,13 +111,8 @@
         }
 
         @media (max-width: 760px) {
-            .guide-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .guide-card img.vertical {
-                max-width: 280px;
-            }
+            .guide-grid { grid-template-columns: 1fr; }
+            .guide-card img.vertical { max-width: 280px; }
         }
     </style>
 </head>
@@ -139,54 +133,54 @@
             </label>
 
             <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="product.html">TournaQ Detail</a>
-                <a href="user-guide.html">User Guide</a>
-                <a href="downloads.html">Downloads</a>
-                <a href="legal.html">Legal</a>
-                <a href="contact.html">Contact</a>
+                <a href="index.html" data-i18n="nav.home">Home</a>
+                <a href="product.html" data-i18n="nav.detail">TournaQ Detail</a>
+                <a href="user-guide.html" data-i18n="nav.guide">User Guide</a>
+                <a href="downloads.html" data-i18n="nav.downloads">Downloads</a>
+                <a href="legal.html" data-i18n="nav.legal">Legal</a>
+                <a href="contact.html" data-i18n="nav.contact">Contact</a>
             </div>
         </nav>
 
+        <div class="lang-switcher"></div>
+
         <div class="hero">
-            <h1>User Guide</h1>
-            <p class="subtitle">Beach Volleyball Scoring with TournaQ.</p>
+            <h1 data-i18n="guide.hero.title">User Guide</h1>
+            <p class="subtitle" data-i18n="guide.hero.subtitle">Beach Volleyball Scoring with TournaQ.</p>
         </div>
     </header>
 
     <main>
 
         <section class="guide-nav">
-            <h2>Quick Navigation</h2>
-
+            <h2 data-i18n="guide.nav.title">Quick Navigation</h2>
             <div class="guide-nav-links">
-                <a href="#overview">Overview</a>
-                <a href="#main-app-areas">Main App Areas</a>
-                <a href="#quick-start">Quick Start Game</a>
-                <a href="#scoreboard">Scoreboard</a>
-                <a href="#match-controls">Match Controls</a>
-                <a href="#editing-players">Editing Players</a>
-                <a href="#workflow">Common Workflow</a>
-                <a href="#future">Future Tournament Management</a>
+                <a href="#overview" data-i18n="guide.nav.overview">Overview</a>
+                <a href="#main-app-areas" data-i18n="guide.nav.areas">Main App Areas</a>
+                <a href="#quick-start" data-i18n="guide.nav.quickstart">Quick Start Game</a>
+                <a href="#scoreboard" data-i18n="guide.nav.scoreboard">Scoreboard</a>
+                <a href="#match-controls" data-i18n="guide.nav.controls">Match Controls</a>
+                <a href="#editing-players" data-i18n="guide.nav.players">Editing Players</a>
+                <a href="#workflow" data-i18n="guide.nav.workflow">Common Workflow</a>
+                <a href="#future" data-i18n="guide.nav.future">Future Tournament Management</a>
             </div>
         </section>
 
         <section id="overview">
-            <h2 class="section-title">Overview</h2>
-            <p class="section-text">
+            <h2 class="section-title" data-i18n="guide.overview.title">Overview</h2>
+            <p class="section-text" data-i18n="guide.overview.text">
                 TournaQ is a beach volleyball scoring app designed for quick match setup, live scoring,
                 match history and future tournament management.
             </p>
         </section>
 
         <section id="main-app-areas">
-            <h2 class="section-title">Main App Areas</h2>
+            <h2 class="section-title" data-i18n="guide.areas.title">Main App Areas</h2>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Home Screen</h3>
-                    <p>
+                    <h3 data-i18n="guide.areas.home.title">Home Screen</h3>
+                    <p data-i18n="guide.areas.home.text">
                         The Home screen is the main entry point. From here, users can access Quick Start Game,
                         Match History and upcoming tournament-related features.
                     </p>
@@ -194,73 +188,69 @@
                 </div>
 
                 <div class="guide-card">
-                    <h3>Navigation Drawer</h3>
-                    <p>
+                    <h3 data-i18n="guide.areas.drawer.title">Navigation Drawer</h3>
+                    <p data-i18n="guide.areas.drawer.text">
                         The navigation drawer opens from the menu icon and provides access to Home,
-                        Quick Start Game, Sponsoring & Promo, Contact & About and Settings.
+                        Quick Start Game, Sponsoring &amp; Promo, Contact &amp; About and Settings.
                     </p>
                     <img class="vertical" src="../assets/drawer.PNG" alt="TournaQ navigation drawer">
                 </div>
 
                 <div class="guide-card">
-                    <h3>Games & Match History</h3>
-                    <p>
+                    <h3 data-i18n="guide.areas.games.title">Games &amp; Match History</h3>
+                    <p data-i18n="guide.areas.games.text">
                         The Games screen shows saved matches, including team names, match type, set scores,
                         match status and the winner when completed.
                     </p>
                     <img class="vertical" src="../assets/games.PNG" alt="TournaQ games screen">
                 </div>
-
             </div>
         </section>
 
         <section id="quick-start">
-            <h2 class="section-title">Quick Start Game</h2>
-            <p class="section-text">
+            <h2 class="section-title" data-i18n="guide.quickstart.title">Quick Start Game</h2>
+            <p class="section-text" data-i18n="guide.quickstart.text">
                 Quick Start Game allows users to create a beach volleyball match quickly without complex setup.
             </p>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Select Match Format</h3>
-                    <p>
+                    <h3 data-i18n="guide.quickstart.format.title">Select Match Format</h3>
+                    <p data-i18n="guide.quickstart.format.text">
                         Choose between match formats such as One Set or Best of Three Sets.
                     </p>
                     <img class="vertical" src="../assets/quickstart.PNG" alt="TournaQ quick start screen">
                 </div>
 
                 <div class="guide-card">
-                    <h3>Choose Teams</h3>
-                    <p>
+                    <h3 data-i18n="guide.quickstart.teams.title">Choose Teams</h3>
+                    <p data-i18n="guide.quickstart.teams.text">
                         Select existing teams, create new teams manually or generate random teams.
                     </p>
                     <img class="vertical" src="../assets/createteams.PNG" alt="TournaQ create teams screen">
                 </div>
 
                 <div class="guide-card">
-                    <h3>Random Team Generator</h3>
-                    <p>
+                    <h3 data-i18n="guide.quickstart.random.title">Random Team Generator</h3>
+                    <p data-i18n="guide.quickstart.random.text">
                         Generate team names automatically, re-roll teams if needed and start the match.
                     </p>
                     <img class="vertical" src="../assets/teamsgenerator.PNG" alt="TournaQ team generator screen">
                 </div>
-
             </div>
         </section>
 
         <section id="scoreboard">
-            <h2 class="section-title">Scoreboard</h2>
-            <p class="section-text">
+            <h2 class="section-title" data-i18n="guide.scoreboard.title">Scoreboard</h2>
+            <p class="section-text" data-i18n="guide.scoreboard.text">
                 The Scoreboard is the main live scoring screen. It displays team names, scores, sets,
                 player names, active player information and match actions.
             </p>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Vertical Scoreboard</h3>
-                    <p>
+                    <h3 data-i18n="guide.scoreboard.vertical.title">Vertical Scoreboard</h3>
+                    <p data-i18n="guide.scoreboard.vertical.text">
                         The vertical scoreboard provides a complete view for live scoring, including all information
                         needed during a match.
                     </p>
@@ -268,36 +258,34 @@
                 </div>
 
                 <div class="guide-card">
-                    <h3>Landscape Scoreboard</h3>
-                    <p>
+                    <h3 data-i18n="guide.scoreboard.landscape.title">Landscape Scoreboard</h3>
+                    <p data-i18n="guide.scoreboard.landscape.text">
                         The landscape scoreboard is optimized for horizontal mobile use during live matches.
                     </p>
                     <img src="../assets/scoreboard-v.PNG" alt="TournaQ landscape scoreboard">
                 </div>
 
                 <div class="guide-card">
-                    <h3>Game Options</h3>
-                    <p>
+                    <h3 data-i18n="guide.scoreboard.options.title">Game Options</h3>
+                    <p data-i18n="guide.scoreboard.options.text">
                         The Game Options bottom sheet provides supporting actions such as Swap Teams,
                         Change Service and Match History.
                     </p>
                     <img class="vertical" src="../assets/gameoptions.PNG" alt="TournaQ game options">
                 </div>
-
             </div>
         </section>
 
         <section id="match-controls">
-            <h2 class="section-title">Match Controls</h2>
-            <p class="section-text">
+            <h2 class="section-title" data-i18n="guide.controls.title">Match Controls</h2>
+            <p class="section-text" data-i18n="guide.controls.text">
                 Match controls help you manage side changes, team positions and service order during live scoring.
             </p>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Side Change Reminder</h3>
-                    <p>
+                    <h3 data-i18n="guide.controls.sidechange.title">Side Change Reminder</h3>
+                    <p data-i18n="guide.controls.sidechange.text">
                         The side change reminder shows the current total score and instructs teams when to switch sides
                         based on the target set score.
                     </p>
@@ -305,8 +293,8 @@
                 </div>
 
                 <div class="guide-card">
-                    <h3>Swap Teams</h3>
-                    <p>
+                    <h3 data-i18n="guide.controls.swap.title">Swap Teams</h3>
+                    <p data-i18n="guide.controls.swap.text">
                         Swap Teams changes the visual position of the two teams on the scoreboard.
                         This is useful when teams physically change sides. This happens automatically when confirming
                         a side change, but can also be triggered manually from the Game Options menu.
@@ -315,28 +303,24 @@
                 </div>
 
                 <div class="guide-card">
-                    <h3>Change Service</h3>
-                    <p>
+                    <h3 data-i18n="guide.controls.service.title">Change Service</h3>
+                    <p data-i18n="guide.controls.service.text">
                         Change Service advances the active server after a point is scored by the team currently not
-                        serving.
-                        The active player is shown with a highlighted player chip. This happens automatically, but can
-                        also
-                        be triggered manually from the Game Options menu.
+                        serving. The active player is shown with a highlighted player chip. This happens automatically,
+                        but can also be triggered manually from the Game Options menu.
                     </p>
                     <img class="vertical" src="../assets/changeserve-v.PNG" alt="TournaQ change service screen">
                 </div>
-
             </div>
         </section>
 
         <section id="editing-players">
-            <h2 class="section-title">Editing Players</h2>
+            <h2 class="section-title" data-i18n="guide.players.title">Editing Players</h2>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Edit Players</h3>
-                    <p>
+                    <h3 data-i18n="guide.players.edit.title">Edit Players</h3>
+                    <p data-i18n="guide.players.edit.text">
                         Edit player names directly from the scoreboard. You can update Player 1 and Player 2,
                         swap player positions and save the updated names.
                     </p>
@@ -344,83 +328,80 @@
                 </div>
 
                 <div class="guide-card">
-                    <h3>Player Management</h3>
-                    <p>
+                    <h3 data-i18n="guide.players.mgmt.title">Player Management</h3>
+                    <p data-i18n="guide.players.mgmt.text">
                         Future versions may expand player administration as part of broader tournament management.
                     </p>
                     <div class="placeholder">Placeholder<br>Player Management Screenshot</div>
                 </div>
 
                 <div class="guide-card">
-                    <h3>Team Management</h3>
-                    <p>
+                    <h3 data-i18n="guide.players.team.title">Team Management</h3>
+                    <p data-i18n="guide.players.team.text">
                         Team management will continue to evolve as TournaQ grows beyond scoring.
                     </p>
                     <div class="placeholder">Placeholder<br>Team Management Screenshot</div>
                 </div>
-
             </div>
         </section>
 
         <section id="workflow">
-            <h2 class="section-title">Common Match Workflow</h2>
+            <h2 class="section-title" data-i18n="guide.workflow.title">Common Match Workflow</h2>
 
             <div class="guide-section-card">
                 <ol style="padding-left:22px; color:var(--muted); line-height:1.8;">
-                    <li>Open TournaQ.</li>
-                    <li>Tap Quick Start Game.</li>
-                    <li>Select One Set or Best of Three Sets.</li>
-                    <li>Choose existing teams, create new teams or generate random teams.</li>
-                    <li>Start the game.</li>
-                    <li>Use the plus and minus buttons to score.</li>
-                    <li>Use Game Options when needed.</li>
-                    <li>Complete the set.</li>
-                    <li>Complete the game.</li>
-                    <li>Return to Games to review match history.</li>
+                    <li data-i18n="guide.workflow.li1">Open TournaQ.</li>
+                    <li data-i18n="guide.workflow.li2">Tap Quick Start Game.</li>
+                    <li data-i18n="guide.workflow.li3">Select One Set or Best of Three Sets.</li>
+                    <li data-i18n="guide.workflow.li4">Choose existing teams, create new teams or generate random teams.</li>
+                    <li data-i18n="guide.workflow.li5">Start the game.</li>
+                    <li data-i18n="guide.workflow.li6">Use the plus and minus buttons to score.</li>
+                    <li data-i18n="guide.workflow.li7">Use Game Options when needed.</li>
+                    <li data-i18n="guide.workflow.li8">Complete the set.</li>
+                    <li data-i18n="guide.workflow.li9">Complete the game.</li>
+                    <li data-i18n="guide.workflow.li10">Return to Games to review match history.</li>
                 </ol>
             </div>
         </section>
 
         <section id="future">
-            <h2 class="section-title">Future Tournament Management</h2>
+            <h2 class="section-title" data-i18n="guide.future.title">Future Tournament Management</h2>
 
             <div class="guide-grid">
-
                 <div class="guide-card">
-                    <h3>Tournament Setup</h3>
-                    <p>
+                    <h3 data-i18n="guide.future.setup.title">Tournament Setup</h3>
+                    <p data-i18n="guide.future.setup.text">
                         Future development will expand TournaQ toward tournament setup and administration.
                     </p>
                     <div class="placeholder">Placeholder<br>Tournament Setup Screenshot</div>
                 </div>
 
                 <div class="guide-card">
-                    <h3>Standings</h3>
-                    <p>
+                    <h3 data-i18n="guide.future.standings.title">Standings</h3>
+                    <p data-i18n="guide.future.standings.text">
                         Planned tournament functionality may include standings and competition progress tracking.
                     </p>
                     <div class="placeholder">Placeholder<br>Standings Screenshot</div>
                 </div>
 
                 <div class="guide-card">
-                    <h3>Brackets</h3>
-                    <p>
+                    <h3 data-i18n="guide.future.brackets.title">Brackets</h3>
+                    <p data-i18n="guide.future.brackets.text">
                         Bracket management is part of the long-term direction toward full tournament management.
                     </p>
                     <div class="placeholder">Placeholder<br>Brackets Screenshot</div>
                 </div>
-
             </div>
         </section>
 
     </main>
 
     <footer>
-        <p>© 2026 Martin Adam · TournaQ</p>
+        <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
         <p style="margin-top:6px">
-            <a href="index.html">Home</a> &nbsp;·&nbsp;
-            <a href="legal.html">Legal Hub</a> &nbsp;·&nbsp;
-            <a href="contact.html">Contact</a>
+            <a href="index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+            <a href="legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+            <a href="contact.html" data-i18n="footer.contact">Contact</a>
         </p>
     </footer>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-base="../" data-i18n-title="page.index.title">
 
 <head>
   <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
   <title>TournaQ – Scoring, Games and Tournament Management</title>
 
   <link rel="stylesheet" href="../css/style.css">
-
+  <script src="../js/i18n.js" defer></script>
 </head>
 
 <body>
@@ -26,26 +26,28 @@
       </label>
 
       <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="product.html">TournaQ Detail</a>
-        <a href="user-guide.html">User Guide</a>
-        <a href="downloads.html">Downloads</a>
-        <a href="legal.html">Legal</a>
-        <a href="contact.html">Contact</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="product.html" data-i18n="nav.detail">TournaQ Detail</a>
+        <a href="user-guide.html" data-i18n="nav.guide">User Guide</a>
+        <a href="downloads.html" data-i18n="nav.downloads">Downloads</a>
+        <a href="legal.html" data-i18n="nav.legal">Legal</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
       </div>
     </nav>
 
+    <div class="lang-switcher"></div>
+
     <div class="hero">
-      <h1>Overview</h1>
-      <p class="subtitle">Built for Beach Volleyball today. Designed for Tournaments tomorrow.</p>
+      <h1 data-i18n="index.hero.title">Overview</h1>
+      <p class="subtitle" data-i18n="index.hero.subtitle">Built for Beach Volleyball today. Designed for Tournaments tomorrow.</p>
     </div>
   </header>
 
   <main>
 
     <section>
-      <h2 class="section-title">About TournaQ</h2>
-      <p class="section-text">
+      <h2 class="section-title" data-i18n="index.about.title">About TournaQ</h2>
+      <p class="section-text" data-i18n="index.about.text">
         TournaQ is developed as a focused sports management tool for beach volleyball.
         The current release supports scoring, while the long-term goal is to simplify the entire tournament workflow.
       </p>
@@ -54,54 +56,54 @@
 
 
     <section id="features">
-      <h2 class="section-title">Available Today</h2>
-      <p class="section-text">
+      <h2 class="section-title" data-i18n="index.features.title">Available Today</h2>
+      <p class="section-text" data-i18n="index.features.text">
         TournaQ currently focuses on practical beach volleyball scoring and match organization.
       </p>
 
       <div class="grid">
         <div class="card">
-          <h3>Match Scoring</h3>
-          <p>Keep track of beach volleyball scores in a simple and focused interface.</p>
+          <h3 data-i18n="index.card.scoring.title">Match Scoring</h3>
+          <p data-i18n="index.card.scoring.text">Keep track of beach volleyball scores in a simple and focused interface.</p>
         </div>
 
         <div class="card">
-          <h3>Teams & Games</h3>
-          <p>Support for organizing teams and games as the foundation for future tournament tools.</p>
+          <h3 data-i18n="index.card.teams.title">Teams & Games</h3>
+          <p data-i18n="index.card.teams.text">Support for organizing teams and games as the foundation for future tournament tools.</p>
         </div>
 
         <div class="card">
-          <h3>Multilingual App</h3>
-          <p>Designed with international use in mind, including English, German and Spanish.</p>
+          <h3 data-i18n="index.card.multilingual.title">Multilingual App</h3>
+          <p data-i18n="index.card.multilingual.text">Designed with international use in mind, including English, German and Spanish.</p>
         </div>
       </div>
     </section>
 
     <section id="roadmap">
-      <h2 class="section-title">Roadmap</h2>
+      <h2 class="section-title" data-i18n="index.roadmap.title">Roadmap</h2>
 
-      <p class="section-text">
+      <p class="section-text" data-i18n="index.roadmap.text">
         The vision is to evolve from scoring into a complete tournament management platform.
       </p>
 
       <div class="roadmap">
 
         <div class="roadmap-step">
-          <div class="phase-status completed-status">✓ Completed</div>
-          <strong>Phase 1</strong>
-          <div>Scoring</div>
+          <div class="phase-status completed-status" data-i18n="index.roadmap.phase1.status">✓ Completed</div>
+          <strong data-i18n="index.roadmap.phase1.label">Phase 1</strong>
+          <div data-i18n="index.roadmap.phase1.name">Scoring</div>
         </div>
 
         <div class="roadmap-step">
-          <div class="phase-status planned-status">Planned</div>
-          <strong>Phase 2</strong>
-          <div>Tournaments & Administration</div>
+          <div class="phase-status planned-status" data-i18n="index.roadmap.phase2.status">Planned</div>
+          <strong data-i18n="index.roadmap.phase2.label">Phase 2</strong>
+          <div data-i18n="index.roadmap.phase2.name">Tournaments & Administration</div>
         </div>
 
         <div class="roadmap-step">
-          <div class="phase-status planned-status">Planned</div>
-          <strong>Phase 3</strong>
-          <div>Organizer Platform</div>
+          <div class="phase-status planned-status" data-i18n="index.roadmap.phase3.status">Planned</div>
+          <strong data-i18n="index.roadmap.phase3.label">Phase 3</strong>
+          <div data-i18n="index.roadmap.phase3.name">Organizer Platform</div>
         </div>
 
       </div>
@@ -115,11 +117,11 @@
   </main>
 
   <footer>
-    <p>© 2026 Martin Adam · TournaQ</p>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
     <p>
-      <a href="index.html">Home</a> &nbsp;·&nbsp;
-      <a href="legal.html">Legal Hub</a> &nbsp;·&nbsp;
-      <a href="contact.html">Contact</a>
+      <a href="index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="contact.html" data-i18n="footer.contact">Contact</a>
     </p>
   </footer>
 

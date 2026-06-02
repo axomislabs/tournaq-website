@@ -1,37 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-base="../" data-i18n-title="privacy.page.title">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Privacy Policy – TournaQ</title>
   <link rel="stylesheet" href="../css/legal.css" />
+  <script src="../js/i18n.js" defer></script>
 </head>
 
 <body>
 
   <header>
     <div class="app-name">TournaQ</div>
-    <h1>Privacy Policy</h1>
-    <span class="date-badge">Last updated: 28 May 2026</span>
+    <h1 data-i18n="privacy.header.title">Privacy Policy</h1>
+    <span class="date-badge" data-i18n="privacy.date">Last updated: 28 May 2026</span>
   </header>
 
   <nav class="breadcrumb">
-    <a href="../pages/legal.html">← Legal Hub</a>
+    <a href="../pages/legal.html" data-i18n="privacy.breadcrumb">← Legal Hub</a>
+    <div class="lang-switcher"></div>
   </nav>
 
   <main>
 
-    <div class="intro">
+    <div class="intro" data-i18n="privacy.intro">
       TournaQ is a local-first app — your game data stays on your device. We do not operate user accounts, and no app
       data is transmitted to our servers. This policy explains how we handle the limited information that is processed
       when you use the app.
     </div>
 
     <section>
-      <h2><span class="icon">🏢</span> Data Controller</h2>
-      <p>The data controller responsible for this app is:</p>
-      <p>
+      <h2><span class="icon">🏢</span> <span data-i18n="privacy.controller.title">Data Controller</span></h2>
+      <p data-i18n="privacy.controller.p">The data controller responsible for this app is:</p>
+      <p data-i18n-html="privacy.controller.info">
         <strong>Martin Adam</strong><br>
         Email: <a href="mailto:team@tournaq.com">team@tournaq.com</a><br>
         App: TournaQ (iOS &amp; Android)
@@ -39,20 +41,20 @@
     </section>
 
     <section>
-      <h2><span class="icon">📦</span> Data We Collect and Process</h2>
-      <p><strong>App data (local storage only):</strong></p>
+      <h2><span class="icon">📦</span> <span data-i18n="privacy.collect.title">Data We Collect and Process</span></h2>
+      <p data-i18n-html="privacy.collect.local.label"><strong>App data (local storage only):</strong></p>
       <ul>
-        <li>Game scores and match results</li>
-        <li>Team and player names you enter</li>
-        <li>Tournament structures you create</li>
+        <li data-i18n="privacy.collect.li1">Game scores and match results</li>
+        <li data-i18n="privacy.collect.li2">Team and player names you enter</li>
+        <li data-i18n="privacy.collect.li3">Tournament structures you create</li>
       </ul>
-      <div class="highlight">
+      <div class="highlight" data-i18n="privacy.collect.highlight">
         This data is stored exclusively on your device using local on-device storage (Hive). It is never transmitted to
         us or any third party. We do not have access to this locally stored data.
       </div>
 
-      <p style="margin-top:14px"><strong>Advertising data (via Google AdMob):</strong></p>
-      <p>TournaQ displays non-personalized advertisements through Google AdMob. TournaQ displays non-personalized
+      <p style="margin-top:14px" data-i18n-html="privacy.collect.ads.label"><strong>Advertising data (via Google AdMob):</strong></p>
+      <p data-i18n="privacy.collect.ads.text">TournaQ displays non-personalized advertisements through Google AdMob. TournaQ displays non-personalized
         advertisements through Google AdMob.
         Google may process certain technical and device-related information required for ad delivery and fraud
         prevention in accordance with Google's own privacy policies. We configure AdMob to serve non-personalized ads by
@@ -60,106 +62,106 @@
     </section>
 
     <section>
-      <h2><span class="icon">⚖️</span> Legal Basis for Processing (GDPR)</h2>
+      <h2><span class="icon">⚖️</span> <span data-i18n="privacy.legal.title">Legal Basis for Processing (GDPR)</span></h2>
       <ul>
-        <li><strong>Consent (Article 6(1)(a)):</strong> For advertising-related data processing by Google AdMob, where
+        <li data-i18n-html="privacy.legal.li1"><strong>Consent (Article 6(1)(a)):</strong> For advertising-related data processing by Google AdMob, where
           consent is requested via the in-app UMP consent dialog.</li>
-        <li><strong>Legitimate interest (Article 6(1)(f)):</strong> For the local storage of app data necessary to
+        <li data-i18n-html="privacy.legal.li2"><strong>Legitimate interest (Article 6(1)(f)):</strong> For the local storage of app data necessary to
           provide core app functionality (score tracking, tournament management).</li>
       </ul>
-      <p style="margin-top:10px">You may withdraw your advertising consent at any time via <em>Contact &amp; About →
+      <p style="margin-top:10px" data-i18n-html="privacy.legal.withdrawal">You may withdraw your advertising consent at any time via <em>Contact &amp; About →
           Privacy Options</em> in the app.</p>
     </section>
 
     <section>
-      <h2><span class="icon">🤝</span> Third-Party Services</h2>
-      <p><strong>Google AdMob / Google LLC</strong></p>
-      <p>We use Google AdMob to display non-personalized advertisements. Google acts as an independent data controller
+      <h2><span class="icon">🤝</span> <span data-i18n="privacy.third.title">Third-Party Services</span></h2>
+      <p data-i18n-html="privacy.third.provider"><strong>Google AdMob / Google LLC</strong></p>
+      <p data-i18n="privacy.third.text">We use Google AdMob to display non-personalized advertisements. Google acts as an independent data controller
         for data it processes. Google LLC participates in the EU–US Data Privacy Framework.</p>
       <ul>
-        <li><a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
-        <li><a href="https://support.google.com/admob/answer/6128543" target="_blank">How Google uses data from apps</a>
+        <li data-i18n-html="privacy.third.li1"><a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+        <li data-i18n-html="privacy.third.li2"><a href="https://support.google.com/admob/answer/6128543" target="_blank">How Google uses data from apps</a>
         </li>
       </ul>
-      <p style="margin-top:10px">No other third-party services are used. External links in the app (e.g. Instagram,
+      <p style="margin-top:10px" data-i18n="privacy.third.other">No other third-party services are used. External links in the app (e.g. Instagram,
         feedback form) lead to services with their own independent privacy policies.</p>
     </section>
 
     <section>
-      <h2><span class="icon">🌍</span> International Data Transfers</h2>
-      <p>The app data you enter is stored locally on your device and never transferred internationally by us.</p>
-      <p>Google AdMob may transfer advertising-related data to servers in the United States. Google LLC is certified
+      <h2><span class="icon">🌍</span> <span data-i18n="privacy.transfer.title">International Data Transfers</span></h2>
+      <p data-i18n="privacy.transfer.p1">The app data you enter is stored locally on your device and never transferred internationally by us.</p>
+      <p data-i18n="privacy.transfer.p2">Google AdMob may transfer advertising-related data to servers in the United States. Google LLC is certified
         under the EU–US Data Privacy Framework, which provides an adequate level of data protection as recognised by the
         European Commission.</p>
     </section>
 
     <section>
-      <h2><span class="icon">⏱️</span> Data Retention</h2>
+      <h2><span class="icon">⏱️</span> <span data-i18n="privacy.retention.title">Data Retention</span></h2>
       <ul>
-        <li><strong>Local app data:</strong> Retained on your device until you delete it via app settings or uninstall
+        <li data-i18n-html="privacy.retention.li1"><strong>Local app data:</strong> Retained on your device until you delete it via app settings or uninstall
           the app. We have no control over or access to this data.</li>
-        <li><strong>Advertising data:</strong> Retained by Google according to <a
+        <li data-i18n-html="privacy.retention.li2"><strong>Advertising data:</strong> Retained by Google according to <a
             href="https://policies.google.com/technologies/retention" target="_blank">Google's retention policies</a>.
         </li>
       </ul>
     </section>
 
     <section>
-      <h2><span class="icon">👤</span> Your Rights Under GDPR</h2>
-      <p>As a data subject in the European Economic Area, you have the following rights:</p>
+      <h2><span class="icon">👤</span> <span data-i18n="privacy.rights.title">Your Rights Under GDPR</span></h2>
+      <p data-i18n="privacy.rights.intro">As a data subject in the European Economic Area, you have the following rights:</p>
       <div class="rights-grid">
-        <div class="right-item"><strong>Right of Access</strong> Request a copy of your personal data (Art. 15)</div>
-        <div class="right-item"><strong>Right to Rectification</strong> Correct inaccurate data (Art. 16)</div>
-        <div class="right-item"><strong>Right to Erasure</strong> Request deletion of your data (Art. 17)</div>
-        <div class="right-item"><strong>Right to Restriction</strong> Limit how your data is used (Art. 18)</div>
-        <div class="right-item"><strong>Right to Portability</strong> Receive your data in a portable format (Art. 20)
+        <div class="right-item" data-i18n-html="privacy.rights.access"><strong>Right of Access</strong> Request a copy of your personal data (Art. 15)</div>
+        <div class="right-item" data-i18n-html="privacy.rights.rectification"><strong>Right to Rectification</strong> Correct inaccurate data (Art. 16)</div>
+        <div class="right-item" data-i18n-html="privacy.rights.erasure"><strong>Right to Erasure</strong> Request deletion of your data (Art. 17)</div>
+        <div class="right-item" data-i18n-html="privacy.rights.restriction"><strong>Right to Restriction</strong> Limit how your data is used (Art. 18)</div>
+        <div class="right-item" data-i18n-html="privacy.rights.portability"><strong>Right to Portability</strong> Receive your data in a portable format (Art. 20)
         </div>
-        <div class="right-item"><strong>Right to Object</strong> Object to processing based on legitimate interest (Art.
+        <div class="right-item" data-i18n-html="privacy.rights.object"><strong>Right to Object</strong> Object to processing based on legitimate interest (Art.
           21)</div>
       </div>
-      <p style="margin-top:14px">For local app data, you can exercise most of these rights directly by deleting data
+      <p style="margin-top:14px" data-i18n="privacy.rights.exercise.p1">For local app data, you can exercise most of these rights directly by deleting data
         within the app or uninstalling it. For advertising data processed by Google, contact Google directly or adjust
         your device's advertising settings.</p>
-      <p style="margin-top:10px">To exercise your rights regarding any data we control, contact us at <a
+      <p style="margin-top:10px" data-i18n-html="privacy.rights.exercise.p2">To exercise your rights regarding any data we control, contact us at <a
           href="mailto:team@tournaq.com">team@tournaq.com</a>.</p>
     </section>
 
     <section>
-      <h2><span class="icon">🔔</span> Right to Lodge a Complaint</h2>
-      <p>You have the right to lodge a complaint with a data protection supervisory authority. You may do so in the EU
+      <h2><span class="icon">🔔</span> <span data-i18n="privacy.complaint.title">Right to Lodge a Complaint</span></h2>
+      <p data-i18n="privacy.complaint.p1">You have the right to lodge a complaint with a data protection supervisory authority. You may do so in the EU
         member state of your habitual residence, place of work, or where the alleged infringement occurred.</p>
-      <p style="margin-top:8px">A list of EU supervisory authorities is available at: <a
+      <p style="margin-top:8px" data-i18n="privacy.complaint.p2">A list of EU supervisory authorities is available at: <a
           href="https://edpb.europa.eu/about-edpb/about-edpb/members_en" target="_blank">edpb.europa.eu</a></p>
     </section>
 
     <section>
-      <h2><span class="icon">👶</span> Children's Privacy</h2>
-      <p>TournaQ is not directed at children under the age of 13. We do not knowingly collect personal information from
+      <h2><span class="icon">👶</span> <span data-i18n="privacy.children.title">Children's Privacy</span></h2>
+      <p data-i18n-html="privacy.children.text">TournaQ is not directed at children under the age of 13. We do not knowingly collect personal information from
         children. If you believe a child has been affected, please contact us at <a
           href="mailto:team@tournaq.com">team@tournaq.com</a>.</p>
     </section>
 
     <section>
-      <h2><span class="icon">🔄</span> Changes to This Policy</h2>
-      <p>We may update this Privacy Policy as the app evolves. The "Last updated" date at the top of this page will
+      <h2><span class="icon">🔄</span> <span data-i18n="privacy.changes.title">Changes to This Policy</span></h2>
+      <p data-i18n="privacy.changes.text">We may update this Privacy Policy as the app evolves. The "Last updated" date at the top of this page will
         reflect any changes. Your continued use of TournaQ after changes are posted constitutes acceptance of the
         updated policy.</p>
     </section>
 
     <section>
-      <h2><span class="icon">✉️</span> Contact</h2>
-      <p>For any privacy-related questions or to exercise your rights, please contact us at:</p>
+      <h2><span class="icon">✉️</span> <span data-i18n="privacy.contact.title">Contact</span></h2>
+      <p data-i18n="privacy.contact.text">For any privacy-related questions or to exercise your rights, please contact us at:</p>
       <p><a href="mailto:team@tournaq.com">team@tournaq.com</a></p>
     </section>
 
   </main>
 
   <footer>
-    <p>© 2026 Martin Adam · TournaQ</p>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
     <p style="margin-top:6px">
-      <a href="../pages/index.html">Home</a> &nbsp;·&nbsp;
-      <a href="../pages/legal.html">Legal Hub</a> &nbsp;·&nbsp;
-      <a href="../pages/contact.html">Contact</a>
+      <a href="../pages/index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../pages/legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../pages/contact.html" data-i18n="footer.contact">Contact</a>
     </p>
   </footer>
 

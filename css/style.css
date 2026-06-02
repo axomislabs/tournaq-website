@@ -107,6 +107,7 @@ header {
     flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
+    flex: 1;
 }
 
 .nav-links a {
@@ -516,4 +517,49 @@ footer a {
     main {
         padding: 40px 16px 70px;
     }
+
+    .lang-switcher {
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 0;
+    }
+}
+
+.lang-switcher {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0 16px 8px;
+    background: transparent;
+}
+
+.lang-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.lang-btn:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-btn--active {
+    color: var(--gold);
+    border-color: var(--gold);
+    background: rgba(240, 212, 122, 0.12);
 }
