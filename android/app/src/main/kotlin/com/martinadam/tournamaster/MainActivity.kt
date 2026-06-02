@@ -1,4 +1,4 @@
-package com.example.tournamaster
+package com.martinadam.tournamaster
 
 import io.flutter.embedding.android.FlutterActivity
 

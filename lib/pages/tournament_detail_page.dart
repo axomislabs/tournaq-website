@@ -6,6 +6,7 @@ import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
+import '../services/rating_service.dart';
 import '../services/tournament_logic_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -114,6 +115,20 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
       tournament,
     );
     _updateState(newState);
+  }
+
+  Future<void> _openScorecard(Game game) async {
+    if (game.status == GameStatus.scheduled && mounted) {
+      await RatingService.onGameCreated(context);
+    }
+    if (!mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ScorePage(
+        appState: _localState,
+        onAppStateChanged: _updateState,
+        gameId: game.id,
+      ),
+    ));
   }
 
   void _showSingleGamesDialog() {
@@ -355,15 +370,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                 children: _games.map((game) => GameTile(
                   game: game,
                   appState: _localState,
-                  onScoreTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ScorePage(
-                        appState: _localState,
-                        onAppStateChanged: _updateState,
-                        gameId: game.id,
-                      ),
-                    ),
-                  ),
+                  onScoreTap: () => _openScorecard(game),
                   onDeleteTap: () async {
                     final t1 = _localState.getTeamById(game.team1Id)?.name ?? l10n.labelUnknown;
                     final t2 = _localState.getTeamById(game.team2Id)?.name ?? l10n.labelUnknown;

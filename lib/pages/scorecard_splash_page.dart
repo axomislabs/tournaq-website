@@ -86,8 +86,8 @@ class _TournaqSplash extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Image.asset(
-                          AppAssets.logoRectangle,
-                          width: halfWidth,
+                          AppAssets.logoTransparent,
+                          width: halfWidth * 1.55,
                           fit: BoxFit.contain,
                         ),
                         const SizedBox(height: 10),
@@ -123,8 +123,8 @@ class _TournaqSplash extends StatelessWidget {
                   children: [
                     const Spacer(),
                     Image.asset(
-                      AppAssets.logoSquare,
-                      width: 300,
+                      AppAssets.logoTransparent,
+                      width: 380,
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 20),

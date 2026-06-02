@@ -38,7 +38,7 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
   bool _isAdLoaded = false;
   bool _adsSupported = false;
 
-  static const _adRequest = gma.AdRequest(nonPersonalizedAds: true);
+  static const _adRequest = gma.AdRequest();
 
   @override
   void initState() {

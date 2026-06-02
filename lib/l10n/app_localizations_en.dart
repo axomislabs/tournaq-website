@@ -452,7 +452,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactWebsite => 'Website';
 
   @override
-  String get contactWebsiteSubtitle => 'Coming soon';
+  String get contactWebsiteSubtitle => 'Visit our website';
 
   @override
   String get contactSectionLegal => 'Legal';
@@ -480,6 +480,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactPrivacyOptionsSub => 'Manage your ad consent choices';
+
+  @override
+  String get contactSectionResources => 'Resources';
+
+  @override
+  String get contactUserGuide => 'User Guide';
+
+  @override
+  String get contactUserGuideSub => 'Tutorials and how-to guides';
+
+  @override
+  String get contactLegalHub => 'Legal Documentation';
+
+  @override
+  String get contactLegalHubSub => 'Privacy policy, terms & legal notice';
 
   @override
   String get ratingDialogBody =>

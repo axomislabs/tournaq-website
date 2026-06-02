@@ -445,7 +445,7 @@
   "contactWebsite": "Website",
   "@contactWebsite": {},
 
-  "contactWebsiteSubtitle": "Coming soon",
+  "contactWebsiteSubtitle": "Visit our website",
   "@contactWebsiteSubtitle": {},
 
   "contactSectionLegal": "Legal",
@@ -474,6 +474,21 @@
 
   "contactPrivacyOptionsSub": "Manage your ad consent choices",
   "@contactPrivacyOptionsSub": {},
+
+  "contactSectionResources": "Resources",
+  "@contactSectionResources": {},
+
+  "contactUserGuide": "User Guide",
+  "@contactUserGuide": {},
+
+  "contactUserGuideSub": "Tutorials and how-to guides",
+  "@contactUserGuideSub": {},
+
+  "contactLegalHub": "Legal Documentation",
+  "@contactLegalHub": {},
+
+  "contactLegalHubSub": "Privacy policy, terms & legal notice",
+  "@contactLegalHubSub": {},
 
   "ratingDialogBody": "A quick rating helps us reach more players and tournament organizers.",
   "@ratingDialogBody": {},

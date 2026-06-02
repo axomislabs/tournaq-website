@@ -20,6 +20,9 @@ class ConsentService {
       defaultTargetPlatform == TargetPlatform.android ||
       kIsWeb;
 
+  /// True on platforms where the UMP consent UI can be presented.
+  static bool get supported => _supported;
+
   /// Runs the UMP consent flow then initializes MobileAds.
   ///
   /// Safe to call multiple times — subsequent calls are no-ops.
@@ -63,13 +66,49 @@ class ConsentService {
 
   /// Shows the UMP privacy options form so users can update their choices.
   ///
-  /// Only call when [privacyOptionsRequired] resolves to true, or show the
-  /// entry point unconditionally for EU-targeted apps (simpler).
-  static void showPrivacyOptions({void Function()? onDismissed}) {
+  /// Does a fresh [requestConsentInfoUpdate] first so the form is always
+  /// loaded and the status reflects the current session.
+  static Future<void> showPrivacyOptions({void Function()? onDismissed}) async {
     if (!_supported) return;
-    gma.ConsentForm.showPrivacyOptionsForm(
-      (_) => onDismissed?.call(),
+
+    // Refresh consent info and log any request error.
+    final refreshed = Completer<void>();
+    gma.ConsentInformation.instance.requestConsentInfoUpdate(
+      gma.ConsentRequestParameters(),
+      () => refreshed.complete(),
+      (error) {
+        debugPrint('ConsentService: requestConsentInfoUpdate error: ${error.message}');
+        refreshed.complete();
+      },
     );
+    await refreshed.future;
+
+    var status = await gma.ConsentInformation.instance
+        .getPrivacyOptionsRequirementStatus();
+
+    // Unknown means the initial consent flow was never completed (e.g. the
+    // startup request failed). Try loading and showing the consent form now
+    // so the status advances to required/notRequired.
+    if (status == gma.PrivacyOptionsRequirementStatus.unknown) {
+      debugPrint('ConsentService: status unknown — running consent flow');
+      final flowDone = Completer<void>();
+      gma.ConsentForm.loadAndShowConsentFormIfRequired((_) => flowDone.complete());
+      await flowDone.future;
+      status = await gma.ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
+    }
+
+    if (status != gma.PrivacyOptionsRequirementStatus.required) {
+      debugPrint('ConsentService: privacy options not required (status: $status)');
+      return;
+    }
+
+    gma.ConsentForm.showPrivacyOptionsForm((error) {
+      if (error != null) {
+        debugPrint('ConsentService: showPrivacyOptionsForm error: ${error.message}');
+      }
+      onDismissed?.call();
+    });
   }
 
   /// Whether the privacy options entry point should be displayed.

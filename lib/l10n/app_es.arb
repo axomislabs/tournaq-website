@@ -185,7 +185,7 @@
   "contactFeedbackForm": "Formulario de Opinión",
   "contactFeedbackSubtitle": "Opiniones, errores y solicitudes de funciones",
   "contactWebsite": "Sitio Web",
-  "contactWebsiteSubtitle": "Próximamente",
+  "contactWebsiteSubtitle": "Visita nuestra web",
   "contactSectionLegal": "Legal",
   "contactPrivacyPolicy": "Política de Privacidad",
   "contactPrivacyPolicySub": "Cómo gestionamos tus datos",
@@ -195,6 +195,12 @@
   "contactLegalNoticeSub": "Información del desarrollador y la app (UE)",
   "contactPrivacyOptions": "Opciones de Privacidad",
   "contactPrivacyOptionsSub": "Gestionar preferencias de consentimiento de anuncios",
+
+  "contactSectionResources": "Recursos",
+  "contactUserGuide": "Guía de Usuario",
+  "contactUserGuideSub": "Tutoriales y guías prácticas",
+  "contactLegalHub": "Documentación Legal",
+  "contactLegalHubSub": "Privacidad, condiciones y aviso legal",
 
   "ratingDialogBody": "Una valoración rápida nos ayuda a llegar a más jugadores y organizadores de torneos.",
 

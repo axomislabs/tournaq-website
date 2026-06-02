@@ -185,7 +185,7 @@
   "contactFeedbackForm": "Feedback-Formular",
   "contactFeedbackSubtitle": "Feedback, Fehler und Funktionswünsche",
   "contactWebsite": "Website",
-  "contactWebsiteSubtitle": "Demnächst",
+  "contactWebsiteSubtitle": "Unsere Homepage besuchen",
   "contactSectionLegal": "Rechtliches",
   "contactPrivacyPolicy": "Datenschutzrichtlinie",
   "contactPrivacyPolicySub": "Wie wir deine Daten verarbeiten",
@@ -195,6 +195,12 @@
   "contactLegalNoticeSub": "Entwickler- und App-Informationen (EU)",
   "contactPrivacyOptions": "Datenschutzoptionen",
   "contactPrivacyOptionsSub": "Einwilligungseinstellungen für Werbung verwalten",
+
+  "contactSectionResources": "Ressourcen",
+  "contactUserGuide": "Benutzerhandbuch",
+  "contactUserGuideSub": "Anleitungen und Tutorials",
+  "contactLegalHub": "Rechtliche Dokumentation",
+  "contactLegalHubSub": "Datenschutz, Nutzungsbedingungen & Impressum",
 
   "ratingDialogBody": "Eine kurze Bewertung hilft uns, mehr Spieler und Turnierorganisatoren zu erreichen.",
 

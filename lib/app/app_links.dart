@@ -17,13 +17,15 @@ abstract final class AppLinks {
   static const String instagram =
       'https://www.instagram.com/tournaq?igsh=MWd5cThxOGh6dmdnMQ%3D%3D&utm_source=qr';
 
-  /// Not yet launched. Set when the marketing site goes live.
-  static const String website = '';
+  // ── Website (GitHub Pages via custom domain) ──────────────────────────────
 
-  // ── Legal (GitHub Pages) ──────────────────────────────────────────────────
+  static const String website = 'https://www.tournaq.com';
+  static const String userGuide = website;
+  static const String legalHub = website;
 
-  static const String _legalBase =
-      'https://fbt5wd7kw2-dotcom.github.io/tournaq-legal';
+  // ── Individual legal docs (published under the current site root) ─────────
+
+  static const String _legalBase = 'https://www.tournaq.com';
 
   static const String privacyPolicy = '$_legalBase/privacy-policy.html';
   static const String termsOfUse = '$_legalBase/terms-of-use.html';

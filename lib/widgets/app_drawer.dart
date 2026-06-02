@@ -136,12 +136,12 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(24, topPadding + 32, 24, 32),
+            padding: EdgeInsets.fromLTRB(12, topPadding + 32, 12, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  AppAssets.logoRectangle,
+                  AppAssets.logoTransparent,
                   width: double.infinity,
                   fit: BoxFit.fitWidth,
                 ),

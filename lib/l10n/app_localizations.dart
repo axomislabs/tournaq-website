@@ -931,7 +931,7 @@ abstract class AppLocalizations {
   /// No description provided for @contactWebsiteSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon'**
+  /// **'Visit our website'**
   String get contactWebsiteSubtitle;
 
   /// No description provided for @contactSectionLegal.
@@ -987,6 +987,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage your ad consent choices'**
   String get contactPrivacyOptionsSub;
+
+  /// No description provided for @contactSectionResources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get contactSectionResources;
+
+  /// No description provided for @contactUserGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'User Guide'**
+  String get contactUserGuide;
+
+  /// No description provided for @contactUserGuideSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tutorials and how-to guides'**
+  String get contactUserGuideSub;
+
+  /// No description provided for @contactLegalHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Documentation'**
+  String get contactLegalHub;
+
+  /// No description provided for @contactLegalHubSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy, terms & legal notice'**
+  String get contactLegalHubSub;
 
   /// No description provided for @ratingDialogBody.
   ///

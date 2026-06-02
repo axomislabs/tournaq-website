@@ -3,7 +3,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../app/app_colors.dart';
 import '../app/app_links.dart';
 import '../l10n/app_localizations.dart';
-import '../services/consent_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
 import '../widgets/app_drawer.dart';
@@ -49,12 +48,27 @@ class _ContactPageState extends State<ContactPage> {
   Future<void> _launchFeedback(BuildContext context) =>
       openExternalUrl(context, AppLinks.feedbackForm);
 
+  Future<void> _launchWebsite(BuildContext context) =>
+      openExternalUrl(context, AppLinks.website);
+
+  Future<void> _launchUserGuide(BuildContext context) =>
+      openExternalUrl(context, AppLinks.userGuide);
+
+  Future<void> _launchPrivacyPolicy(BuildContext context) =>
+      openExternalUrl(context, AppLinks.privacyPolicy);
+
+  Future<void> _launchTermsOfUse(BuildContext context) =>
+      openExternalUrl(context, AppLinks.termsOfUse);
+
+  Future<void> _launchLegalNotice(BuildContext context) =>
+      openExternalUrl(context, AppLinks.legalNotice);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       drawer: AppDrawer(appState: widget.appState, onAppStateChanged: widget.onAppStateChanged),
-      appBar: const TournaQAppBar(title: 'Contact & About'),
+      appBar: TournaQAppBar(title: l10n.navContact),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
@@ -91,84 +105,62 @@ class _ContactPageState extends State<ContactPage> {
                 subtitle: l10n.contactFeedbackSubtitle,
                 onTap: () => _launchFeedback(context),
               ),
-              _buildDisabledCard(
+              _buildClickableCard(
+                context,
                 icon: Icons.language_rounded,
-                iconBg: AppColors.disabledIconBg,
-                iconColor: Colors.black26,
+                iconBg: _kOliveLight,
+                iconColor: _kOlive,
                 title: l10n.contactWebsite,
                 subtitle: l10n.contactWebsiteSubtitle,
+                onTap: () => _launchWebsite(context),
               ),
             ]),
             const SizedBox(height: 20),
-            _buildSection(l10n.contactSectionLegal, Icons.gavel_rounded, [
+            _buildSection(l10n.contactSectionResources, Icons.library_books_rounded, [
               _buildClickableCard(
                 context,
-                icon: Icons.shield_rounded,
+                icon: Icons.menu_book_rounded,
+                iconBg: _kGoldLight,
+                iconColor: _kGold,
+                title: l10n.contactUserGuide,
+                subtitle: l10n.contactUserGuideSub,
+                onTap: () => _launchUserGuide(context),
+              ),
+            ]),
+            const SizedBox(height: 20),
+            _buildSection(l10n.contactSectionLegal, Icons.shield_rounded, [
+              _buildClickableCard(
+                context,
+                icon: Icons.privacy_tip_rounded,
                 iconBg: _kOliveLight,
                 iconColor: _kOlive,
                 title: l10n.contactPrivacyPolicy,
                 subtitle: l10n.contactPrivacyPolicySub,
-                onTap: () => openExternalUrl(context, AppLinks.privacyPolicy),
+                onTap: () => _launchPrivacyPolicy(context),
               ),
               _buildClickableCard(
                 context,
                 icon: Icons.description_rounded,
-                iconBg: _kGoldLight,
-                iconColor: _kGold,
+                iconBg: _kOliveLight,
+                iconColor: _kOlive,
                 title: l10n.contactTermsOfUse,
                 subtitle: l10n.contactTermsOfUseSub,
-                onTap: () => openExternalUrl(context, AppLinks.termsOfUse),
+                onTap: () => _launchTermsOfUse(context),
               ),
               _buildClickableCard(
                 context,
-                icon: Icons.gavel_rounded,
+                icon: Icons.account_balance_rounded,
                 iconBg: _kOliveLight,
                 iconColor: _kOlive,
                 title: l10n.contactLegalNotice,
                 subtitle: l10n.contactLegalNoticeSub,
-                onTap: () => openExternalUrl(context, AppLinks.legalNotice),
-              ),
-              _buildClickableCard(
-                context,
-                icon: Icons.tune_rounded,
-                iconBg: _kOliveLight,
-                iconColor: _kOlive,
-                title: l10n.contactPrivacyOptions,
-                subtitle: l10n.contactPrivacyOptionsSub,
-                onTap: () => ConsentService.showPrivacyOptions(),
+                onTap: () => _launchLegalNotice(context),
               ),
             ]),
             const SizedBox(height: 32),
             _buildFooter(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDisabledCard({
-    required IconData icon,
-    required Color iconBg,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      color: AppColors.disabledCardBg,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black38)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black26)),
-        trailing: const Icon(Icons.lock_outline_rounded, size: 16, color: Colors.black26),
       ),
     );
   }

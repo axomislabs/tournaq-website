@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/tournament.dart';
 import '../services/app_data_service.dart';
-import '../services/rating_service.dart';
 import '../state/app_state.dart';
 
 class SingleGamesDialog extends StatefulWidget {
@@ -71,7 +70,6 @@ class _SingleGamesDialogState extends State<SingleGamesDialog> {
     );
 
     widget.onGameCreated(newState);
-    await RatingService.onGameCreated(context);
     if (!mounted) return;
     Navigator.of(context).pop();
   }

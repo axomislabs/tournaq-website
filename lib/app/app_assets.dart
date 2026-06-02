@@ -19,6 +19,9 @@ abstract final class AppAssets {
   /// alongside the rectangle logo.
   static const String logoSquare = 'assets/tournaq-square.png';
 
+  /// Transparent-background logo — used on the drawer and splash screens.
+  static const String logoTransparent = 'assets/tournaq_logo_transparent.png';
+
   /// App icon source image (not used at runtime — input for flutter_launcher_icons).
   static const String appIcon = 'assets/tournaq_icon.png';
 }
