@@ -12,7 +12,7 @@ class RatingService {
   static const _shownKey = 'rating_prompt_shown';
   static const _triggerCount = 10;
   // Fill in after App Store submission:
-  static const _appStoreId = '';
+  static const _appStoreId = '6776166410';
 
   static Future<void> onGameCreated(BuildContext context) async {
     final raw = LocalStorageService.getPref(_countKey);
