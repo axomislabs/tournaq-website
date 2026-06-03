@@ -25,7 +25,7 @@ abstract final class AppLinks {
 
   // ── Individual legal docs (published under the current site root) ─────────
 
-  static const String _legalBase = 'https://www.tournaq.com';
+  static const String _legalBase = 'https://www.tournaq.com/legal';
 
   static const String privacyPolicy = '$_legalBase/privacy-policy.html';
   static const String termsOfUse = '$_legalBase/terms-of-use.html';
