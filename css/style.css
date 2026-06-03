@@ -45,7 +45,7 @@ header {
 
 .nav {
     max-width: 960px;
-    margin: 0 auto 16px;
+    margin: 0 auto 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -119,6 +119,7 @@ header {
     padding: 8px 10px;
     border-radius: 999px;
     transition: background 0.2s, opacity 0.2s;
+    white-space: nowrap;
 }
 
 .nav-links a:hover {
@@ -130,7 +131,7 @@ header {
     max-width: 760px;
     margin: 0 auto;
     text-align: center;
-    padding: 60px 20px 36px;
+    padding: 28px 20px 36px;
 }
 
 .hero h1 {
