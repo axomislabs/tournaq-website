@@ -93,6 +93,7 @@ header {
     display: flex;
     align-items: center;
     text-decoration: none;
+    flex-shrink: 0;
 }
 
 .logo img {
