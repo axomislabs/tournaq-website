@@ -376,5 +376,7 @@
   "guide.completion.set.title": "Set Complete",
   "guide.completion.set.text": "When a team reaches the target score the set is completed. The result is locked and you can proceed to the next set or complete the game.",
   "guide.completion.game.title": "Game Complete",
-  "guide.completion.game.text": "When the match is decided the game completion screen shows all set results and the winner. The match is saved to Match History."
+  "guide.completion.game.text": "When the match is decided the game completion screen shows all set results and the winner. The match is saved to Match History.",
+  "index.cta.guide": "Read User Guide",
+  "index.cta.downloads": "View Downloads"
 }

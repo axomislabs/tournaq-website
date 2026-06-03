@@ -376,5 +376,7 @@
   "guide.completion.set.title": "Set completado",
   "guide.completion.set.text": "Cuando un equipo alcanza la puntuación objetivo el set queda completado. El resultado se bloquea y puedes continuar con el siguiente set o completar el partido.",
   "guide.completion.game.title": "Partido completado",
-  "guide.completion.game.text": "Al decidirse el partido, la pantalla de finalización muestra todos los resultados por set y el ganador. El partido se guarda en el historial."
+  "guide.completion.game.text": "Al decidirse el partido, la pantalla de finalización muestra todos los resultados por set y el ganador. El partido se guarda en el historial.",
+  "index.cta.guide": "Leer guía de usuario",
+  "index.cta.downloads": "Ver descargas"
 }

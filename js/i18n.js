@@ -382,7 +382,9 @@
   "guide.completion.set.title": "Set Complete",
   "guide.completion.set.text": "When a team reaches the target score the set is completed. The result is locked and you can proceed to the next set or complete the game.",
   "guide.completion.game.title": "Game Complete",
-  "guide.completion.game.text": "When the match is decided the game completion screen shows all set results and the winner. The match is saved to Match History."
+  "guide.completion.game.text": "When the match is decided the game completion screen shows all set results and the winner. The match is saved to Match History.",
+  "index.cta.guide": "Read User Guide",
+  "index.cta.downloads": "View Downloads"
 },
     de: {
   "nav.home": "Start",
@@ -762,7 +764,9 @@
   "guide.completion.set.title": "Satz abgeschlossen",
   "guide.completion.set.text": "Wenn ein Team den Zielstand erreicht, ist der Satz abgeschlossen. Das Ergebnis wird gesperrt und der nächste Satz oder der Spielabschluss kann eingeleitet werden.",
   "guide.completion.game.title": "Spiel abgeschlossen",
-  "guide.completion.game.text": "Nach Spielende zeigt der Abschlussbildschirm alle Satzergebnisse und den Gewinner. Das Spiel wird in der Spielhistorie gespeichert."
+  "guide.completion.game.text": "Nach Spielende zeigt der Abschlussbildschirm alle Satzergebnisse und den Gewinner. Das Spiel wird in der Spielhistorie gespeichert.",
+  "index.cta.guide": "Benutzeranleitung lesen",
+  "index.cta.downloads": "Downloads ansehen"
 },
     es: {
   "nav.home": "Inicio",
@@ -1142,7 +1146,9 @@
   "guide.completion.set.title": "Set completado",
   "guide.completion.set.text": "Cuando un equipo alcanza la puntuación objetivo el set queda completado. El resultado se bloquea y puedes continuar con el siguiente set o completar el partido.",
   "guide.completion.game.title": "Partido completado",
-  "guide.completion.game.text": "Al decidirse el partido, la pantalla de finalización muestra todos los resultados por set y el ganador. El partido se guarda en el historial."
+  "guide.completion.game.text": "Al decidirse el partido, la pantalla de finalización muestra todos los resultados por set y el ganador. El partido se guarda en el historial.",
+  "index.cta.guide": "Leer guía de usuario",
+  "index.cta.downloads": "Ver descargas"
 }
   };
 

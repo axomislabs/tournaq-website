@@ -376,5 +376,7 @@
   "guide.completion.set.title": "Satz abgeschlossen",
   "guide.completion.set.text": "Wenn ein Team den Zielstand erreicht, ist der Satz abgeschlossen. Das Ergebnis wird gesperrt und der nächste Satz oder der Spielabschluss kann eingeleitet werden.",
   "guide.completion.game.title": "Spiel abgeschlossen",
-  "guide.completion.game.text": "Nach Spielende zeigt der Abschlussbildschirm alle Satzergebnisse und den Gewinner. Das Spiel wird in der Spielhistorie gespeichert."
+  "guide.completion.game.text": "Nach Spielende zeigt der Abschlussbildschirm alle Satzergebnisse und den Gewinner. Das Spiel wird in der Spielhistorie gespeichert.",
+  "index.cta.guide": "Benutzeranleitung lesen",
+  "index.cta.downloads": "Downloads ansehen"
 }

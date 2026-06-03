@@ -8,6 +8,59 @@
 
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/i18n.js" defer></script>
+
+  <style>
+    .feature-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .feature-card h3 {
+      color: var(--olive);
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .feature-card img {
+      max-width: 160px;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: auto;
+    }
+    .cta-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .btn-outline {
+      display: inline-block;
+      border: 2px solid var(--olive);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-outline:hover {
+      background: var(--olive);
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
@@ -33,12 +86,12 @@
         <a href="legal.html" data-i18n="nav.legal">Legal</a>
         <a href="contact.html" data-i18n="nav.contact">Contact</a>
       </div>
-        <div class="lang-switcher"></div>
+      <div class="lang-switcher"></div>
     </nav>
 
-            <div class="lang-switcher"></div>
+    <div class="lang-switcher"></div>
 
-        <div class="hero">
+    <div class="hero">
       <h1 data-i18n="index.hero.title">Overview</h1>
       <p class="subtitle" data-i18n="index.hero.subtitle">Built for Beach Volleyball today. Designed for Tournaments tomorrow.</p>
     </div>
@@ -46,16 +99,7 @@
 
   <main>
 
-    <section>
-      <h2 class="section-title" data-i18n="index.about.title">About TournaQ</h2>
-      <p class="section-text" data-i18n="index.about.text">
-        TournaQ is developed as a focused sports management tool for beach volleyball.
-        The current release supports scoring, while the long-term goal is to simplify the entire tournament workflow.
-      </p>
-    </section>
-
-
-
+    <!-- What it does today -->
     <section id="features">
       <h2 class="section-title" data-i18n="index.features.title">Available Today</h2>
       <p class="section-text" data-i18n="index.features.text">
@@ -63,23 +107,71 @@
       </p>
 
       <div class="grid">
-        <div class="card">
+        <div class="feature-card">
           <h3 data-i18n="index.card.scoring.title">Match Scoring</h3>
           <p data-i18n="index.card.scoring.text">Keep track of beach volleyball scores in a simple and focused interface.</p>
+          <img src="../assets/scoreboard.PNG" alt="TournaQ scoreboard">
         </div>
 
-        <div class="card">
-          <h3 data-i18n="index.card.teams.title">Teams & Games</h3>
+        <div class="feature-card">
+          <h3 data-i18n="index.card.teams.title">Teams &amp; Games</h3>
           <p data-i18n="index.card.teams.text">Support for organizing teams and games as the foundation for future tournament tools.</p>
+          <img src="../assets/gamescard_winner_inprogress.PNG" alt="TournaQ games">
         </div>
 
-        <div class="card">
+        <div class="feature-card">
           <h3 data-i18n="index.card.multilingual.title">Multilingual App</h3>
           <p data-i18n="index.card.multilingual.text">Designed with international use in mind, including English, German and Spanish.</p>
+          <img src="../assets/homescreen.PNG" alt="TournaQ home screen">
         </div>
+      </div>
+
+      <div class="cta-row" style="margin-top: 32px;">
+        <a href="user-guide.html" class="button" data-i18n="index.cta.guide">Read User Guide</a>
+        <a href="downloads.html" class="btn-outline" data-i18n="index.cta.downloads">View Downloads</a>
       </div>
     </section>
 
+    <!-- Why Beach Volleyball -->
+    <section class="highlight" id="why">
+      <h2 data-i18n="product.why.title">Why Beach Volleyball?</h2>
+      <p data-i18n="product.why.intro">Beach volleyball presents unique challenges for tournament organizers and scorekeepers:</p>
+
+      <ul>
+        <li data-i18n="product.why.li1">Outdoor environments</li>
+        <li data-i18n="product.why.li2">Limited internet connectivity</li>
+        <li data-i18n="product.why.li3">Fast-paced match administration</li>
+        <li data-i18n="product.why.li4">Frequent tournament play</li>
+        <li data-i18n="product.why.li5">Mobile-first usage</li>
+      </ul>
+
+      <p style="margin-top: 16px;" data-i18n="product.why.text">
+        TournaQ was designed specifically with these requirements in mind.
+        By focusing on beach volleyball first, the platform can provide a more refined and practical experience
+        before expanding into broader tournament functionality.
+      </p>
+    </section>
+
+    <!-- Who it's for -->
+    <section class="highlight" id="who">
+      <h2 data-i18n="product.who.title">Who Is TournaQ For?</h2>
+      <p data-i18n="product.who.intro">TournaQ is currently designed for:</p>
+
+      <ul>
+        <li data-i18n="product.who.li1">Beach Volleyball Tournament Organizers</li>
+        <li data-i18n="product.who.li2">Referees</li>
+        <li data-i18n="product.who.li3">Coaches</li>
+        <li data-i18n="product.who.li4">Clubs</li>
+        <li data-i18n="product.who.li5">Players</li>
+        <li data-i18n="product.who.li6">Recreational and Competitive Beach Volleyball Communities</li>
+      </ul>
+
+      <p style="margin-top: 16px;" data-i18n="product.who.text">
+        As the platform evolves, support for additional competition management workflows will continue to expand.
+      </p>
+    </section>
+
+    <!-- Roadmap -->
     <section id="roadmap">
       <h2 class="section-title" data-i18n="index.roadmap.title">Roadmap</h2>
 
@@ -98,7 +190,7 @@
         <div class="roadmap-step">
           <div class="phase-status planned-status" data-i18n="index.roadmap.phase2.status">Planned</div>
           <strong data-i18n="index.roadmap.phase2.label">Phase 2</strong>
-          <div data-i18n="index.roadmap.phase2.name">Tournaments & Administration</div>
+          <div data-i18n="index.roadmap.phase2.name">Tournaments &amp; Administration</div>
         </div>
 
         <div class="roadmap-step">
@@ -109,11 +201,6 @@
 
       </div>
     </section>
-
-
-
-
-
 
   </main>
 
