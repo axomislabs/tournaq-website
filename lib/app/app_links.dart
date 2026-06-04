@@ -20,7 +20,7 @@ abstract final class AppLinks {
   // ── Website (GitHub Pages via custom domain) ──────────────────────────────
 
   static const String website = 'https://www.tournaq.com';
-  static const String userGuide = website;
+  static const String userGuide = '$website/pages/user-guide.html';
   static const String legalHub = website;
 
   // ── Individual legal docs (published under the current site root) ─────────
