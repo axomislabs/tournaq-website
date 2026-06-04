@@ -746,6 +746,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get noWinnerDetermined => 'Kein Sieger ermittelt';
+
+  @override
   String gameTileMatch(String status) {
     return 'Spiel: $status';
   }

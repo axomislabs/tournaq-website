@@ -296,6 +296,7 @@
   "lockBannerGame": "Spiel abgeschlossen — Abschluss rückgängig machen, um Punkte zu bearbeiten",
   "lockBannerSet": "Satz abgeschlossen — Abschluss rückgängig machen, um Punkte zu bearbeiten",
   "gameTileWinner": "Sieger: {name}",
+  "noWinnerDetermined": "Kein Sieger ermittelt",
   "gameTileMatch": "Spiel: {status}",
   "menuGameScorecard": "Spielprotokoll",
   "btnDeleteGame": "Spiel löschen",

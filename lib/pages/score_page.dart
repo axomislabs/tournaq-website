@@ -706,6 +706,7 @@ class _ScorePageState extends State<ScorePage> {
                               ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
                               : null,
                           winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
+                          gameComplete: true,
                         ),
                       )
                     else if (_isActiveSetCompleted)
@@ -806,6 +807,7 @@ class _ScorePageState extends State<ScorePage> {
                         ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
                         : null,
                     winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
+                    gameComplete: true,
                   )
                 else if (_isActiveSetCompleted)
                   _buildLockBanner(AppLocalizations.of(context)!.lockBannerSet),
@@ -960,7 +962,12 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildLockBanner(String message, {String? winnerName, Color winnerColor = _kOlive}) {
+  Widget _buildLockBanner(String message, {String? winnerName, Color winnerColor = _kOlive, bool gameComplete = false}) {
+    final l10n = AppLocalizations.of(context)!;
+    final resultLabel = gameComplete
+        ? (winnerName != null ? l10n.gameTileWinner(winnerName) : l10n.noWinnerDetermined)
+        : null;
+    final resultColor = winnerName != null ? winnerColor : Colors.black38;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -982,13 +989,13 @@ class _ScorePageState extends State<ScorePage> {
               ),
             ),
           ),
-          if (winnerName != null) ...[
+          if (resultLabel != null) ...[
             const SizedBox(width: 8),
             Text(
-              AppLocalizations.of(context)!.gameTileWinner(winnerName),
+              resultLabel,
               style: TextStyle(
                 fontSize: 12,
-                color: winnerColor,
+                color: resultColor,
                 fontWeight: FontWeight.w700,
               ),
             ),

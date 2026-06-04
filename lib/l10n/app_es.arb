@@ -296,6 +296,7 @@
   "lockBannerGame": "Partido completado — deshaz la finalización para editar puntos",
   "lockBannerSet": "Set completado — deshaz la finalización para editar puntos",
   "gameTileWinner": "Ganador: {name}",
+  "noWinnerDetermined": "Ganador no determinado",
   "gameTileMatch": "Partido: {status}",
   "menuGameScorecard": "Marcador del partido",
   "btnDeleteGame": "Eliminar partido",

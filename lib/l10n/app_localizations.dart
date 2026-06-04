@@ -1456,6 +1456,12 @@ abstract class AppLocalizations {
   /// **'Winner: {name}'**
   String gameTileWinner(String name);
 
+  /// No description provided for @noWinnerDetermined.
+  ///
+  /// In en, this message translates to:
+  /// **'No winner determined'**
+  String get noWinnerDetermined;
+
   /// No description provided for @gameTileMatch.
   ///
   /// In en, this message translates to:

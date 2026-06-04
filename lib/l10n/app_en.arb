@@ -727,6 +727,7 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
+  "noWinnerDetermined": "No winner determined",
   "gameTileMatch": "Match: {status}",
   "@gameTileMatch": {
     "placeholders": { "status": { "type": "String" } }

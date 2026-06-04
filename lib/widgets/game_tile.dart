@@ -51,13 +51,13 @@ class GameTile extends StatelessWidget {
       rows.add(Row(
         children: [
           Flexible(child: Text(l10n.gameTileMatch(statusLabel), style: metaStyle)),
-          if (winnerName != null) ...[
+          if (game.isMatchComplete) ...[
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                l10n.gameTileWinner(winnerName),
+                winnerName != null ? l10n.gameTileWinner(winnerName) : l10n.noWinnerDetermined,
                 style: metaStyle.copyWith(
-                  color: winnerColor,
+                  color: winnerName != null ? winnerColor : Colors.black38,
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.end,
