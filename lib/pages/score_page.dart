@@ -48,6 +48,7 @@ import '../models/game_set.dart';
 import 'gameplay_history_page.dart';
 import '../models/game_team_lineup.dart';
 import '../services/app_data_service.dart';
+import '../services/local_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -353,8 +354,11 @@ class _ScorePageState extends State<ScorePage> {
       _score1 = _game.currentSet?.score1 ?? _score1;
       _score2 = _game.currentSet?.score2 ?? _score2;
     });
+    // Persist the completed game immediately before the full saveAppState runs.
+    // This prevents data loss if the app is restarted between saveAppState's
+    // clear() and the subsequent put() calls.
+    LocalStorageService.saveGame(_game);
     widget.onAppStateChanged(newState);
-    // Stay on page — no Navigator.pop()
   }
 
   void _undoGameCompletion() {
@@ -364,6 +368,7 @@ class _ScorePageState extends State<ScorePage> {
       _game = newState.getGameById(widget.gameId)!;
       _loadActiveSetScores();
     });
+    LocalStorageService.saveGame(_game);
     widget.onAppStateChanged(newState);
   }
 
@@ -695,7 +700,13 @@ class _ScorePageState extends State<ScorePage> {
                     if (_isGameComplete)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: _buildLockBanner(AppLocalizations.of(context)!.lockBannerGame),
+                        child: _buildLockBanner(
+                          AppLocalizations.of(context)!.lockBannerGame,
+                          winnerName: _game.effectiveWinnerTeamId != null
+                              ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
+                              : null,
+                          winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
+                        ),
                       )
                     else if (_isActiveSetCompleted)
                       Padding(
@@ -789,7 +800,13 @@ class _ScorePageState extends State<ScorePage> {
                 _buildSetOverview(),
                 const SizedBox(height: 12),
                 if (_isGameComplete)
-                  _buildLockBanner(AppLocalizations.of(context)!.lockBannerGame)
+                  _buildLockBanner(
+                    AppLocalizations.of(context)!.lockBannerGame,
+                    winnerName: _game.effectiveWinnerTeamId != null
+                        ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
+                        : null,
+                    winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
+                  )
                 else if (_isActiveSetCompleted)
                   _buildLockBanner(AppLocalizations.of(context)!.lockBannerSet),
                 portraitScoreCards,
@@ -943,7 +960,7 @@ class _ScorePageState extends State<ScorePage> {
     );
   }
 
-  Widget _buildLockBanner(String message) {
+  Widget _buildLockBanner(String message, {String? winnerName, Color winnerColor = _kOlive}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -965,6 +982,17 @@ class _ScorePageState extends State<ScorePage> {
               ),
             ),
           ),
+          if (winnerName != null) ...[
+            const SizedBox(width: 8),
+            Text(
+              AppLocalizations.of(context)!.gameTileWinner(winnerName),
+              style: TextStyle(
+                fontSize: 12,
+                color: winnerColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ],
       ),
     );

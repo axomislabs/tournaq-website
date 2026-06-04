@@ -42,21 +42,42 @@ class GameTile extends StatelessWidget {
           rows.add(Text('Set ${i + 1}: –', style: const TextStyle(fontSize: 13)));
         }
       }
-      if (game.matchWinnerTeamId != null) {
-        final wName = appState.getTeamById(game.matchWinnerTeamId!)?.name ?? 'Unknown';
-        rows.add(Text(l10n.gameTileWinner(wName), style: metaStyle));
-      }
       final statusLabel = game.isMatchComplete ? l10n.gameStatusCompleted : l10n.gameStatusInProgress;
-      rows.add(Text(l10n.gameTileMatch(statusLabel), style: metaStyle));
+      final winnerTeamId = game.effectiveWinnerTeamId;
+      final winnerName = winnerTeamId != null
+          ? appState.getTeamById(winnerTeamId)?.name
+          : null;
+      final winnerColor = winnerTeamId == game.team1Id ? AppColors.goldDark : AppColors.olive;
+      rows.add(Row(
+        children: [
+          Flexible(child: Text(l10n.gameTileMatch(statusLabel), style: metaStyle)),
+          if (winnerName != null) ...[
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                l10n.gameTileWinner(winnerName),
+                style: metaStyle.copyWith(
+                  color: winnerColor,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ));
     } else {
       // Legacy GameResult path
       final score = game.result != null
           ? '${game.result!.score1} – ${game.result!.score2}'
           : l10n.gameStatusPending;
       rows.add(Text(score, style: const TextStyle(fontSize: 13)));
-      if (game.result?.winnerTeamId != null) {
-        final wName = appState.getTeamById(game.result!.winnerTeamId!)?.name ?? 'Unknown';
-        rows.add(Text(l10n.gameTileWinner(wName), style: metaStyle));
+      final legacyWinner = game.result?.winnerTeamId != null
+          ? appState.getTeamById(game.result!.winnerTeamId!)?.name
+          : null;
+      if (legacyWinner != null) {
+        rows.add(Text(l10n.gameTileWinner(legacyWinner), style: metaStyle));
       }
     }
 

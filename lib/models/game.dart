@@ -121,6 +121,24 @@ class Game {
       team1SetsWon >= setsToWin ||
       team2SetsWon >= setsToWin;
 
+  String? get effectiveWinnerTeamId {
+    if (matchWinnerTeamId != null) return matchWinnerTeamId;
+    if (team1SetsWon >= setsToWin) return team1Id;
+    if (team2SetsWon >= setsToWin) return team2Id;
+    // Fallback for stored games where winnerTeamId was not persisted on sets:
+    // derive from raw set scores.
+    var t1 = 0, t2 = 0;
+    for (final s in sets) {
+      if (s.isCompleted) {
+        if (s.score1 > s.score2) t1++;
+        else if (s.score2 > s.score1) t2++;
+      }
+    }
+    if (t1 >= setsToWin) return team1Id;
+    if (t2 >= setsToWin) return team2Id;
+    return null;
+  }
+
   // ── Existing helpers ──────────────────────────────────────────────────────
 
   bool isTeamInvolved(String teamId) =>

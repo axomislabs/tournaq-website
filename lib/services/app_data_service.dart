@@ -661,15 +661,25 @@ class AppDataService {
   }
 
   /// Reverts a completed game back to in-progress, clearing the match winner.
-  /// For oneSet games, also undoes Set 1 completion so isMatchComplete becomes false.
+  /// Resets the last completed set (for all formats) so isMatchComplete becomes false.
   static AppState undoGameCompletion(AppState state, String gameId) {
     final game = state.getGameById(gameId);
     if (game == null) return state;
 
-    var sets = game.sets;
-    if (game.matchFormat == MatchFormat.oneSet && sets.isNotEmpty && sets[0].isCompleted) {
-      final s = sets[0];
-      final resetSet = GameSet(
+    var sets = List<GameSet>.from(game.sets);
+
+    // Find the last completed set and reopen it so sets-based isMatchComplete clears.
+    int lastCompletedIndex = -1;
+    for (int i = sets.length - 1; i >= 0; i--) {
+      if (sets[i].isCompleted) {
+        lastCompletedIndex = i;
+        break;
+      }
+    }
+
+    if (lastCompletedIndex >= 0) {
+      final s = sets[lastCompletedIndex];
+      sets[lastCompletedIndex] = GameSet(
         id: s.id,
         setNumber: s.setNumber,
         score1: s.score1,
@@ -679,9 +689,9 @@ class AppDataService {
         isCompleted: false,
         completedAt: null,
       );
-      sets = List<GameSet>.from(sets);
-      sets[0] = resetSet;
     }
+
+    final activeSetIndex = lastCompletedIndex >= 0 ? lastCompletedIndex : game.currentSetIndex;
 
     final resetGame = Game(
       id: game.id,
@@ -695,7 +705,7 @@ class AppDataService {
       isLocalOnly: game.isLocalOnly,
       matchFormat: game.matchFormat,
       sets: sets,
-      currentSetIndex: game.currentSetIndex,
+      currentSetIndex: activeSetIndex,
       matchWinnerTeamId: null,
       lineups: game.lineups,
       hasShownScorecardIntro: game.hasShownScorecardIntro,
