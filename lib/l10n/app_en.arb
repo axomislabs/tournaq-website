@@ -13,6 +13,18 @@
   "navQuickStart": "Quick Start Game",
   "@navQuickStart": {},
 
+  "navTournaments": "Tournaments",
+  "@navTournaments": {},
+
+  "navTeams": "Teams",
+  "@navTeams": {},
+
+  "navClubs": "Clubs",
+  "@navClubs": {},
+
+  "navPlayers": "Players",
+  "@navPlayers": {},
+
   "navSponsoring": "Sponsoring & Promo",
   "@navSponsoring": {},
 

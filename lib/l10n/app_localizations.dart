@@ -124,6 +124,30 @@ abstract class AppLocalizations {
   /// **'Quick Start Game'**
   String get navQuickStart;
 
+  /// No description provided for @navTournaments.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournaments'**
+  String get navTournaments;
+
+  /// No description provided for @navTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get navTeams;
+
+  /// No description provided for @navClubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clubs'**
+  String get navClubs;
+
+  /// No description provided for @navPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get navPlayers;
+
   /// No description provided for @navSponsoring.
   ///
   /// In en, this message translates to:

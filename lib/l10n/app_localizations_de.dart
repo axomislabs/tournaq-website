@@ -21,6 +21,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navQuickStart => 'Schnellstart Spiel';
 
   @override
+  String get navTournaments => 'Turniere';
+
+  @override
+  String get navTeams => 'Teams';
+
+  @override
+  String get navClubs => 'Clubs';
+
+  @override
+  String get navPlayers => 'Spieler';
+
+  @override
   String get navSponsoring => 'Sponsoring & Promo';
 
   @override
