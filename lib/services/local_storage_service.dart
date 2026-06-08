@@ -6,6 +6,7 @@ import '../models/game.dart';
 import '../models/team.dart';
 import '../models/tournament.dart';
 import '../state/app_state.dart';
+import 'scramble_storage_service.dart';
 
 /// Local persistence layer for TournaQ.
 ///
@@ -50,6 +51,7 @@ class LocalStorageService {
     await Hive.openBox<String>(_clubsBox);
     await Hive.openBox<String>(_tournamentsBox);
     await Hive.openBox<String>(_prefsBox);
+    await ScrambleStorageService.init();
   }
 
   // ── Box accessors ──────────────────────────────────────────────────────────

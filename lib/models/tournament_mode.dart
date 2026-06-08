@@ -8,6 +8,7 @@ enum TournamentModeType {
   randomizer,
   manual,
   hybrid,
+  timedScramble,
 }
 
 class TournamentMode {
@@ -46,6 +47,8 @@ class TournamentMode {
         return 'Manual Tournament';
       case TournamentModeType.hybrid:
         return 'Hybrid Modes';
+      case TournamentModeType.timedScramble:
+        return 'Timed Scramble';
     }
   }
 }

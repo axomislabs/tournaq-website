@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../models/scramble_tournament.dart';
 import '../models/tournament.dart';
 import '../models/tournament_mode.dart';
 import '../services/app_data_service.dart';
+import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -11,6 +13,8 @@ import '../widgets/assign_dialog.dart';
 import '../widgets/create_tournament_sheet.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/scrollable_page.dart';
+import 'scramble_overview_page.dart';
+import 'scramble_setup_page.dart';
 import 'tournament_detail_page.dart';
 
 class TournamentsPage extends StatefulWidget {
@@ -23,6 +27,7 @@ class TournamentsPage extends StatefulWidget {
 
 class _TournamentsPageState extends State<TournamentsPage> {
   late AppState _localState;
+  List<ScrambleTournament> _scrambles = [];
   final _searchCtrl = TextEditingController();
   final _teamFilter = <String>{};
   final _playerFilter = <String>{};
@@ -33,6 +38,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
   void initState() {
     super.initState();
     _localState = widget.appState;
+    _scrambles = ScrambleStorageService.loadAll();
     _searchCtrl.addListener(() => setState(() {}));
   }
 
@@ -47,14 +53,53 @@ class _TournamentsPageState extends State<TournamentsPage> {
     widget.onAppStateChanged(s);
   }
 
+  void _updateScramble(ScrambleTournament t) {
+    setState(() {
+      final idx = _scrambles.indexWhere((s) => s.id == t.id);
+      if (idx >= 0) {
+        _scrambles = List.from(_scrambles)..[idx] = t;
+      } else {
+        _scrambles = [t, ..._scrambles];
+      }
+    });
+    ScrambleStorageService.save(t);
+  }
+
   Future<void> _showCreateSheet() async {
+    var openScramble = false;
     final result = await showModalBottomSheet<AppState>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CreateTournamentSheet(appState: _localState),
+      builder: (_) => CreateTournamentSheet(
+        appState: _localState,
+        onTimedScramble: () => openScramble = true,
+      ),
     );
-    if (result != null && mounted) _updateState(result);
+    if (!mounted) return;
+    if (openScramble) {
+      _openScrambleSetup();
+    } else if (result != null) {
+      _updateState(result);
+    }
+  }
+
+  void _openScrambleSetup() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ScrambleSetupPage(
+        appState: _localState,
+        onCreated: _updateScramble,
+      ),
+    ));
+  }
+
+  void _openScrambleOverview(ScrambleTournament t) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => ScrambleOverviewPage(
+        tournament: t,
+        onChanged: _updateScramble,
+      ),
+    ));
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
@@ -208,6 +253,45 @@ class _TournamentsPageState extends State<TournamentsPage> {
             ],
           ),
           const SizedBox(height: 20),
+
+          // ── Scramble Tournaments ──────────────────────────────────────────
+          if (_scrambles.isNotEmpty) ...[
+            const Text('Timed Scramble', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.olive)),
+            const SizedBox(height: 8),
+            ..._scrambles.map((s) => Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: Container(
+                  width: 40, height: 40,
+                  decoration: const BoxDecoration(color: AppColors.oliveLight, shape: BoxShape.circle),
+                  child: const Icon(Icons.shuffle_rounded, color: AppColors.olive, size: 20),
+                ),
+                title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(
+                  '${s.playerCount} players · ${s.roundCount} rounds · '
+                  '${s.completedGames}/${s.totalGames} games',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                trailing: PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, size: 20),
+                  onSelected: (v) async {
+                    if (v == 'delete') {
+                      await ScrambleStorageService.delete(s.id);
+                      setState(() => _scrambles.removeWhere((x) => x.id == s.id));
+                    }
+                  },
+                  itemBuilder: (_) => [
+                    actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
+                  ],
+                ),
+                onTap: () => _openScrambleOverview(s),
+              ),
+            )),
+            const SizedBox(height: 8),
+            const Divider(),
+            const SizedBox(height: 8),
+          ],
+
           Text(l10n.sectionTournamentsCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (total == 0)

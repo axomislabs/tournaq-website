@@ -12,7 +12,14 @@ import 'sheet_helpers.dart';
 
 class CreateTournamentSheet extends StatefulWidget {
   final AppState appState;
-  const CreateTournamentSheet({super.key, required this.appState});
+  /// Called when the user selects Timed Scramble and taps Create.
+  /// The sheet pops itself; the caller should navigate to ScrambleSetupPage.
+  final VoidCallback? onTimedScramble;
+  const CreateTournamentSheet({
+    super.key,
+    required this.appState,
+    this.onTimedScramble,
+  });
   @override
   State<CreateTournamentSheet> createState() => _CreateTournamentSheetState();
 }
@@ -101,6 +108,12 @@ class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
   }
 
   void _create() {
+    if (_mode == TournamentModeType.timedScramble) {
+      Navigator.pop(context);
+      widget.onTimedScramble?.call();
+      return;
+    }
+
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
 
