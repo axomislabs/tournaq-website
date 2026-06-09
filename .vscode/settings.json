@@ -4,5 +4,8 @@
             "approve": true,
             "matchCommandLine": true
         }
-    }
+    },
+    "claudeCode.useTerminal": true,
+    "github.copilot.chat.claudeAgent.allowAutoPermissions": true,
+    "claudeCode.initialPermissionMode": "acceptEdits"
 }
