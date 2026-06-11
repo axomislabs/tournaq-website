@@ -1,0 +1,17 @@
+Branch:
+scoring-release
+
+Commit:
+78b6b8c34e0d1ac3bbb4670f32673917ee54619a
+
+Recent commits:
+78b6b8c android bugs pre release centered title & homepage
+da58d84 link corrected user guide
+d1c5a79 pre-release hotfixes 2nd
+acf04f1 Pre-Release hotfixes
+d23e653 release prep
+92b4ea8 icon and links
+995b534 unknown change
+b24556c localization and link adjustments
+1bfb6b0 Improve user guide layout
+4d6f91e localization changes

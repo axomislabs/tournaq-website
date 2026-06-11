@@ -13,6 +13,8 @@ import '../models/scramble_tournament.dart';
 class ScrambleService {
   ScrambleService._();
 
+  static int _gcd(int a, int b) => b == 0 ? a : _gcd(b, a % b);
+
   static final _rng = Random();
   static const _mixingAttempts = 300;
 
@@ -44,13 +46,26 @@ class ScrambleService {
     required List<ScramblePlayer> players,
     required DateTime startTime,
   }) {
-    final roundDuration = matchDuration + breakDuration;
-    final roundCount = roundDuration.inSeconds > 0
+    final roundDuration   = matchDuration + breakDuration;
+    final playersPerCourt = playersPerTeam * 2;
+    final n               = players.length;
+    final activeCourtsMax = min(courtCount, n ~/ playersPerCourt);
+    final activePlayers   = activeCourtsMax * playersPerCourt;
+
+    final rawRounds = roundDuration.inSeconds > 0
         ? totalAvailableTime.inSeconds ~/ roundDuration.inSeconds
         : 0;
 
-    final n = players.length;
-    final playersPerCourt = playersPerTeam * 2;
+    // Snap to the largest multiple of the fair-unit that fits in available time.
+    // Fair-unit = smallest R where every player has played equally often.
+    int roundCount;
+    if (activePlayers > 0 && activePlayers < n && rawRounds > 1) {
+      final fairUnit = n ~/ _gcd(n, activePlayers);
+      final snapped  = (rawRounds ~/ fairUnit) * fairUnit;
+      roundCount = snapped > 0 ? snapped : rawRounds;
+    } else {
+      roundCount = rawRounds;
+    }
 
     // Pair-encounter matrices for mixing optimisation.
     final teammateCount = List.generate(n, (_) => List.filled(n, 0));
@@ -341,8 +356,8 @@ class ScrambleService {
     required int playerCount,
     required int playersPerTeam,
   }) {
-    final suggestions = <ScrambleSuggestion>[];
-    final roundDuration = matchDuration + breakDuration;
+    final suggestions     = <ScrambleSuggestion>[];
+    final roundDuration   = matchDuration + breakDuration;
     final playersPerCourt = playersPerTeam * 2;
 
     if (roundDuration.inSeconds <= 0) {
@@ -353,10 +368,9 @@ class ScrambleService {
       return suggestions;
     }
 
-    final activeCourts = min(courtCount, playerCount ~/ playersPerCourt);
+    final activeCourts  = min(courtCount, playerCount ~/ playersPerCourt);
     final playersActive = activeCourts * playersPerCourt;
-    final sittingOut = playerCount - playersActive;
-    final roundCount = totalAvailableTime.inSeconds ~/ roundDuration.inSeconds;
+    final sittingOut    = playerCount - playersActive;
 
     if (activeCourts == 0) {
       suggestions.add(ScrambleSuggestion(
@@ -368,68 +382,97 @@ class ScrambleService {
       return suggestions;
     }
 
+    // Fair-unit: smallest round count where every player has played equally.
+    // When nobody sits out, every round count is already fair (unit = 1).
+    final fairUnit = sittingOut > 0
+        ? playerCount ~/ _gcd(playerCount, playersActive)
+        : 1;
+
+    final rawRounds  = totalAvailableTime.inSeconds ~/ roundDuration.inSeconds;
+    final roundCount = (rawRounds ~/ fairUnit) * fairUnit;
+
     if (roundCount == 0) {
+      // Available time is either shorter than one round, or shorter than the
+      // minimum fair-unit of rounds — suggest how much extra time is needed.
+      final neededSecs = fairUnit * roundDuration.inSeconds;
+      final shortfall  = Duration(seconds: neededSecs - totalAvailableTime.inSeconds);
+      final neededStr  = _fmtDuration(Duration(seconds: neededSecs));
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.increaseTotalTime,
-        message: 'Total time is too short for even one round '
-            '(${_fmtDuration(roundDuration)} per round). '
-            'Increase total time or shorten match/break durations.',
+        message: sittingOut > 0
+            ? 'Not every player can play the same amount of games with this '
+              'setup. The minimum is $fairUnit rounds ($neededStr). '
+              'Set available time to $neededStr — or adjust match/break duration.'
+            : 'Available time is too short for even one round '
+              '(${_fmtDuration(roundDuration)} per round). '
+              'Increase available time — or adjust match/break duration.',
+        actionLabel: '+${_fmtDuration(shortfall)}',
+        isBlocking: true,
       ));
+      return suggestions;
     }
 
-    // Suggest a better playersPerTeam if too many players sit out.
-    if (sittingOut > 0) {
-      // Would 3v3 reduce sit-outs for this player count?
-      if (playersPerTeam == 2) {
-        final activeCourts3v3 = min(courtCount, playerCount ~/ 6);
-        final sittingOut3v3 = playerCount - activeCourts3v3 * 6;
-        if (sittingOut3v3 < sittingOut) {
+    // Coverage & repeated-teammate checks.
+    // Both only apply when N > 1 (there are teammates to consider).
+    if (playersPerTeam > 1) {
+      // ── Coverage ────────────────────────────────────────────────────────────
+      // Minimum rounds for every player to partner with every other at least once
+      // = ceil((P-1) / (N-1)), rounded up to the next fair-unit multiple.
+      final minCoverage  = ((playerCount - 1) / (playersPerTeam - 1)).ceil();
+      final targetRounds = ((minCoverage + fairUnit - 1) ~/ fairUnit) * fairUnit;
+
+      // ── Repeated teammates ───────────────────────────────────────────────────
+      // A player partners with N-1 teammates per game.
+      // Over R rounds each player plays gamesPerPlayer = R × activePlayers / P games.
+      // Repeats start when gamesPerPlayer × (N-1) > P-1
+      //   → R > P×(P-1) / (activePlayers×(N-1))
+      final maxNoRepeatRaw   = (playerCount * (playerCount - 1)) ~/
+          (playersActive * (playersPerTeam - 1));
+      // Snap down to the largest fair-unit multiple that avoids repeats.
+      final maxNoRepeatRounds = (maxNoRepeatRaw ~/ fairUnit) * fairUnit;
+
+      if (roundCount < targetRounds) {
+        final extraRounds  = targetRounds - roundCount;
+        final extraSecs    = extraRounds * roundDuration.inSeconds;
+        final targetSecs   = targetRounds * roundDuration.inSeconds;
+        final targetTimeStr = _fmtDuration(Duration(seconds: targetSecs));
+        suggestions.add(ScrambleSuggestion(
+          type: ScrambleSuggestionType.increaseTotalTime,
+          message: 'With $roundCount rounds, not every player will partner with '
+              'each other ($targetRounds rounds needed). Set available time to '
+              '$targetTimeStr — or adjust match/break duration.',
+          actionLabel: '+${_fmtDuration(Duration(seconds: extraSecs))}',
+        ));
+      } else if (roundCount > maxNoRepeatRaw) {
+        // Repeats are happening — tell the user the threshold.
+        if (maxNoRepeatRounds > 0) {
+          final maxTimeSecs   = maxNoRepeatRounds * roundDuration.inSeconds;
+          final maxTimeStr    = _fmtDuration(Duration(seconds: maxTimeSecs));
           suggestions.add(ScrambleSuggestion(
-            type: ScrambleSuggestionType.adjustPlayerCount,
-            message: 'With $playerCount players in 2v2, '
-                '$sittingOut player${sittingOut > 1 ? 's' : ''} sit out each round. '
-                'Switching to 3v3 would reduce sit-outs to $sittingOut3v3.',
+            type: ScrambleSuggestionType.repeatedTeammates,
+            message: 'With $roundCount rounds, players will partner with each '
+                'other more than once (repeats from round ${maxNoRepeatRaw + 1}). '
+                'To keep all partnerships unique: $maxTimeStr available time '
+                '($maxNoRepeatRounds rounds) — or adjust match/break duration.',
           ));
-        }
-      } else if (playersPerTeam == 3) {
-        final activeCourts2v2 = min(courtCount, playerCount ~/ 4);
-        final sittingOut2v2 = playerCount - activeCourts2v2 * 4;
-        if (sittingOut2v2 < sittingOut) {
+        } else {
+          // Even the minimum fair cycle exceeds the no-repeat threshold.
           suggestions.add(ScrambleSuggestion(
-            type: ScrambleSuggestionType.adjustPlayerCount,
-            message: 'With $playerCount players in 3v3, '
-                '$sittingOut player${sittingOut > 1 ? 's' : ''} sit out each round. '
-                'Switching to 2v2 would reduce sit-outs to $sittingOut2v2.',
+            type: ScrambleSuggestionType.repeatedTeammates,
+            message: 'With this setup, repeated partners cannot be avoided — '
+                'the minimum fair schedule ($fairUnit rounds) already exceeds '
+                'the no-repeat threshold. Adjust match/break duration to reduce '
+                'the number of games per player.',
           ));
         }
       }
     }
 
-    // Coverage: can every player pair up with every other at least once?
-    final uniquePairs = playerCount * (playerCount - 1) ~/ 2;
-    // Per round: each court produces (playersPerTeam choose 2) × 2 teammate pairs.
-    final tmPairsPerCourtPerRound = playersPerTeam * (playersPerTeam - 1) ~/ 2 * 2;
-    final totalTeammatePairs = roundCount * activeCourts * tmPairsPerCourtPerRound;
-    if (totalTeammatePairs < uniquePairs) {
-      final deficit = uniquePairs - totalTeammatePairs;
-      final extraRounds =
-          (deficit / (activeCourts * tmPairsPerCourtPerRound)).ceil();
-      final extraSeconds = extraRounds * roundDuration.inSeconds;
-      suggestions.add(ScrambleSuggestion(
-        type: ScrambleSuggestionType.increaseTotalTime,
-        message: 'Not every player will get to team up with every other player. '
-            'Add ~${_fmtDuration(Duration(seconds: extraSeconds))} '
-            '($extraRounds more round${extraRounds > 1 ? 's' : ''}) for full coverage.',
-        actionLabel: '+${_fmtDuration(Duration(seconds: extraSeconds))}',
-      ));
-    }
-
     if (activeCourts < courtCount) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustCourtCount,
-        message: 'You have $courtCount courts configured but only $activeCourts '
-            'can be filled with $playerCount players in '
-            '${playersPerTeam}v$playersPerTeam format. '
+        message: 'Only $activeCourts of $courtCount courts can be filled '
+            'with $playerCount players in ${playersPerTeam}v$playersPerTeam. '
             'Reduce courts to $activeCourts or add more players.',
       ));
     }

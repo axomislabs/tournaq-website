@@ -3,14 +3,12 @@ import '../app/app_assets.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
-import '../pages/clubs_page.dart';
+import '../pages/administration_page.dart';
 import '../pages/contact_page.dart';
 import '../pages/games_page.dart';
 import '../pages/promo_ads_page.dart';
 import '../pages/settings_page.dart';
-import '../pages/teams_page.dart';
 import '../pages/tournaments_page.dart';
-import '../pages/users_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final AppState appState;
@@ -85,43 +83,13 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.groups_rounded,
-                  label: l10n.navTeams,
+                  icon: Icons.manage_accounts_rounded,
+                  label: l10n.navAdmin,
                   iconBgColor: AppColors.oliveLight,
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TeamsPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.shield_rounded,
-                  label: l10n.navClubs,
-                  iconBgColor: AppColors.oliveLight,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ClubsPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.person_rounded,
-                  label: l10n.navPlayers,
-                  iconBgColor: AppColors.oliveLight,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => UsersPage(
+                      builder: (_) => AdministrationPage(
                         appState: appState,
                         onAppStateChanged: onAppStateChanged,
                       ),

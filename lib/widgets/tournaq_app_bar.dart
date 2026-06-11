@@ -38,32 +38,30 @@ class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       centerTitle: true,
       title: subtitle != null
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.goldLight,
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                    ),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.goldLight,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w700,
                   ),
-                  Text(
-                    subtitle!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.goldCream,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
+                ),
+                Text(
+                  subtitle!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.goldCream,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                ),
+              ],
             )
           : Text(
               title,

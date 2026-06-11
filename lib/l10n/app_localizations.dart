@@ -148,6 +148,12 @@ abstract class AppLocalizations {
   /// **'Players'**
   String get navPlayers;
 
+  /// No description provided for @navAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Administration'**
+  String get navAdmin;
+
   /// No description provided for @navSponsoring.
   ///
   /// In en, this message translates to:

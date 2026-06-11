@@ -1,51 +1,36 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-import '../l10n/app_localizations.dart';
-import '../models/scramble_tournament.dart';
-import '../models/tournament.dart';
-import '../models/tournament_mode.dart';
-import '../services/app_data_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
-import '../widgets/assign_dialog.dart';
-import '../widgets/create_tournament_sheet.dart';
-import '../widgets/filter_bar.dart';
-import '../widgets/scrollable_page.dart';
-import 'scramble_overview_page.dart';
-import 'scramble_setup_page.dart';
-import 'tournament_detail_page.dart';
+import 'coming_soon_page.dart';
+import 'scramble_hub_page.dart';
+import 'tournament_history_page.dart';
 
 class TournamentsPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  const TournamentsPage({super.key, required this.appState, required this.onAppStateChanged});
+
+  const TournamentsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
+
   @override
   State<TournamentsPage> createState() => _TournamentsPageState();
 }
 
 class _TournamentsPageState extends State<TournamentsPage> {
   late AppState _localState;
-  List<ScrambleTournament> _scrambles = [];
-  final _searchCtrl = TextEditingController();
-  final _teamFilter = <String>{};
-  final _playerFilter = <String>{};
-  final _clubFilter = <String>{};
-  final _modeFilter = <String>{};
+  int _scrambleCount = 0;
 
   @override
   void initState() {
     super.initState();
     _localState = widget.appState;
-    _scrambles = ScrambleStorageService.loadAll();
-    _searchCtrl.addListener(() => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
+    _scrambleCount = ScrambleStorageService.loadAll().length;
   }
 
   void _updateState(AppState s) {
@@ -53,292 +38,392 @@ class _TournamentsPageState extends State<TournamentsPage> {
     widget.onAppStateChanged(s);
   }
 
-  void _updateScramble(ScrambleTournament t) {
-    setState(() {
-      final idx = _scrambles.indexWhere((s) => s.id == t.id);
-      if (idx >= 0) {
-        _scrambles = List.from(_scrambles)..[idx] = t;
-      } else {
-        _scrambles = [t, ..._scrambles];
-      }
-    });
-    ScrambleStorageService.save(t);
+  void _openScrambleHub() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => ScrambleHubPage(
+            appState: _localState,
+            onAppStateChanged: _updateState,
+          ),
+        ))
+        .then((_) => setState(
+            () => _scrambleCount = ScrambleStorageService.loadAll().length));
   }
 
-  Future<void> _showCreateSheet() async {
-    var openScramble = false;
-    final result = await showModalBottomSheet<AppState>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => CreateTournamentSheet(
-        appState: _localState,
-        onTimedScramble: () => openScramble = true,
-      ),
-    );
-    if (!mounted) return;
-    if (openScramble) {
-      _openScrambleSetup();
-    } else if (result != null) {
-      _updateState(result);
-    }
-  }
-
-  void _openScrambleSetup() {
+  void _openHistory({TournamentFilter filter = TournamentFilter.all}) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleSetupPage(
+      builder: (_) => TournamentHistoryPage(
         appState: _localState,
-        onCreated: _updateScramble,
+        onAppStateChanged: _updateState,
+        initialFilter: filter,
       ),
     ));
   }
 
-  void _openScrambleOverview(ScrambleTournament t) {
+  void _openComingSoon(String title, String description) {
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleOverviewPage(
-        tournament: t,
-        onChanged: _updateScramble,
-      ),
+      builder: (_) =>
+          ComingSoonPage(title: title, shortDescription: description),
     ));
-  }
-
-  // ── Actions ────────────────────────────────────────────────────────────────
-
-  Future<void> _assignTeam(String tournamentId) async {
-    final tournament = _localState.getTournamentById(tournamentId);
-    if (tournament == null) return;
-    final items = _localState.teams
-        .where((t) => !tournament.teamIds.contains(t.id))
-        .map((t) => (id: t.id, name: t.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign Team', items: items,
-      emptyMessage: 'All teams are already in this tournament.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToTournament(_localState, teamId: selected, tournamentId: tournamentId));
-    }
-  }
-
-  Future<void> _assignClub(String tournamentId) async {
-    final items = _localState.clubs
-        .where((c) => !c.tournamentIds.contains(tournamentId))
-        .map((c) => (id: c.id, name: c.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign to Club', items: items,
-      emptyMessage: 'Tournament is already in all clubs.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: tournamentId, clubId: selected));
-    }
-  }
-
-  void _generateGames(String tournamentId) {
-    final tournament = _localState.getTournamentById(tournamentId);
-    if (tournament == null) return;
-    final l10n = AppLocalizations.of(context)!;
-    if (tournament.gameIds.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.snackbarGamesAlreadyGenerated)),
-      );
-      return;
-    }
-    if (tournament.teamIds.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.snackbarAddTeamsFirst)),
-      );
-      return;
-    }
-    _updateState(AppDataService.generateGamesForTournament(_localState, tournament));
-  }
-
-  Future<void> _deleteTournament(String tournamentId) async {
-    final tournament = _localState.getTournamentById(tournamentId);
-    if (tournament == null) return;
-    final ok = await showConfirmDeleteDialog(context, tournament.name);
-    if (ok && mounted) _updateState(AppDataService.deleteTournament(_localState, tournamentId));
-  }
-
-  // ── Filter ─────────────────────────────────────────────────────────────────
-
-  void _clearAll() {
-    _searchCtrl.clear();
-    setState(() {
-      _teamFilter.clear();
-      _playerFilter.clear();
-      _clubFilter.clear();
-      _modeFilter.clear();
-    });
-  }
-
-  List<Tournament> get _filteredTournaments {
-    final q = _searchCtrl.text.toLowerCase();
-    return _localState.tournaments.where((t) {
-      if (q.isNotEmpty && !t.name.toLowerCase().contains(q)) return false;
-      if (_teamFilter.isNotEmpty && !t.teamIds.any(_teamFilter.contains)) return false;
-      if (_playerFilter.isNotEmpty) {
-        final hasPlayer = _localState.teams
-            .where((tm) => t.teamIds.contains(tm.id))
-            .any((tm) => tm.userIds.any(_playerFilter.contains));
-        if (!hasPlayer) return false;
-      }
-      if (_clubFilter.isNotEmpty) {
-        final inClub = _localState.clubs
-            .where((c) => _clubFilter.contains(c.id))
-            .any((c) => c.tournamentIds.contains(t.id));
-        if (!inClub) return false;
-      }
-      if (_modeFilter.isNotEmpty && !_modeFilter.contains(t.mode.type.name)) return false;
-      return true;
-    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final filtered = _filteredTournaments;
-    final total = _localState.tournaments.length;
-    final modeItems = TournamentModeType.values
-        .map((m) => (id: m.name, name: TournamentMode.fromType(m).displayName))
-        .toList();
-
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: TournaQAppBar(title: l10n.pageTournaments),
-      body: ScrollablePage(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          ElevatedButton.icon(
-            onPressed: _showCreateSheet,
-            icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.btnCreateTournament, style: const TextStyle(fontWeight: FontWeight.w700)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.gold,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-          const SizedBox(height: 20),
-          FilterBar(
-            searchController: _searchCtrl,
-            hintText: l10n.hintSearchTournaments,
-            onClearAll: _clearAll,
-            groups: [
-              FilterGroup(
-                label: l10n.filterTeam, icon: Icons.group_rounded,
-                items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
-                selectedIds: _teamFilter,
-                onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
+      drawer: AppDrawer(
+          appState: _localState, onAppStateChanged: _updateState),
+      appBar: const TournaQAppBar(title: 'Tournaments'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Single Competitions & Socials ──────────────────────────
+            _sectionHeader('Single Competitions & Socials', Icons.people_rounded),
+            const SizedBox(height: 12),
+            Column(children: [
+              _TypeTile(
+                icon:        Icons.shuffle_rounded,
+                color:       AppColors.gold,
+                gradientEnd: AppColors.goldGradientEnd,
+                name:        'Social Scramble',
+                description: 'Timed round-robin mixer',
+                count:       _scrambleCount,
+                onTap:       _openScrambleHub,
               ),
-              FilterGroup(
-                label: l10n.filterPlayer, icon: Icons.person_rounded,
-                items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
-                selectedIds: _playerFilter,
-                onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
+              _TypeTile(
+                icon:        Icons.workspace_premium_rounded,
+                color:       const Color(0xFFFF8F00),
+                gradientEnd: const Color(0xFFF57F17),
+                name:        'King of the Court',
+                description: 'Winners stay, challengers rotate',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'King of the Court',
+                    'Winners stay on court and face the next '
+                    'challengers — last team standing wins.'),
               ),
-              FilterGroup(
-                label: l10n.filterClub, icon: Icons.home_rounded,
-                items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
-                selectedIds: _clubFilter,
-                onToggle: (id, v) => setState(() { if (v) { _clubFilter.add(id); } else { _clubFilter.remove(id); } }),
+              _TypeTile(
+                icon:        Icons.pets_rounded,
+                color:       const Color(0xFF795548),
+                gradientEnd: const Color(0xFF4E342E),
+                name:        'Doghouse',
+                description: 'Losers bracket consolation',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Doghouse',
+                    'A consolation bracket where eliminated '
+                    'players keep competing for pride.'),
               ),
-              FilterGroup(
-                label: l10n.filterMode, icon: Icons.tune_rounded,
-                items: modeItems,
-                selectedIds: _modeFilter,
-                onToggle: (id, v) => setState(() { if (v) { _modeFilter.add(id); } else { _modeFilter.remove(id); } }),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+            ]),
 
-          // ── Scramble Tournaments ──────────────────────────────────────────
-          if (_scrambles.isNotEmpty) ...[
-            const Text('Timed Scramble', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.olive)),
-            const SizedBox(height: 8),
-            ..._scrambles.map((s) => Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: Container(
-                  width: 40, height: 40,
-                  decoration: const BoxDecoration(color: AppColors.oliveLight, shape: BoxShape.circle),
-                  child: const Icon(Icons.shuffle_rounded, color: AppColors.olive, size: 20),
-                ),
-                title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text(
-                  '${s.playerCount} players · ${s.roundCount} rounds · '
-                  '${s.completedGames}/${s.totalGames} games',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                trailing: PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert, size: 20),
-                  onSelected: (v) async {
-                    if (v == 'delete') {
-                      await ScrambleStorageService.delete(s.id);
-                      setState(() => _scrambles.removeWhere((x) => x.id == s.id));
-                    }
-                  },
-                  itemBuilder: (_) => [
-                    actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
-                  ],
-                ),
-                onTap: () => _openScrambleOverview(s),
+            // ── Team Competitions ──────────────────────────────────────
+            const SizedBox(height: 24),
+            _sectionHeader('Team Competitions', Icons.groups_rounded),
+            const SizedBox(height: 12),
+            Column(children: [
+              _TypeTile(
+                icon:        Icons.table_chart_rounded,
+                color:       AppColors.olive,
+                gradientEnd: AppColors.oliveMedium,
+                name:        'League',
+                description: 'Points-based standings',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'League / Round Robin',
+                    'Track standings across a full round-robin '
+                    'season with points, wins, and goal difference.'),
               ),
-            )),
-            const SizedBox(height: 8),
-            const Divider(),
-            const SizedBox(height: 8),
+              _TypeTile(
+                icon:        Icons.account_tree_rounded,
+                color:       const Color(0xFF5C6BC0),
+                gradientEnd: const Color(0xFF3949AB),
+                name:        'Single Elimination',
+                description: 'Classic knockout bracket',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Single Elimination',
+                    'Classic knockout bracket — one loss and '
+                    'you\'re out.'),
+              ),
+              _TypeTile(
+                icon:        Icons.device_hub_rounded,
+                color:       AppColors.tertiary,
+                gradientEnd: const Color(0xFF6D4C2E),
+                name:        'Double Elimination',
+                description: 'Two-chance bracket',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Double Elimination',
+                    'Winners and losers brackets — you need two '
+                    'losses to be eliminated.'),
+              ),
+              _TypeTile(
+                icon:        Icons.stacked_bar_chart_rounded,
+                color:       const Color(0xFF00897B),
+                gradientEnd: const Color(0xFF00695C),
+                name:        'Group + SE',
+                description: 'Group stage · Single Elimination',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Group + Single Elimination',
+                    'Teams advance from a group stage into a '
+                    'single-elimination knockout bracket.'),
+              ),
+              _TypeTile(
+                icon:        Icons.stacked_line_chart_rounded,
+                color:       const Color(0xFF6D4C41),
+                gradientEnd: const Color(0xFF4E342E),
+                name:        'Group + DE',
+                description: 'Group stage · Double Elimination',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Group + Double Elimination',
+                    'Teams advance from a group stage into a '
+                    'double-elimination bracket.'),
+              ),
+              _TypeTile(
+                icon:        Icons.swap_vert_rounded,
+                color:       const Color(0xFF00897B),
+                gradientEnd: const Color(0xFF00695C),
+                name:        'Swiss System',
+                description: 'Paired rounds by score',
+                comingSoon:  true,
+                onTap: () => _openComingSoon(
+                    'Swiss System',
+                    'Players are paired each round based on their '
+                    'current score — no eliminations, full schedule.'),
+              ),
+            ]),
+
+            // ── History shortcut ───────────────────────────────────────
+            const SizedBox(height: 28),
+            _sectionHeader('History', Icons.history_rounded),
+            const SizedBox(height: 12),
+            _HistoryShortcutTile(
+              label:   'All Tournaments',
+              count:   _scrambleCount,
+              onTap:   _openHistory,
+            ),
+            const SizedBox(height: 6),
+            _HistoryShortcutTile(
+              label:     'Social Scramble',
+              count:     _scrambleCount,
+              typeColor: AppColors.gold,
+              typeIcon:  Icons.shuffle_rounded,
+              onTap: () => _openHistory(filter: TournamentFilter.scramble),
+            ),
           ],
+        ),
+      ),
+    );
+  }
 
-          Text(l10n.sectionTournamentsCount(total), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          if (total == 0)
-            Center(child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(l10n.noTournamentsYet, style: const TextStyle(color: Colors.black45)),
-            ))
-          else if (filtered.isEmpty)
-            Center(child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(l10n.noTournamentsFiltered, style: const TextStyle(color: Colors.black45)),
-            ))
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                final t = filtered[index];
-                return ListTile(
-                  title: Text(t.name),
-                  subtitle: Text('${t.mode.displayName} • ${t.teamIds.length} teams • ${t.gameIds.length} games'),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => TournamentDetailPage(appState: _localState, onAppStateChanged: _updateState, tournamentId: t.id),
-                  )),
-                  trailing: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, size: 20),
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'assign_team': _assignTeam(t.id);
-                        case 'assign_club': _assignClub(t.id);
-                        case 'generate_games': _generateGames(t.id);
-                        case 'delete': _deleteTournament(t.id);
-                      }
-                    },
-                    itemBuilder: (_) => [
-                      actionMenuItem('assign_team', Icons.group_rounded, l10n.menuAssignTeam),
-                      actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
-                      actionMenuItem('generate_games', Icons.auto_awesome_rounded, l10n.menuGenerateGames),
-                      const PopupMenuDivider(),
-                      actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
-                    ],
-                  ),
-                );
-              },
+  Widget _sectionHeader(String title, IconData icon) => Row(
+        children: [
+          Icon(icon, size: 15, color: AppColors.olive),
+          const SizedBox(width: 6),
+          Text(
+            title.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.olive,
+              letterSpacing: 0.4,
             ),
-        ]),
+          ),
+        ],
+      );
+}
+
+// ── Type tile ─────────────────────────────────────────────────────────────────
+
+class _TypeTile extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color gradientEnd;
+  final String name;
+  final String description;
+  final int count;
+  final bool comingSoon;
+  final VoidCallback onTap;
+
+  const _TypeTile({
+    required this.icon,
+    required this.color,
+    required this.gradientEnd,
+    required this.name,
+    required this.description,
+    required this.onTap,
+    this.count = 0,
+    this.comingSoon = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gradientColors = comingSoon
+        ? [Colors.grey.shade400, Colors.grey.shade600]
+        : [color, gradientEnd];
+    final shadowColor = comingSoon ? Colors.grey : color;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor.withValues(alpha: 0.28),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: Colors.white, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.80),
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (comingSoon)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.20),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Soon',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            else if (count > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.20),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            else
+              const Icon(Icons.chevron_right_rounded,
+                  color: Colors.white, size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── History shortcut tile ─────────────────────────────────────────────────────
+
+class _HistoryShortcutTile extends StatelessWidget {
+  final String label;
+  final int count;
+  final Color? typeColor;
+  final IconData? typeIcon;
+  final VoidCallback onTap;
+
+  const _HistoryShortcutTile({
+    required this.label,
+    required this.count,
+    required this.onTap,
+    this.typeColor,
+    this.typeIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = typeColor ?? AppColors.olive;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Icon(typeIcon ?? Icons.history_rounded, size: 18, color: color),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (count > 0)
+              Text(
+                '$count',
+                style: TextStyle(
+                    fontSize: 13,
+                    color: color,
+                    fontWeight: FontWeight.w700),
+              ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right_rounded,
+                size: 18, color: Colors.black26),
+          ],
+        ),
       ),
     );
   }

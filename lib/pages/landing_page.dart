@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
-import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
-import '../widgets/quick_start_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
 import 'games_page.dart';
-import 'scorecard_splash_page.dart';
+import 'tournaments_page.dart';
 
 class LandingPage extends StatefulWidget {
   final AppState appState;
@@ -37,38 +35,6 @@ class _LandingPageState extends State<LandingPage> {
   void _updateState(AppState newState) {
     setState(() => _localState = newState);
     widget.onAppStateChanged(newState);
-  }
-
-  Future<void> _handleQuickGame(BuildContext context) async {
-    final result = await showModalBottomSheet<({AppState state, String gameId})>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => QuickStartSheet(appState: _localState),
-    );
-    if (result == null || !context.mounted) return;
-    _updateState(result.state);
-    await RatingService.onGameCreated(context);
-    if (!context.mounted) return;
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScorecardSplashPage(
-        appState: result.state,
-        onAppStateChanged: _updateState,
-        gameId: result.gameId,
-        onSaveAndReturn: () {
-          // Stack is LandingPage → ScorePage. Pop ScorePage, then push GamesPage
-          // so "Save & Return to Games" always lands on GamesPage, not Home.
-          Navigator.of(context).pop();
-          if (!context.mounted) return;
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => GamesPage(
-              appState: _localState,
-              onAppStateChanged: _updateState,
-            ),
-          ));
-        },
-      ),
-    ));
   }
 
   @override
@@ -103,22 +69,27 @@ class _LandingPageState extends State<LandingPage> {
       child: Column(
         children: [
           _buildPrimaryCard(
-            title: l10n.navQuickStart,
-            subtitle: l10n.landingQuickStartSubtitle,
-            icon: Icons.flash_on_rounded,
-            gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
-            shadowColor: AppColors.gold,
-            onTap: () => _handleQuickGame(context),
-          ),
-          const SizedBox(height: 12),
-          _buildPrimaryCard(
-            title: l10n.landingMatchHistoryTitle,
+            title: 'Games',
             subtitle: l10n.landingMatchHistorySubtitle,
             icon: Icons.sports_score_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => GamesPage(
+                appState: _localState,
+                onAppStateChanged: _updateState,
+              ),
+            )),
+          ),
+          const SizedBox(height: 12),
+          _buildPrimaryCard(
+            title: 'Tournaments',
+            subtitle: 'Manage tournaments & scrambles',
+            icon: Icons.emoji_events_rounded,
+            gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
+            shadowColor: AppColors.gold,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => TournamentsPage(
                 appState: _localState,
                 onAppStateChanged: _updateState,
               ),
@@ -226,15 +197,6 @@ class _LandingPageState extends State<LandingPage> {
             subtitle: l10n.landingTournamentManagementSub,
             icon: Icons.emoji_events_rounded,
             description: l10n.landingTournamentManagementDesc,
-          ),
-          const SizedBox(height: 10),
-          _buildAnnouncementCard(
-            context,
-            title: l10n.landingAdminTitle,
-            subtitle: l10n.landingAdminSub,
-            icon: Icons.group_rounded,
-            description: l10n.landingAdminDesc,
-            pageTitle: l10n.landingAdminPageTitle,
           ),
           const SizedBox(height: 10),
           _buildAnnouncementCard(

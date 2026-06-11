@@ -25,6 +25,9 @@
   "navPlayers": "Players",
   "@navPlayers": {},
 
+  "navAdmin": "Administration",
+  "@navAdmin": {},
+
   "navSponsoring": "Sponsoring & Promo",
   "@navSponsoring": {},
 

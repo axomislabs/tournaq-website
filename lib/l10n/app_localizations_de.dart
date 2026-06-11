@@ -33,6 +33,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navPlayers => 'Spieler';
 
   @override
+  String get navAdmin => 'Verwaltung';
+
+  @override
   String get navSponsoring => 'Sponsoring & Promo';
 
   @override

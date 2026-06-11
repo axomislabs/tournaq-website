@@ -415,16 +415,19 @@ enum ScrambleSuggestionType {
   adjustMatchDuration,
   adjustPlayerCount,
   adjustCourtCount,
+  repeatedTeammates,
 }
 
 class ScrambleSuggestion {
   final ScrambleSuggestionType type;
   final String message;
   final String? actionLabel;
+  final bool isBlocking;
 
   const ScrambleSuggestion({
     required this.type,
     required this.message,
     this.actionLabel,
+    this.isBlocking = false,
   });
 }

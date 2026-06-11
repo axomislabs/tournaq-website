@@ -15,21 +15,29 @@ class ScrambleSuggestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final blocking  = suggestion.isBlocking;
+    final bgColor   = blocking ? Colors.red.shade50   : AppColors.goldCream;
+    final bdColor   = blocking ? Colors.red.shade200  : AppColors.comingSoonBorder;
+    final iconColor = blocking ? Colors.red.shade700  : AppColors.goldDark;
+    final actColor  = blocking ? Colors.red.shade700  : AppColors.goldDark;
+    final icon      = blocking
+        ? Icons.error_outline_rounded
+        : Icons.info_outline_rounded;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.goldCream,
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.comingSoonBorder),
+        border: Border.all(color: bdColor),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 1),
-            child: Icon(Icons.info_outline_rounded,
-                size: 16, color: AppColors.goldDark),
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(icon, size: 16, color: iconColor),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -43,7 +51,7 @@ class ScrambleSuggestionCard extends StatelessWidget {
             TextButton(
               onPressed: onAction,
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.goldDark,
+                foregroundColor: actColor,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 minimumSize: Size.zero,

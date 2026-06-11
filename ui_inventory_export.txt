@@ -1,0 +1,364 @@
+
+===== lib/l10n/app_localizations.dart =====
+
+===== lib/l10n/app_localizations_es.dart =====
+8:class AppLocalizationsEs extends AppLocalizations {
+
+===== lib/l10n/app_localizations_de.dart =====
+8:class AppLocalizationsDe extends AppLocalizations {
+
+===== lib/l10n/app_localizations_en.dart =====
+8:class AppLocalizationsEn extends AppLocalizations {
+
+===== lib/app/app_theme.dart =====
+53:      drawerTheme: const DrawerThemeData(
+
+===== lib/app/app_colors.dart =====
+
+===== lib/app/app_assets.dart =====
+
+===== lib/app/app_links.dart =====
+
+===== lib/config/ad_config.dart =====
+
+===== lib/utils/url_utils.dart =====
+8:      ScaffoldMessenger.of(context).showSnackBar(
+16:      ScaffoldMessenger.of(context).showSnackBar(
+32:      ScaffoldMessenger.of(context).showSnackBar(
+
+===== lib/models/tournament_mode.dart =====
+
+===== lib/models/game_set.dart =====
+
+===== lib/models/team.dart =====
+
+===== lib/models/tournament.dart =====
+
+===== lib/models/game.dart =====
+
+===== lib/models/game_result.dart =====
+
+===== lib/models/app_user.dart =====
+
+===== lib/models/scramble_tournament.dart =====
+
+===== lib/models/game_team_lineup.dart =====
+
+===== lib/models/club.dart =====
+
+===== lib/state/app_state.dart =====
+
+===== lib/main.dart =====
+20:class MyApp extends StatefulWidget {
+28:class _MyAppState extends State<MyApp> {
+
+===== lib/pages/score_page.dart =====
+85:class ScorePage extends StatefulWidget {
+105:class _ScorePageState extends State<ScorePage> {
+204:    await showDialog<void>(
+207:      builder: (ctx) => AlertDialog(
+430:    await showModalBottomSheet<void>(
+492:    showModalBottomSheet<void>(
+501:          Navigator.of(context).push(MaterialPageRoute(
+669:    return Scaffold(
+670:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+1392:class _LineupEditorSheet extends StatefulWidget {
+1409:class _LineupEditorSheetState extends State<_LineupEditorSheet> {
+
+===== lib/pages/promo_ads_page.dart =====
+22:class PromoAdsPage extends StatefulWidget {
+36:class _PromoAdsPageState extends State<PromoAdsPage> {
+84:      MaterialPageRoute(
+93:    return Scaffold(
+94:      drawer: AppDrawer(
+
+===== lib/pages/splash_page.dart =====
+8:class SplashPage extends StatefulWidget {
+22:class _SplashPageState extends State<SplashPage> {
+33:      MaterialPageRoute(
+44:    return Scaffold(
+
+===== lib/pages/scorecard_splash_page.dart =====
+8:class ScorecardSplashPage extends StatefulWidget {
+26:class _ScorecardSplashPageState extends State<ScorecardSplashPage> {
+47:    Navigator.of(context).pushReplacement(MaterialPageRoute(
+63:class _TournaqSplash extends StatelessWidget {
+69:    return Scaffold(
+
+===== lib/pages/gameplay_history_page.dart =====
+33:class GameplayHistoryPage extends StatelessWidget {
+71:    return Scaffold(
+86:    return Scaffold(
+
+===== lib/pages/scramble_setup_page.dart =====
+19:class ScrambleSetupPage extends StatefulWidget {
+33:class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
+133:    Navigator.of(context).pushReplacement(MaterialPageRoute(
+184:    return Scaffold(
+
+===== lib/pages/user_detail_page.dart =====
+13:class UserDetailPage extends StatefulWidget {
+29:class _UserDetailPageState extends State<UserDetailPage> {
+66:    final confirmed = await showDialog<bool>(
+68:      builder: (ctx) => AlertDialog(
+101:    final confirmed = await showDialog<bool>(
+103:      builder: (ctx) => AlertDialog(
+122:      return Scaffold(
+131:    return Scaffold(
+132:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+189:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+215:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/clubs_page.dart =====
+16:class ClubsPage extends StatefulWidget {
+24:class _ClubsPageState extends State<ClubsPage> {
+50:    final result = await showModalBottomSheet<AppState>(
+144:    return Scaffold(
+145:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+210:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/teams_page.dart =====
+17:class TeamsPage extends StatefulWidget {
+25:class _TeamsPageState extends State<TeamsPage> {
+65:      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.snackbarGeneratedTeams(count))));
+70:    final result = await showModalBottomSheet<AppState>(
+151:    return Scaffold(
+152:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+226:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+234:                          Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/games_page.dart =====
+16:class GamesPage extends StatefulWidget {
+30:class _GamesPageState extends State<GamesPage> {
+95:    final ok = await showDialog<bool>(
+97:      builder: (ctx) => AlertDialog(
+127:    final result = await showModalBottomSheet<({AppState state, String gameId})>(
+147:    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+156:    return Scaffold(
+157:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+
+===== lib/pages/club_detail_page.dart =====
+14:class ClubDetailPage extends StatefulWidget {
+30:class _ClubDetailPageState extends State<ClubDetailPage> {
+67:    final confirmed = await showDialog<bool>(
+69:      builder: (ctx) => AlertDialog(
+104:    final confirmed = await showDialog<bool>(
+106:      builder: (ctx) => AlertDialog(
+141:    final confirmed = await showDialog<bool>(
+143:      builder: (ctx) => AlertDialog(
+164:      return Scaffold(
+174:    return Scaffold(
+175:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+229:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+255:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+281:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/coming_soon_page.dart =====
+9:class ComingSoonPage extends StatelessWidget {
+22:    return Scaffold(
+
+===== lib/pages/landing_page.dart =====
+14:class LandingPage extends StatefulWidget {
+28:class _LandingPageState extends State<LandingPage> {
+43:    final result = await showModalBottomSheet<({AppState state, String gameId})>(
+53:    Navigator.of(context).push(MaterialPageRoute(
+63:          Navigator.of(context).push(MaterialPageRoute(
+77:    return Scaffold(
+78:      drawer: AppDrawer(
+120:            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+261:      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/contact_page.dart =====
+17:class ContactPage extends StatefulWidget {
+31:class _ContactPageState extends State<ContactPage> {
+69:    return Scaffold(
+70:      drawer: AppDrawer(
+
+===== lib/pages/team_detail_page.dart =====
+16:class TeamDetailPage extends StatefulWidget {
+32:class _TeamDetailPageState extends State<TeamDetailPage> {
+57:    await showModalBottomSheet<void>(
+80:    final confirmed = await showDialog<bool>(
+82:      builder: (ctx) => AlertDialog(
+117:    final confirmed = await showDialog<bool>(
+119:      builder: (ctx) => AlertDialog(
+152:    final confirmed = await showDialog<bool>(
+154:      builder: (ctx) => AlertDialog(
+173:      return Scaffold(
+183:    return Scaffold(
+184:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+240:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+266:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+292:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+308:class _EditPlayersSheet extends StatefulWidget {
+325:class _EditPlayersSheetState extends State<_EditPlayersSheet> {
+
+===== lib/pages/scramble_overview_page.dart =====
+14:class ScrambleOverviewPage extends StatefulWidget {
+28:class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
+47:      MaterialPageRoute(
+60:    Navigator.of(context).push(MaterialPageRoute(
+71:    return Scaffold(
+
+===== lib/pages/scramble_stats_page.dart =====
+9:class ScrambleStatsPage extends StatelessWidget {
+20:    return Scaffold(
+212:class _StatHeader extends StatelessWidget {
+
+===== lib/pages/tournament_detail_page.dart =====
+23:class TournamentDetailPage extends StatefulWidget {
+39:class _TournamentDetailPageState extends State<TournamentDetailPage> {
+107:      ScaffoldMessenger.of(context).showSnackBar(
+125:    Navigator.of(context).push(MaterialPageRoute(
+139:      ScaffoldMessenger.of(context).showSnackBar(
+145:    showDialog<void>(
+160:      MaterialPageRoute(
+180:    showDialog<bool>(
+182:      builder: (context) => AlertDialog(
+212:      return Scaffold(
+222:    return Scaffold(
+223:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+329:                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+352:                      onTap: team == null ? null : () => Navigator.of(context).push(MaterialPageRoute(
+402:                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/tournaments_page.dart =====
+20:class TournamentsPage extends StatefulWidget {
+28:class _TournamentsPageState extends State<TournamentsPage> {
+70:    final result = await showModalBottomSheet<AppState>(
+88:    Navigator.of(context).push(MaterialPageRoute(
+97:    Navigator.of(context).push(MaterialPageRoute(
+142:      ScaffoldMessenger.of(context).showSnackBar(
+148:      ScaffoldMessenger.of(context).showSnackBar(
+206:    return Scaffold(
+207:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+317:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/scramble_scorecard_page.dart =====
+44:class ScrambleScorecardPage extends StatefulWidget {
+62:class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
+259:    final adjust = await showDialog<bool>(
+262:      builder: (ctx) => AlertDialog(
+344:    showModalBottomSheet<void>(
+448:      MaterialPageRoute(
+489:    final saved = await showModalBottomSheet<String>(
+627:    return Scaffold(
+1452:    await showDialog<void>(
+1455:      builder: (ctx) => AlertDialog(
+1587:    showDialog<void>(
+1589:      builder: (ctx) => AlertDialog(
+
+===== lib/pages/settings_page.dart =====
+11:class SettingsPage extends StatelessWidget {
+34:    return Scaffold(
+35:      drawer: AppDrawer(appState: appState, onAppStateChanged: onAppStateChanged),
+
+===== lib/pages/users_page.dart =====
+17:class UsersPage extends StatefulWidget {
+25:class _UsersPageState extends State<UsersPage> {
+65:      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.snackbarGeneratedPlayers(count))));
+70:    final result = await showModalBottomSheet<AppState>(
+156:    return Scaffold(
+157:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+229:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/services/rating_service.dart =====
+43:      ScaffoldMessenger.of(context).showSnackBar(
+52:    await showDialog<void>(
+54:      builder: (ctx) => AlertDialog(
+
+===== lib/services/local_storage_service.dart =====
+
+===== lib/services/scramble_storage_service.dart =====
+
+===== lib/services/tournament_logic_service.dart =====
+
+===== lib/services/app_data_service.dart =====
+
+===== lib/services/scramble_service.dart =====
+
+===== lib/services/locale_service.dart =====
+
+===== lib/services/consent_service.dart =====
+
+===== lib/widgets/quick_start_sheet.dart =====
+14:class QuickStartSheet extends StatefulWidget {
+23:class _QuickStartSheetState extends State<QuickStartSheet> {
+
+===== lib/widgets/hybrid_mode_setup_page.dart =====
+6:class HybridModeSetupPage extends StatefulWidget {
+20:class _HybridModeSetupPageState extends State<HybridModeSetupPage> {
+55:    return Scaffold(
+
+===== lib/widgets/scramble_game_tile.dart =====
+7:class ScrambleGameTile extends StatelessWidget {
+
+===== lib/widgets/tournaq_app_bar.dart =====
+5:class TournaQAppBar extends StatelessWidget implements PreferredSizeWidget {
+
+===== lib/widgets/assign_dialog.dart =====
+14:      ScaffoldMessenger.of(context)
+19:  return showDialog<String>(
+32:  final result = await showDialog<bool>(
+34:    builder: (ctx) => AlertDialog(
+56:class _AssignDialog extends StatefulWidget {
+64:class _AssignDialogState extends State<_AssignDialog> {
+75:    return AlertDialog(
+
+===== lib/widgets/app_drawer.dart =====
+15:class AppDrawer extends StatelessWidget {
+19:  const AppDrawer({
+30:    return Drawer(
+63:                    Navigator.of(context).push(MaterialPageRoute(
+78:                    Navigator.of(context).push(MaterialPageRoute(
+93:                    Navigator.of(context).push(MaterialPageRoute(
+108:                    Navigator.of(context).push(MaterialPageRoute(
+123:                    Navigator.of(context).push(MaterialPageRoute(
+142:                    Navigator.of(context).push(MaterialPageRoute(
+157:                    Navigator.of(context).push(MaterialPageRoute(
+172:                    Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/widgets/create_club_sheet.dart =====
+8:class CreateClubSheet extends StatefulWidget {
+15:class _CreateClubSheetState extends State<CreateClubSheet> {
+
+===== lib/widgets/create_tournament_sheet.dart =====
+13:class CreateTournamentSheet extends StatefulWidget {
+27:class _CreateTournamentSheetState extends State<CreateTournamentSheet> {
+97:      MaterialPageRoute(
+
+===== lib/widgets/create_team_sheet.dart =====
+10:class CreateTeamSheet extends StatefulWidget {
+17:class _CreateTeamSheetState extends State<CreateTeamSheet> {
+
+===== lib/widgets/scrollable_page.dart =====
+4:class ScrollablePage extends StatelessWidget {
+
+===== lib/widgets/scramble_suggestion_card.dart =====
+6:class ScrambleSuggestionCard extends StatelessWidget {
+
+===== lib/widgets/sheet_helpers.dart =====
+12:class TournaQSheet extends StatelessWidget {
+45:class _DragHandle extends StatelessWidget {
+
+===== lib/widgets/filter_bar.dart =====
+25:class FilterBar extends StatelessWidget {
+88:class _FilterGroupRow extends StatelessWidget {
+
+===== lib/widgets/single_games_dialog.dart =====
+7:class SingleGamesDialog extends StatefulWidget {
+23:class _SingleGamesDialogState extends State<SingleGamesDialog> {
+44:      ScaffoldMessenger.of(
+51:      ScaffoldMessenger.of(
+79:    return AlertDialog(
+
+===== lib/widgets/scramble_timer_widget.dart =====
+14:class ScrambleTimerWidget extends StatefulWidget {
+36:class ScrambleTimerWidgetState extends State<ScrambleTimerWidget> {
+
+===== lib/widgets/game_tile.dart =====
+8:class GameTile extends StatelessWidget {
+
+===== lib/widgets/create_player_sheet.dart =====
+9:class CreatePlayerSheet extends StatefulWidget {
+16:class _CreatePlayerSheetState extends State<CreatePlayerSheet> {

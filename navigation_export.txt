@@ -1,0 +1,193 @@
+
+===== lib/l10n/app_localizations.dart =====
+
+===== lib/l10n/app_localizations_es.dart =====
+
+===== lib/l10n/app_localizations_de.dart =====
+
+===== lib/l10n/app_localizations_en.dart =====
+
+===== lib/app/app_theme.dart =====
+53:      drawerTheme: const DrawerThemeData(
+
+===== lib/app/app_colors.dart =====
+
+===== lib/app/app_assets.dart =====
+
+===== lib/app/app_links.dart =====
+
+===== lib/config/ad_config.dart =====
+
+===== lib/utils/url_utils.dart =====
+
+===== lib/models/tournament_mode.dart =====
+
+===== lib/models/game_set.dart =====
+
+===== lib/models/team.dart =====
+
+===== lib/models/tournament.dart =====
+
+===== lib/models/game.dart =====
+
+===== lib/models/game_result.dart =====
+
+===== lib/models/app_user.dart =====
+
+===== lib/models/game_team_lineup.dart =====
+
+===== lib/models/club.dart =====
+
+===== lib/state/app_state.dart =====
+
+===== lib/main.dart =====
+
+===== lib/pages/score_page.dart =====
+204:    await showDialog<void>(
+430:    await showModalBottomSheet<void>(
+492:    showModalBottomSheet<void>(
+501:          Navigator.of(context).push(MaterialPageRoute(
+670:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+
+===== lib/pages/promo_ads_page.dart =====
+84:      MaterialPageRoute(
+94:      drawer: AppDrawer(
+
+===== lib/pages/splash_page.dart =====
+32:    Navigator.of(context).pushReplacement(
+33:      MaterialPageRoute(
+
+===== lib/pages/scorecard_splash_page.dart =====
+47:    Navigator.of(context).pushReplacement(MaterialPageRoute(
+
+===== lib/pages/gameplay_history_page.dart =====
+
+===== lib/pages/user_detail_page.dart =====
+66:    final confirmed = await showDialog<bool>(
+101:    final confirmed = await showDialog<bool>(
+132:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+189:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+215:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/clubs_page.dart =====
+50:    final result = await showModalBottomSheet<AppState>(
+145:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+210:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/teams_page.dart =====
+70:    final result = await showModalBottomSheet<AppState>(
+152:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+226:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+234:                          Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/games_page.dart =====
+95:    final ok = await showDialog<bool>(
+127:    final result = await showModalBottomSheet<({AppState state, String gameId})>(
+147:    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+157:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+
+===== lib/pages/club_detail_page.dart =====
+67:    final confirmed = await showDialog<bool>(
+104:    final confirmed = await showDialog<bool>(
+141:    final confirmed = await showDialog<bool>(
+175:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+229:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+255:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+281:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/coming_soon_page.dart =====
+
+===== lib/pages/landing_page.dart =====
+43:    final result = await showModalBottomSheet<({AppState state, String gameId})>(
+53:    Navigator.of(context).push(MaterialPageRoute(
+63:          Navigator.of(context).push(MaterialPageRoute(
+78:      drawer: AppDrawer(
+120:            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+261:      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/contact_page.dart =====
+70:      drawer: AppDrawer(
+
+===== lib/pages/team_detail_page.dart =====
+57:    await showModalBottomSheet<void>(
+80:    final confirmed = await showDialog<bool>(
+117:    final confirmed = await showDialog<bool>(
+152:    final confirmed = await showDialog<bool>(
+184:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+240:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+266:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+292:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/tournament_detail_page.dart =====
+125:    Navigator.of(context).push(MaterialPageRoute(
+145:    showDialog<void>(
+160:      MaterialPageRoute(
+180:    showDialog<bool>(
+223:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+329:                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+352:                      onTap: team == null ? null : () => Navigator.of(context).push(MaterialPageRoute(
+402:                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/tournaments_page.dart =====
+51:    final result = await showModalBottomSheet<AppState>(
+162:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+233:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/pages/settings_page.dart =====
+35:      drawer: AppDrawer(appState: appState, onAppStateChanged: onAppStateChanged),
+
+===== lib/pages/users_page.dart =====
+70:    final result = await showModalBottomSheet<AppState>(
+157:      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
+229:                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/services/rating_service.dart =====
+52:    await showDialog<void>(
+
+===== lib/services/local_storage_service.dart =====
+
+===== lib/services/tournament_logic_service.dart =====
+
+===== lib/services/app_data_service.dart =====
+
+===== lib/services/locale_service.dart =====
+
+===== lib/services/consent_service.dart =====
+
+===== lib/widgets/quick_start_sheet.dart =====
+
+===== lib/widgets/hybrid_mode_setup_page.dart =====
+
+===== lib/widgets/tournaq_app_bar.dart =====
+
+===== lib/widgets/assign_dialog.dart =====
+19:  return showDialog<String>(
+32:  final result = await showDialog<bool>(
+
+===== lib/widgets/app_drawer.dart =====
+11:class AppDrawer extends StatelessWidget {
+15:  const AppDrawer({
+26:    return Drawer(
+59:                    Navigator.of(context).push(MaterialPageRoute(
+78:                    Navigator.of(context).push(MaterialPageRoute(
+93:                    Navigator.of(context).push(MaterialPageRoute(
+108:                    Navigator.of(context).push(MaterialPageRoute(
+
+===== lib/widgets/create_club_sheet.dart =====
+
+===== lib/widgets/create_tournament_sheet.dart =====
+90:      MaterialPageRoute(
+
+===== lib/widgets/create_team_sheet.dart =====
+
+===== lib/widgets/scrollable_page.dart =====
+
+===== lib/widgets/sheet_helpers.dart =====
+
+===== lib/widgets/filter_bar.dart =====
+
+===== lib/widgets/single_games_dialog.dart =====
+
+===== lib/widgets/game_tile.dart =====
+
+===== lib/widgets/create_player_sheet.dart =====
