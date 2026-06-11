@@ -49,7 +49,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
     final l10n = AppLocalizations.of(context)!;
     final club = _club;
     if (club == null) return;
-    final items = _localState.users
+    final items = _localState.players
         .where((u) => !club.playerIds.contains(u.id))
         .map((u) => (id: u.id, name: u.name))
         .toList();
@@ -167,7 +167,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
       );
     }
 
-    final players = _localState.users.where((u) => club.playerIds.contains(u.id)).toList();
+    final players = _localState.players.where((u) => club.playerIds.contains(u.id)).toList();
     final teams = _localState.teams.where((t) => club.teamIds.contains(t.id)).toList();
     final tournaments = _localState.tournaments.where((t) => club.tournamentIds.contains(t.id)).toList();
 

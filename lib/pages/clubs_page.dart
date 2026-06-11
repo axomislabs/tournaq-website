@@ -61,7 +61,7 @@ class _ClubsPageState extends State<ClubsPage> {
   Future<void> _assignPlayer(String clubId) async {
     final club = _localState.getClubById(clubId);
     if (club == null) return;
-    final items = _localState.users
+    final items = _localState.players
         .where((u) => !club.playerIds.contains(u.id))
         .map((u) => (id: u.id, name: u.name))
         .toList();
@@ -166,7 +166,7 @@ class _ClubsPageState extends State<ClubsPage> {
             groups: [
               FilterGroup(
                 label: l10n.filterPlayer, icon: Icons.person_rounded,
-                items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
+                items: _localState.players.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),

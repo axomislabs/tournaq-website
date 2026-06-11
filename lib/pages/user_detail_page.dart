@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../models/app_user.dart';
+import '../models/player.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -40,7 +40,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     widget.onAppStateChanged(newState);
   }
 
-  AppUser? get _user => _localState.getUserById(widget.userId);
+  Player? get _user => _localState.getPlayerById(widget.userId);
 
   // ── Team ─────────────────────────────────────────────────────────────────
 

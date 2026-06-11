@@ -301,7 +301,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           final query = _playerSearchCtrl.text.toLowerCase();
-          final allExisting = widget.appState.users
+          final allExisting = widget.appState.players
               .where((u) => !_players.any((p) => p.appUserId == u.id))
               .toList();
           final filteredExisting = query.isEmpty

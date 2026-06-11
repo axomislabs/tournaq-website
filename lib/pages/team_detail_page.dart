@@ -50,7 +50,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
   Future<void> _editPlayers() async {
     final team = _team;
     if (team == null) return;
-    final users = _localState.getUsersForTeam(team.id);
+    final users = _localState.getPlayersForTeam(team.id);
     final p1Name = users.isNotEmpty ? users[0].name : 'Player 1 ${team.name}';
     final p2Name = users.length > 1 ? users[1].name : 'Player 2 ${team.name}';
 
@@ -176,7 +176,7 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
       );
     }
 
-    final teamUsers = _localState.getUsersForTeam(team.id);
+    final teamUsers = _localState.getPlayersForTeam(team.id);
     final teamTournaments = _localState.getTeamTournaments(team.id);
     final teamClubs = _localState.getTeamClubs(team.id);
 

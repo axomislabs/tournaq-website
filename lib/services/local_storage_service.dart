@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/app_user.dart';
+import '../models/player.dart';
+import 'device_id_service.dart';
 import '../models/club.dart';
 import '../models/game.dart';
 import '../models/team.dart';
@@ -18,7 +19,7 @@ import 'scramble_storage_service.dart';
 /// Storage layout (v1):
 ///   games_v1        — [Game] objects, keyed by [Game.id]
 ///   teams_v1        — [Team] objects, keyed by [Team.id]
-///   players_v1      — [AppUser] objects, keyed by [AppUser.id]
+///   players_v1      — [Player] objects, keyed by [Player.id]
 ///   clubs_v1        — [Club] objects, keyed by [Club.id]
 ///   tournaments_v1  — [Tournament] objects, keyed by [Tournament.id]
 ///   prefs_v1        — Arbitrary string key→value preferences (e.g. rating counts)
@@ -51,6 +52,7 @@ class LocalStorageService {
     await Hive.openBox<String>(_clubsBox);
     await Hive.openBox<String>(_tournamentsBox);
     await Hive.openBox<String>(_prefsBox);
+    await DeviceIdService.init();
     await ScrambleStorageService.init();
   }
 
@@ -75,8 +77,8 @@ class LocalStorageService {
         .whereType<Team>()
         .toList();
     final players = _players.values
-        .map((s) => _tryDecode(s, AppUser.fromJson))
-        .whereType<AppUser>()
+        .map((s) => _tryDecode(s, Player.fromJson))
+        .whereType<Player>()
         .toList();
     final clubs = _clubs.values
         .map((s) => _tryDecode(s, Club.fromJson))
@@ -90,7 +92,7 @@ class LocalStorageService {
     return AppState(
       games: games,
       teams: teams,
-      users: players,
+      players: players,
       clubs: clubs,
       tournaments: tournaments,
     );
@@ -108,7 +110,7 @@ class LocalStorageService {
       await _teams.put(t.id, jsonEncode(t.toJson()));
     }
     await _players.clear();
-    for (final u in state.users) {
+    for (final u in state.players) {
       await _players.put(u.id, jsonEncode(u.toJson()));
     }
     await _clubs.clear();
@@ -133,7 +135,7 @@ class LocalStorageService {
 
   static Future<void> deleteTeam(String id) async => _teams.delete(id);
 
-  static Future<void> savePlayer(AppUser player) async =>
+  static Future<void> savePlayer(Player player) async =>
       _players.put(player.id, jsonEncode(player.toJson()));
 
   static Future<void> deletePlayer(String id) async => _players.delete(id);

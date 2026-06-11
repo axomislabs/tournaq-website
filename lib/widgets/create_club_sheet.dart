@@ -169,7 +169,7 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final players = widget.appState.users.map((u) => (id: u.id, name: u.name)).toList();
+    final players = widget.appState.players.map((u) => (id: u.id, name: u.name)).toList();
     final teams = widget.appState.teams.map((t) => (id: t.id, name: t.name)).toList();
     final tournaments = widget.appState.tournaments.map((t) => (id: t.id, name: t.name)).toList();
 

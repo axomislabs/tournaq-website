@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
-import '../models/app_user.dart';
+import '../models/player.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
@@ -79,7 +79,7 @@ class _UsersPageState extends State<UsersPage> {
   // ── Actions ────────────────────────────────────────────────────────────────
 
   Future<void> _assignTeam(String userId) async {
-    final user = _localState.getUserById(userId);
+    final user = _localState.getPlayerById(userId);
     if (user == null) return;
     final items = _localState.teams
         .where((t) => !user.teamIds.contains(t.id))
@@ -109,7 +109,7 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _deletePlayer(String userId) async {
-    final user = _localState.getUserById(userId);
+    final user = _localState.getPlayerById(userId);
     if (user == null) return;
     final ok = await showConfirmDeleteDialog(context, user.name);
     if (ok && mounted) _updateState(AppDataService.deleteUser(_localState, userId));
@@ -126,9 +126,9 @@ class _UsersPageState extends State<UsersPage> {
     });
   }
 
-  List<AppUser> get _filteredUsers {
+  List<Player> get _filteredUsers {
     final q = _searchCtrl.text.toLowerCase();
-    return _localState.users.where((user) {
+    return _localState.players.where((user) {
       if (q.isNotEmpty && !user.name.toLowerCase().contains(q)) return false;
       if (_teamFilter.isNotEmpty && !user.teamIds.any(_teamFilter.contains)) return false;
       if (_tournamentFilter.isNotEmpty) {
@@ -151,7 +151,7 @@ class _UsersPageState extends State<UsersPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredUsers;
-    final total = _localState.users.length;
+    final total = _localState.players.length;
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),

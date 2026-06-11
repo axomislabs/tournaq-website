@@ -1,4 +1,5 @@
 import 'tournament_mode.dart';
+import '../services/device_id_service.dart';
 
 enum TournamentStatus { draft, inProgress, completed }
 
@@ -24,7 +25,7 @@ enum TournamentStatus { draft, inProgress, completed }
 /// `tournaments` collection. gameIds would become a subcollection or array
 /// of document references.
 class Tournament {
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   final String id;
   final String name;
@@ -33,8 +34,10 @@ class Tournament {
   final List<String> gameIds;
   final TournamentStatus status;
   final List<List<TournamentModeType>> hybridGroups;
+  final String deviceId;
+  final DateTime createdAt;
 
-  const Tournament({
+  Tournament({
     required this.id,
     required this.name,
     required this.mode,
@@ -42,7 +45,10 @@ class Tournament {
     this.gameIds = const [],
     this.status = TournamentStatus.draft,
     this.hybridGroups = const [],
-  });
+    String? deviceId,
+    DateTime? createdAt,
+  })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
+        createdAt = createdAt ?? DateTime.now();
 
   Tournament copyWith({
     String? id,
@@ -61,6 +67,8 @@ class Tournament {
       gameIds: gameIds ?? this.gameIds,
       status: status ?? this.status,
       hybridGroups: hybridGroups ?? this.hybridGroups,
+      deviceId: deviceId,
+      createdAt: createdAt,
     );
   }
 
@@ -93,6 +101,8 @@ class Tournament {
         'hybridGroups': hybridGroups
             .map((group) => group.map((t) => t.name).toList())
             .toList(),
+        'deviceId': deviceId,
+        'createdAt': createdAt.toIso8601String(),
       };
 
   factory Tournament.fromJson(Map<String, dynamic> json) {
@@ -118,6 +128,10 @@ class Tournament {
                   ))
               .toList())
           .toList(),
+      deviceId: json['deviceId'] as String? ?? '',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 }

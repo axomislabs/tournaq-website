@@ -180,7 +180,7 @@ class _TeamsPageState extends State<TeamsPage> {
             groups: [
               FilterGroup(
                 label: l10n.filterPlayer, icon: Icons.person_rounded,
-                items: _localState.users.map((u) => (id: u.id, name: u.name)).toList(),
+                items: _localState.players.map((u) => (id: u.id, name: u.name)).toList(),
                 selectedIds: _playerFilter,
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
@@ -218,7 +218,7 @@ class _TeamsPageState extends State<TeamsPage> {
               itemCount: filtered.length,
               itemBuilder: (context, index) {
                 final team = filtered[index];
-                final memberCount = _localState.getUsersForTeam(team.id).length;
+                final memberCount = _localState.getPlayersForTeam(team.id).length;
                 final tournamentCount = _localState.getTeamTournaments(team.id).length;
                 return ListTile(
                   title: Text(team.name),

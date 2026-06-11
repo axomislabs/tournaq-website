@@ -50,7 +50,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
       email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
       role: _roleCtrl.text.trim().isEmpty ? null : _roleCtrl.text.trim(),
     );
-    final playerId = state.users.last.id;
+    final playerId = state.players.last.id;
     for (final id in _teamIds) {
       state = AppDataService.assignUserToTeam(state, userId: playerId, teamId: id);
     }

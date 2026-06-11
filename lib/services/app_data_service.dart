@@ -1,4 +1,4 @@
-import '../models/app_user.dart';
+import '../models/player.dart';
 import '../models/club.dart';
 import '../models/game_set.dart';
 import '../models/game_team_lineup.dart';
@@ -45,17 +45,17 @@ class AppDataService {
     String? email,
     String? role,
   }) {
-    final user = AppUser(
+    final user = Player(
       id: AppState.generateId(),
       name: name,
       email: email,
       role: role,
     );
-    return state.addUser(user);
+    return state.addPlayer(user);
   }
 
   static AppState deleteUser(AppState state, String userId) {
-    var updatedState = state.removeUser(userId);
+    var updatedState = state.removePlayer(userId);
     // Remove player from all clubs
     for (final club in state.clubs) {
       if (club.playerIds.contains(userId)) {
@@ -65,8 +65,8 @@ class AppDataService {
     return updatedState;
   }
 
-  static AppState updateUser(AppState state, AppUser user) {
-    return state.updateUser(user);
+  static AppState updatePlayer(AppState state, Player user) {
+    return state.updatePlayer(user);
   }
 
   // TEAM OPERATIONS
@@ -82,9 +82,9 @@ class AppDataService {
   static AppState deleteTeam(AppState state, String teamId) {
     var updatedState = state;
     // Remove team from all users
-    for (final user in state.users) {
+    for (final user in state.players) {
       if (user.teamIds.contains(teamId)) {
-        updatedState = updatedState.updateUser(user.removeTeamId(teamId));
+        updatedState = updatedState.updatePlayer(user.removeTeamId(teamId));
       }
     }
     // Remove team from all tournaments
@@ -118,11 +118,11 @@ class AppDataService {
     final p1Id = AppState.generateId();
     final p2Id = AppState.generateId();
 
-    final p1 = AppUser(id: p1Id, name: 'Player 1 $name', teamIds: [teamId]);
-    final p2 = AppUser(id: p2Id, name: 'Player 2 $name', teamIds: [teamId]);
+    final p1 = Player(id: p1Id, name: 'Player 1 $name', teamIds: [teamId]);
+    final p2 = Player(id: p2Id, name: 'Player 2 $name', teamIds: [teamId]);
     final team = Team(id: teamId, name: name, scope: scope, userIds: [p1Id, p2Id]);
 
-    return state.addUser(p1).addUser(p2).addTeam(team);
+    return state.addPlayer(p1).addPlayer(p2).addTeam(team);
   }
 
   // TEAM-USER ASSIGNMENTS
@@ -131,12 +131,12 @@ class AppDataService {
     required String userId,
     required String teamId,
   }) {
-    final user = state.getUserById(userId);
+    final user = state.getPlayerById(userId);
     final team = state.getTeamById(teamId);
 
     if (user == null || team == null) return state;
 
-    var updatedState = state.updateUser(user.addTeamId(teamId));
+    var updatedState = state.updatePlayer(user.addTeamId(teamId));
     updatedState = updatedState.updateTeam(team.addUserId(userId));
     return updatedState;
   }
@@ -146,12 +146,12 @@ class AppDataService {
     required String userId,
     required String teamId,
   }) {
-    final user = state.getUserById(userId);
+    final user = state.getPlayerById(userId);
     final team = state.getTeamById(teamId);
 
     if (user == null || team == null) return state;
 
-    var updatedState = state.updateUser(user.removeTeamId(teamId));
+    var updatedState = state.updatePlayer(user.removeTeamId(teamId));
     updatedState = updatedState.updateTeam(team.removeUserId(userId));
     return updatedState;
   }
@@ -173,18 +173,18 @@ class AppDataService {
     for (int i = 0; i < 2; i++) {
       if (i < team.userIds.length) {
         final userId = team.userIds[i];
-        final user = state.getUserById(userId);
+        final user = state.getPlayerById(userId);
         if (user != null) {
-          updatedState = updatedState.updateUser(user.copyWith(name: names[i]));
+          updatedState = updatedState.updatePlayer(user.copyWith(name: names[i]));
           newUserIds.add(userId);
         } else {
-          final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
-          updatedState = updatedState.addUser(newUser);
+          final newUser = Player(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+          updatedState = updatedState.addPlayer(newUser);
           newUserIds.add(newUser.id);
         }
       } else {
-        final newUser = AppUser(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
-        updatedState = updatedState.addUser(newUser);
+        final newUser = Player(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+        updatedState = updatedState.addPlayer(newUser);
         newUserIds.add(newUser.id);
       }
     }
@@ -758,7 +758,7 @@ class AppDataService {
     required String clubId,
   }) {
     final club = state.getClubById(clubId);
-    if (club == null || state.getUserById(playerId) == null) return state;
+    if (club == null || state.getPlayerById(playerId) == null) return state;
     return state.updateClub(club.addPlayerId(playerId));
   }
 

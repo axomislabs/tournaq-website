@@ -325,7 +325,7 @@ class _TournamentDetailPageState extends State<TournamentDetailPage> {
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   child: ListTile(
                     title: Text(team.name),
-                    subtitle: Text(l10n.nPlayersCount(_localState.getUsersForTeam(team.id).length)),
+                    subtitle: Text(l10n.nPlayersCount(_localState.getPlayersForTeam(team.id).length)),
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => TeamDetailPage(
                         appState: _localState,

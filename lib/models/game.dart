@@ -1,6 +1,7 @@
 import 'game_result.dart';
 import 'game_set.dart';
 import 'game_team_lineup.dart';
+import '../services/device_id_service.dart';
 
 enum GameStatus {
   scheduled,
@@ -55,7 +56,7 @@ enum MatchFormat {
 ///   collection, with [sets] stored as a subcollection or embedded array.
 ///   [tournamentId] will become a document reference.
 class Game {
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
   final String id;
   final String? tournamentId;
   final String team1Id;
@@ -71,8 +72,10 @@ class Game {
   final String? matchWinnerTeamId;
   final List<GameTeamLineup> lineups;
   final bool hasShownScorecardIntro;
+  final String deviceId;
+  final DateTime createdAt;
 
-  const Game({
+  Game({
     required this.id,
     this.tournamentId,
     required this.team1Id,
@@ -88,7 +91,10 @@ class Game {
     this.matchWinnerTeamId,
     this.lineups = const [],
     this.hasShownScorecardIntro = false,
-  });
+    String? deviceId,
+    DateTime? createdAt,
+  })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
+        createdAt = createdAt ?? DateTime.now();
 
   // ── Match format helpers ──────────────────────────────────────────────────
 
@@ -183,6 +189,8 @@ class Game {
       matchWinnerTeamId: matchWinnerTeamId ?? this.matchWinnerTeamId,
       lineups: lineups ?? this.lineups,
       hasShownScorecardIntro: hasShownScorecardIntro ?? this.hasShownScorecardIntro,
+      deviceId: deviceId,
+      createdAt: createdAt,
     );
   }
 
@@ -203,6 +211,8 @@ class Game {
         'matchWinnerTeamId': matchWinnerTeamId,
         'lineups': lineups.map((l) => l.toJson()).toList(),
         'hasShownScorecardIntro': hasShownScorecardIntro,
+        'deviceId': deviceId,
+        'createdAt': createdAt.toIso8601String(),
       };
 
   factory Game.fromJson(Map<String, dynamic> json) => Game(
@@ -236,5 +246,9 @@ class Game {
             .map((l) => GameTeamLineup.fromJson(Map<String, dynamic>.from(l as Map)))
             .toList(),
         hasShownScorecardIntro: json['hasShownScorecardIntro'] as bool? ?? false,
+        deviceId: json['deviceId'] as String? ?? '',
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'] as String)
+            : DateTime.fromMillisecondsSinceEpoch(0),
       );
 }

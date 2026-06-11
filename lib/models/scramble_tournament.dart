@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import '../services/device_id_service.dart';
 
 const _uuid = Uuid();
 
@@ -273,8 +274,9 @@ class ScrambleTournament {
   final List<ScrambleRound> rounds;
   final List<ScrambleGame> games;
   final DateTime createdAt;
+  final String deviceId;
 
-  const ScrambleTournament({
+  ScrambleTournament({
     required this.id,
     required this.name,
     required this.totalAvailableTime,
@@ -288,7 +290,8 @@ class ScrambleTournament {
     required this.rounds,
     required this.games,
     required this.createdAt,
-  });
+    String? deviceId,
+  }) : deviceId = deviceId ?? DeviceIdService.currentDeviceId;
 
   /// How many players fill one court (both sides combined).
   int get playersPerCourt => playersPerTeam * 2;
@@ -345,6 +348,7 @@ class ScrambleTournament {
         rounds: rounds ?? this.rounds,
         games: games ?? this.games,
         createdAt: createdAt,
+        deviceId: deviceId,
       );
 
   ScrambleTournament updateGame(ScrambleGame updated) => copyWith(
@@ -371,6 +375,7 @@ class ScrambleTournament {
         'rounds': rounds.map((r) => r.toJson()).toList(),
         'games': games.map((g) => g.toJson()).toList(),
         'createdAt': createdAt.toIso8601String(),
+        'deviceId': deviceId,
       };
 
   factory ScrambleTournament.fromJson(Map<String, dynamic> j) =>
@@ -402,6 +407,7 @@ class ScrambleTournament {
                 Map<String, dynamic>.from(e as Map)))
             .toList(),
         createdAt: DateTime.parse(j['createdAt'] as String),
+        deviceId: j['deviceId'] as String? ?? '',
       );
 
   static String generateId() => _uuid.v4();

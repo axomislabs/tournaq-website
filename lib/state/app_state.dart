@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import '../models/app_user.dart';
+import '../models/player.dart';
 import '../models/club.dart';
 import '../models/team.dart';
 import '../models/tournament.dart';
@@ -16,7 +16,7 @@ import '../models/game.dart';
 ///   [LocalStorageService.saveAppState].
 ///
 /// Storage model (v1):
-///   - [games], [teams], [users] are persisted to Hive on every state change.
+///   - [games], [teams], [players] are persisted to Hive on every state change.
 ///   - [tournaments] and [clubs] are in-memory only in v1. They are rebuilt
 ///     from the app's navigation flow on each session.
 ///
@@ -24,24 +24,16 @@ import '../models/game.dart';
 ///   Entities reference each other by ID (e.g. [Team.userIds],
 ///   [Tournament.teamIds]). This prevents duplicate copies and makes updates
 ///   O(1) — only the owning list needs to change. Look up cross-references
-///   using the typed accessor methods (e.g. [getTeamById], [getUserById]).
-///
-/// Future directions:
-///   - A repository abstraction layer (e.g. GameRepository) will be inserted
-///     between [AppState] and [LocalStorageService] before Firebase migration.
-///   - The tournament and club lists will be persisted once their data models
-///     stabilize.
-///   - [AppState] itself may split into domain-specific sub-states
-///     (ScoringState, TournamentState) once the feature set grows.
+///   using the typed accessor methods (e.g. [getTeamById], [getPlayerById]).
 class AppState {
-  final List<AppUser> users;
+  final List<Player> players;
   final List<Team> teams;
   final List<Tournament> tournaments;
   final List<Game> games;
   final List<Club> clubs;
 
   const AppState({
-    this.users = const [],
+    this.players = const [],
     this.teams = const [],
     this.tournaments = const [],
     this.games = const [],
@@ -49,14 +41,14 @@ class AppState {
   });
 
   AppState copyWith({
-    List<AppUser>? users,
+    List<Player>? players,
     List<Team>? teams,
     List<Tournament>? tournaments,
     List<Game>? games,
     List<Club>? clubs,
   }) {
     return AppState(
-      users: users ?? this.users,
+      players: players ?? this.players,
       teams: teams ?? this.teams,
       tournaments: tournaments ?? this.tournaments,
       games: games ?? this.games,
@@ -64,10 +56,10 @@ class AppState {
     );
   }
 
-  // User lookups
-  AppUser? getUserById(String userId) {
+  // Player lookups
+  Player? getPlayerById(String playerId) {
     try {
-      return users.firstWhere((u) => u.id == userId);
+      return players.firstWhere((p) => p.id == playerId);
     } catch (e) {
       return null;
     }
@@ -86,10 +78,10 @@ class AppState {
     return teams.where((t) => teamIds.contains(t.id)).toList();
   }
 
-  List<AppUser> getUsersForTeam(String teamId) {
+  List<Player> getPlayersForTeam(String teamId) {
     final team = getTeamById(teamId);
     if (team == null) return [];
-    return users.where((u) => team.userIds.contains(u.id)).toList();
+    return players.where((p) => team.userIds.contains(p.id)).toList();
   }
 
   // Tournament lookups
@@ -151,19 +143,19 @@ class AppState {
     return clubs.where((c) => c.tournamentIds.contains(tournamentId)).toList();
   }
 
-  // State mutation helpers — users
-  AppState addUser(AppUser user) {
-    return copyWith(users: [...users, user]);
+  // State mutation helpers — players
+  AppState addPlayer(Player player) {
+    return copyWith(players: [...players, player]);
   }
 
-  AppState updateUser(AppUser user) {
+  AppState updatePlayer(Player player) {
     return copyWith(
-      users: users.map((u) => u.id == user.id ? user : u).toList(),
+      players: players.map((p) => p.id == player.id ? player : p).toList(),
     );
   }
 
-  AppState removeUser(String userId) {
-    return copyWith(users: users.where((u) => u.id != userId).toList());
+  AppState removePlayer(String playerId) {
+    return copyWith(players: players.where((p) => p.id != playerId).toList());
   }
 
   // State mutation helpers — teams

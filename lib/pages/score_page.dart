@@ -388,7 +388,7 @@ class _ScorePageState extends State<ScorePage> {
       (l) => l.teamId == teamId,
       orElse: () => GameTeamLineup(teamId: teamId),
     );
-    final teamUsers = _localState.getUsersForTeam(teamId);
+    final teamUsers = _localState.getPlayersForTeam(teamId);
     final teamName = _localState.getTeamById(teamId)?.name ?? 'Team';
 
     String nameAt(int index) {
@@ -416,7 +416,7 @@ class _ScorePageState extends State<ScorePage> {
       (l) => l.teamId == teamId,
       orElse: () => GameTeamLineup(teamId: teamId),
     );
-    final assigned = _localState.getUsersForTeam(teamId);
+    final assigned = _localState.getPlayersForTeam(teamId);
 
     final initialP1 =
         current.playerNames.isNotEmpty && current.playerNames[0].isNotEmpty

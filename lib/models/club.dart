@@ -1,34 +1,26 @@
-/// A club groups players, teams, and tournaments under a single organization.
-///
-/// Clubs are currently in-memory only — they are NOT persisted to Hive in v1
-/// because the full club management workflow is still evolving. This means
-/// clubs are rebuilt from scratch on each app launch, which is intentional
-/// for the initial release scope.
-///
-/// Future: Once club workflows stabilize, add a clubs_v1 Hive box in
-/// [LocalStorageService] and drive persistence through [toJson]/[fromJson].
-/// The serialization methods below are already implemented to remove the
-/// blocker when that moment arrives.
-///
-/// Firebase note: In a Firebase-backed version, Club documents would live in
-/// a `clubs` Firestore collection with subcollection references rather than
-/// embedding ID lists directly.
+import '../services/device_id_service.dart';
+
 class Club {
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   final String id;
   final String name;
   final List<String> playerIds;
   final List<String> teamIds;
   final List<String> tournamentIds;
+  final String deviceId;
+  final DateTime createdAt;
 
-  const Club({
+  Club({
     required this.id,
     required this.name,
     this.playerIds = const [],
     this.teamIds = const [],
     this.tournamentIds = const [],
-  });
+    String? deviceId,
+    DateTime? createdAt,
+  })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
+        createdAt = createdAt ?? DateTime.now();
 
   Club copyWith({
     String? id,
@@ -43,6 +35,8 @@ class Club {
       playerIds: playerIds ?? this.playerIds,
       teamIds: teamIds ?? this.teamIds,
       tournamentIds: tournamentIds ?? this.tournamentIds,
+      deviceId: deviceId,
+      createdAt: createdAt,
     );
   }
 
@@ -52,7 +46,8 @@ class Club {
   }
 
   Club removePlayerId(String playerId) {
-    return copyWith(playerIds: playerIds.where((id) => id != playerId).toList());
+    return copyWith(
+        playerIds: playerIds.where((id) => id != playerId).toList());
   }
 
   Club addTeamId(String teamId) {
@@ -61,7 +56,8 @@ class Club {
   }
 
   Club removeTeamId(String teamId) {
-    return copyWith(teamIds: teamIds.where((id) => id != teamId).toList());
+    return copyWith(
+        teamIds: teamIds.where((id) => id != teamId).toList());
   }
 
   Club addTournamentId(String tournamentId) {
@@ -71,7 +67,8 @@ class Club {
 
   Club removeTournamentId(String tournamentId) {
     return copyWith(
-      tournamentIds: tournamentIds.where((id) => id != tournamentId).toList(),
+      tournamentIds:
+          tournamentIds.where((id) => id != tournamentId).toList(),
     );
   }
 
@@ -82,13 +79,21 @@ class Club {
         'playerIds': playerIds,
         'teamIds': teamIds,
         'tournamentIds': tournamentIds,
+        'deviceId': deviceId,
+        'createdAt': createdAt.toIso8601String(),
       };
 
   factory Club.fromJson(Map<String, dynamic> json) => Club(
         id: json['id'] as String,
         name: json['name'] as String,
-        playerIds: List<String>.from(json['playerIds'] as List? ?? []),
+        playerIds:
+            List<String>.from(json['playerIds'] as List? ?? []),
         teamIds: List<String>.from(json['teamIds'] as List? ?? []),
-        tournamentIds: List<String>.from(json['tournamentIds'] as List? ?? []),
+        tournamentIds:
+            List<String>.from(json['tournamentIds'] as List? ?? []),
+        deviceId: json['deviceId'] as String? ?? '',
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'] as String)
+            : DateTime.fromMillisecondsSinceEpoch(0),
       );
 }
