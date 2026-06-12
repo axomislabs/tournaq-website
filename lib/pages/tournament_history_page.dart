@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/doghouse_drill.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../models/scramble_tournament.dart';
+import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
+import 'doghouse_scoreboard_page.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'scramble_overview_page.dart';
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
-enum TournamentFilter { all, scramble, kingOfTheCourt }
+enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse }
 
 extension on TournamentFilter {
   String get label => switch (this) {
-        TournamentFilter.all           => 'All',
-        TournamentFilter.scramble      => 'Social Scramble',
+        TournamentFilter.all            => 'All',
+        TournamentFilter.scramble       => 'Social Scramble',
         TournamentFilter.kingOfTheCourt => 'King of the Court',
+        TournamentFilter.doghouse       => 'Doghouse',
       };
 }
 
@@ -45,6 +49,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
   late TournamentFilter _filter;
   List<ScrambleTournament> _scrambles = [];
   List<KingOfTheCourtTournament> _kotcTournaments = [];
+  List<DoghouseTournament> _doghouseDrills = [];
 
   @override
   void initState() {
@@ -52,8 +57,9 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     _filter = widget.initialFilter;
     final scrambles = ScrambleStorageService.loadAll();
     scrambles.sort((a, b) => b.startTime.compareTo(a.startTime));
-    _scrambles = scrambles;
+    _scrambles       = scrambles;
     _kotcTournaments = KingOfTheCourtStorageService.loadAll();
+    _doghouseDrills  = DoghouseStorageService.loadAll();
   }
 
   void _onScrambleChanged(ScrambleTournament t) {
@@ -76,6 +82,16 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     });
   }
 
+  void _onDoghouseChanged(DoghouseTournament d) {
+    DoghouseStorageService.save(d);
+    setState(() {
+      final idx = _doghouseDrills.indexWhere((e) => e.id == d.id);
+      if (idx >= 0) {
+        _doghouseDrills = List.from(_doghouseDrills)..[idx] = d;
+      }
+    });
+  }
+
   // ── Filtered items ────────────────────────────────────────────────────────
 
   List<_HistoryEntry> get _entries {
@@ -90,6 +106,12 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
         _filter == TournamentFilter.kingOfTheCourt) {
       for (final s in _kotcTournaments) {
         entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.appState));
+      }
+    }
+    if (_filter == TournamentFilter.all ||
+        _filter == TournamentFilter.doghouse) {
+      for (final d in _doghouseDrills) {
+        entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.appState));
       }
     }
     entries.sort((a, b) => b.date.compareTo(a.date));
@@ -293,6 +315,41 @@ class _HistoryEntry {
           tournament: s,
           appState:   appState,
           onChanged:  onChanged,
+        ),
+      )),
+    );
+  }
+
+  factory _HistoryEntry.fromDoghouse(
+    DoghouseTournament d,
+    void Function(DoghouseTournament) onChanged,
+    AppState appState,
+  ) {
+    final statusLabel = switch (d.status) {
+      DoghouseTournamentStatus.completed  => 'Completed',
+      DoghouseTournamentStatus.inProgress => 'In Progress',
+      DoghouseTournamentStatus.setup      => 'Setup',
+    };
+
+    return _HistoryEntry(
+      name:        d.name,
+      typeLabel:   'Doghouse',
+      typeColor:   AppColors.gold,
+      typeIcon:    Icons.pets_rounded,
+      dateLabel:   _dateLabel(d.createdAt),
+      statusLabel: statusLabel,
+      isActive:    d.status != DoghouseTournamentStatus.completed,
+      date:        d.createdAt,
+      stats: [
+        '${d.playerCount} players',
+        '${d.gameCount} games',
+        '${d.totalEscapes} escapes',
+      ],
+      onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
+        builder: (_) => DoghouseScoreboardPage(
+          tournament: d,
+          appState:  appState,
+          onChanged: onChanged,
         ),
       )),
     );

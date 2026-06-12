@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/player.dart';
 import '../services/app_data_service.dart';
+import '../services/local_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -96,6 +98,22 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
   }
 
+  Future<void> _setSkillRating(int rating) async {
+    final user = _user;
+    if (user == null) return;
+    final updated = user.copyWith(skillRating: rating);
+    await LocalStorageService.savePlayer(updated);
+    _updateState(_localState.updatePlayer(updated));
+  }
+
+  Future<void> _clearSkillRating() async {
+    final user = _user;
+    if (user == null) return;
+    final updated = user.copyWith(clearSkillRating: true);
+    await LocalStorageService.savePlayer(updated);
+    _updateState(_localState.updatePlayer(updated));
+  }
+
   Future<void> _removeFromClub(String clubId) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -113,6 +131,83 @@ class _UserDetailPageState extends State<UserDetailPage> {
       _updateState(AppDataService.removePlayerFromClub(_localState, playerId: widget.userId, clubId: clubId));
     }
   }
+
+  Widget _buildSkillLevelRow(Player user) {
+    final current = user.skillRating;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text(
+              'Skill Level',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54),
+            ),
+            const SizedBox(width: 6),
+            if (current != null)
+              GestureDetector(
+                onTap: _clearSkillRating,
+                child: const Icon(Icons.close_rounded, size: 14, color: Colors.black38),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: List.generate(10, (i) {
+            final level = i + 1;
+            final selected = current != null && level <= current;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => _setSkillRating(level),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: selected ? AppColors.gold : Colors.white.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: selected ? AppColors.goldDark : Colors.white.withValues(alpha: 0.6),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$level',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: selected ? Colors.white : Colors.black45,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          current == null
+              ? 'Not set — required for seeded tournaments'
+              : _skillLabel(current),
+          style: TextStyle(
+            fontSize: 11,
+            color: current == null ? Colors.orange.shade700 : Colors.black45,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _skillLabel(int rating) => switch (rating) {
+        1 || 2 => 'Beginner',
+        3 || 4 => 'Recreational',
+        5 || 6 => 'Intermediate',
+        7 || 8 => 'Advanced',
+        9 || 10 => 'Elite',
+        _ => '',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +247,8 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       const SizedBox(height: 4),
                       Text(l10n.userRoleLabel(user.role!), style: const TextStyle(color: Colors.black54)),
                     ],
+                    const SizedBox(height: 16),
+                    _buildSkillLevelRow(user),
                     const SizedBox(height: 16),
                     Wrap(spacing: 10, runSpacing: 8, children: [
                       ElevatedButton.icon(

@@ -9,6 +9,8 @@ import '../models/tournament.dart';
 import '../state/app_state.dart';
 import 'scramble_storage_service.dart';
 import 'king_of_the_court_storage_service.dart';
+import 'doghouse_storage_service.dart';
+import 'ko_bracket_storage_service.dart';
 
 /// Local persistence layer for TournaQ.
 ///
@@ -56,6 +58,8 @@ class LocalStorageService {
     await DeviceIdService.init();
     await ScrambleStorageService.init();
     await KingOfTheCourtStorageService.init();
+    await DoghouseStorageService.init();
+    await KoBracketStorageService.init();
   }
 
   // ── Box accessors ──────────────────────────────────────────────────────────

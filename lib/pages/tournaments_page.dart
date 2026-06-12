@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
+import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
+import 'doghouse_hub_page.dart';
 import 'king_of_the_court_hub_page.dart';
+import 'ko_bracket_hub_page.dart';
 import 'scramble_hub_page.dart';
 import 'tournament_history_page.dart';
 
@@ -26,15 +30,19 @@ class TournamentsPage extends StatefulWidget {
 
 class _TournamentsPageState extends State<TournamentsPage> {
   late AppState _localState;
-  int _scrambleCount = 0;
-  int _kotcCount = 0;
+  int _scrambleCount  = 0;
+  int _kotcCount      = 0;
+  int _doghouseCount  = 0;
+  int _koBracketCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _localState = widget.appState;
-    _scrambleCount = ScrambleStorageService.loadAll().length;
-    _kotcCount = KingOfTheCourtStorageService.loadAll().length;
+    _localState      = widget.appState;
+    _scrambleCount   = ScrambleStorageService.loadAll().length;
+    _kotcCount       = KingOfTheCourtStorageService.loadAll().length;
+    _doghouseCount   = DoghouseStorageService.loadAll().length;
+    _koBracketCount  = KoBracketStorageService.loadAll().length;
   }
 
   void _updateState(AppState s) {
@@ -44,8 +52,10 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
   void _refreshCounts() {
     setState(() {
-      _scrambleCount = ScrambleStorageService.loadAll().length;
-      _kotcCount = KingOfTheCourtStorageService.loadAll().length;
+      _scrambleCount  = ScrambleStorageService.loadAll().length;
+      _kotcCount      = KingOfTheCourtStorageService.loadAll().length;
+      _doghouseCount  = DoghouseStorageService.loadAll().length;
+      _koBracketCount = KoBracketStorageService.loadAll().length;
     });
   }
 
@@ -71,6 +81,17 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .then((_) => _refreshCounts());
   }
 
+  void _openDoghouseHub() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => DoghouseHubPage(
+            appState: _localState,
+            onAppStateChanged: _updateState,
+          ),
+        ))
+        .then((_) => _refreshCounts());
+  }
+
   void _openHistory({TournamentFilter filter = TournamentFilter.all}) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TournamentHistoryPage(
@@ -79,6 +100,17 @@ class _TournamentsPageState extends State<TournamentsPage> {
         initialFilter: filter,
       ),
     ));
+  }
+
+  void _openKoBracketHub() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => KoBracketHubPage(
+            appState: _localState,
+            onAppStateChanged: _updateState,
+          ),
+        ))
+        .then((_) => _refreshCounts());
   }
 
   void _openComingSoon(String title, String description) {
@@ -123,15 +155,12 @@ class _TournamentsPageState extends State<TournamentsPage> {
               ),
               _TypeTile(
                 icon:        Icons.pets_rounded,
-                color:       const Color(0xFF795548),
-                gradientEnd: const Color(0xFF4E342E),
+                color:       AppColors.gold,
+                gradientEnd: AppColors.goldGradientEnd,
                 name:        'Doghouse',
-                description: 'Losers bracket consolation',
-                comingSoon:  true,
-                onTap: () => _openComingSoon(
-                    'Doghouse',
-                    'A consolation bracket where eliminated '
-                    'players keep competing for pride.'),
+                description: 'Get out of the Doghouse',
+                count:       _doghouseCount,
+                onTap:       _openDoghouseHub,
               ),
             ]),
 
@@ -158,11 +187,8 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 gradientEnd: const Color(0xFF3949AB),
                 name:        'Single Elimination',
                 description: 'Classic knockout bracket',
-                comingSoon:  true,
-                onTap: () => _openComingSoon(
-                    'Single Elimination',
-                    'Classic knockout bracket — one loss and '
-                    'you\'re out.'),
+                count:       _koBracketCount,
+                onTap:       _openKoBracketHub,
               ),
               _TypeTile(
                 icon:        Icons.device_hub_rounded,
@@ -219,9 +245,9 @@ class _TournamentsPageState extends State<TournamentsPage> {
             _sectionHeader('History', Icons.history_rounded),
             const SizedBox(height: 12),
             _HistoryShortcutTile(
-              label:   'All Tournaments',
-              count:   _scrambleCount + _kotcCount,
-              onTap:   _openHistory,
+              label: 'All Tournaments',
+              count: _scrambleCount + _kotcCount + _doghouseCount,
+              onTap: _openHistory,
             ),
             const SizedBox(height: 6),
             _HistoryShortcutTile(
@@ -238,6 +264,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
               typeColor: AppColors.gold,
               typeIcon:  Icons.workspace_premium_rounded,
               onTap: () => _openHistory(filter: TournamentFilter.kingOfTheCourt),
+            ),
+            const SizedBox(height: 6),
+            _HistoryShortcutTile(
+              label:     'Doghouse',
+              count:     _doghouseCount,
+              typeColor: AppColors.gold,
+              typeIcon:  Icons.pets_rounded,
+              onTap: () => _openHistory(filter: TournamentFilter.doghouse),
             ),
           ],
         ),

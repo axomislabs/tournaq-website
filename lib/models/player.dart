@@ -9,6 +9,8 @@ class Player {
   final String? role;
   final String deviceId;
   final DateTime createdAt;
+  // 1 = beginner, 10 = elite. null = unrated.
+  final int? skillRating;
 
   Player({
     required this.id,
@@ -18,6 +20,7 @@ class Player {
     this.role,
     String? deviceId,
     DateTime? createdAt,
+    this.skillRating,
   })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
         createdAt = createdAt ?? DateTime.now();
 
@@ -27,6 +30,8 @@ class Player {
     String? email,
     List<String>? teamIds,
     String? role,
+    int? skillRating,
+    bool clearSkillRating = false,
   }) {
     return Player(
       id: id ?? this.id,
@@ -36,6 +41,7 @@ class Player {
       role: role ?? this.role,
       deviceId: deviceId,
       createdAt: createdAt,
+      skillRating: clearSkillRating ? null : (skillRating ?? this.skillRating),
     );
   }
 
@@ -59,6 +65,7 @@ class Player {
         'role': role,
         'deviceId': deviceId,
         'createdAt': createdAt.toIso8601String(),
+        'skillRating': skillRating,
       };
 
   factory Player.fromJson(Map<String, dynamic> json) => Player(
@@ -71,5 +78,6 @@ class Player {
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'] as String)
             : DateTime.fromMillisecondsSinceEpoch(0),
+        skillRating: json['skillRating'] as int?,
       );
 }
