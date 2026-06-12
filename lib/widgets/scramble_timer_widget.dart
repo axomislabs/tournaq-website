@@ -60,6 +60,7 @@ class ScrambleTimerWidgetState extends State<ScrambleTimerWidget> {
   void resume() => _resume();
   void restart() => _restart();
   Duration get elapsed => _elapsed;
+  Duration get remaining => _remaining;
   ScrambleTimerState get timerState => _state;
 
   void addTime(Duration delta) {

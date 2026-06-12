@@ -108,21 +108,23 @@ class AppDataService {
     return state.updateTeam(team);
   }
 
-  /// Creates a team and automatically adds two default placeholder players.
+  /// Creates a team and automatically adds [playerCount] default placeholder players.
   static AppState createTeamWithPlayers(
     AppState state, {
     required String name,
     required TeamScope scope,
+    int playerCount = 2,
   }) {
     final teamId = AppState.generateId();
-    final p1Id = AppState.generateId();
-    final p2Id = AppState.generateId();
-
-    final p1 = Player(id: p1Id, name: 'Player 1 $name', teamIds: [teamId]);
-    final p2 = Player(id: p2Id, name: 'Player 2 $name', teamIds: [teamId]);
-    final team = Team(id: teamId, name: name, scope: scope, userIds: [p1Id, p2Id]);
-
-    return state.addPlayer(p1).addPlayer(p2).addTeam(team);
+    final playerIds = List.generate(playerCount, (_) => AppState.generateId());
+    var updatedState = state;
+    for (var i = 0; i < playerCount; i++) {
+      updatedState = updatedState.addPlayer(
+        Player(id: playerIds[i], name: 'Player ${i + 1} $name', teamIds: [teamId]),
+      );
+    }
+    final team = Team(id: teamId, name: name, scope: scope, userIds: playerIds);
+    return updatedState.addTeam(team);
   }
 
   // TEAM-USER ASSIGNMENTS

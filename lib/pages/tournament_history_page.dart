@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/king_of_the_court_tournament.dart';
 import '../models/scramble_tournament.dart';
+import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
+import 'king_of_the_court_scoreboard_page.dart';
 import 'scramble_overview_page.dart';
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
-enum TournamentFilter { all, scramble }
+enum TournamentFilter { all, scramble, kingOfTheCourt }
 
 extension on TournamentFilter {
   String get label => switch (this) {
-        TournamentFilter.all      => 'All',
-        TournamentFilter.scramble => 'Social Scramble',
+        TournamentFilter.all           => 'All',
+        TournamentFilter.scramble      => 'Social Scramble',
+        TournamentFilter.kingOfTheCourt => 'King of the Court',
       };
 }
 
@@ -40,14 +44,16 @@ class TournamentHistoryPage extends StatefulWidget {
 class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
   late TournamentFilter _filter;
   List<ScrambleTournament> _scrambles = [];
+  List<KingOfTheCourtTournament> _kotcTournaments = [];
 
   @override
   void initState() {
     super.initState();
     _filter = widget.initialFilter;
-    final all = ScrambleStorageService.loadAll();
-    all.sort((a, b) => b.startTime.compareTo(a.startTime));
-    _scrambles = all;
+    final scrambles = ScrambleStorageService.loadAll();
+    scrambles.sort((a, b) => b.startTime.compareTo(a.startTime));
+    _scrambles = scrambles;
+    _kotcTournaments = KingOfTheCourtStorageService.loadAll();
   }
 
   void _onScrambleChanged(ScrambleTournament t) {
@@ -60,6 +66,16 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     });
   }
 
+  void _onKotcChanged(KingOfTheCourtTournament s) {
+    KingOfTheCourtStorageService.save(s);
+    setState(() {
+      final idx = _kotcTournaments.indexWhere((e) => e.id == s.id);
+      if (idx >= 0) {
+        _kotcTournaments = List.from(_kotcTournaments)..[idx] = s;
+      }
+    });
+  }
+
   // ── Filtered items ────────────────────────────────────────────────────────
 
   List<_HistoryEntry> get _entries {
@@ -67,10 +83,16 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.scramble) {
       for (final t in _scrambles) {
-        entries.add(_HistoryEntry.fromScramble(t));
+        entries.add(_HistoryEntry.fromScramble(t, _onScrambleChanged));
       }
     }
-    // Future types added here when available.
+    if (_filter == TournamentFilter.all ||
+        _filter == TournamentFilter.kingOfTheCourt) {
+      for (final s in _kotcTournaments) {
+        entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.appState));
+      }
+    }
+    entries.sort((a, b) => b.date.compareTo(a.date));
     return entries;
   }
 
@@ -159,7 +181,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
                         statusLabel: e.statusLabel,
                         isActive:    e.isActive,
                         stats:       e.stats,
-                        onTap:       () => e.onTap(context, _onScrambleChanged),
+                        onTap:       () => e.onTap(context),
                       );
                     },
                   ),
@@ -181,7 +203,8 @@ class _HistoryEntry {
   final String statusLabel;
   final bool isActive;
   final List<String> stats;
-  final void Function(BuildContext, void Function(ScrambleTournament)) onTap;
+  final DateTime date;
+  final void Function(BuildContext) onTap;
 
   const _HistoryEntry({
     required this.name,
@@ -192,23 +215,25 @@ class _HistoryEntry {
     required this.statusLabel,
     required this.isActive,
     required this.stats,
+    required this.date,
     required this.onTap,
   });
 
-  factory _HistoryEntry.fromScramble(ScrambleTournament t) {
-    final d    = t.startTime;
+  static String _dateLabel(DateTime d) {
     final now  = DateTime.now();
     final diff = DateTime(now.year, now.month, now.day)
         .difference(DateTime(d.year, d.month, d.day))
         .inDays;
-    final dateLabel = diff == 0
-        ? 'Today'
-        : diff == 1
-            ? 'Yesterday'
-            : diff < 7
-                ? '$diff days ago'
-                : '${d.day}/${d.month}/${d.year}';
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    if (diff < 7)  return '$diff days ago';
+    return '${d.day}/${d.month}/${d.year}';
+  }
 
+  factory _HistoryEntry.fromScramble(
+    ScrambleTournament t,
+    void Function(ScrambleTournament) onChanged,
+  ) {
     final statusLabel = switch (t.status) {
       ScrambleTournamentStatus.completed  => 'Completed',
       ScrambleTournamentStatus.inProgress => 'In Progress',
@@ -220,17 +245,53 @@ class _HistoryEntry {
       typeLabel:   'Social Scramble',
       typeColor:   AppColors.gold,
       typeIcon:    Icons.shuffle_rounded,
-      dateLabel:   dateLabel,
+      dateLabel:   _dateLabel(t.startTime),
       statusLabel: statusLabel,
       isActive:    t.status != ScrambleTournamentStatus.completed,
+      date:        t.startTime,
       stats: [
         '${t.playerCount} players',
         '${t.roundCount} rounds',
         '${t.completedGames}/${t.totalGames} games',
       ],
-      onTap: (ctx, onChanged) => Navigator.of(ctx).push(MaterialPageRoute(
+      onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => ScrambleOverviewPage(
           tournament: t,
+          onChanged:  onChanged,
+        ),
+      )),
+    );
+  }
+
+  factory _HistoryEntry.fromKotc(
+    KingOfTheCourtTournament s,
+    void Function(KingOfTheCourtTournament) onChanged,
+    AppState appState,
+  ) {
+    final statusLabel = switch (s.status) {
+      KotcTournamentStatus.completed  => 'Completed',
+      KotcTournamentStatus.inProgress => 'In Progress',
+      KotcTournamentStatus.setup      => 'Setup',
+    };
+
+    return _HistoryEntry(
+      name:        s.name,
+      typeLabel:   'King of the Court',
+      typeColor:   AppColors.gold,
+      typeIcon:    Icons.workspace_premium_rounded,
+      dateLabel:   _dateLabel(s.createdAt),
+      statusLabel: statusLabel,
+      isActive:    s.status != KotcTournamentStatus.completed,
+      date:        s.createdAt,
+      stats: [
+        '${s.playerCount} players',
+        '${s.gameCount} games',
+        '${s.totalPoints} pts scored',
+      ],
+      onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
+        builder: (_) => KingOfTheCourtScoreboardPage(
+          tournament: s,
+          appState:   appState,
           onChanged:  onChanged,
         ),
       )),

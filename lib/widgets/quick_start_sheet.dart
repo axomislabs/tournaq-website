@@ -23,6 +23,7 @@ class QuickStartSheet extends StatefulWidget {
 class _QuickStartSheetState extends State<QuickStartSheet> {
   MatchFormat? _format;
   _TeamMethod? _method;
+  int _playersPerTeam = 2;
   late AppState _state;
 
   String? _team1Id;
@@ -94,12 +95,14 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       _state,
       name: name1,
       scope: TeamScope.temporary,
+      playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: name2,
       scope: TeamScope.temporary,
+      playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
     _state = newState;
@@ -111,12 +114,14 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       _state,
       name: _randomTeam1Name,
       scope: TeamScope.temporary,
+      playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: _randomTeam2Name,
       scope: TeamScope.temporary,
+      playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
     _state = newState;
@@ -170,7 +175,8 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               _compactHeader(Icons.flash_on_rounded, l10n.quickStartShort),
               const SizedBox(height: 6),
-              Text(l10n.quickStartFormatQuestion, style: const TextStyle(color: Colors.black54, fontSize: 14)),
+              Text(l10n.quickStartFormatQuestion,
+                  style: const TextStyle(color: Colors.black54, fontSize: 14)),
             ]),
           ),
           const SizedBox(width: 16),
@@ -191,11 +197,43 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       children: [
         _fullHeader(Icons.flash_on_rounded, l10n.quickStartTitle),
         const SizedBox(height: 8),
-        Text(l10n.quickStartFormatQuestion, style: const TextStyle(color: Colors.black54, fontSize: 15)),
+        Text(l10n.quickStartFormatQuestion,
+            style: const TextStyle(color: Colors.black54, fontSize: 15)),
         const SizedBox(height: 24),
         card1,
         const SizedBox(height: 12),
         card2,
+      ],
+    );
+  }
+
+  Widget _buildPlayerCountSelector() {
+    return Row(
+      children: [
+        const Text(
+          'Style',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
+        ),
+        const SizedBox(width: 12),
+        DropdownButton<int>(
+          value: _playersPerTeam,
+          items: List.generate(5, (i) {
+            final n = i + 2;
+            return DropdownMenuItem(value: n, child: Text('${n}vs$n'));
+          }),
+          onChanged: (v) => setState(() => _playersPerTeam = v!),
+          underline: const SizedBox.shrink(),
+          borderRadius: BorderRadius.circular(10),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Colors.black87,
+          ),
+        ),
       ],
     );
   }
@@ -555,6 +593,8 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             ),
           ])),
         ]),
+        const SizedBox(height: 10),
+        _buildPlayerCountSelector(),
       ]);
     }
 
@@ -580,7 +620,9 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           textCapitalization: TextCapitalization.words,
           onChanged: (_) => setState(() {}),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 20),
+        _buildPlayerCountSelector(),
+        const SizedBox(height: 20),
         _buildStartButton(l10n, onPressed: canStart ? _startWithNewTeams : null),
       ],
     );
@@ -625,6 +667,8 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           ),
           Expanded(child: _buildRandomTeamBadge(_randomTeam2Name, compact: true)),
         ]),
+        const SizedBox(height: 10),
+        _buildPlayerCountSelector(),
       ]);
     }
 
@@ -655,6 +699,8 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
+        const SizedBox(height: 12),
+        _buildPlayerCountSelector(),
         const SizedBox(height: 12),
         _buildStartButton(l10n, onPressed: _startWithRandomTeams),
       ],

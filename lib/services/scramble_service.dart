@@ -17,6 +17,10 @@ class ScrambleService {
 
   static final _rng = Random();
   static const _mixingAttempts = 300;
+  // Beyond this player count the optimiser switches to statistical mode:
+  // court groupings are too numerous to sample meaningfully, so fewer
+  // attempts are used and repeats are naturally rare at scale.
+  static const _exhaustivePlayerLimit = 32;
 
   static const _randomFirstNames = [
     'Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery',
@@ -119,6 +123,7 @@ class ScrambleService {
         teammateCount: teammateCount,
         opponentCount: opponentCount,
         playerIndex: playerIndex,
+        totalPlayers: n,
       );
 
       for (var c = 0; c < courtAssignments.length; c++) {
@@ -177,12 +182,16 @@ class ScrambleService {
     required List<List<int>> teammateCount,
     required List<List<int>> opponentCount,
     required Map<String, int> playerIndex,
+    required int totalPlayers,
   }) {
     final playersPerCourt = playersPerTeam * 2;
+    final attempts = totalPlayers <= _exhaustivePlayerLimit
+        ? _mixingAttempts
+        : 30; // statistical mode — repeats are rare at scale anyway
     List<(List<ScramblePlayer>, List<ScramblePlayer>)>? best;
     var bestScore = double.infinity;
 
-    for (var attempt = 0; attempt < _mixingAttempts; attempt++) {
+    for (var attempt = 0; attempt < attempts; attempt++) {
       final shuffled = List<ScramblePlayer>.from(activePlayers)..shuffle(_rng);
 
       final candidate = <(List<ScramblePlayer>, List<ScramblePlayer>)>[];
@@ -380,6 +389,15 @@ class ScrambleService {
             'Add more players or switch to a smaller format.',
       ));
       return suggestions;
+    }
+
+    if (playerCount > _exhaustivePlayerLimit) {
+      suggestions.add(ScrambleSuggestion(
+        type: ScrambleSuggestionType.largeGroup,
+        message: 'With $playerCount players the mixing becomes statistical — '
+            'everyone-against-everyone is no longer guaranteed, but equal '
+            'play time still is. This works well for large events.',
+      ));
     }
 
     // Fair-unit: smallest round count where every player has played equally.

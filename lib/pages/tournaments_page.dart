@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
+import 'king_of_the_court_hub_page.dart';
 import 'scramble_hub_page.dart';
 import 'tournament_history_page.dart';
 
@@ -25,17 +27,26 @@ class TournamentsPage extends StatefulWidget {
 class _TournamentsPageState extends State<TournamentsPage> {
   late AppState _localState;
   int _scrambleCount = 0;
+  int _kotcCount = 0;
 
   @override
   void initState() {
     super.initState();
     _localState = widget.appState;
     _scrambleCount = ScrambleStorageService.loadAll().length;
+    _kotcCount = KingOfTheCourtStorageService.loadAll().length;
   }
 
   void _updateState(AppState s) {
     setState(() => _localState = s);
     widget.onAppStateChanged(s);
+  }
+
+  void _refreshCounts() {
+    setState(() {
+      _scrambleCount = ScrambleStorageService.loadAll().length;
+      _kotcCount = KingOfTheCourtStorageService.loadAll().length;
+    });
   }
 
   void _openScrambleHub() {
@@ -46,8 +57,18 @@ class _TournamentsPageState extends State<TournamentsPage> {
             onAppStateChanged: _updateState,
           ),
         ))
-        .then((_) => setState(
-            () => _scrambleCount = ScrambleStorageService.loadAll().length));
+        .then((_) => _refreshCounts());
+  }
+
+  void _openKotcHub() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => KingOfTheCourtHubPage(
+            appState: _localState,
+            onAppStateChanged: _updateState,
+          ),
+        ))
+        .then((_) => _refreshCounts());
   }
 
   void _openHistory({TournamentFilter filter = TournamentFilter.all}) {
@@ -93,15 +114,12 @@ class _TournamentsPageState extends State<TournamentsPage> {
               ),
               _TypeTile(
                 icon:        Icons.workspace_premium_rounded,
-                color:       const Color(0xFFFF8F00),
-                gradientEnd: const Color(0xFFF57F17),
+                color:       AppColors.gold,
+                gradientEnd: AppColors.goldGradientEnd,
                 name:        'King of the Court',
                 description: 'Winners stay, challengers rotate',
-                comingSoon:  true,
-                onTap: () => _openComingSoon(
-                    'King of the Court',
-                    'Winners stay on court and face the next '
-                    'challengers — last team standing wins.'),
+                count:       _kotcCount,
+                onTap:       _openKotcHub,
               ),
               _TypeTile(
                 icon:        Icons.pets_rounded,
@@ -202,7 +220,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             const SizedBox(height: 12),
             _HistoryShortcutTile(
               label:   'All Tournaments',
-              count:   _scrambleCount,
+              count:   _scrambleCount + _kotcCount,
               onTap:   _openHistory,
             ),
             const SizedBox(height: 6),
@@ -212,6 +230,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
               typeColor: AppColors.gold,
               typeIcon:  Icons.shuffle_rounded,
               onTap: () => _openHistory(filter: TournamentFilter.scramble),
+            ),
+            const SizedBox(height: 6),
+            _HistoryShortcutTile(
+              label:     'King of the Court',
+              count:     _kotcCount,
+              typeColor: AppColors.gold,
+              typeIcon:  Icons.workspace_premium_rounded,
+              onTap: () => _openHistory(filter: TournamentFilter.kingOfTheCourt),
             ),
           ],
         ),

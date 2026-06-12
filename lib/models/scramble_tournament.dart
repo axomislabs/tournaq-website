@@ -422,6 +422,7 @@ enum ScrambleSuggestionType {
   adjustPlayerCount,
   adjustCourtCount,
   repeatedTeammates,
+  largeGroup,
 }
 
 class ScrambleSuggestion {

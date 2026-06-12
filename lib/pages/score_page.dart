@@ -50,10 +50,10 @@ import '../models/game_team_lineup.dart';
 import '../services/app_data_service.dart';
 import '../services/local_storage_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
+import '../widgets/player_pill.dart';
 
 // File-local color constants — mirror values from AppColors.
 // These are kept local to avoid importing app/ in a frequently-rebuilt widget.
@@ -114,7 +114,9 @@ class _ScorePageState extends State<ScorePage> {
   // Display orientation — flips left/right without touching stored scores.
   bool _isSwapped = false;
 
-  // Active player cycle: 0=team1P1, 1=team2P1, 2=team1P2, 3=team2P2
+  // Active player cycle: even index = team1 serving, odd = team2 serving.
+  // _activePlayerIndex ~/ 2 gives the index of the serving player on their team.
+  // Cycles 0..(2*_playersPerTeam - 1).
   int _activePlayerIndex = 0;
 
   // Service-change undo stack — cleared on set switch.
@@ -133,6 +135,12 @@ class _ScorePageState extends State<ScorePage> {
   bool get _isActiveSetCompleted => _game.currentSet?.isCompleted ?? false;
   bool get _isGameComplete => _game.isMatchComplete;
   bool get _isTeam1Serving => _activePlayerIndex % 2 == 0;
+  int get _activePlayerOnSide => _activePlayerIndex ~/ 2;
+  int get _playersPerTeam {
+    final lineup = _game.lineups.isNotEmpty ? _game.lineups.first : null;
+    final count = lineup?.playerNames.length ?? 0;
+    return count > 0 ? count : _localState.getPlayersForTeam(_game.team1Id).length.clamp(2, 6);
+  }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -184,7 +192,7 @@ class _ScorePageState extends State<ScorePage> {
     final changedService = scoringIsTeam1 != _isTeam1Serving;
     setState(() {
       _applyDelta(isLeft: isLeft, delta: 1);
-      if (changedService) _activePlayerIndex = (_activePlayerIndex + 1) % 4;
+      if (changedService) _activePlayerIndex = (_activePlayerIndex + 1) % (2 * _playersPerTeam);
       _scoreEvents.add(_ScoreEvent(
         isTeam1Score: scoringIsTeam1,
         setIndex: _game.currentSetIndex,
@@ -269,7 +277,7 @@ class _ScorePageState extends State<ScorePage> {
   void _swap() => setState(() => _isSwapped = !_isSwapped);
 
   void _rotateActivePlayer() =>
-      setState(() => _activePlayerIndex = (_activePlayerIndex + 1) % 4);
+      setState(() => _activePlayerIndex = (_activePlayerIndex + 1) % (2 * _playersPerTeam));
 
   void _switchToSet(int setIndex) {
     if (setIndex == _game.currentSetIndex) return;
@@ -399,17 +407,14 @@ class _ScorePageState extends State<ScorePage> {
       return 'Player ${index + 1} $teamName';
     }
 
-    return [nameAt(0), nameAt(1)];
+    final n = _playersPerTeam;
+    return List.generate(n, nameAt);
   }
 
-  bool _isPlayerActive(String teamId, int playerIndex) =>
-      switch (_activePlayerIndex) {
-        0 => teamId == _game.team1Id && playerIndex == 0,
-        1 => teamId == _game.team2Id && playerIndex == 0,
-        2 => teamId == _game.team1Id && playerIndex == 1,
-        3 => teamId == _game.team2Id && playerIndex == 1,
-        _ => false,
-      };
+  bool _isPlayerActive(String teamId, int playerIndex) {
+    final isTeam1 = teamId == _game.team1Id;
+    return _isTeam1Serving == isTeam1 && _activePlayerOnSide == playerIndex;
+  }
 
   Future<void> _showLineupEditor(String teamId, String teamName) async {
     final current = _game.lineups.firstWhere(
@@ -667,8 +672,7 @@ class _ScorePageState extends State<ScorePage> {
     final scoreLocked = _isGameComplete || _isActiveSetCompleted;
 
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: TournaQAppBar(title: AppLocalizations.of(context)!.pageGameScorecard),
+      appBar: const TournaQAppBar(title: 'Quick Game', subtitle: 'Scorecard'),
       body: OrientationBuilder(
         builder: (context, orientation) {
           final isLandscape = orientation == Orientation.landscape;
@@ -1060,15 +1064,6 @@ class _ScorePageState extends State<ScorePage> {
       ),
     );
 
-    final targetWidget = Text(
-      '/ $_targetPoints',
-      style: TextStyle(
-        fontSize: 11,
-        color: teamColor,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-
     final buttonsRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -1099,12 +1094,18 @@ class _ScorePageState extends State<ScorePage> {
       ],
     );
 
-    final chipsRow = Row(
-      children: [
-        Expanded(child: _buildPlayerChip(teamId, players[0], 0, compact: compact || landscape)),
-        const SizedBox(width: 4),
-        Expanded(child: _buildPlayerChip(teamId, players[1], 1, compact: compact || landscape)),
-      ],
+    final activeColor = isTeam1 ? _kGold : _kOlive;
+    final chipsRow = Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      alignment: WrapAlignment.center,
+      children: players.asMap().entries.map((e) => PlayerPill(
+        name: e.value,
+        isServing: _isPlayerActive(teamId, e.key),
+        activeColor: activeColor,
+        compact: compact || landscape,
+        onTap: () => _showLineupEditor(teamId, teamName),
+      )).toList(),
     );
 
     Widget cardContent;
@@ -1128,29 +1129,14 @@ class _ScorePageState extends State<ScorePage> {
           // Icon scales with button, never below 12 px.
           final iconSize = (btnH * 0.55).clamp(12.0, 24.0);
 
-          const kTargetH = 15.0;
-          const kChipH   = 18.0;
-
-          // Budget remaining for optional + score elements.
-          var remaining = h - nameH - btnH - spacerH;
-
-          final showTarget = remaining >= kTargetH + kChipH + 4;
-          if (showTarget) remaining -= kTargetH;
-
-          final showChips = remaining >= kChipH + 2;
-          if (showChips) remaining -= kChipH;
-
-          // Score takes all remaining space (always ≥ 0 by construction).
-          final scoreH = remaining.clamp(0.0, double.infinity);
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: nameH, child: teamNameWidget),
-              if (showTarget) SizedBox(height: kTargetH, child: targetWidget),
-              if (scoreH > 0)
-                SizedBox(
-                  height: scoreH,
+          return SizedBox(
+            height: h,
+            child: Column(
+              children: [
+                SizedBox(height: nameH, child: teamNameWidget),
+                const SizedBox(height: 4),
+                chipsRow,
+                Expanded(
                   child: FittedBox(
                     fit: BoxFit.contain,
                     child: Text(
@@ -1164,41 +1150,41 @@ class _ScorePageState extends State<ScorePage> {
                     ),
                   ),
                 ),
-              SizedBox(
-                height: btnH,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton.filled(
-                      icon: const Icon(Icons.remove),
-                      onPressed: onDecrement,
-                      tooltip: 'Decrease',
-                      iconSize: iconSize,
-                      style: IconButton.styleFrom(
-                        backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
-                        foregroundColor: disabled ? Colors.grey : Colors.white,
-                        fixedSize: Size(btnH, btnH),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                SizedBox(
+                  height: btnH,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton.filled(
+                        icon: const Icon(Icons.remove),
+                        onPressed: onDecrement,
+                        tooltip: 'Decrease',
+                        iconSize: iconSize,
+                        style: IconButton.styleFrom(
+                          backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+                          foregroundColor: disabled ? Colors.grey : Colors.white,
+                          fixedSize: Size(btnH, btnH),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ),
-                    IconButton.filled(
-                      icon: const Icon(Icons.add),
-                      onPressed: onIncrement,
-                      tooltip: 'Increase',
-                      iconSize: iconSize,
-                      style: IconButton.styleFrom(
-                        backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
-                        foregroundColor: disabled ? Colors.grey : Colors.white,
-                        fixedSize: Size(btnH, btnH),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      IconButton.filled(
+                        icon: const Icon(Icons.add),
+                        onPressed: onIncrement,
+                        tooltip: 'Increase',
+                        iconSize: iconSize,
+                        style: IconButton.styleFrom(
+                          backgroundColor: disabled ? Colors.grey.shade300 : teamColor,
+                          foregroundColor: disabled ? Colors.grey : Colors.white,
+                          fixedSize: Size(btnH, btnH),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: spacerH),
-              if (showChips) SizedBox(height: kChipH, child: chipsRow),
-            ],
+                SizedBox(height: spacerH),
+              ],
+            ),
           );
         },
       );
@@ -1208,7 +1194,8 @@ class _ScorePageState extends State<ScorePage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           teamNameWidget,
-          if (!compact) targetWidget,
+          const SizedBox(height: 4),
+          chipsRow,
           Text(
             '$score',
             style: TextStyle(
@@ -1219,8 +1206,6 @@ class _ScorePageState extends State<ScorePage> {
             ),
           ),
           buttonsRow,
-          SizedBox(height: compact ? 2 : 4),
-          chipsRow,
         ],
       );
     }
@@ -1238,35 +1223,6 @@ class _ScorePageState extends State<ScorePage> {
       child: Padding(
         padding: cardPadding,
         child: cardContent,
-      ),
-    );
-  }
-
-  Widget _buildPlayerChip(String teamId, String name, int index, {bool compact = false}) {
-    final active = _isPlayerActive(teamId, index);
-    final isTeam1 = teamId == _game.team1Id;
-    final activeColor = isTeam1 ? _kGold : _kOlive;
-    return Container(
-      padding: compact
-          ? const EdgeInsets.symmetric(horizontal: 4, vertical: 2)
-          : const EdgeInsets.symmetric(horizontal: 5, vertical: 4),
-      decoration: BoxDecoration(
-        color: active ? activeColor : Colors.black12,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: active ? activeColor : Colors.black26,
-        ),
-      ),
-      child: Text(
-        name,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-          color: active ? Colors.white : Colors.black54,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        textAlign: TextAlign.center,
       ),
     );
   }

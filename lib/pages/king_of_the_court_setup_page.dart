@@ -2,253 +2,161 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
-import '../models/scramble_tournament.dart';
+import '../models/king_of_the_court_tournament.dart';
 import '../services/scramble_service.dart';
 import '../state/app_state.dart';
-import '../widgets/scramble_suggestion_card.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
-import 'scramble_overview_page.dart';
+import 'king_of_the_court_scoreboard_page.dart';
 
-class ScrambleSetupPage extends StatefulWidget {
+class KingOfTheCourtSetupPage extends StatefulWidget {
   final AppState appState;
-  final void Function(ScrambleTournament) onCreated;
+  final void Function(KingOfTheCourtTournament) onCreated;
 
-  const ScrambleSetupPage({
+  const KingOfTheCourtSetupPage({
     super.key,
     required this.appState,
     required this.onCreated,
   });
 
   @override
-  State<ScrambleSetupPage> createState() => _ScrambleSetupPageState();
+  State<KingOfTheCourtSetupPage> createState() =>
+      _KingOfTheCourtSetupPageState();
 }
 
-class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
+class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   // ── Config ints ──────────────────────────────────────────────────────────────
   int _targetPlayerCount = 8;
-  int _totalMinutes = 60;
-  int _matchMinutes = 4;
-  int _courtCount = 1;
-  int _playersPerTeam = 2;
-  int _breakMinutes = 1;
+  int _totalMinutes      = 60;
+  int _playersPerTeam    = 2;
+  int _courtCount        = 1;
+  int _strikePoints      = 5;
 
-  // ── Config text controllers (combo fields) ───────────────────────────────────
-  late final TextEditingController _targetPlayerCtrl;
+  // ── Config controllers ───────────────────────────────────────────────────────
+  late final TextEditingController _playerCountCtrl;
   late final TextEditingController _totalMinCtrl;
-  late final TextEditingController _matchMinCtrl;
   late final TextEditingController _courtCtrl;
-  late final TextEditingController _breakMinCtrl;
+  late final TextEditingController _strikeCtrl;
 
-  // ── Start / end time ─────────────────────────────────────────────────────────
-  bool _startIsNow = true;
-  late TimeOfDay _startTime;
-
-  // ── Name (moved to bottom) ────────────────────────────────────────────────────
+  // ── Name ─────────────────────────────────────────────────────────────────────
   final _nameCtrl = TextEditingController();
 
   // ── Players ───────────────────────────────────────────────────────────────────
-  final List<ScramblePlayer> _players = [];
+  final List<KotcPlayer> _players       = [];
   final _playerNameCtrl   = TextEditingController();
   final _playerSearchCtrl = TextEditingController();
 
   static final _rng = Random();
   static const _nameTemplates = [
-    ('Wild',      'Scramble'),
-    ('Lazy',      'Shuffle'),
-    ('Happy',     'Chaos'),
-    ('Sneaky',    'Mixer'),
-    ('Tropical',  'Frenzy'),
-    ('Sunset',    'Blitz'),
-    ('Neon',      'Scramble'),
-    ('Blazing',   'Mix-Up'),
-    ('Groovy',    'Shakedown'),
-    ('Friendly',  'Rumble'),
-    ('Casual',    'Bash'),
-    ('Electric',  'Fiesta'),
-    ('Cheeky',    'Shuffle'),
-    ('Breezy',    'Scramble'),
-    ('Absolute',  'Chaos'),
-    ('Epic',      'Mixer'),
-    ('Sneaky',    'Frenzy'),
-    ('Disco',     'Scramble'),
-    ('Friday',    'Shuffle'),
-    ('Sunday',    'Blitz'),
+    ('Golden',    'Throne'),
+    ('Royal',     'Rumble'),
+    ('Crown',     'Battle'),
+    ('Court',     'Kings'),
+    ('Champion',  'Chase'),
+    ('Iron',      'Throne'),
+    ('Neon',      'Kingdom'),
+    ('Blazing',   'Crown'),
+    ('Friday',    'Kingdom'),
+    ('Sunset',    'Royale'),
+    ('Electric',  'Court'),
+    ('Wild',      'Reign'),
+    ('Epic',      'Throne'),
+    ('Sneaky',    'King'),
+    ('Absolute',  'Royale'),
+    ('Groovy',    'Kingdom'),
+    ('Tropical',  'Crown'),
+    ('Casual',    'Reign'),
+    ('Sunday',    'Kingdom'),
+    ('Cheeky',    'King'),
   ];
 
   @override
   void initState() {
     super.initState();
-    _startTime        = TimeOfDay.now();
-    _targetPlayerCtrl = TextEditingController(text: '$_targetPlayerCount');
-    _totalMinCtrl     = TextEditingController(text: '$_totalMinutes');
-    _matchMinCtrl     = TextEditingController(text: '$_matchMinutes');
-    _courtCtrl        = TextEditingController(text: '$_courtCount');
-    _breakMinCtrl     = TextEditingController(text: '$_breakMinutes');
-    _nameCtrl.text    = _randomName();
+    _playerCountCtrl = TextEditingController(text: '$_targetPlayerCount');
+    _totalMinCtrl    = TextEditingController(text: '$_totalMinutes');
+    _courtCtrl       = TextEditingController(text: '$_courtCount');
+    _strikeCtrl      = TextEditingController(text: '$_strikePoints');
+    _nameCtrl.text   = _randomName();
   }
 
   @override
   void dispose() {
-    _targetPlayerCtrl.dispose();
+    _playerCountCtrl.dispose();
     _totalMinCtrl.dispose();
-    _matchMinCtrl.dispose();
     _courtCtrl.dispose();
-    _breakMinCtrl.dispose();
+    _strikeCtrl.dispose();
     _nameCtrl.dispose();
     _playerNameCtrl.dispose();
     _playerSearchCtrl.dispose();
     super.dispose();
   }
 
-  // ── Computed ─────────────────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────────
 
   String _randomName() {
     final t = _nameTemplates[_rng.nextInt(_nameTemplates.length)];
     return '${t.$1} ${t.$2}';
   }
 
-  Duration get _totalTime     => Duration(minutes: _totalMinutes);
-  Duration get _matchDuration => Duration(minutes: _matchMinutes);
-  Duration get _breakDuration => Duration(minutes: _breakMinutes);
-
-  int get _activeCourts =>
-      min(_courtCount, _players.length ~/ (_playersPerTeam * 2));
-
-  List<ScrambleSuggestion> get _suggestions => ScrambleService.validate(
-        totalAvailableTime: _totalTime,
-        matchDuration:      _matchDuration,
-        breakDuration:      _breakDuration,
-        courtCount:         _courtCount,
-        playerCount:        _targetPlayerCount,
-        playersPerTeam:     _playersPerTeam,
-      );
-
-  // ── Time helpers ─────────────────────────────────────────────────────────────
-
-  TimeOfDay _resolveStart() =>
-      _startIsNow ? TimeOfDay.now() : _startTime;
-
-  TimeOfDay _addMinutesToTime(TimeOfDay t, int minutes) {
-    final total = t.hour * 60 + t.minute + minutes;
-    return TimeOfDay(hour: (total ~/ 60) % 24, minute: total % 60);
-  }
-
-  String _fmtTod(TimeOfDay t) =>
-      '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
-
-  DateTime _resolveStartDateTime() {
-    if (_startIsNow) return DateTime.now();
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day, _startTime.hour, _startTime.minute);
-  }
-
-  Future<void> _pickStartTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _resolveStart(),
-    );
-    if (picked == null) return;
-    setState(() {
-      _startTime   = picked;
-      _startIsNow  = false;
-    });
-  }
-
-  Future<void> _pickEndTime() async {
-    final start  = _resolveStart();
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _addMinutesToTime(start, _totalMinutes),
-    );
-    if (picked == null) return;
-    final startMins = start.hour * 60 + start.minute;
-    var   endMins   = picked.hour * 60 + picked.minute;
-    if (endMins <= startMins) endMins += 24 * 60; // handle overnight
-    final newTotal = endMins - startMins;
-    setState(() {
-      _totalMinutes      = newTotal;
-      _totalMinCtrl.text = '$newTotal';
-    });
-  }
+  int get _minPlayers => _playersPerTeam * 2 * _courtCount;
 
   bool get _canCreate =>
       _nameCtrl.text.trim().isNotEmpty &&
-      _matchMinutes > 0 &&
       _totalMinutes > 0 &&
-      _players.length == _targetPlayerCount &&
-      !_suggestions.any((s) => s.isBlocking);
-
-  // ── Actions ──────────────────────────────────────────────────────────────────
+      _players.length >= _minPlayers;
 
   void _create() {
-    final tournament = ScrambleService.buildTournament(
-      name:               _nameCtrl.text.trim(),
-      totalAvailableTime: _totalTime,
-      matchDuration:      _matchDuration,
-      breakDuration:      _breakDuration,
-      courtCount:         _courtCount,
-      playersPerTeam:     _playersPerTeam,
-      players:            _players,
-      startTime:          _resolveStartDateTime(),
+    if (!_canCreate) return;
+    final session = KingOfTheCourtTournament(
+      id:             KingOfTheCourtTournament.generateId(),
+      name:           _nameCtrl.text.trim(),
+      totalTime:      Duration(minutes: _totalMinutes),
+      playersPerTeam: _playersPerTeam,
+      courtCount:     _courtCount,
+      strikePoints:   _strikePoints,
+      status:         KotcTournamentStatus.setup,
+      players:        List.from(_players),
+      games:          [],
+      createdAt:      DateTime.now(),
     );
-    widget.onCreated(tournament);
+    widget.onCreated(session);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => ScrambleOverviewPage(
-        tournament: tournament,
+      builder: (_) => KingOfTheCourtScoreboardPage(
+        tournament: session,
+        appState:   widget.appState,
         onChanged:  widget.onCreated,
       ),
     ));
   }
 
-  void _applySuggestion(ScrambleSuggestion s) {
-    setState(() {
-      switch (s.type) {
-        case ScrambleSuggestionType.increaseTotalTime:
-          _totalMinutes += (_matchMinutes + _breakMinutes) * 3;
-          _totalMinCtrl.text = '$_totalMinutes';
-        case ScrambleSuggestionType.reduceBreakDuration:
-          _breakMinutes = max(0, _breakMinutes - 2);
-          _breakMinCtrl.text = '$_breakMinutes';
-        case ScrambleSuggestionType.adjustCourtCount:
-          _courtCount = _activeCourts;
-          _courtCtrl.text = '$_courtCount';
-        case ScrambleSuggestionType.repeatedTeammates:
-        case ScrambleSuggestionType.adjustMatchDuration:
-        case ScrambleSuggestionType.adjustPlayerCount:
-        case ScrambleSuggestionType.largeGroup:
-          break;
-      }
-    });
-  }
-
-  // ── Players summary card & sheet ─────────────────────────────────────────────
+  // ── Players summary card ──────────────────────────────────────────────────────
 
   Widget _buildPlayersSummaryCard() {
     final count  = _players.length;
-    final target = _targetPlayerCount;
-    final exact  = count == target;
+    final min    = _minPlayers;
+    final enough = count >= min;
     final hasAny = count > 0;
 
-    final borderColor = hasAny && !exact
+    final borderColor = hasAny && !enough
         ? Colors.red.shade300
-        : exact
+        : enough
             ? AppColors.olive
             : Colors.grey.shade300;
-    final bgColor = hasAny && !exact
+    final bgColor = hasAny && !enough
         ? Colors.red.shade50
-        : exact
+        : enough
             ? AppColors.oliveLight
             : Colors.grey.shade50;
-    final iconColor = hasAny && !exact
+    final iconColor = hasAny && !enough
         ? Colors.red.shade600
-        : exact
+        : enough
             ? AppColors.olive
             : Colors.black38;
-    final textColor = hasAny && !exact
+    final textColor = hasAny && !enough
         ? Colors.red.shade700
-        : exact
+        : enough
             ? AppColors.olive
             : Colors.black38;
 
@@ -258,7 +166,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: borderColor, width: exact ? 1.5 : 1.0),
+          border: Border.all(color: borderColor, width: enough ? 1.5 : 1.0),
           borderRadius: BorderRadius.circular(12),
           color: bgColor,
         ),
@@ -271,7 +179,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   ? const Text('Tap to add players',
                       style: TextStyle(color: Colors.black38, fontSize: 13))
                   : Text(
-                      '$count/$target players added',
+                      enough
+                          ? '$count players added'
+                          : '$count added · need at least $min',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -291,6 +201,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       ),
     );
   }
+
+  // ── Players sheet ─────────────────────────────────────────────────────────────
 
   void _showPlayersSheet() {
     _playerSearchCtrl.clear();
@@ -319,10 +231,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           void addByName(String name) {
             final trimmed = name.trim();
             if (trimmed.isEmpty) return;
-            _players.add(ScramblePlayer(
-              id:     ScramblePlayer.generateId(),
+            _players.add(KotcPlayer(
+              id:     KotcPlayer.generateId(),
               name:   trimmed,
-              source: ScramblePlayerSource.created,
+              source: KotcPlayerSource.created,
             ));
             _playerNameCtrl.clear();
             rebuild();
@@ -330,10 +242,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
           void addExisting(String appUserId, String name) {
             if (_players.any((p) => p.appUserId == appUserId)) return;
-            _players.add(ScramblePlayer(
-              id:        ScramblePlayer.generateId(),
+            _players.add(KotcPlayer(
+              id:        KotcPlayer.generateId(),
               name:      name,
-              source:    ScramblePlayerSource.existing,
+              source:    KotcPlayerSource.existing,
               appUserId: appUserId,
             ));
             rebuild();
@@ -342,7 +254,14 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           void fillRandom() {
             final needed = _targetPlayerCount - _players.length;
             if (needed <= 0) return;
-            _players.addAll(ScrambleService.generateRandomPlayers(needed));
+            final generated = ScrambleService.generateRandomPlayers(needed);
+            for (final p in generated) {
+              _players.add(KotcPlayer(
+                id:     KotcPlayer.generateId(),
+                name:   p.name,
+                source: KotcPlayerSource.random,
+              ));
+            }
             rebuild();
           }
 
@@ -351,18 +270,19 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             rebuild();
           }
 
-          void clearAll() async {
+          Future<void> clearAll() async {
             final confirmed = await showDialog<bool>(
               context: ctx,
               builder: (dCtx) => AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
                 title: const Text('Remove all players?',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
                 content: const Text(
                     'This will remove all added players from the list.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54)),
+                    style:
+                        TextStyle(fontSize: 14, color: Colors.black54)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(false),
@@ -370,8 +290,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(true),
-                    style:
-                        TextButton.styleFrom(foregroundColor: Colors.red),
+                    style: TextButton.styleFrom(
+                        foregroundColor: Colors.red),
                     child: const Text('Remove all'),
                   ),
                 ],
@@ -389,7 +309,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Header
                   Row(
                     children: [
                       const Text('Players',
@@ -442,7 +361,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     ],
                   ),
 
-                  // Existing players — searchable list
+                  // Existing players
                   if (allExisting.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _fieldLabel(
@@ -460,8 +379,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                       ),
-                      onTap: () =>
-                          setSheetState(() => searchActive = true),
+                      onTap: () => setSheetState(() => searchActive = true),
                       onChanged: (_) =>
                           setSheetState(() => searchActive = true),
                     ),
@@ -488,7 +406,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 4),
                               title: Text(u.name,
-                                  style: const TextStyle(fontSize: 13)),
+                                  style:
+                                      const TextStyle(fontSize: 13)),
                               trailing: IconButton(
                                 icon: const Icon(
                                     Icons.add_circle_outline_rounded,
@@ -505,7 +424,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     ],
                   ],
 
-                  // Fill random + count
+                  // Fill random + added list
                   const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -516,9 +435,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                         onPressed: _players.length < _targetPlayerCount
                             ? fillRandom
                             : null,
-                        icon: const Icon(Icons.shuffle_rounded, size: 16),
+                        icon:
+                            const Icon(Icons.shuffle_rounded, size: 16),
                         label: Text(
-                            'Fill ${_targetPlayerCount - _players.length} random'),
+                            'Fill ${(_targetPlayerCount - _players.length).clamp(0, 999)} random'),
                         style: TextButton.styleFrom(
                             foregroundColor: AppColors.olive),
                       ),
@@ -526,7 +446,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   ),
                   const SizedBox(height: 6),
 
-                  // Added player list
                   if (_players.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
@@ -549,7 +468,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                               horizontal: 12, vertical: 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.grey.shade200),
+                            side:
+                                BorderSide(color: Colors.grey.shade200),
                           ),
                           leading: CircleAvatar(
                             radius: 14,
@@ -568,7 +488,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                               style: const TextStyle(fontSize: 13)),
                           subtitle: Text(_sourceLabel(p.source),
                               style: const TextStyle(
-                                  fontSize: 10, color: Colors.black38)),
+                                  fontSize: 10,
+                                  color: Colors.black38)),
                           trailing: IconButton(
                             icon: const Icon(Icons.close_rounded,
                                 size: 16, color: Colors.black38),
@@ -586,33 +507,32 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     );
   }
 
-  // ── Build ────────────────────────────────────────────────────────────────────
+  // ── Build ─────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final suggestions = _suggestions;
-    final canCreate   = _canCreate;
+    final canCreate = _canCreate;
 
     return Scaffold(
-      appBar: TournaQAppBar(title: 'Social Scramble', subtitle: 'New Tournament'),
+      appBar: const TournaQAppBar(
+          title: 'King of the Court', subtitle: 'New Tournament'),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             // ── Config grid ───────────────────────────────────────────────────
             _sectionHeader('Tournament Setup', Icons.tune_rounded),
             const SizedBox(height: 14),
 
-            // Row 1 — target players / available time
+            // Row 1 — players / time
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Target Players',
-                    ctrl:     _targetPlayerCtrl,
+                    label:    'Players',
+                    ctrl:     _playerCountCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
                   ),
@@ -620,7 +540,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Available Time',
+                    label:    'Time',
                     ctrl:     _totalMinCtrl,
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
@@ -631,25 +551,17 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             ),
             const SizedBox(height: 14),
 
-            // Row 2 — match duration / courts
+            // Row 2 — style / courts
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _comboField(
-                    label:    'Match Duration',
-                    ctrl:     _matchMinCtrl,
-                    presets:  [5, 8, 10, 12, 15, 20, 25, 30],
-                    onParsed: (v) => _matchMinutes = v.clamp(1, 999),
-                    unit:     'min',
-                  ),
-                ),
+                Expanded(child: _styleField()),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
                     label:    'Courts',
                     ctrl:     _courtCtrl,
-                    presets:  [1, 2, 3, 4, 5, 6, 8],
+                    presets:  [1, 2, 3, 4, 5, 6],
                     onParsed: (v) => _courtCount = v.clamp(1, 32),
                   ),
                 ),
@@ -657,81 +569,23 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             ),
             const SizedBox(height: 14),
 
-            // Row 3 — format / break
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _formatField()),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _comboField(
-                    label:    'Break Between Rounds',
-                    ctrl:     _breakMinCtrl,
-                    presets:  [0, 2, 3, 5, 7, 10],
-                    onParsed: (v) => _breakMinutes = v.clamp(0, 999),
-                    unit:     'min',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-
-            // Row 4 — start time / end time
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _tapField(
-                  label:    'Planned Start Time',
-                  value:    _startIsNow ? 'Now' : _fmtTod(_startTime),
-                  onTap:    _pickStartTime,
-                  trailing: _startIsNow
-                      ? const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45)
-                      : GestureDetector(
-                          onTap: () => setState(() => _startIsNow = true),
-                          child: const Icon(Icons.refresh_rounded, size: 18, color: Colors.black45),
-                        ),
-                )),
-                const SizedBox(width: 12),
-                Expanded(child: _tapField(
-                  label: 'Planned End Time',
-                  value: _fmtTod(_addMinutesToTime(_resolveStart(), _totalMinutes)),
-                  onTap: _pickEndTime,
-                  trailing: const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45),
-                )),
-              ],
+            // Row 3 — strike points
+            _comboField(
+              label:    'Strike Points (0 = off)',
+              ctrl:     _strikeCtrl,
+              presets:  [0, 3, 5, 7, 10, 15, 21],
+              onParsed: (v) => _strikePoints = v.clamp(0, 999),
             ),
             const SizedBox(height: 20),
 
-            // Schedule preview (live)
-            _schedulePreview(),
-
-            // ── Suggestions ───────────────────────────────────────────────────
-            if (suggestions.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 16),
-              _sectionHeader('Suggestions', Icons.lightbulb_outline_rounded),
-              const SizedBox(height: 12),
-              ...suggestions.map((s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: ScrambleSuggestionCard(
-                      suggestion: s,
-                      onAction: s.actionLabel != null
-                          ? () => _applySuggestion(s)
-                          : null,
-                    ),
-                  )),
-            ],
-
             // ── Players ───────────────────────────────────────────────────────
-            const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
             _sectionHeader('Players', Icons.group_rounded),
             const SizedBox(height: 12),
             _buildPlayersSummaryCard(),
 
-            // ── Name (bottom) ─────────────────────────────────────────────────
+            // ── Name ─────────────────────────────────────────────────────────
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
@@ -757,7 +611,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               ],
             ),
 
-            // ── Status + Create button ────────────────────────────────────────
+            // ── Create ────────────────────────────────────────────────────────
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -767,7 +621,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     canCreate
                         ? Icons.check_circle_rounded
                         : Icons.error_outline_rounded,
-                    color: canCreate ? AppColors.olive : Colors.red.shade600,
+                    color: canCreate
+                        ? AppColors.olive
+                        : Colors.red.shade600,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -794,7 +650,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               ),
               child: const Text(
                 'Create Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 16),
               ),
             ),
           ],
@@ -803,80 +660,44 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     );
   }
 
-  // ── Schedule Preview ─────────────────────────────────────────────────────────
+  // ── Style dropdown ────────────────────────────────────────────────────────────
 
-  // Inline gcd so the preview doesn't depend on the private ScrambleService._gcd.
-  static int _gcd(int a, int b) => b == 0 ? a : _gcd(b, a % b);
-
-  Widget _schedulePreview() {
-    final roundMin        = _matchMinutes + _breakMinutes;
-    final playersPerCourt = _playersPerTeam * 2;
-    final activePlayers   =
-        min(_courtCount, _targetPlayerCount ~/ playersPerCourt) * playersPerCourt;
-    final sittingOut      = _targetPlayerCount - activePlayers;
-    final rawRounds       = roundMin > 0 ? _totalMinutes ~/ roundMin : 0;
-
-    int rounds;
-    if (sittingOut > 0 && activePlayers > 0 && rawRounds > 0) {
-      final fairUnit = _targetPlayerCount ~/ _gcd(_targetPlayerCount, activePlayers);
-      final snapped  = (rawRounds ~/ fairUnit) * fairUnit;
-      rounds = snapped > 0 ? snapped : rawRounds;
-    } else {
-      rounds = rawRounds;
-    }
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.oliveLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Schedule Preview',
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: AppColors.olive),
+  Widget _styleField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'Style',
+          style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54),
+        ),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<int>(
+          initialValue: _playersPerTeam,
+          isDense: true,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10)),
           ),
-          const SizedBox(height: 8),
-          _previewRow('Round duration',
-              '${_matchMinutes}m match + ${_breakMinutes}m break = ${roundMin}m'),
-          _previewRow('Rounds', '$rounds'),
-          () {
-            final scheduledMins = rounds * roundMin;
-            final h = scheduledMins ~/ 60;
-            final m = scheduledMins % 60;
-            final durationStr = h > 0 ? '${h}h ${m}m' : '${m}m';
-            final endTime     = _addMinutesToTime(_resolveStart(), scheduledMins);
-            return Column(
-              children: [
-                _previewRow('Scheduled duration', durationStr),
-                _previewRow('Scheduled end time', _fmtTod(endTime)),
-              ],
-            );
-          }(),
-        ],
-      ),
+          items: [2, 3, 4, 5, 6]
+              .map((n) => DropdownMenuItem(
+                    value: n,
+                    child: Text('${n}vs$n'),
+                  ))
+              .toList(),
+          onChanged: (v) {
+            if (v != null) setState(() => _playersPerTeam = v);
+          },
+        ),
+      ],
     );
   }
 
-  Widget _previewRow(String label, String value) => Padding(
-        padding: const EdgeInsets.only(bottom: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label,
-                style: const TextStyle(fontSize: 12, color: Colors.black54)),
-            Text(value,
-                style: const TextStyle(
-                    fontSize: 12, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      );
-
-  // ── Combo field (text input + presets popup) ─────────────────────────────────
+  // ── Combo field ───────────────────────────────────────────────────────────────
 
   Widget _comboField({
     required String label,
@@ -904,8 +725,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           decoration: InputDecoration(
             isDense: true,
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10)),
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             suffix: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -942,45 +763,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     );
   }
 
-  // ── Format dropdown ───────────────────────────────────────────────────────────
-
-  Widget _formatField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'Format',
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
-        const SizedBox(height: 6),
-        DropdownButtonFormField<int>(
-          // ignore: deprecated_member_use
-          value: _playersPerTeam,
-          isDense: true,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.fromLTRB(12, 10, 4, 10),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10)),
-          ),
-          items: [2, 3, 4, 5, 6]
-              .map((n) => DropdownMenuItem(
-                    value: n,
-                    child: Text('${n}vs$n'),
-                  ))
-              .toList(),
-          onChanged: (v) {
-            if (v != null) setState(() => _playersPerTeam = v);
-          },
-        ),
-      ],
-    );
-  }
-
   // ── Shared helpers ────────────────────────────────────────────────────────────
 
   Widget _sectionHeader(String title, IconData icon) => Row(
@@ -1002,45 +784,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   Widget _fieldLabel(String text) => Text(
         text,
         style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54),
-      );
-
-  Widget _tapField({
-    required String label,
-    required String value,
-    required VoidCallback onTap,
-    Widget? trailing,
-  }) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54)),
-          const SizedBox(height: 6),
-          InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade600),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Expanded(child: Text(value)),
-                  if (trailing case final Widget t) t,
-                ],
-              ),
-            ),
-          ),
-        ],
+            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
       );
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
@@ -1050,15 +794,15 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       );
 
-  Color _sourceColor(ScramblePlayerSource s) => switch (s) {
-        ScramblePlayerSource.existing => AppColors.olive,
-        ScramblePlayerSource.created  => AppColors.goldDark,
-        ScramblePlayerSource.random   => Colors.blueGrey,
+  Color _sourceColor(KotcPlayerSource s) => switch (s) {
+        KotcPlayerSource.existing => AppColors.olive,
+        KotcPlayerSource.created  => AppColors.goldDark,
+        KotcPlayerSource.random   => Colors.blueGrey,
       };
 
-  String _sourceLabel(ScramblePlayerSource s) => switch (s) {
-        ScramblePlayerSource.existing => 'Existing player',
-        ScramblePlayerSource.created  => 'New player',
-        ScramblePlayerSource.random   => 'Random placeholder',
+  String _sourceLabel(KotcPlayerSource s) => switch (s) {
+        KotcPlayerSource.existing => 'Existing player',
+        KotcPlayerSource.created  => 'New player',
+        KotcPlayerSource.random   => 'Random placeholder',
       };
 }

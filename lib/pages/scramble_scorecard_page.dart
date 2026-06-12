@@ -7,6 +7,7 @@ import '../services/scramble_storage_service.dart';
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
+import '../widgets/player_pill.dart';
 
 // ── Local color aliases — mirrors score_page.dart convention ─────────────────
 const _kGold = AppColors.goldDark;
@@ -829,52 +830,16 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     if (players.isEmpty) return const SizedBox.shrink();
     final activeColor = isA ? _kGold : _kOlive;
 
-    final pills = List<Widget>.generate(players.length, (i) {
-      final player = players[i];
-      final isServing = (_isSideAServing == isA) && (_activePlayerOnTeam == i);
-      return GestureDetector(
-        onTap: disabled ? null : () => _editPlayerName(player),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-          decoration: BoxDecoration(
-            color: isServing ? activeColor : Colors.black12,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isServing ? activeColor : Colors.black26),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isServing) ...[
-                const Icon(
-                  Icons.sports_volleyball_rounded,
-                  size: 9,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 3),
-              ],
-              Text(
-                player.name,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontWeight: isServing ? FontWeight.w700 : FontWeight.w400,
-                  color: isServing ? Colors.white : Colors.black54,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (!disabled) ...[
-                const SizedBox(width: 3),
-                Icon(
-                  Icons.edit_rounded,
-                  size: 8,
-                  color: isServing ? Colors.white70 : Colors.black38,
-                ),
-              ],
-            ],
-          ),
-        ),
+    final pills = players.asMap().entries.map((e) {
+      final isServing = (_isSideAServing == isA) && (_activePlayerOnTeam == e.key);
+      return PlayerPill(
+        name: e.value.name,
+        isServing: isServing,
+        activeColor: activeColor,
+        fontSize: fontSize,
+        onTap: disabled ? null : () => _editPlayerName(e.value),
       );
-    });
+    }).toList();
 
     if (stacked) {
       return Column(
@@ -1131,46 +1096,35 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       cardContent = LayoutBuilder(
         builder: (context, constraints) {
           final h = constraints.maxHeight;
-          final nameH   = (h * 0.16).clamp(0.0, 24.0);
-          final btnH    = (h * 0.36).clamp(0.0, 48.0);
+          final nameH    = (h * 0.16).clamp(0.0, 24.0);
+          final btnH     = (h * 0.36).clamp(0.0, 48.0);
           final iconSize = (btnH * 0.55).clamp(12.0, 24.0);
-          // name font scales with its allocated height
           final nameFontSize = (nameH * 0.75).clamp(10.0, 18.0);
-          const kChipH = 22.0;
-          var remaining = h - nameH - btnH - 2.0;
-          final showChips = remaining >= kChipH + 4 && players.isNotEmpty;
-          if (showChips) remaining -= kChipH + 4;
-          final scoreH = remaining.clamp(0.0, double.infinity);
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                height: nameH,
-                child: Text(
-                  isA ? 'Side A' : 'Side B',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: nameFontSize,
-                    color: teamColor,
+          return SizedBox(
+            height: h,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: nameH,
+                  child: Text(
+                    isA ? 'Side A' : 'Side B',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: nameFontSize,
+                      color: teamColor,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
                 ),
-              ),
-              if (showChips) ...[
-                const SizedBox(height: 2),
-                SizedBox(
-                  height: kChipH,
-                  child: _buildPlayerPills(players, isA, disabled,
-                      fontSize: 13),
-                ),
-                const SizedBox(height: 2),
-              ],
-              if (scoreH > 0)
-                SizedBox(
-                  height: scoreH,
+                if (players.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  _buildPlayerPills(players, isA, disabled, fontSize: 13),
+                  const SizedBox(height: 2),
+                ],
+                Expanded(
                   child: FittedBox(
                     fit: BoxFit.contain,
                     child: Text(
@@ -1184,41 +1138,42 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     ),
                   ),
                 ),
-              SizedBox(
-                height: btnH,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton.filled(
-                      icon: const Icon(Icons.remove),
-                      onPressed: onDecrement,
-                      iconSize: iconSize,
-                      style: IconButton.styleFrom(
-                        backgroundColor: disabled
-                            ? Colors.grey.shade300
-                            : teamColor,
-                        foregroundColor: disabled ? Colors.grey : Colors.white,
-                        fixedSize: Size(btnH, btnH),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                SizedBox(
+                  height: btnH,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton.filled(
+                        icon: const Icon(Icons.remove),
+                        onPressed: onDecrement,
+                        iconSize: iconSize,
+                        style: IconButton.styleFrom(
+                          backgroundColor:
+                              disabled ? Colors.grey.shade300 : teamColor,
+                          foregroundColor:
+                              disabled ? Colors.grey : Colors.white,
+                          fixedSize: Size(btnH, btnH),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ),
-                    IconButton.filled(
-                      icon: const Icon(Icons.add),
-                      onPressed: onIncrement,
-                      iconSize: iconSize,
-                      style: IconButton.styleFrom(
-                        backgroundColor: disabled
-                            ? Colors.grey.shade300
-                            : teamColor,
-                        foregroundColor: disabled ? Colors.grey : Colors.white,
-                        fixedSize: Size(btnH, btnH),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      IconButton.filled(
+                        icon: const Icon(Icons.add),
+                        onPressed: onIncrement,
+                        iconSize: iconSize,
+                        style: IconButton.styleFrom(
+                          backgroundColor:
+                              disabled ? Colors.grey.shade300 : teamColor,
+                          foregroundColor:
+                              disabled ? Colors.grey : Colors.white,
+                          fixedSize: Size(btnH, btnH),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       );
