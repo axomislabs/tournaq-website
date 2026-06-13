@@ -7,6 +7,8 @@ enum DoghouseTournamentStatus { setup, inProgress, completed }
 
 enum DoghousePlayerSource { existing, created, random }
 
+enum DoghouseAssignmentMode { manual, automated }
+
 // ── Player ────────────────────────────────────────────────────────────────────
 
 class DoghousePlayer {
@@ -58,7 +60,7 @@ class DoghousePlayer {
 class DoghouseGame {
   final String id;
   final List<String> playerIds;
-  final int sideOuts;    // points scored by the doghouse team
+  final int points;      // points scored by the doghouse team
   final int gamesLost;   // times the court team scored
   final int gamesWon;    // 1 if escaped, 0 if auto-ejected
   final DateTime startTime;
@@ -67,7 +69,7 @@ class DoghouseGame {
   const DoghouseGame({
     required this.id,
     required this.playerIds,
-    this.sideOuts = 0,
+    this.points = 0,
     this.gamesLost = 0,
     this.gamesWon = 0,
     required this.startTime,
@@ -77,7 +79,7 @@ class DoghouseGame {
   Map<String, dynamic> toJson() => {
         'id': id,
         'playerIds': playerIds,
-        'sideOuts': sideOuts,
+        'points': points,
         'gamesLost': gamesLost,
         'gamesWon': gamesWon,
         'startTime': startTime.toIso8601String(),
@@ -87,7 +89,7 @@ class DoghouseGame {
   factory DoghouseGame.fromJson(Map<String, dynamic> j) => DoghouseGame(
         id: j['id'] as String,
         playerIds: List<String>.from(j['playerIds'] as List),
-        sideOuts: j['sideOuts'] as int? ?? 0,
+        points: (j['points'] ?? j['sideOuts']) as int? ?? 0,
         gamesLost: j['gamesLost'] as int? ?? 0,
         gamesWon: j['gamesWon'] as int? ?? 0,
         startTime: DateTime.parse(j['startTime'] as String),
@@ -108,7 +110,8 @@ class DoghouseTournament {
   final int playersPerTeam;
   final int courtCount;      // always 1, kept for model consistency
   final int escapePoints;    // side-outs needed to escape
-  final int ejectThreshold;  // games lost before auto-eject
+  final int lossLimit;  // games lost before auto-eject
+  final DoghouseAssignmentMode assignmentMode;
   final DoghouseTournamentStatus status;
   final List<DoghousePlayer> players;
   final List<DoghouseGame> games;
@@ -123,7 +126,8 @@ class DoghouseTournament {
     this.playersPerTeam = 2,
     this.courtCount = 1,
     this.escapePoints = 3,
-    this.ejectThreshold = 3,
+    this.lossLimit = 3,
+    this.assignmentMode = DoghouseAssignmentMode.manual,
     required this.status,
     required this.players,
     required this.games,
@@ -135,13 +139,13 @@ class DoghouseTournament {
   int get playerCount  => players.length;
   int get gameCount    => games.length;
   int get totalEscapes => games.where((g) => g.gamesWon > 0).length;
-  int get totalSideOuts => games.fold(0, (sum, g) => sum + g.sideOuts);
+  int get totalPoints => games.fold(0, (sum, g) => sum + g.points);
 
-  Map<String, int> get sideOutsPerPlayer {
+  Map<String, int> get pointsPerPlayer {
     final map = <String, int>{};
     for (final game in games) {
       for (final pid in game.playerIds) {
-        map[pid] = (map[pid] ?? 0) + game.sideOuts;
+        map[pid] = (map[pid] ?? 0) + game.points;
       }
     }
     return map;
@@ -192,7 +196,8 @@ class DoghouseTournament {
         playersPerTeam: playersPerTeam,
         courtCount: courtCount,
         escapePoints: escapePoints,
-        ejectThreshold: ejectThreshold,
+        lossLimit: lossLimit,
+        assignmentMode: assignmentMode,
         status: status ?? this.status,
         players: players ?? this.players,
         games: games ?? this.games,
@@ -208,7 +213,8 @@ class DoghouseTournament {
         'playersPerTeam': playersPerTeam,
         'courtCount': courtCount,
         'escapePoints': escapePoints,
-        'ejectThreshold': ejectThreshold,
+        'lossLimit': lossLimit,
+        'assignmentMode': assignmentMode.name,
         'status': status.name,
         'players': players.map((p) => p.toJson()).toList(),
         'games': games.map((g) => g.toJson()).toList(),
@@ -224,7 +230,9 @@ class DoghouseTournament {
         playersPerTeam: j['playersPerTeam'] as int? ?? 2,
         courtCount: j['courtCount'] as int? ?? 1,
         escapePoints: j['escapePoints'] as int? ?? 3,
-        ejectThreshold: j['ejectThreshold'] as int? ?? 3,
+        lossLimit: (j['lossLimit'] ?? j['ejectThreshold']) as int? ?? 3,
+        assignmentMode: DoghouseAssignmentMode.values.byName(
+            (j['assignmentMode'] as String?) ?? DoghouseAssignmentMode.manual.name),
         status: DoghouseTournamentStatus.values.byName(
             (j['status'] as String?) ?? DoghouseTournamentStatus.setup.name),
         players: (j['players'] as List)

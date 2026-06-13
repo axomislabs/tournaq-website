@@ -28,16 +28,17 @@ class DoghouseSetupPage extends StatefulWidget {
 }
 
 class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
-  int _targetPlayerCount = 8;
-  int _totalMinutes      = 60;
-  int _playersPerTeam    = 2;
-  int _escapePoints      = 3;
-  int _ejectThreshold    = 3;
+  int _targetPlayerCount                     = 8;
+  int _totalMinutes                          = 60;
+  int _playersPerTeam                        = 2;
+  int _escapePoints                          = 3;
+  int _lossLimit                        = 3;
+  DoghouseAssignmentMode _assignmentMode     = DoghouseAssignmentMode.manual;
 
   late final TextEditingController _playerCountCtrl;
   late final TextEditingController _totalMinCtrl;
   late final TextEditingController _escapeCtrl;
-  late final TextEditingController _ejectCtrl;
+  late final TextEditingController _lossLimitCtrl;
 
   final _nameCtrl        = TextEditingController();
   final _playerNameCtrl  = TextEditingController();
@@ -75,7 +76,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     _playerCountCtrl = TextEditingController(text: '$_targetPlayerCount');
     _totalMinCtrl    = TextEditingController(text: '$_totalMinutes');
     _escapeCtrl      = TextEditingController(text: '$_escapePoints');
-    _ejectCtrl       = TextEditingController(text: '$_ejectThreshold');
+    _lossLimitCtrl       = TextEditingController(text: '$_lossLimit');
     _nameCtrl.text   = _randomName();
   }
 
@@ -84,7 +85,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     _playerCountCtrl.dispose();
     _totalMinCtrl.dispose();
     _escapeCtrl.dispose();
-    _ejectCtrl.dispose();
+    _lossLimitCtrl.dispose();
     _nameCtrl.dispose();
     _playerNameCtrl.dispose();
     _playerSearchCtrl.dispose();
@@ -112,7 +113,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
       playersPerTeam: _playersPerTeam,
       courtCount:     1,
       escapePoints:   _escapePoints,
-      ejectThreshold: _ejectThreshold,
+      lossLimit: _lossLimit,
+      assignmentMode: _assignmentMode,
       status:         DoghouseTournamentStatus.setup,
       players:        List.from(_players),
       games:          [],
@@ -525,6 +527,9 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     ctrl:     _playerCountCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
+                    helpText: 'Target number of players for the session. '
+                        'Used when auto-filling random players. '
+                        'Actual participants are added in the Players section below.',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -535,17 +540,27 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
                     unit:     'min',
+                    helpText: 'Total session duration. The timer counts down '
+                        'from this value. When time runs out you will be '
+                        'prompted to complete the tournament or keep scoring.',
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
 
-            // Row 2 — style
-            _styleField(),
+            // Row 2 — style / assignment
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _styleField()),
+                const SizedBox(width: 12),
+                Expanded(child: _assignmentModeField()),
+              ],
+            ),
             const SizedBox(height: 14),
 
-            // Row 3 — escape points / eject threshold
+            // Row 3 — escape points / loss limit
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -555,15 +570,23 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     ctrl:     _escapeCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
                     onParsed: (v) => _escapePoints = v.clamp(1, 999),
+                    helpText: 'Points the doghouse team must score to escape. '
+                        'A point is earned each time the serving '
+                        '(doghouse) team wins a rally. '
+                        'The score resets to zero after each game lost.',
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Eject Threshold',
-                    ctrl:     _ejectCtrl,
+                    label:    'Loss Limit',
+                    ctrl:     _lossLimitCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
-                    onParsed: (v) => _ejectThreshold = v.clamp(1, 999),
+                    onParsed: (v) => _lossLimit = v.clamp(1, 999),
+                    helpText: 'How many games the doghouse team can lose '
+                        'before being automatically ejected. '
+                        'Each time the court team wins a rally, '
+                        'one game is lost and the point score resets to zero.',
                   ),
                 ),
               ],
@@ -579,7 +602,9 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name'),
+            _fieldLabel('Tournament Name',
+                help: 'A name for this session, used to identify '
+                    'it in your tournament history.'),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -651,13 +676,9 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Style',
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel('Style',
+            help: 'The format of each game — 2vs2, 3vs3, and so on. '
+                'Sets how many players make up the doghouse team.'),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           initialValue: _playersPerTeam,
@@ -681,6 +702,46 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     );
   }
 
+  // ── Assignment mode dropdown ──────────────────────────────────────────────
+
+  Widget _assignmentModeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _fieldLabel('Assignment',
+            help: 'How the next doghouse team is chosen.\n\n'
+                'Manual — the coach selects players from the queue by tapping them.\n\n'
+                'Automated — TournaQ suggests the best team, prioritising players '
+                'who have waited longest and haven\'t been paired together recently. '
+                'The coach can re-roll before confirming.'),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<DoghouseAssignmentMode>(
+          initialValue: _assignmentMode,
+          isDense: true,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          items: const [
+            DropdownMenuItem(
+              value: DoghouseAssignmentMode.manual,
+              child: Text('Manual'),
+            ),
+            DropdownMenuItem(
+              value: DoghouseAssignmentMode.automated,
+              child: Text('Automated'),
+            ),
+          ],
+          onChanged: (v) {
+            if (v != null) setState(() => _assignmentMode = v);
+          },
+        ),
+      ],
+    );
+  }
+
   // ── Combo field ───────────────────────────────────────────────────────────
 
   Widget _comboField({
@@ -689,18 +750,13 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     required List<int> presets,
     required void Function(int) onParsed,
     String? unit,
+    String? helpText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel(label, help: helpText),
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
@@ -765,11 +821,50 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
         ],
       );
 
-  Widget _fieldLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
-      );
+  void _showFieldHelp(String title, String body) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: Text(title,
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w700)),
+        content: Text(body,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black54, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String text, {String? help}) {
+    final label = Text(
+      text,
+      style: const TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+    );
+    if (help == null) return label;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        label,
+        const SizedBox(width: 4),
+        GestureDetector(
+          onTap: () => _showFieldHelp(text, help),
+          child: const Icon(Icons.info_outline_rounded,
+              size: 14, color: Colors.black38),
+        ),
+      ],
+    );
+  }
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,

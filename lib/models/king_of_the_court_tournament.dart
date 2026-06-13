@@ -7,6 +7,8 @@ enum KotcTournamentStatus { setup, inProgress, completed }
 
 enum KotcPlayerSource { existing, created, random }
 
+enum KotcAssignmentMode { manual, automated }
+
 // ── Player ────────────────────────────────────────────────────────────────────
 
 class KotcPlayer {
@@ -105,6 +107,7 @@ class KingOfTheCourtTournament {
   final int playersPerTeam;
   final int courtCount;
   final int strikePoints;
+  final KotcAssignmentMode assignmentMode;
   final KotcTournamentStatus status;
   final List<KotcPlayer> players;
   final List<KotcGame> games;
@@ -120,6 +123,7 @@ class KingOfTheCourtTournament {
     this.playersPerTeam = 2,
     this.courtCount = 1,
     this.strikePoints = 0,
+    this.assignmentMode = KotcAssignmentMode.manual,
     required this.status,
     required this.players,
     required this.games,
@@ -176,6 +180,7 @@ class KingOfTheCourtTournament {
         playersPerTeam: playersPerTeam,
         courtCount: courtCount,
         strikePoints: strikePoints,
+        assignmentMode: assignmentMode,
         status: status ?? this.status,
         players: players ?? this.players,
         games: games ?? this.games,
@@ -191,6 +196,7 @@ class KingOfTheCourtTournament {
         'playersPerTeam': playersPerTeam,
         'courtCount': courtCount,
         'strikePoints': strikePoints,
+        'assignmentMode': assignmentMode.name,
         'status': status.name,
         'players': players.map((p) => p.toJson()).toList(),
         'games': games.map((g) => g.toJson()).toList(),
@@ -209,6 +215,8 @@ class KingOfTheCourtTournament {
       playersPerTeam: j['playersPerTeam'] as int? ?? 2,
       courtCount: j['courtCount'] as int? ?? 1,
       strikePoints: j['strikePoints'] as int? ?? 0,
+      assignmentMode: KotcAssignmentMode.values.byName(
+          (j['assignmentMode'] as String?) ?? KotcAssignmentMode.manual.name),
       status: KotcTournamentStatus.values.byName(
           (j['status'] as String?) ?? KotcTournamentStatus.setup.name),
       players: (j['players'] as List)

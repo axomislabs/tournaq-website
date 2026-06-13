@@ -615,6 +615,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     ctrl:     _targetPlayerCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
+                    helpText: 'How many players will take part in the session. '
+                        'Used to plan the schedule and rotations. '
+                        'The actual participants are added in the Players section below.',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -625,6 +628,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
                     unit:     'min',
+                    helpText: 'Total time available for the session. '
+                        'The schedule is built to fit as many complete rounds '
+                        'as possible within this window.',
                   ),
                 ),
               ],
@@ -642,6 +648,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     presets:  [5, 8, 10, 12, 15, 20, 25, 30],
                     onParsed: (v) => _matchMinutes = v.clamp(1, 999),
                     unit:     'min',
+                    helpText: 'How long each individual match lasts. '
+                        'Longer matches mean fewer rounds but more play '
+                        'time per match.',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -651,6 +660,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     ctrl:     _courtCtrl,
                     presets:  [1, 2, 3, 4, 5, 6, 8],
                     onParsed: (v) => _courtCount = v.clamp(1, 32),
+                    helpText: 'Number of courts available for play. '
+                        'More courts allow more simultaneous matches '
+                        'but require more players active at once.',
                   ),
                 ),
               ],
@@ -670,6 +682,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     presets:  [0, 2, 3, 5, 7, 10],
                     onParsed: (v) => _breakMinutes = v.clamp(0, 999),
                     unit:     'min',
+                    helpText: 'Rest time between rounds. Allows players to '
+                        'rotate, catch their breath, and reset before the '
+                        'next round starts. Set to 0 for back-to-back play.',
                   ),
                 ),
               ],
@@ -690,6 +705,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                           onTap: () => setState(() => _startIsNow = true),
                           child: const Icon(Icons.refresh_rounded, size: 18, color: Colors.black45),
                         ),
+                  help: 'When the session is scheduled to begin. '
+                      'Used to calculate the projected end time in the '
+                      'schedule preview. Tap the refresh icon to reset to Now.',
                 )),
                 const SizedBox(width: 12),
                 Expanded(child: _tapField(
@@ -697,6 +715,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   value: _fmtTod(_addMinutesToTime(_resolveStart(), _totalMinutes)),
                   onTap: _pickEndTime,
                   trailing: const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45),
+                  help: 'The projected finish time based on start time and '
+                      'available time. Tap to set a specific end time and '
+                      'the available time will be calculated automatically.',
                 )),
               ],
             ),
@@ -735,7 +756,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name'),
+            _fieldLabel('Tournament Name',
+                help: 'A name for this session, used to identify '
+                    'it in your tournament history.'),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -884,18 +907,13 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     required List<int> presets,
     required void Function(int) onParsed,
     String? unit,
+    String? helpText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel(label, help: helpText),
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
@@ -949,13 +967,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Format',
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel('Format',
+            help: 'The format of each match — 2vs2, 3vs3, and so on. '
+                'Sets how many players are needed per court per round.'),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           // ignore: deprecated_member_use
@@ -999,29 +1013,62 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
         ],
       );
 
-  Widget _fieldLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54),
-      );
+  void _showFieldHelp(String title, String body) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: Text(title,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+        content: Text(body,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black54, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String text, {String? help}) {
+    final label = Text(
+      text,
+      style: const TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+    );
+    if (help == null) return label;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        label,
+        const SizedBox(width: 4),
+        GestureDetector(
+          onTap: () => _showFieldHelp(text, help),
+          child: const Icon(Icons.info_outline_rounded,
+              size: 14, color: Colors.black38),
+        ),
+      ],
+    );
+  }
 
   Widget _tapField({
     required String label,
     required String value,
     required VoidCallback onTap,
     Widget? trailing,
+    String? help,
   }) =>
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54)),
+          _fieldLabel(label, help: help),
           const SizedBox(height: 6),
           InkWell(
             onTap: onTap,

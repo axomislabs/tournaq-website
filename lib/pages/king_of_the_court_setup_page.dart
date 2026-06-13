@@ -27,16 +27,15 @@ class KingOfTheCourtSetupPage extends StatefulWidget {
 
 class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   // ── Config ints ──────────────────────────────────────────────────────────────
-  int _targetPlayerCount = 8;
-  int _totalMinutes      = 60;
-  int _playersPerTeam    = 2;
-  int _courtCount        = 1;
-  int _strikePoints      = 5;
+  int _targetPlayerCount                 = 8;
+  int _totalMinutes                      = 60;
+  int _playersPerTeam                    = 2;
+  int _strikePoints                      = 5;
+  KotcAssignmentMode _assignmentMode     = KotcAssignmentMode.manual;
 
   // ── Config controllers ───────────────────────────────────────────────────────
   late final TextEditingController _playerCountCtrl;
   late final TextEditingController _totalMinCtrl;
-  late final TextEditingController _courtCtrl;
   late final TextEditingController _strikeCtrl;
 
   // ── Name ─────────────────────────────────────────────────────────────────────
@@ -76,7 +75,6 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
     super.initState();
     _playerCountCtrl = TextEditingController(text: '$_targetPlayerCount');
     _totalMinCtrl    = TextEditingController(text: '$_totalMinutes');
-    _courtCtrl       = TextEditingController(text: '$_courtCount');
     _strikeCtrl      = TextEditingController(text: '$_strikePoints');
     _nameCtrl.text   = _randomName();
   }
@@ -85,7 +83,6 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   void dispose() {
     _playerCountCtrl.dispose();
     _totalMinCtrl.dispose();
-    _courtCtrl.dispose();
     _strikeCtrl.dispose();
     _nameCtrl.dispose();
     _playerNameCtrl.dispose();
@@ -100,7 +97,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
     return '${t.$1} ${t.$2}';
   }
 
-  int get _minPlayers => _playersPerTeam * 2 * _courtCount;
+  int get _minPlayers => _playersPerTeam * 2; // always 1 court
 
   bool get _canCreate =>
       _nameCtrl.text.trim().isNotEmpty &&
@@ -113,10 +110,11 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
       id:             KingOfTheCourtTournament.generateId(),
       name:           _nameCtrl.text.trim(),
       totalTime:      Duration(minutes: _totalMinutes),
-      playersPerTeam: _playersPerTeam,
-      courtCount:     _courtCount,
-      strikePoints:   _strikePoints,
-      status:         KotcTournamentStatus.setup,
+      playersPerTeam:  _playersPerTeam,
+      courtCount:      1,
+      strikePoints:    _strikePoints,
+      assignmentMode:  _assignmentMode,
+      status:          KotcTournamentStatus.setup,
       players:        List.from(_players),
       games:          [],
       createdAt:      DateTime.now(),
@@ -535,6 +533,9 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                     ctrl:     _playerCountCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
+                    helpText: 'Target number of players for the session. '
+                        'Used when auto-filling random players. '
+                        'Actual participants are added in the Players section below.',
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -545,36 +546,44 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
                     unit:     'min',
+                    helpText: 'Total session duration. The timer counts down '
+                        'from this value. When time runs out you will be '
+                        'prompted to complete the tournament or keep scoring.',
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
 
-            // Row 2 — style / courts
+            // Row 2 — style / assignment
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: _styleField()),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: _comboField(
-                    label:    'Courts',
-                    ctrl:     _courtCtrl,
-                    presets:  [1, 2, 3, 4, 5, 6],
-                    onParsed: (v) => _courtCount = v.clamp(1, 32),
-                  ),
-                ),
+                Expanded(child: _assignmentModeField()),
               ],
             ),
             const SizedBox(height: 14),
 
-            // Row 3 — strike points
-            _comboField(
-              label:    'Strike Points (0 = off)',
-              ctrl:     _strikeCtrl,
-              presets:  [0, 3, 5, 7, 10, 15, 21],
-              onParsed: (v) => _strikePoints = v.clamp(0, 999),
+            // Row 3 — courts (locked) / strike points
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _lockedCourtsField()),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _comboField(
+                    label:    'Strike Points (0 = off)',
+                    ctrl:     _strikeCtrl,
+                    presets:  [0, 3, 5, 7, 10, 15, 21],
+                    onParsed: (v) => _strikePoints = v.clamp(0, 999),
+                    helpText: 'Points a team must score to win the game and be '
+                        'ejected as winners. Set to 0 to disable — teams stay '
+                        'on court until the coach manually ejects them.',
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
 
@@ -589,7 +598,9 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name'),
+            _fieldLabel('Tournament Name',
+                help: 'A name for this session, used to identify '
+                    'it in your tournament history.'),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -667,13 +678,9 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text(
-          'Style',
-          style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel('Style',
+            help: 'The format of each game — 2vs2, 3vs3, and so on. '
+                'Sets how many players make up each team on court.'),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           initialValue: _playersPerTeam,
@@ -697,6 +704,124 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
     );
   }
 
+  // ── Assignment mode dropdown ──────────────────────────────────────────────────
+
+  Widget _assignmentModeField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _fieldLabel('Assignment',
+            help: 'How the next court team is chosen.\n\n'
+                'Manual — the coach selects players from the queue by tapping them.\n\n'
+                'Automated — TournaQ suggests the best team, prioritising players '
+                'who have waited longest and haven\'t been paired together recently. '
+                'The coach can re-roll before confirming.'),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<KotcAssignmentMode>(
+          initialValue: _assignmentMode,
+          isDense: true,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10)),
+          ),
+          items: const [
+            DropdownMenuItem(
+              value: KotcAssignmentMode.manual,
+              child: Text('Manual'),
+            ),
+            DropdownMenuItem(
+              value: KotcAssignmentMode.automated,
+              child: Text('Automated'),
+            ),
+          ],
+          onChanged: (v) {
+            if (v != null) setState(() => _assignmentMode = v);
+          },
+        ),
+      ],
+    );
+  }
+
+  // ── Courts field (locked to 1) ────────────────────────────────────────────────
+
+  Widget _lockedCourtsField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Courts',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54),
+            ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  title: const Text('Courts',
+                      style: TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w700)),
+                  content: const Text(
+                    'Currently fixed at 1 court.\n\n'
+                    'Multi-court support — assign and track multiple '
+                    'simultaneous courts with optimal rotation — is planned '
+                    'for a future release.',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        height: 1.5),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: const Text('Got it',
+                          style:
+                              TextStyle(fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ),
+              child: const Icon(Icons.info_outline_rounded,
+                  size: 14, color: Colors.black38),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          height: 40,
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              const Text('1',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black45,
+                      fontWeight: FontWeight.w600)),
+              const Spacer(),
+              Icon(Icons.lock_outline_rounded,
+                  size: 14, color: Colors.grey.shade400),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   // ── Combo field ───────────────────────────────────────────────────────────────
 
   Widget _comboField({
@@ -705,18 +830,13 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
     required List<int> presets,
     required void Function(int) onParsed,
     String? unit,
+    String? helpText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black54),
-        ),
+        _fieldLabel(label, help: helpText),
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
@@ -781,11 +901,50 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
         ],
       );
 
-  Widget _fieldLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
-      );
+  void _showFieldHelp(String title, String body) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: Text(title,
+            style: const TextStyle(
+                fontSize: 15, fontWeight: FontWeight.w700)),
+        content: Text(body,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black54, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fieldLabel(String text, {String? help}) {
+    final label = Text(
+      text,
+      style: const TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
+    );
+    if (help == null) return label;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        label,
+        const SizedBox(width: 4),
+        GestureDetector(
+          onTap: () => _showFieldHelp(text, help),
+          child: const Icon(Icons.info_outline_rounded,
+              size: 14, color: Colors.black38),
+        ),
+      ],
+    );
+  }
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,

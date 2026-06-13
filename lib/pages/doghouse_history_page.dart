@@ -194,7 +194,7 @@ class DoghouseHistoryPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${game.sideOuts}',
+                  '${game.points}',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w900,

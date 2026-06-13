@@ -113,6 +113,47 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .then((_) => _refreshCounts());
   }
 
+  Future<void> _deleteAllHistory() async {
+    final total = _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Delete all history?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        content: Text(
+          'This will permanently delete all $total tournaments. This cannot be undone.',
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete all'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    for (final t in ScrambleStorageService.loadAll()) {
+      await ScrambleStorageService.delete(t.id);
+    }
+    for (final t in KingOfTheCourtStorageService.loadAll()) {
+      await KingOfTheCourtStorageService.delete(t.id);
+    }
+    for (final t in DoghouseStorageService.loadAll()) {
+      await DoghouseStorageService.delete(t.id);
+    }
+    for (final t in KoBracketStorageService.loadAll()) {
+      await KoBracketStorageService.delete(t.id);
+    }
+    _refreshCounts();
+  }
+
   void _openComingSoon(String title, String description) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) =>
@@ -120,12 +161,53 @@ class _TournamentsPageState extends State<TournamentsPage> {
     ));
   }
 
+  void _showPageInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: const Text('Tournaments',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Choose a format below to start a new session. Each format is designed for a different style of play — tap the Info panel on any tile to learn more before you begin.\n\n'
+            'Single Competitions & Socials are formats where every player competes as an individual. '
+            'Players rotate in and out, and the final standings reflect personal performance across the session.\n\n'
+            'Team Competitions are bracket or standings-based formats where pre-formed teams play head to head. '
+            'Results feed into a bracket or league table to determine the winner.\n\n'
+            'Past sessions are saved automatically and accessible via the History section at the bottom of this page.',
+            style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: AppDrawer(
           appState: _localState, onAppStateChanged: _updateState),
-      appBar: const TournaQAppBar(title: 'Tournaments'),
+      appBar: TournaQAppBar(
+        title: 'Tournaments',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'About Tournaments',
+            onPressed: _showPageInfo,
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
@@ -143,6 +225,23 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 description: 'Timed round-robin mixer',
                 count:       _scrambleCount,
                 onTap:       _openScrambleHub,
+                helpText:
+                    'Social Scramble is a timed, rotating mixer where teams are randomly '
+                    'reshuffled every round. No one stays partnered for long — the whole '
+                    'point is to play with and against as many different people as possible '
+                    'across the session.\n\n'
+                    'Perfect for beach sessions, open days, or any group that wants '
+                    'competitive play without the pressure of a fixed bracket.\n\n'
+                    'Fair by design. TournaQ schedules every player into the maximum number '
+                    'of rounds while keeping wait times as short as possible. When not '
+                    'everyone can fit on court at once, sitting-out rotations are balanced '
+                    'so no player waits longer than others.\n\n'
+                    'How a round works:\n'
+                    '• Teams are randomly drawn at the start of each round\n'
+                    '• All courts play simultaneously for the set match duration\n'
+                    '• A short break follows before the next round\n'
+                    '• Cumulative wins are tracked across all rounds\n\n'
+                    'Add your players, set a session timer, and go.',
               ),
               _TypeTile(
                 icon:        Icons.workspace_premium_rounded,
@@ -152,6 +251,30 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 description: 'Winners stay, challengers rotate',
                 count:       _kotcCount,
                 onTap:       _openKotcHub,
+                helpText:
+                    'King of the Court is a fast, individual competition where every '
+                    'player fights for the crown. Players rotate on and off court in '
+                    'groups, scoring points for each rally won — but the ranking is '
+                    'entirely personal. The player who accumulates the most game wins '
+                    '(then points) across the session takes the title.\n\n'
+                    'Short format, high energy — perfect as a session warm-up or a '
+                    'standalone competition.\n\n'
+                    'Fair by design. TournaQ\'s Automated assignment ensures everyone '
+                    'plays with and against different people, keeping wait times low '
+                    'and avoiding repeat pairings. Because matchups stay balanced '
+                    'throughout the session, the final standings are a genuine '
+                    'reflection of individual performance — not just who got the '
+                    'easiest draw.\n\n'
+                    'How a game works:\n'
+                    '• Win a rally → each player on that side scores a point\n'
+                    '• Reach your Strike Points target → current group wins the game, '
+                    'everyone rotates back to the queue\n'
+                    '• Coach manually ejects → stint ends, points recorded as-is\n'
+                    '• Next players step up immediately\n\n'
+                    'Before you start, agree on:\n'
+                    '• Who serves each rally\n'
+                    '• Whether to use Strike Points and what the target should be\n\n'
+                    'Add your players, set a session timer, and go.',
               ),
               _TypeTile(
                 icon:        Icons.pets_rounded,
@@ -161,6 +284,24 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 description: 'Get out of the Doghouse',
                 count:       _doghouseCount,
                 onTap:       _openDoghouseHub,
+                helpText:
+                    'Doghouse is a fast, competitive tournament where the action never stops. '
+                    'One team battles from the doghouse — score enough points to escape and make '
+                    'way for the next challengers. Hit your loss limit first and you\'re out.\n\n'
+                    'Short format, high intensity — great as a session warm-up or a standalone competition.\n\n'
+                    'Fair by design. TournaQ\'s Automated assignment ensures everyone plays with and '
+                    'against different people, keeping wait times low and avoiding repeat pairings. '
+                    'Because matchups stay balanced throughout the session, the final standings are a '
+                    'genuine reflection of how each player performed — not just who got the easier draw.\n\n'
+                    'How a game works:\n'
+                    '• Win a rally → score a point\n'
+                    '• Lose a rally → game lost, point score resets\n'
+                    '• Reach your Escape Points target → escaped, back to the queue\n'
+                    '• Hit the Loss Limit → ejected, next team steps in\n\n'
+                    'Before you start, agree on:\n'
+                    '• Which team serves each rally\n'
+                    '• Escape Points and Loss Limit settings\n\n'
+                    'Add your players, set a session timer, and go.',
               ),
             ]),
 
@@ -180,6 +321,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'League / Round Robin',
                     'Track standings across a full round-robin '
                     'season with points, wins, and goal difference.'),
+                helpText:    'Detailed description coming soon.',
               ),
               _TypeTile(
                 icon:        Icons.account_tree_rounded,
@@ -189,6 +331,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 description: 'Classic knockout bracket',
                 count:       _koBracketCount,
                 onTap:       _openKoBracketHub,
+                helpText:    'Detailed description coming soon.',
               ),
               _TypeTile(
                 icon:        Icons.device_hub_rounded,
@@ -201,6 +344,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Double Elimination',
                     'Winners and losers brackets — you need two '
                     'losses to be eliminated.'),
+                helpText:    'Detailed description coming soon.',
               ),
               _TypeTile(
                 icon:        Icons.stacked_bar_chart_rounded,
@@ -213,6 +357,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Group + Single Elimination',
                     'Teams advance from a group stage into a '
                     'single-elimination knockout bracket.'),
+                helpText:    'Detailed description coming soon.',
               ),
               _TypeTile(
                 icon:        Icons.stacked_line_chart_rounded,
@@ -225,6 +370,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Group + Double Elimination',
                     'Teams advance from a group stage into a '
                     'double-elimination bracket.'),
+                helpText:    'Detailed description coming soon.',
               ),
               _TypeTile(
                 icon:        Icons.swap_vert_rounded,
@@ -237,12 +383,28 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Swiss System',
                     'Players are paired each round based on their '
                     'current score — no eliminations, full schedule.'),
+                helpText:    'Detailed description coming soon.',
               ),
             ]),
 
             // ── History shortcut ───────────────────────────────────────
             const SizedBox(height: 28),
-            _sectionHeader('History', Icons.history_rounded),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _sectionHeader('Tournament History', Icons.history_rounded),
+                const Spacer(),
+                if (_scrambleCount + _kotcCount + _doghouseCount + _koBracketCount > 0)
+                  TextButton(
+                    onPressed: _deleteAllHistory,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                    child: const Text('Delete all', style: TextStyle(fontSize: 13)),
+                  ),
+              ],
+            ),
             const SizedBox(height: 12),
             _HistoryShortcutTile(
               label: 'All Tournaments',
@@ -307,6 +469,7 @@ class _TypeTile extends StatelessWidget {
   final int count;
   final bool comingSoon;
   final VoidCallback onTap;
+  final String? helpText;
 
   const _TypeTile({
     required this.icon,
@@ -317,7 +480,38 @@ class _TypeTile extends StatelessWidget {
     required this.onTap,
     this.count = 0,
     this.comingSoon = false,
+    this.helpText,
   });
+
+  void _showHelp(BuildContext context) {
+    final text = helpText ?? 'Detailed description coming soon.';
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: Text(name,
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w800)),
+        content: SingleChildScrollView(
+          child: Text(
+            text,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black54, height: 1.6),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -326,103 +520,147 @@ class _TypeTile extends StatelessWidget {
         : [color, gradientEnd];
     final shadowColor = comingSoon ? Colors.grey : color;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor.withValues(alpha: 0.28),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor.withValues(alpha: 0.28),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: IntrinsicHeight(
         child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: Colors.white, size: 26),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.1,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Main tile (4/5) ──────────────────────────────────────
+          Expanded(
+            flex: 5,
+            child: GestureDetector(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 22, 16, 22),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 26),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      fontSize: 13,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 19,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.1,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.80),
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    if (comingSoon)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'Soon',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    else if (count > 0)
+                      Container(
+                        margin: const EdgeInsets.only(left: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.20),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '$count',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            if (comingSoon)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(8),
+          ),
+          // ── Separator ────────────────────────────────────────────
+          Container(width: 1, color: Colors.white.withValues(alpha: 0.15)),
+          // ── Info column (1/5) ────────────────────────────────────
+          Expanded(
+            flex: 1,
+            child: GestureDetector(
+              onTap: () => _showHelp(context),
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.12),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 22,
+                      color: Colors.white.withValues(alpha: 0.90),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Info',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.80),
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  'Soon',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            else if (count > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '$count',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              )
-            else
-              const Icon(Icons.chevron_right_rounded,
-                  color: Colors.white, size: 24),
-          ],
+              ),
+            ),
+          ),
+        ],
         ),
       ),
     );

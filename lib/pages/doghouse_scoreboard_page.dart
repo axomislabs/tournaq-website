@@ -43,6 +43,10 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   int _currentSideOuts  = 0;
   int _currentGamesLost = 0;
 
+  // ── Automated assignment ──────────────────────────────────────────────────
+  List<List<DoghousePlayer>> _candidates = [];
+  int _candidateIndex = 0;
+
   // ── Session timer ─────────────────────────────────────────────────────────
   final _sessionTimerKey = GlobalKey<ScrambleTimerWidgetState>();
   bool _timerRunning = false;
@@ -58,13 +62,14 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   bool get _canUndo      => !_hasTeam && _t.games.isNotEmpty;
 
   bool get _escapeReached  => _currentSideOuts >= _t.escapePoints;
-  bool get _ejectReached   => _currentGamesLost >= _t.ejectThreshold;
+  bool get _ejectReached   => _currentGamesLost >= _t.lossLimit;
 
   @override
   void initState() {
     super.initState();
     _t    = widget.tournament;
     _pool = List.from(_t.players);
+    _initSuggestion();
   }
 
   @override
@@ -180,6 +185,33 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _confirmTeam() {
     if (!_canStart) return;
+    _startTeam(_pendingSelection);
+  }
+
+  // ── Automated assignment ──────────────────────────────────────────────────
+
+  void _initSuggestion() {
+    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
+    _candidates    = _computeSuggestions();
+    _candidateIndex = 0;
+  }
+
+  void _reroll() {
+    if (_candidates.length <= 1) return;
+    setState(() =>
+        _candidateIndex = (_candidateIndex + 1) % _candidates.length);
+  }
+
+  List<DoghousePlayer> get _currentSuggestion =>
+      _candidates.isEmpty ? [] : _candidates[_candidateIndex];
+
+  void _confirmSuggestedTeam() {
+    final suggested = _currentSuggestion;
+    if (suggested.length != _t.playersPerTeam) return;
+    _startTeam(suggested);
+  }
+
+  void _startTeam(List<DoghousePlayer> players) {
     final s = _sessionTimerKey.currentState;
     if (s != null && s.timerState == ScrambleTimerState.idle) {
       s.start();
@@ -189,14 +221,87 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       ..reset()
       ..start();
     setState(() {
-      _teamPlayers      = List.from(_pendingSelection);
+      _teamPlayers      = List.from(players);
       _pool             = _t.players
-          .where((p) => !_pendingSelection.any((s) => s.id == p.id))
+          .where((p) => !players.any((s) => s.id == p.id))
           .toList();
       _pendingSelection = [];
       _currentSideOuts  = 0;
       _currentGamesLost = 0;
     });
+  }
+
+  // Returns all possible teams from the pool, sorted by best mixup then
+  // longest wait. The first entry is the recommended pick.
+  List<List<DoghousePlayer>> _computeSuggestions() {
+    final n = _t.playersPerTeam;
+    if (_pool.length < n) return [];
+
+    // Pair repetition counts from game history
+    final pairCounts = <String, int>{};
+    for (final game in _t.games) {
+      final ids = game.playerIds;
+      for (var i = 0; i < ids.length; i++) {
+        for (var j = i + 1; j < ids.length; j++) {
+          final key = ([ids[i], ids[j]]..sort()).join(':');
+          pairCounts[key] = (pairCounts[key] ?? 0) + 1;
+        }
+      }
+    }
+
+    // Most-recent game index each player appeared in (null = never played)
+    final lastPlayed = <String, int>{};
+    for (var i = 0; i < _t.games.length; i++) {
+      for (final pid in _t.games[i].playerIds) {
+        lastPlayed[pid] = i;
+      }
+    }
+    final totalGames = _t.games.length;
+
+    final combos = _combinations(_pool, n);
+    combos.sort((a, b) {
+      final aPairs = _pairScore(a, pairCounts);
+      final bPairs = _pairScore(b, pairCounts);
+      if (aPairs != bPairs) return aPairs.compareTo(bPairs);
+      // Higher wait = comes first (prefer players who waited longest)
+      return _waitScore(b, lastPlayed, totalGames)
+          .compareTo(_waitScore(a, lastPlayed, totalGames));
+    });
+    return combos;
+  }
+
+  int _pairScore(List<DoghousePlayer> team, Map<String, int> counts) {
+    var score = 0;
+    for (var i = 0; i < team.length; i++) {
+      for (var j = i + 1; j < team.length; j++) {
+        final key = ([team[i].id, team[j].id]..sort()).join(':');
+        score += counts[key] ?? 0;
+      }
+    }
+    return score;
+  }
+
+  double _waitScore(List<DoghousePlayer> team, Map<String, int> lastPlayed,
+      int totalGames) {
+    if (team.isEmpty) return 0;
+    var total = 0.0;
+    for (final p in team) {
+      final last = lastPlayed[p.id];
+      total += last == null ? totalGames + 1 : totalGames - last;
+    }
+    return total / team.length;
+  }
+
+  List<List<DoghousePlayer>> _combinations(List<DoghousePlayer> items, int k) {
+    if (k == 0) return [[]];
+    if (items.length < k) return [];
+    final result = <List<DoghousePlayer>>[];
+    for (var i = 0; i <= items.length - k; i++) {
+      for (final rest in _combinations(items.sublist(i + 1), k - 1)) {
+        result.add([items[i], ...rest]);
+      }
+    }
+    return result;
   }
 
   // ── Scoring ───────────────────────────────────────────────────────────────
@@ -217,6 +322,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _addGameLost() {
     if (!_hasTeam || _isCompleted) return;
+    if (_currentGamesLost >= _t.lossLimit) return;
     setState(() {
       _currentGamesLost++;
       _currentSideOuts = 0;
@@ -227,6 +333,11 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     }
   }
 
+  void _removeGameLost() {
+    if (!_hasTeam || _isCompleted || _currentGamesLost <= 0) return;
+    setState(() => _currentGamesLost--);
+  }
+
   // ── End game ──────────────────────────────────────────────────────────────
 
   void _endGame({required bool escaped}) {
@@ -235,7 +346,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     final game = DoghouseGame(
       id:        DoghouseGame.generateId(),
       playerIds: _teamPlayers.map((p) => p.id).toList(),
-      sideOuts:  _currentSideOuts,
+      points:  _currentSideOuts,
       gamesLost: _currentGamesLost,
       gamesWon:  escaped ? 1 : 0,
       startTime: DateTime.now().subtract(_gameWatch.elapsed),
@@ -260,6 +371,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       _currentSideOuts  = 0;
       _currentGamesLost = 0;
     });
+    _initSuggestion();
   }
 
   void _undoEjection() {
@@ -286,7 +398,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           .where((p) => !restoredPlayers.any((r) => r.id == p.id))
           .toList();
       _pendingSelection = [];
-      _currentSideOuts  = lastGame.sideOuts;
+      _currentSideOuts  = lastGame.points;
       _currentGamesLost = lastGame.gamesLost;
     });
   }
@@ -754,7 +866,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$names scored ${_t.escapePoints} side-outs!',
+            Text('$names scored ${_t.escapePoints} points!',
                 style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
@@ -825,7 +937,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$names lost ${_t.ejectThreshold} games!',
+            Text('$names lost ${_t.lossLimit} games!',
                 style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
@@ -898,7 +1010,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   fontSize: 16, fontWeight: FontWeight.w700)),
           content: Text(
             pts > 0
-                ? 'The current team has $pts unrecorded side-out${pts == 1 ? '' : 's'}. Leaving now will discard them.'
+                ? 'The current team has $pts unrecorded point${pts == 1 ? '' : 's'}. Leaving now will discard them.'
                 : 'The current team\'s unrecorded data will be lost.',
             style: const TextStyle(
                 fontSize: 14, color: Colors.black54, height: 1.4),
@@ -1009,7 +1121,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   void _openStats() {
     final escapesMap = _t.escapesPerPlayer;
     final lossesMap  = _t.gamesLostPerPlayer;
-    final soMap      = _t.sideOutsPerPlayer;
+    final soMap      = _t.pointsPerPlayer;
+    final playedMap  = _t.gamesPerPlayer;
     final ranked     = _t.players.toList()
       ..sort((a, b) {
         final eDiff =
@@ -1050,7 +1163,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                               fontWeight: FontWeight.w700,
                               color: Colors.black45))),
                   SizedBox(
-                    width: 52,
+                    width: 44,
+                    child: Text('Games',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black45)),
+                  ),
+                  SizedBox(
+                    width: 44,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -1066,7 +1188,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     ),
                   ),
                   SizedBox(
-                    width: 44,
+                    width: 40,
                     child: Text('Lost',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -1075,8 +1197,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                             color: Colors.black45)),
                   ),
                   SizedBox(
-                    width: 44,
-                    child: Text('SOs',
+                    width: 40,
+                    child: Text('Pts',
                         textAlign: TextAlign.right,
                         style: TextStyle(
                             fontSize: 11,
@@ -1088,6 +1210,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               ...ranked.asMap().entries.map((entry) {
                 final i       = entry.key;
                 final p       = entry.value;
+                final played  = playedMap[p.id] ?? 0;
                 final escapes = escapesMap[p.id] ?? 0;
                 final losses  = lossesMap[p.id] ?? 0;
                 final sos     = soMap[p.id] ?? 0;
@@ -1130,7 +1253,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                       ]),
                     ),
                     SizedBox(
-                      width: 52,
+                      width: 44,
+                      child: Text('$played',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black54)),
+                    ),
+                    SizedBox(
+                      width: 44,
                       child: Text('$escapes',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1141,7 +1273,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                                   : Colors.black38)),
                     ),
                     SizedBox(
-                      width: 44,
+                      width: 40,
                       child: Text('$losses',
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1152,7 +1284,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                                   : Colors.black38)),
                     ),
                     SizedBox(
-                      width: 44,
+                      width: 40,
                       child: Text('$sos',
                           textAlign: TextAlign.right,
                           style: const TextStyle(
@@ -1366,52 +1498,95 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   // ── Narrow buttons ────────────────────────────────────────────────────────
 
   Widget _buildNarrowGameLostButton() {
+    final atCap    = _currentGamesLost >= _t.lossLimit;
     final nearEject = _currentGamesLost >=
-        (_t.ejectThreshold - 1).clamp(0, _t.ejectThreshold);
-    final bgColor =
-        nearEject ? Colors.red.shade600 : Colors.grey.shade700;
+        (_t.lossLimit - 1).clamp(0, _t.lossLimit);
+    final canAdd   = _hasTeam && !_isCompleted && !atCap;
+    final canUndo  = _hasTeam && !_isCompleted && _currentGamesLost > 0;
+    final bgColor  = nearEject ? Colors.red.shade600 : Colors.grey.shade700;
 
-    return Material(
-      color: bgColor,
+    return ClipRRect(
       borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: (_hasTeam && !_isCompleted) ? _addGameLost : null,
-        onLongPress: (_hasTeam && !_isCompleted && _currentGamesLost > 0)
-            ? () => setState(() => _currentGamesLost--)
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.sentiment_very_dissatisfied_rounded,
-                size: 22,
-                color: Colors.white.withValues(alpha: nearEject ? 1.0 : 0.85),
+      child: Material(
+        color: bgColor,
+        child: Column(
+          children: [
+            // ── Main area: tap to add game lost ──────────────────────────
+            Expanded(
+              child: InkWell(
+                onTap: canAdd ? _addGameLost : null,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.sentiment_very_dissatisfied_rounded,
+                        size: 26,
+                        color: Colors.white
+                            .withValues(alpha: canAdd ? 1.0 : 0.5),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '$_currentGamesLost / ${_t.lossLimit}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                            color: Colors.white
+                                .withValues(alpha: canAdd ? 1.0 : 0.6),
+                            height: 1.2),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Game\nLost',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            color: Colors.white
+                                .withValues(alpha: canAdd ? 0.85 : 0.45)),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                '$_currentGamesLost\n/ ${_t.ejectThreshold}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    color: Colors.white,
-                    height: 1.2),
+            ),
+
+            // ── Divider ──────────────────────────────────────────────────
+            Container(
+              height: 1,
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
+
+            // ── Undo strip: tap to remove one game lost ──────────────────
+            InkWell(
+              onTap: canUndo ? _removeGameLost : null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.undo_rounded,
+                      size: 16,
+                      color: Colors.white
+                          .withValues(alpha: canUndo ? 0.9 : 0.3),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Undo',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white
+                              .withValues(alpha: canUndo ? 0.9 : 0.3)),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 4),
-              const Text(
-                'Game\nLost',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 10,
-                    color: Colors.white70),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1431,12 +1606,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.undo_rounded, size: 22),
-          SizedBox(height: 6),
+          Icon(Icons.undo_rounded, size: 28),
+          SizedBox(height: 8),
           Text(
             'Undo\nGame',
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           ),
         ],
       ),
@@ -1565,7 +1740,111 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     );
   }
 
+  Widget _buildAutomatedSuggestionTile({bool compact = false}) {
+    final suggested = _currentSuggestion;
+    final canStart  = suggested.length == _t.playersPerTeam;
+    final canReroll = _candidates.length > 1;
+
+    return Card(
+      margin: compact ? EdgeInsets.zero : null,
+      color: canStart ? _kGoldCardBg : Colors.grey.shade50,
+      elevation: canStart ? 3 : 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: canStart ? _kGold : Colors.grey.shade300,
+          width: canStart ? 2 : 1,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 10 : 16),
+        child: Column(
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [
+              Icon(Icons.auto_awesome_rounded,
+                  size: 16,
+                  color: canStart ? _kGold : Colors.black45),
+              const SizedBox(width: 8),
+              Text(
+                'Suggested Team',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: canStart ? _kGold : Colors.black54,
+                ),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: canReroll ? _reroll : null,
+                icon: const Icon(Icons.refresh_rounded, size: 14),
+                label: const Text('Re-roll',
+                    style: TextStyle(fontSize: 12)),
+                style: TextButton.styleFrom(
+                  foregroundColor: _kOlive,
+                  disabledForegroundColor: Colors.black26,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ]),
+
+            if (suggested.isEmpty) ...[
+              SizedBox(height: compact ? 8 : 12),
+              const Text('Not enough players in queue.',
+                  style: TextStyle(color: Colors.black38, fontSize: 13)),
+            ] else ...[
+              SizedBox(height: compact ? 8 : 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: suggested
+                    .map((p) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _kGold,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(p.name,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14)),
+                        ))
+                    .toList(),
+              ),
+            ],
+
+            if (compact) const Spacer(),
+            SizedBox(height: compact ? 0 : 14),
+            ElevatedButton.icon(
+              onPressed: canStart ? _confirmSuggestedTeam : null,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Enter Doghouse',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _kGold,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey.shade200,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSelectionTile({bool compact = false}) {
+    if (_t.assignmentMode == DoghouseAssignmentMode.automated) {
+      return _buildAutomatedSuggestionTile(compact: compact);
+    }
     final needed   = _t.playersPerTeam;
     final selected = _pendingSelection.length;
     final canStart = _canStart;
@@ -1584,7 +1863,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       child: Padding(
         padding: EdgeInsets.all(compact ? 10 : 16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
@@ -1682,7 +1961,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               ),
             ],
 
-            SizedBox(height: compact ? 10 : 14),
+            if (compact) const Spacer(),
+            SizedBox(height: compact ? 0 : 14),
             ElevatedButton.icon(
               onPressed: canStart ? _confirmTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
@@ -1835,7 +2115,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                             : Colors.black45),
                     const SizedBox(width: 2),
                     Text(
-                        '$_currentGamesLost / ${_t.ejectThreshold}',
+                        '$_currentGamesLost / ${_t.lossLimit}',
                         style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1847,16 +2127,31 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               ),
             ]),
 
-            // Big side-out score
-            Text(
-              '$_currentSideOuts',
-              style: TextStyle(
-                fontSize: compact ? 52.0 : 96.0,
-                fontWeight: FontWeight.bold,
-                height: 1.0,
-                color: Colors.black87,
+            // Big side-out score — FittedBox lets it shrink when
+            // many player chips (e.g. 6v6) consume extra vertical space.
+            if (compact)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$_currentSideOuts',
+                  style: const TextStyle(
+                    fontSize: 80.0,
+                    fontWeight: FontWeight.bold,
+                    height: 1.0,
+                    color: Colors.black87,
+                  ),
+                ),
+              )
+            else
+              Text(
+                '$_currentSideOuts',
+                style: const TextStyle(
+                  fontSize: 96.0,
+                  fontWeight: FontWeight.bold,
+                  height: 1.0,
+                  color: Colors.black87,
+                ),
               ),
-            ),
 
             // +/- buttons
             Row(
@@ -1925,7 +2220,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 '${_t.escapePoints} pt escape',
                 _kGoldLight, _kGold),
             _chip(Icons.sentiment_very_dissatisfied_rounded,
-                '${_t.ejectThreshold} pt eject',
+                '${_t.lossLimit} loss limit',
                 Colors.red.shade50, Colors.red.shade400),
           ],
         ),
