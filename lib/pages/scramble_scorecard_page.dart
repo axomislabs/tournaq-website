@@ -487,89 +487,92 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   Future<void> _editPlayerName(ScramblePlayer player) async {
     if (_matchCompleted) return;
     final ctrl = TextEditingController(text: player.name);
-    final saved = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    try {
+      final saved = await showModalBottomSheet<String>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Rename Player',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                player.source == ScramblePlayerSource.existing
-                    ? 'Updates tournament display only.'
-                    : 'Updates name in stats and schedule.',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: ctrl,
-                autofocus: true,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  hintText: 'Player name',
+                const SizedBox(height: 16),
+                const Text(
+                  'Rename Player',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(ctrl.text.trim()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _kOlive,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 4),
+                Text(
+                  player.source == ScramblePlayerSource.existing
+                      ? 'Updates tournament display only.'
+                      : 'Updates name in stats and schedule.',
+                  style: const TextStyle(fontSize: 12, color: Colors.black45),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: ctrl,
+                  autofocus: true,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    hintText: 'Player name',
                   ),
                 ),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(ctrl.text.trim()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kOlive,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-
-    if (saved == null || saved.isEmpty || !mounted) return;
-    final updatedPlayers = _t.players.map((p) {
-      return p.id == player.id ? p.copyWith(name: saved) : p;
-    }).toList();
-    _persist(_t.copyWith(players: updatedPlayers));
+      );
+      if (saved == null || saved.isEmpty || !mounted) return;
+      final updatedPlayers = _t.players.map((p) {
+        return p.id == player.id ? p.copyWith(name: saved) : p;
+      }).toList();
+      _persist(_t.copyWith(players: updatedPlayers));
+    } finally {
+      ctrl.dispose();
+    }
   }
 
   // ── Upcoming games helper ────────────────────────────────────────────────
@@ -1403,99 +1406,103 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         .join(' & ');
     final ctrlA = TextEditingController(text: '0');
     final ctrlB = TextEditingController(text: '0');
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: _kOliveLight,
-                borderRadius: BorderRadius.circular(10),
+    try {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _kOliveLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.edit_rounded, color: _kOlive, size: 20),
               ),
-              child: const Icon(Icons.edit_rounded, color: _kOlive, size: 20),
+              const SizedBox(width: 12),
+              const Text(
+                'Add Result Manually',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 4),
+                const Text(
+                  'Use this when the game was played without live scoring. '
+                  'Enter the final score for both sides and complete the game.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _scoreInputRow(sideALabel, ctrlA, _kGold),
+                const SizedBox(height: 10),
+                _scoreInputRow(sideBLabel, ctrlB, _kOlive),
+              ],
             ),
-            const SizedBox(width: 12),
-            const Text(
-              'Add Result Manually',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kOlive,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      final a = int.tryParse(ctrlA.text) ?? 0;
+                      final b = int.tryParse(ctrlB.text) ?? 0;
+                      Navigator.of(ctx).pop();
+                      _completeWithManualScore(a, b);
+                    },
+                    child: const Text(
+                      'Complete Game',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 4),
-              const Text(
-                'Use this when the game was played without live scoring. '
-                'Enter the final score for both sides and complete the game.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _scoreInputRow(sideALabel, ctrlA, _kGold),
-              const SizedBox(height: 10),
-              _scoreInputRow(sideBLabel, ctrlB, _kOlive),
-            ],
-          ),
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text('Cancel'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _kOlive,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {
-                    final a = int.tryParse(ctrlA.text) ?? 0;
-                    final b = int.tryParse(ctrlB.text) ?? 0;
-                    Navigator.of(ctx).pop();
-                    _completeWithManualScore(a, b);
-                  },
-                  child: const Text(
-                    'Complete Game',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      ctrlA.dispose();
+      ctrlB.dispose();
+    }
   }
 
   Widget _scoreInputRow(

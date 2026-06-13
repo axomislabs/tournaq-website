@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
+import '../models/player.dart';
 import '../services/ko_bracket_storage_service.dart';
-import '../state/app_state.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'ko_bracket_bracket_page.dart';
 import 'ko_bracket_setup_page.dart';
@@ -13,13 +13,11 @@ const _kGoldCream = AppColors.goldCream;
 const _kOlive = AppColors.olive;
 
 class KoBracketHubPage extends StatefulWidget {
-  final AppState appState;
-  final Function(AppState) onAppStateChanged;
+  final List<Player> existingPlayers;
 
   const KoBracketHubPage({
     super.key,
-    required this.appState,
-    required this.onAppStateChanged,
+    required this.existingPlayers,
   });
 
   @override
@@ -27,13 +25,11 @@ class KoBracketHubPage extends StatefulWidget {
 }
 
 class _KoBracketHubPageState extends State<KoBracketHubPage> {
-  late AppState _appState;
   List<KoBracketTournament> _tournaments = [];
 
   @override
   void initState() {
     super.initState();
-    _appState = widget.appState;
     _loadTournaments();
   }
 
@@ -56,7 +52,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
   void _openSetup() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KoBracketSetupPage(
-        appState: _appState,
+        existingPlayers: widget.existingPlayers,
         onCreated: _persist,
       ),
     )).then((_) => _loadTournaments());
@@ -66,7 +62,6 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KoBracketBracketPage(
         tournament: t,
-        appState: _appState,
         onChanged: _persist,
       ),
     )).then((_) => _loadTournaments());

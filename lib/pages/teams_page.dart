@@ -27,7 +27,6 @@ class _TeamsPageState extends State<TeamsPage> {
   final _rng = Random();
   final _searchCtrl = TextEditingController();
   final _playerFilter = <String>{};
-  final _tournamentFilter = <String>{};
   final _clubFilter = <String>{};
 
   static const _prefixes = ['Falcon','Phoenix','Lion','Tiger','Eagle','Storm','Dragon','Viper','Thunder','Raven','Comet','Shadow','Blaze','Orbit','Nova'];
@@ -78,22 +77,6 @@ class _TeamsPageState extends State<TeamsPage> {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  Future<void> _assignTournament(String teamId) async {
-    final team = _localState.getTeamById(teamId);
-    if (team == null) return;
-    final items = _localState.tournaments
-        .where((t) => !t.teamIds.contains(teamId))
-        .map((t) => (id: t.id, name: t.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign to Tournament', items: items,
-      emptyMessage: 'Team is already in all tournaments.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToTournament(_localState, teamId: teamId, tournamentId: selected));
-    }
-  }
-
   Future<void> _assignClub(String teamId) async {
     final items = _localState.clubs
         .where((c) => !c.teamIds.contains(teamId))
@@ -121,7 +104,6 @@ class _TeamsPageState extends State<TeamsPage> {
     _searchCtrl.clear();
     setState(() {
       _playerFilter.clear();
-      _tournamentFilter.clear();
       _clubFilter.clear();
     });
   }
@@ -131,7 +113,6 @@ class _TeamsPageState extends State<TeamsPage> {
     return _localState.teams.where((team) {
       if (q.isNotEmpty && !team.name.toLowerCase().contains(q)) return false;
       if (_playerFilter.isNotEmpty && !team.userIds.any(_playerFilter.contains)) return false;
-      if (_tournamentFilter.isNotEmpty && !team.tournamentIds.any(_tournamentFilter.contains)) return false;
       if (_clubFilter.isNotEmpty) {
         final inClub = _localState.clubs
             .where((c) => _clubFilter.contains(c.id))
@@ -185,12 +166,6 @@ class _TeamsPageState extends State<TeamsPage> {
                 onToggle: (id, v) => setState(() { if (v) { _playerFilter.add(id); } else { _playerFilter.remove(id); } }),
               ),
               FilterGroup(
-                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
-                items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
-                selectedIds: _tournamentFilter,
-                onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
-              ),
-              FilterGroup(
                 label: l10n.filterClub, icon: Icons.home_rounded,
                 items: _localState.clubs.map((c) => (id: c.id, name: c.name)).toList(),
                 selectedIds: _clubFilter,
@@ -219,10 +194,9 @@ class _TeamsPageState extends State<TeamsPage> {
               itemBuilder: (context, index) {
                 final team = filtered[index];
                 final memberCount = _localState.getPlayersForTeam(team.id).length;
-                final tournamentCount = _localState.getTeamTournaments(team.id).length;
                 return ListTile(
                   title: Text(team.name),
-                  subtitle: Text('$memberCount player(s) • $tournamentCount tournament(s)'),
+                  subtitle: Text('$memberCount player(s)'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
                   )),
@@ -234,14 +208,12 @@ class _TeamsPageState extends State<TeamsPage> {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: team.id),
                           ));
-                        case 'assign_tournament': _assignTournament(team.id);
                         case 'assign_club': _assignClub(team.id);
                         case 'delete': _deleteTeam(team.id);
                       }
                     },
                     itemBuilder: (_) => [
                       actionMenuItem('assign_player', Icons.edit_rounded, l10n.menuEditPlayers),
-                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, l10n.menuAssignToTournament),
                       actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
                       const PopupMenuDivider(),
                       actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),

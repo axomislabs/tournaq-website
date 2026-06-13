@@ -8,7 +8,6 @@ import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
 import 'team_detail_page.dart';
-import 'tournament_detail_page.dart';
 import 'user_detail_page.dart';
 
 class ClubDetailPage extends StatefulWidget {
@@ -117,43 +116,6 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
     }
   }
 
-  // ── Tournaments ───────────────────────────────────────────────────────────
-
-  Future<void> _assignTournament() async {
-    final l10n = AppLocalizations.of(context)!;
-    final club = _club;
-    if (club == null) return;
-    final items = _localState.tournaments
-        .where((t) => !club.tournamentIds.contains(t.id))
-        .map((t) => (id: t.id, name: t.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: l10n.menuAddTournament, items: items,
-      emptyMessage: 'All tournaments are already in this club.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: selected, clubId: widget.clubId));
-    }
-  }
-
-  Future<void> _removeTournament(String tournamentId) async {
-    final l10n = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.dialogRemoveTournamentFromClub),
-        content: Text(l10n.dialogRemoveTournamentFromClubBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.btnCancel)),
-          ElevatedButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.btnRemove)),
-        ],
-      ),
-    );
-    if (confirmed == true && mounted) {
-      _updateState(AppDataService.removeTournamentFromClub(_localState, tournamentId: tournamentId, clubId: widget.clubId));
-    }
-  }
-
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
@@ -169,7 +131,6 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
     final players = _localState.players.where((u) => club.playerIds.contains(u.id)).toList();
     final teams = _localState.teams.where((t) => club.teamIds.contains(t.id)).toList();
-    final tournaments = _localState.tournaments.where((t) => club.tournamentIds.contains(t.id)).toList();
 
     return Scaffold(
       drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
@@ -198,11 +159,6 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
                         onPressed: _assignTeam,
                         icon: const Icon(Icons.group_rounded, size: 16),
                         label: Text(l10n.menuAddTeam),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: _assignTournament,
-                        icon: const Icon(Icons.emoji_events_rounded, size: 16),
-                        label: Text(l10n.menuAddTournament),
                       ),
                     ]),
                   ],
@@ -262,31 +218,6 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
                 ),
               )),
 
-            const SizedBox(height: 20),
-
-            Text(l10n.sectionTournamentsCount(tournaments.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            if (tournaments.isEmpty)
-              Center(child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(l10n.noTournamentsYet, style: const TextStyle(color: Colors.black45)),
-              ))
-            else
-              ...tournaments.map((t) => Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  leading: const Icon(Icons.emoji_events_rounded),
-                  title: Text(t.name),
-                  subtitle: Text(t.mode.displayName),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => TournamentDetailPage(appState: _localState, onAppStateChanged: _updateState, tournamentId: t.id),
-                  )),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: () => _removeTournament(t.id),
-                  ),
-                ),
-              )),
           ],
         ),
       ),

@@ -5,7 +5,6 @@ import 'device_id_service.dart';
 import '../models/club.dart';
 import '../models/game.dart';
 import '../models/team.dart';
-import '../models/tournament.dart';
 import '../state/app_state.dart';
 import 'scramble_storage_service.dart';
 import 'king_of_the_court_storage_service.dart';
@@ -42,7 +41,6 @@ class LocalStorageService {
   static const _teamsBox = 'teams_v1';
   static const _playersBox = 'players_v1';
   static const _clubsBox = 'clubs_v1';
-  static const _tournamentsBox = 'tournaments_v1';
   static const _prefsBox = 'prefs_v1';
 
   // ── Initialisation ─────────────────────────────────────────────────────────
@@ -53,7 +51,6 @@ class LocalStorageService {
     await Hive.openBox<String>(_teamsBox);
     await Hive.openBox<String>(_playersBox);
     await Hive.openBox<String>(_clubsBox);
-    await Hive.openBox<String>(_tournamentsBox);
     await Hive.openBox<String>(_prefsBox);
     await DeviceIdService.init();
     await ScrambleStorageService.init();
@@ -68,7 +65,6 @@ class LocalStorageService {
   static Box<String> get _teams => Hive.box<String>(_teamsBox);
   static Box<String> get _players => Hive.box<String>(_playersBox);
   static Box<String> get _clubs => Hive.box<String>(_clubsBox);
-  static Box<String> get _tournaments => Hive.box<String>(_tournamentsBox);
   static Box<String> get _prefs => Hive.box<String>(_prefsBox);
 
   // ── Load ───────────────────────────────────────────────────────────────────
@@ -90,17 +86,12 @@ class LocalStorageService {
         .map((s) => _tryDecode(s, Club.fromJson))
         .whereType<Club>()
         .toList();
-    final tournaments = _tournaments.values
-        .map((s) => _tryDecode(s, Tournament.fromJson))
-        .whereType<Tournament>()
-        .toList();
 
     return AppState(
       games: games,
       teams: teams,
       players: players,
       clubs: clubs,
-      tournaments: tournaments,
     );
   }
 
@@ -123,13 +114,56 @@ class LocalStorageService {
     for (final c in state.clubs) {
       await _clubs.put(c.id, jsonEncode(c.toJson()));
     }
-    await _tournaments.clear();
-    for (final t in state.tournaments) {
-      await _tournaments.put(t.id, jsonEncode(t.toJson()));
-    }
   }
 
   // ── Granular ops ───────────────────────────────────────────────────────────
+
+  /// Diffs [prev] against [next] and writes only what changed or was removed.
+  /// Uses object identity: copyWith() returns a new reference for changed
+  /// entities, so identical() is false only for things that actually changed.
+  static Future<void> saveChangedEntities(AppState prev, AppState next) async {
+    await _syncList<Game>(
+      prev: prev.games, next: next.games,
+      getId: (g) => g.id,
+      save: (g) => _games.put(g.id, jsonEncode(g.toJson())),
+      delete: (id) => _games.delete(id),
+    );
+    await _syncList<Team>(
+      prev: prev.teams, next: next.teams,
+      getId: (t) => t.id,
+      save: (t) => _teams.put(t.id, jsonEncode(t.toJson())),
+      delete: (id) => _teams.delete(id),
+    );
+    await _syncList<Player>(
+      prev: prev.players, next: next.players,
+      getId: (p) => p.id,
+      save: (p) => _players.put(p.id, jsonEncode(p.toJson())),
+      delete: (id) => _players.delete(id),
+    );
+    await _syncList<Club>(
+      prev: prev.clubs, next: next.clubs,
+      getId: (c) => c.id,
+      save: (c) => _clubs.put(c.id, jsonEncode(c.toJson())),
+      delete: (id) => _clubs.delete(id),
+    );
+  }
+
+  static Future<void> _syncList<T>({
+    required List<T> prev,
+    required List<T> next,
+    required String Function(T) getId,
+    required Future<void> Function(T) save,
+    required Future<void> Function(String) delete,
+  }) async {
+    final prevMap = {for (final e in prev) getId(e): e};
+    final nextMap = {for (final e in next) getId(e): e};
+    for (final e in next) {
+      if (!identical(prevMap[getId(e)], e)) await save(e);
+    }
+    for (final id in prevMap.keys) {
+      if (!nextMap.containsKey(id)) await delete(id);
+    }
+  }
 
   static Future<void> saveGame(Game game) async =>
       _games.put(game.id, jsonEncode(game.toJson()));
@@ -154,7 +188,6 @@ class LocalStorageService {
     await _teams.clear();
     await _players.clear();
     await _clubs.clear();
-    await _tournaments.clear();
   }
 
   // ── Private ────────────────────────────────────────────────────────────────

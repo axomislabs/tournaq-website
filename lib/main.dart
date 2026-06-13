@@ -42,8 +42,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _updateAppState(AppState newState) {
+    final prev = _appState;
     setState(() => _appState = newState);
-    LocalStorageService.saveAppState(newState); // fire-and-forget
+    LocalStorageService.saveChangedEntities(prev, newState); // fire-and-forget
   }
 
   void _setLocale(Locale? locale) {

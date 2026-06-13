@@ -3,7 +3,7 @@ import '../app/app_colors.dart';
 import '../models/doghouse_drill.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/scramble_service.dart';
-import '../state/app_state.dart';
+import '../models/player.dart';
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -19,13 +19,13 @@ const _kOliveLight      = AppColors.oliveLight;
 
 class DoghouseScoreboardPage extends StatefulWidget {
   final DoghouseTournament tournament;
-  final AppState appState;
+  final List<Player> existingPlayers;
   final void Function(DoghouseTournament) onChanged;
 
   const DoghouseScoreboardPage({
     super.key,
     required this.tournament,
-    required this.appState,
+    required this.existingPlayers,
     required this.onChanged,
   });
 
@@ -541,7 +541,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         builder: (ctx, setSheet) {
           final query       = searchCtrl.text.toLowerCase();
           final alreadyIn   = {..._t.players.map((p) => p.appUserId)};
-          final allExisting = widget.appState.players
+          final allExisting = widget.existingPlayers
               .where((u) => !alreadyIn.contains(u.id))
               .toList();
           final filtered    = query.isEmpty
@@ -809,7 +809,10 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           );
         },
       ),
-    );
+    ).whenComplete(() {
+      nameCtrl.dispose();
+      searchCtrl.dispose();
+    });
   }
 
   // ── Dialogs ───────────────────────────────────────────────────────────────

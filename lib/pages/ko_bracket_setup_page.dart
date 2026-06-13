@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
-import '../state/app_state.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -40,12 +39,12 @@ const _nameTemplates = [
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 class KoBracketSetupPage extends StatefulWidget {
-  final AppState appState;
+  final List<Player> existingPlayers;
   final void Function(KoBracketTournament) onCreated;
 
   const KoBracketSetupPage({
     super.key,
-    required this.appState,
+    required this.existingPlayers,
     required this.onCreated,
   });
 
@@ -247,7 +246,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => KoBracketBracketPage(
         tournament: tournament,
-        appState: widget.appState,
         onChanged: widget.onCreated,
       ),
     ));
@@ -263,7 +261,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _TeamEditorSheet(
         team: team,
-        appState: widget.appState,
+        existingPlayers: widget.existingPlayers,
         generationMode: _generationMode,
         onSave: (updated) => setState(() => _teams[index] = updated),
       ),
@@ -1137,13 +1135,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
 class _TeamEditorSheet extends StatefulWidget {
   final KoTeam team;
-  final AppState appState;
+  final List<Player> existingPlayers;
   final KoBracketGenerationMode generationMode;
   final void Function(KoTeam) onSave;
 
   const _TeamEditorSheet({
     required this.team,
-    required this.appState,
+    required this.existingPlayers,
     required this.generationMode,
     required this.onSave,
   });
@@ -1204,7 +1202,7 @@ class _TeamEditorSheetState extends State<_TeamEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final query = _searchCtrl.text.toLowerCase();
-    final allPlayers = widget.appState.players;
+    final allPlayers = widget.existingPlayers;
     final filtered = query.isEmpty
         ? allPlayers
         : allPlayers.where((p) => p.name.toLowerCase().contains(query)).toList();

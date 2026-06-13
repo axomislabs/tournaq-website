@@ -3,7 +3,7 @@ import '../app/app_colors.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_service.dart';
-import '../state/app_state.dart';
+import '../models/player.dart';
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -18,13 +18,13 @@ const _kOliveLight      = AppColors.oliveLight;
 
 class KingOfTheCourtScoreboardPage extends StatefulWidget {
   final KingOfTheCourtTournament tournament;
-  final AppState appState;
+  final List<Player> existingPlayers;
   final void Function(KingOfTheCourtTournament) onChanged;
 
   const KingOfTheCourtScoreboardPage({
     super.key,
     required this.tournament,
-    required this.appState,
+    required this.existingPlayers,
     required this.onChanged,
   });
 
@@ -520,7 +520,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         builder: (ctx, setSheet) {
           final query       = searchCtrl.text.toLowerCase();
           final alreadyIn   = {..._t.players.map((p) => p.appUserId)};
-          final allExisting = widget.appState.players
+          final allExisting = widget.existingPlayers
               .where((u) => !alreadyIn.contains(u.id))
               .toList();
           final filtered    = query.isEmpty
@@ -797,7 +797,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           );
         },
       ),
-    );
+    ).whenComplete(() {
+      nameCtrl.dispose();
+      searchCtrl.dispose();
+    });
   }
 
   // ── Late chip ──────────────────────────────────────────────────────────────

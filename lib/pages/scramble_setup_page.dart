@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
 import '../models/scramble_tournament.dart';
 import '../services/scramble_service.dart';
-import '../state/app_state.dart';
+import '../models/player.dart';
 import '../widgets/scramble_suggestion_card.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
@@ -12,12 +12,12 @@ import '../widgets/tournaq_app_bar.dart';
 import 'scramble_overview_page.dart';
 
 class ScrambleSetupPage extends StatefulWidget {
-  final AppState appState;
+  final List<Player> existingPlayers;
   final void Function(ScrambleTournament) onCreated;
 
   const ScrambleSetupPage({
     super.key,
-    required this.appState,
+    required this.existingPlayers,
     required this.onCreated,
   });
 
@@ -302,7 +302,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           final query = _playerSearchCtrl.text.toLowerCase();
-          final allExisting = widget.appState.players
+          final allExisting = widget.existingPlayers
               .where((u) => !_players.any((p) => p.appUserId == u.id))
               .toList();
           final filteredExisting = query.isEmpty

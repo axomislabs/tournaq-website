@@ -27,7 +27,6 @@ class _UsersPageState extends State<UsersPage> {
   final _rng = Random();
   final _searchCtrl = TextEditingController();
   final _teamFilter = <String>{};
-  final _tournamentFilter = <String>{};
   final _clubFilter = <String>{};
 
   static const _firstNames = ['Alex','Charlie','Jordan','Taylor','Morgan','Casey','Jamie','Avery','Riley','Rowan','Skyler','Quinn','Parker','Drew','Reese'];
@@ -121,7 +120,6 @@ class _UsersPageState extends State<UsersPage> {
     _searchCtrl.clear();
     setState(() {
       _teamFilter.clear();
-      _tournamentFilter.clear();
       _clubFilter.clear();
     });
   }
@@ -131,12 +129,6 @@ class _UsersPageState extends State<UsersPage> {
     return _localState.players.where((user) {
       if (q.isNotEmpty && !user.name.toLowerCase().contains(q)) return false;
       if (_teamFilter.isNotEmpty && !user.teamIds.any(_teamFilter.contains)) return false;
-      if (_tournamentFilter.isNotEmpty) {
-        final inTournament = _localState.tournaments
-            .where((t) => _tournamentFilter.contains(t.id))
-            .any((t) => user.teamIds.any(t.teamIds.contains));
-        if (!inTournament) return false;
-      }
       if (_clubFilter.isNotEmpty) {
         final inClub = _localState.clubs
             .where((c) => _clubFilter.contains(c.id))
@@ -188,12 +180,6 @@ class _UsersPageState extends State<UsersPage> {
                 items: _localState.teams.map((t) => (id: t.id, name: t.name)).toList(),
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
-              ),
-              FilterGroup(
-                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
-                items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
-                selectedIds: _tournamentFilter,
-                onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
               ),
               FilterGroup(
                 label: l10n.filterClub, icon: Icons.home_rounded,

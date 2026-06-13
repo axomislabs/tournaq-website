@@ -26,7 +26,6 @@ class _ClubsPageState extends State<ClubsPage> {
   final _searchCtrl = TextEditingController();
   final _playerFilter = <String>{};
   final _teamFilter = <String>{};
-  final _tournamentFilter = <String>{};
 
   @override
   void initState() {
@@ -90,22 +89,6 @@ class _ClubsPageState extends State<ClubsPage> {
     }
   }
 
-  Future<void> _assignTournament(String clubId) async {
-    final club = _localState.getClubById(clubId);
-    if (club == null) return;
-    final items = _localState.tournaments
-        .where((t) => !club.tournamentIds.contains(t.id))
-        .map((t) => (id: t.id, name: t.name))
-        .toList();
-    final selected = await showAssignDialog(
-      context: context, title: 'Assign Tournament', items: items,
-      emptyMessage: 'All tournaments are already in this club.',
-    );
-    if (selected != null && mounted) {
-      _updateState(AppDataService.assignTournamentToClub(_localState, tournamentId: selected, clubId: clubId));
-    }
-  }
-
   Future<void> _deleteClub(String clubId) async {
     final club = _localState.getClubById(clubId);
     if (club == null) return;
@@ -120,7 +103,6 @@ class _ClubsPageState extends State<ClubsPage> {
     setState(() {
       _playerFilter.clear();
       _teamFilter.clear();
-      _tournamentFilter.clear();
     });
   }
 
@@ -130,7 +112,6 @@ class _ClubsPageState extends State<ClubsPage> {
       if (q.isNotEmpty && !club.name.toLowerCase().contains(q)) return false;
       if (_playerFilter.isNotEmpty && !_playerFilter.any(club.playerIds.contains)) return false;
       if (_teamFilter.isNotEmpty && !_teamFilter.any(club.teamIds.contains)) return false;
-      if (_tournamentFilter.isNotEmpty && !_tournamentFilter.any(club.tournamentIds.contains)) return false;
       return true;
     }).toList();
   }
@@ -176,12 +157,6 @@ class _ClubsPageState extends State<ClubsPage> {
                 selectedIds: _teamFilter,
                 onToggle: (id, v) => setState(() { if (v) { _teamFilter.add(id); } else { _teamFilter.remove(id); } }),
               ),
-              FilterGroup(
-                label: l10n.filterTournament, icon: Icons.emoji_events_rounded,
-                items: _localState.tournaments.map((t) => (id: t.id, name: t.name)).toList(),
-                selectedIds: _tournamentFilter,
-                onToggle: (id, v) => setState(() { if (v) { _tournamentFilter.add(id); } else { _tournamentFilter.remove(id); } }),
-              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -206,7 +181,7 @@ class _ClubsPageState extends State<ClubsPage> {
                 final club = filtered[index];
                 return ListTile(
                   title: Text(club.name),
-                  subtitle: Text('${club.playerIds.length} player(s) • ${club.teamIds.length} team(s) • ${club.tournamentIds.length} tournament(s)'),
+                  subtitle: Text('${club.playerIds.length} player(s) • ${club.teamIds.length} team(s)'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => ClubDetailPage(appState: _localState, onAppStateChanged: _updateState, clubId: club.id),
                   )),
@@ -216,14 +191,12 @@ class _ClubsPageState extends State<ClubsPage> {
                       switch (value) {
                         case 'assign_player': _assignPlayer(club.id);
                         case 'assign_team': _assignTeam(club.id);
-                        case 'assign_tournament': _assignTournament(club.id);
                         case 'delete': _deleteClub(club.id);
                       }
                     },
                     itemBuilder: (_) => [
                       actionMenuItem('assign_player', Icons.person_rounded, l10n.menuAssignPlayer),
                       actionMenuItem('assign_team', Icons.group_rounded, l10n.menuAssignTeam),
-                      actionMenuItem('assign_tournament', Icons.emoji_events_rounded, l10n.menuAssignTournament),
                       const PopupMenuDivider(),
                       actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                     ],

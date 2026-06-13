@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/doghouse_drill.dart';
+import '../models/player.dart';
 import '../services/doghouse_storage_service.dart';
-import '../state/app_state.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
 import 'doghouse_setup_page.dart';
 
 class DoghouseHubPage extends StatefulWidget {
-  final AppState appState;
-  final Function(AppState) onAppStateChanged;
+  final List<Player> existingPlayers;
 
   const DoghouseHubPage({
     super.key,
-    required this.appState,
-    required this.onAppStateChanged,
+    required this.existingPlayers,
   });
 
   @override
@@ -23,13 +21,11 @@ class DoghouseHubPage extends StatefulWidget {
 }
 
 class _DoghouseHubPageState extends State<DoghouseHubPage> {
-  late AppState _appState;
   List<DoghouseTournament> _tournaments = [];
 
   @override
   void initState() {
     super.initState();
-    _appState = widget.appState;
     _loadTournaments();
   }
 
@@ -52,7 +48,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
   void _openSetup() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => DoghouseSetupPage(
-        appState: _appState,
+        existingPlayers: widget.existingPlayers,
         onCreated: _persist,
       ),
     ));
@@ -62,7 +58,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => DoghouseScoreboardPage(
         tournament: t,
-        appState:   _appState,
+        existingPlayers: widget.existingPlayers,
         onChanged:  _persist,
       ),
     ));

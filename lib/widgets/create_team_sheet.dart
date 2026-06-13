@@ -17,7 +17,6 @@ class CreateTeamSheet extends StatefulWidget {
 class _CreateTeamSheetState extends State<CreateTeamSheet> {
   final _nameCtrl = TextEditingController();
   TeamScope _scope = TeamScope.temporary;
-  final Set<String> _tournamentIds = {};
   final Set<String> _clubIds = {};
   final _rng = Random();
 
@@ -49,9 +48,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     if (name.isEmpty) return;
     var state = AppDataService.createTeamWithPlayers(widget.appState, name: name, scope: _scope);
     final teamId = state.teams.last.id;
-    for (final id in _tournamentIds) {
-      state = AppDataService.assignTeamToTournament(state, teamId: teamId, tournamentId: id);
-    }
     for (final id in _clubIds) {
       state = AppDataService.assignTeamToClub(state, teamId: teamId, clubId: id);
     }
@@ -78,7 +74,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     ]);
   }
 
-  Widget _buildPortrait(AppLocalizations l10n, List<({String id, String name})> tournaments, List<({String id, String name})> clubs) {
+  Widget _buildPortrait(AppLocalizations l10n, List<({String id, String name})> clubs) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -122,7 +118,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           onChanged: (v) { if (v != null) setState(() => _scope = v); },
         ),
 
-        _buildChipSection(l10n.labelAssignToTournaments, tournaments, _tournamentIds),
         _buildChipSection(l10n.labelAssignToClubs, clubs, _clubIds),
         const SizedBox(height: 24),
 
@@ -144,7 +139,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     );
   }
 
-  Widget _buildLandscape(AppLocalizations l10n, List<({String id, String name})> tournaments, List<({String id, String name})> clubs) {
+  Widget _buildLandscape(AppLocalizations l10n, List<({String id, String name})> clubs) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -215,7 +210,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           ])),
         ]),
 
-        _buildChipSection(l10n.pageTournaments, tournaments, _tournamentIds),
         _buildChipSection(l10n.pageClubs, clubs, _clubIds),
       ]),
     );
@@ -224,14 +218,13 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final tournaments = widget.appState.tournaments.map((t) => (id: t.id, name: t.name)).toList();
     final clubs = widget.appState.clubs.map((c) => (id: c.id, name: c.name)).toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(l10n, tournaments, clubs)
-            : _buildPortrait(l10n, tournaments, clubs),
+            ? _buildLandscape(l10n, clubs)
+            : _buildPortrait(l10n, clubs),
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'package:uuid/uuid.dart';
 import '../models/player.dart';
 import '../models/club.dart';
 import '../models/team.dart';
-import '../models/tournament.dart';
 import '../models/game.dart';
 
 /// Central, immutable application state tree for TournaQ.
@@ -28,14 +27,12 @@ import '../models/game.dart';
 class AppState {
   final List<Player> players;
   final List<Team> teams;
-  final List<Tournament> tournaments;
   final List<Game> games;
   final List<Club> clubs;
 
   const AppState({
     this.players = const [],
     this.teams = const [],
-    this.tournaments = const [],
     this.games = const [],
     this.clubs = const [],
   });
@@ -43,14 +40,12 @@ class AppState {
   AppState copyWith({
     List<Player>? players,
     List<Team>? teams,
-    List<Tournament>? tournaments,
     List<Game>? games,
     List<Club>? clubs,
   }) {
     return AppState(
       players: players ?? this.players,
       teams: teams ?? this.teams,
-      tournaments: tournaments ?? this.tournaments,
       games: games ?? this.games,
       clubs: clubs ?? this.clubs,
     );
@@ -82,19 +77,6 @@ class AppState {
     final team = getTeamById(teamId);
     if (team == null) return [];
     return players.where((p) => team.userIds.contains(p.id)).toList();
-  }
-
-  // Tournament lookups
-  Tournament? getTournamentById(String tournamentId) {
-    try {
-      return tournaments.firstWhere((t) => t.id == tournamentId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  List<Tournament> getTeamTournaments(String teamId) {
-    return tournaments.where((t) => t.teamIds.contains(teamId)).toList();
   }
 
   // Game lookups
@@ -139,10 +121,6 @@ class AppState {
     return clubs.where((c) => c.teamIds.contains(teamId)).toList();
   }
 
-  List<Club> getTournamentClubs(String tournamentId) {
-    return clubs.where((c) => c.tournamentIds.contains(tournamentId)).toList();
-  }
-
   // State mutation helpers — players
   AppState addPlayer(Player player) {
     return copyWith(players: [...players, player]);
@@ -171,25 +149,6 @@ class AppState {
 
   AppState removeTeam(String teamId) {
     return copyWith(teams: teams.where((t) => t.id != teamId).toList());
-  }
-
-  // State mutation helpers — tournaments
-  AppState addTournament(Tournament tournament) {
-    return copyWith(tournaments: [...tournaments, tournament]);
-  }
-
-  AppState updateTournament(Tournament tournament) {
-    return copyWith(
-      tournaments: tournaments
-          .map((t) => t.id == tournament.id ? tournament : t)
-          .toList(),
-    );
-  }
-
-  AppState removeTournament(String tournamentId) {
-    return copyWith(
-      tournaments: tournaments.where((t) => t.id != tournamentId).toList(),
-    );
   }
 
   // State mutation helpers — games

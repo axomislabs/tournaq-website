@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../services/ko_bracket_storage_service.dart';
-import '../state/app_state.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 import 'ko_bracket_match_page.dart';
@@ -15,13 +14,11 @@ const _kOliveLight = AppColors.oliveLight;
 
 class KoBracketBracketPage extends StatefulWidget {
   final KoBracketTournament tournament;
-  final AppState appState;
   final void Function(KoBracketTournament) onChanged;
 
   const KoBracketBracketPage({
     super.key,
     required this.tournament,
-    required this.appState,
     required this.onChanged,
   });
 

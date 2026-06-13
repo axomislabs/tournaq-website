@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/king_of_the_court_tournament.dart';
+import '../models/player.dart';
 import '../services/king_of_the_court_storage_service.dart';
-import '../state/app_state.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'king_of_the_court_setup_page.dart';
 
 class KingOfTheCourtHubPage extends StatefulWidget {
-  final AppState appState;
-  final Function(AppState) onAppStateChanged;
+  final List<Player> existingPlayers;
 
   const KingOfTheCourtHubPage({
     super.key,
-    required this.appState,
-    required this.onAppStateChanged,
+    required this.existingPlayers,
   });
 
   @override
@@ -23,13 +21,11 @@ class KingOfTheCourtHubPage extends StatefulWidget {
 }
 
 class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
-  late AppState _appState;
   List<KingOfTheCourtTournament> _tournaments = [];
 
   @override
   void initState() {
     super.initState();
-    _appState = widget.appState;
     _loadTournaments();
   }
 
@@ -52,7 +48,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
   void _openSetup() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KingOfTheCourtSetupPage(
-        appState: _appState,
+        existingPlayers: widget.existingPlayers,
         onCreated: _persist,
       ),
     ));
@@ -62,7 +58,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KingOfTheCourtScoreboardPage(
         tournament: s,
-        appState:   _appState,
+        existingPlayers: widget.existingPlayers,
         onChanged:  _persist,
       ),
     ));

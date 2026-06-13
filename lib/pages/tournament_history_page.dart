@@ -6,7 +6,7 @@ import '../models/scramble_tournament.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_storage_service.dart';
-import '../state/app_state.dart';
+import '../models/player.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
@@ -29,14 +29,12 @@ extension on TournamentFilter {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 class TournamentHistoryPage extends StatefulWidget {
-  final AppState appState;
-  final Function(AppState) onAppStateChanged;
+  final List<Player> existingPlayers;
   final TournamentFilter initialFilter;
 
   const TournamentHistoryPage({
     super.key,
-    required this.appState,
-    required this.onAppStateChanged,
+    required this.existingPlayers,
     this.initialFilter = TournamentFilter.all,
   });
 
@@ -105,13 +103,13 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.kingOfTheCourt) {
       for (final s in _kotcTournaments) {
-        entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.appState));
+        entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.existingPlayers));
       }
     }
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.doghouse) {
       for (final d in _doghouseDrills) {
-        entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.appState));
+        entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.existingPlayers));
       }
     }
     entries.sort((a, b) => b.date.compareTo(a.date));
@@ -288,7 +286,7 @@ class _HistoryEntry {
   factory _HistoryEntry.fromKotc(
     KingOfTheCourtTournament s,
     void Function(KingOfTheCourtTournament) onChanged,
-    AppState appState,
+    List<Player> existingPlayers,
   ) {
     final statusLabel = switch (s.status) {
       KotcTournamentStatus.completed  => 'Completed',
@@ -313,7 +311,7 @@ class _HistoryEntry {
       onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => KingOfTheCourtScoreboardPage(
           tournament: s,
-          appState:   appState,
+          existingPlayers: existingPlayers,
           onChanged:  onChanged,
         ),
       )),
@@ -323,7 +321,7 @@ class _HistoryEntry {
   factory _HistoryEntry.fromDoghouse(
     DoghouseTournament d,
     void Function(DoghouseTournament) onChanged,
-    AppState appState,
+    List<Player> existingPlayers,
   ) {
     final statusLabel = switch (d.status) {
       DoghouseTournamentStatus.completed  => 'Completed',
@@ -348,7 +346,7 @@ class _HistoryEntry {
       onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => DoghouseScoreboardPage(
           tournament: d,
-          appState:  appState,
+          existingPlayers: existingPlayers,
           onChanged: onChanged,
         ),
       )),

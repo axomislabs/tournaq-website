@@ -63,8 +63,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => ScrambleHubPage(
-            appState: _localState,
-            onAppStateChanged: _updateState,
+            existingPlayers: _localState.players,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -74,8 +73,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => KingOfTheCourtHubPage(
-            appState: _localState,
-            onAppStateChanged: _updateState,
+            existingPlayers: _localState.players,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -85,8 +83,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => DoghouseHubPage(
-            appState: _localState,
-            onAppStateChanged: _updateState,
+            existingPlayers: _localState.players,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -95,8 +92,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
   void _openHistory({TournamentFilter filter = TournamentFilter.all}) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TournamentHistoryPage(
-        appState: _localState,
-        onAppStateChanged: _updateState,
+        existingPlayers: _localState.players,
         initialFilter: filter,
       ),
     ));
@@ -106,8 +102,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => KoBracketHubPage(
-            appState: _localState,
-            onAppStateChanged: _updateState,
+            existingPlayers: _localState.players,
           ),
         ))
         .then((_) => _refreshCounts());

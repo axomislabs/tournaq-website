@@ -16,7 +16,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
   final _nameCtrl = TextEditingController();
   final Set<String> _playerIds = {};
   final Set<String> _teamIds = {};
-  final Set<String> _tournamentIds = {};
 
   @override
   void dispose() { _nameCtrl.dispose(); super.dispose(); }
@@ -33,9 +32,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     }
     for (final id in _teamIds) {
       state = AppDataService.assignTeamToClub(state, teamId: id, clubId: clubId);
-    }
-    for (final id in _tournamentIds) {
-      state = AppDataService.assignTournamentToClub(state, tournamentId: id, clubId: clubId);
     }
     Navigator.pop(context, state);
   }
@@ -64,7 +60,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     AppLocalizations l10n,
     List<({String id, String name})> players,
     List<({String id, String name})> teams,
-    List<({String id, String name})> tournaments,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -93,7 +88,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
 
         _buildChipSection(l10n.labelAssignPlayers, players, _playerIds),
         _buildChipSection(l10n.labelAssignTeams, teams, _teamIds),
-        _buildChipSection(l10n.labelAssignTournaments, tournaments, _tournamentIds),
         const SizedBox(height: 24),
 
         SizedBox(width: double.infinity,
@@ -118,7 +112,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     AppLocalizations l10n,
     List<({String id, String name})> players,
     List<({String id, String name})> teams,
-    List<({String id, String name})> tournaments,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
@@ -161,7 +154,6 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
 
         _buildChipSection(l10n.pagePlayers, players, _playerIds),
         _buildChipSection(l10n.pageTeams, teams, _teamIds),
-        _buildChipSection(l10n.pageTournaments, tournaments, _tournamentIds),
       ]),
     );
   }
@@ -171,13 +163,12 @@ class _CreateClubSheetState extends State<CreateClubSheet> {
     final l10n = AppLocalizations.of(context)!;
     final players = widget.appState.players.map((u) => (id: u.id, name: u.name)).toList();
     final teams = widget.appState.teams.map((t) => (id: t.id, name: t.name)).toList();
-    final tournaments = widget.appState.tournaments.map((t) => (id: t.id, name: t.name)).toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(l10n, players, teams, tournaments)
-            : _buildPortrait(l10n, players, teams, tournaments),
+            ? _buildLandscape(l10n, players, teams)
+            : _buildPortrait(l10n, players, teams),
       ),
     );
   }
