@@ -352,37 +352,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get landingMatchHistorySubtitle => 'Browse and review past games';
 
   @override
-  String get landingTournamentManagement => 'Tournament Management';
+  String get landingMoreTournamentTitle => 'More Tournament Features';
 
   @override
-  String get landingTournamentManagementSub =>
-      'Create and manage tournaments with multiple formats.';
+  String get landingMoreTournamentSub =>
+      'Additional formats, brackets, and competitive structures.';
 
   @override
-  String get landingTournamentManagementDesc =>
-      'Organize structured competitions, formats, and match results in one place.';
+  String get landingDeviceScalabilityTitle => 'Device & Screen Scalability';
 
   @override
-  String get landingAdminTitle => 'Player, Team & Club Administration';
+  String get landingDeviceScalabilitySub =>
+      'Optimised layouts for tablets, web, and all screen sizes.';
 
   @override
-  String get landingAdminSub => 'Organize players, teams and clubs.';
+  String get landingScorecardSharingTitle =>
+      'Scorecard Sharing & Tournament Scaling';
 
   @override
-  String get landingAdminDesc => 'Organize Players, Teams and Clubs.';
+  String get landingScorecardSharingSub =>
+      'Share results and support larger events and groups.';
 
   @override
-  String get landingAdminPageTitle => 'Administration';
+  String get landingLiveTournamentTitle => 'Live Tournament Features';
 
   @override
-  String get landingCloudTitle => 'Cloud Services';
+  String get landingLiveTournamentSub =>
+      'Real-time scoring, standings, and live event updates.';
 
   @override
-  String get landingCloudSub => 'Cloud synchronization and connected features.';
+  String get landingAdvancedAdminTitle => 'Advanced User Administration';
 
   @override
-  String get landingCloudDesc =>
-      'Future connected features for syncing, sharing, and accessing TournaQ across devices.';
+  String get landingAdvancedAdminSub =>
+      'Manage players, teams, clubs, and organiser roles.';
 
   @override
   String get promoSupportTitle => 'Support TournaQ';

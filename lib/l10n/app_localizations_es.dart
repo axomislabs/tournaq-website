@@ -351,39 +351,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get landingMatchHistorySubtitle => 'Ver y revisar partidos anteriores';
 
   @override
-  String get landingTournamentManagement => 'Gestión de Torneos';
+  String get landingMoreTournamentTitle => 'More Tournament Features';
 
   @override
-  String get landingTournamentManagementSub =>
-      'Crea y gestiona torneos con múltiples formatos.';
+  String get landingMoreTournamentSub =>
+      'Additional formats, brackets, and competitive structures.';
 
   @override
-  String get landingTournamentManagementDesc =>
-      'Organiza competiciones estructuradas, formatos y resultados en un solo lugar.';
+  String get landingDeviceScalabilityTitle => 'Device & Screen Scalability';
 
   @override
-  String get landingAdminTitle =>
-      'Administración de Jugadores, Equipos y Clubes';
+  String get landingDeviceScalabilitySub =>
+      'Optimised layouts for tablets, web, and all screen sizes.';
 
   @override
-  String get landingAdminSub => 'Organiza jugadores, equipos y clubes.';
+  String get landingScorecardSharingTitle =>
+      'Scorecard Sharing & Tournament Scaling';
 
   @override
-  String get landingAdminDesc => 'Organiza Jugadores, Equipos y Clubes.';
+  String get landingScorecardSharingSub =>
+      'Share results and support larger events and groups.';
 
   @override
-  String get landingAdminPageTitle => 'Administración';
+  String get landingLiveTournamentTitle => 'Live Tournament Features';
 
   @override
-  String get landingCloudTitle => 'Servicios en la Nube';
+  String get landingLiveTournamentSub =>
+      'Real-time scoring, standings, and live event updates.';
 
   @override
-  String get landingCloudSub =>
-      'Sincronización en la nube y funciones conectadas.';
+  String get landingAdvancedAdminTitle => 'Advanced User Administration';
 
   @override
-  String get landingCloudDesc =>
-      'Futuras funciones conectadas para sincronizar, compartir y acceder a TournaQ desde cualquier dispositivo.';
+  String get landingAdvancedAdminSub =>
+      'Manage players, teams, clubs, and organiser roles.';
 
   @override
   String get promoSupportTitle => 'Apoya TournaQ';

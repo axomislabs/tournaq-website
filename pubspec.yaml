@@ -66,7 +66,10 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
+    - assets/tournaq_background.webp
+    - assets/tournaq-rectangle.webp
+    - assets/tournaq-square.webp
+    - assets/tournaq_logo_transparent.webp
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -522,6 +522,7 @@ class _TypeTile extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
+      height: 96,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: gradientColors,
@@ -538,8 +539,7 @@ class _TypeTile extends StatelessWidget {
         ],
       ),
       clipBehavior: Clip.antiAlias,
-      child: IntrinsicHeight(
-        child: Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Main tile (4/5) ──────────────────────────────────────
@@ -661,7 +661,6 @@ class _TypeTile extends StatelessWidget {
             ),
           ),
         ],
-        ),
       ),
     );
   }

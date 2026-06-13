@@ -355,35 +355,35 @@
   "landingMatchHistorySubtitle": "Browse and review past games",
   "@landingMatchHistorySubtitle": {},
 
-  "landingTournamentManagement": "Tournament Management",
-  "@landingTournamentManagement": {},
+  "landingMoreTournamentTitle": "More Tournament Features",
+  "@landingMoreTournamentTitle": {},
 
-  "landingTournamentManagementSub": "Create and manage tournaments with multiple formats.",
-  "@landingTournamentManagementSub": {},
+  "landingMoreTournamentSub": "Additional formats, brackets, and competitive structures.",
+  "@landingMoreTournamentSub": {},
 
-  "landingTournamentManagementDesc": "Organize structured competitions, formats, and match results in one place.",
-  "@landingTournamentManagementDesc": {},
+  "landingDeviceScalabilityTitle": "Device & Screen Scalability",
+  "@landingDeviceScalabilityTitle": {},
 
-  "landingAdminTitle": "Player, Team & Club Administration",
-  "@landingAdminTitle": {},
+  "landingDeviceScalabilitySub": "Optimised layouts for tablets, web, and all screen sizes.",
+  "@landingDeviceScalabilitySub": {},
 
-  "landingAdminSub": "Organize players, teams and clubs.",
-  "@landingAdminSub": {},
+  "landingScorecardSharingTitle": "Scorecard Sharing & Tournament Scaling",
+  "@landingScorecardSharingTitle": {},
 
-  "landingAdminDesc": "Organize Players, Teams and Clubs.",
-  "@landingAdminDesc": {},
+  "landingScorecardSharingSub": "Share results and support larger events and groups.",
+  "@landingScorecardSharingSub": {},
 
-  "landingAdminPageTitle": "Administration",
-  "@landingAdminPageTitle": {},
+  "landingLiveTournamentTitle": "Live Tournament Features",
+  "@landingLiveTournamentTitle": {},
 
-  "landingCloudTitle": "Cloud Services",
-  "@landingCloudTitle": {},
+  "landingLiveTournamentSub": "Real-time scoring, standings, and live event updates.",
+  "@landingLiveTournamentSub": {},
 
-  "landingCloudSub": "Cloud synchronization and connected features.",
-  "@landingCloudSub": {},
+  "landingAdvancedAdminTitle": "Advanced User Administration",
+  "@landingAdvancedAdminTitle": {},
 
-  "landingCloudDesc": "Future connected features for syncing, sharing, and accessing TournaQ across devices.",
-  "@landingCloudDesc": {},
+  "landingAdvancedAdminSub": "Manage players, teams, clubs, and organiser roles.",
+  "@landingAdvancedAdminSub": {},
 
   "promoSupportTitle": "Support TournaQ",
   "@promoSupportTitle": {},

@@ -352,38 +352,40 @@ class AppLocalizationsDe extends AppLocalizations {
       'Vergangene Spiele ansehen und überprüfen';
 
   @override
-  String get landingTournamentManagement => 'Turnierverwaltung';
+  String get landingMoreTournamentTitle => 'More Tournament Features';
 
   @override
-  String get landingTournamentManagementSub =>
-      'Turniere mit verschiedenen Formaten erstellen und verwalten.';
+  String get landingMoreTournamentSub =>
+      'Additional formats, brackets, and competitive structures.';
 
   @override
-  String get landingTournamentManagementDesc =>
-      'Strukturierte Wettbewerbe, Formate und Ergebnisse an einem Ort organisieren.';
+  String get landingDeviceScalabilityTitle => 'Device & Screen Scalability';
 
   @override
-  String get landingAdminTitle => 'Spieler-, Team- & Vereinsverwaltung';
+  String get landingDeviceScalabilitySub =>
+      'Optimised layouts for tablets, web, and all screen sizes.';
 
   @override
-  String get landingAdminSub => 'Spieler, Teams und Vereine organisieren.';
+  String get landingScorecardSharingTitle =>
+      'Scorecard Sharing & Tournament Scaling';
 
   @override
-  String get landingAdminDesc => 'Spieler, Teams und Vereine organisieren.';
+  String get landingScorecardSharingSub =>
+      'Share results and support larger events and groups.';
 
   @override
-  String get landingAdminPageTitle => 'Verwaltung';
+  String get landingLiveTournamentTitle => 'Live Tournament Features';
 
   @override
-  String get landingCloudTitle => 'Cloud-Dienste';
+  String get landingLiveTournamentSub =>
+      'Real-time scoring, standings, and live event updates.';
 
   @override
-  String get landingCloudSub =>
-      'Cloud-Synchronisation und vernetzte Funktionen.';
+  String get landingAdvancedAdminTitle => 'Advanced User Administration';
 
   @override
-  String get landingCloudDesc =>
-      'Zukünftige vernetzte Funktionen zum Synchronisieren, Teilen und geräteübergreifenden Nutzen von TournaQ.';
+  String get landingAdvancedAdminSub =>
+      'Manage players, teams, clubs, and organiser roles.';
 
   @override
   String get promoSupportTitle => 'TournaQ unterstützen';

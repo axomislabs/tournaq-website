@@ -748,65 +748,65 @@ abstract class AppLocalizations {
   /// **'Browse and review past games'**
   String get landingMatchHistorySubtitle;
 
-  /// No description provided for @landingTournamentManagement.
+  /// No description provided for @landingMoreTournamentTitle.
   ///
   /// In en, this message translates to:
-  /// **'Tournament Management'**
-  String get landingTournamentManagement;
+  /// **'More Tournament Features'**
+  String get landingMoreTournamentTitle;
 
-  /// No description provided for @landingTournamentManagementSub.
+  /// No description provided for @landingMoreTournamentSub.
   ///
   /// In en, this message translates to:
-  /// **'Create and manage tournaments with multiple formats.'**
-  String get landingTournamentManagementSub;
+  /// **'Additional formats, brackets, and competitive structures.'**
+  String get landingMoreTournamentSub;
 
-  /// No description provided for @landingTournamentManagementDesc.
+  /// No description provided for @landingDeviceScalabilityTitle.
   ///
   /// In en, this message translates to:
-  /// **'Organize structured competitions, formats, and match results in one place.'**
-  String get landingTournamentManagementDesc;
+  /// **'Device & Screen Scalability'**
+  String get landingDeviceScalabilityTitle;
 
-  /// No description provided for @landingAdminTitle.
+  /// No description provided for @landingDeviceScalabilitySub.
   ///
   /// In en, this message translates to:
-  /// **'Player, Team & Club Administration'**
-  String get landingAdminTitle;
+  /// **'Optimised layouts for tablets, web, and all screen sizes.'**
+  String get landingDeviceScalabilitySub;
 
-  /// No description provided for @landingAdminSub.
+  /// No description provided for @landingScorecardSharingTitle.
   ///
   /// In en, this message translates to:
-  /// **'Organize players, teams and clubs.'**
-  String get landingAdminSub;
+  /// **'Scorecard Sharing & Tournament Scaling'**
+  String get landingScorecardSharingTitle;
 
-  /// No description provided for @landingAdminDesc.
+  /// No description provided for @landingScorecardSharingSub.
   ///
   /// In en, this message translates to:
-  /// **'Organize Players, Teams and Clubs.'**
-  String get landingAdminDesc;
+  /// **'Share results and support larger events and groups.'**
+  String get landingScorecardSharingSub;
 
-  /// No description provided for @landingAdminPageTitle.
+  /// No description provided for @landingLiveTournamentTitle.
   ///
   /// In en, this message translates to:
-  /// **'Administration'**
-  String get landingAdminPageTitle;
+  /// **'Live Tournament Features'**
+  String get landingLiveTournamentTitle;
 
-  /// No description provided for @landingCloudTitle.
+  /// No description provided for @landingLiveTournamentSub.
   ///
   /// In en, this message translates to:
-  /// **'Cloud Services'**
-  String get landingCloudTitle;
+  /// **'Real-time scoring, standings, and live event updates.'**
+  String get landingLiveTournamentSub;
 
-  /// No description provided for @landingCloudSub.
+  /// No description provided for @landingAdvancedAdminTitle.
   ///
   /// In en, this message translates to:
-  /// **'Cloud synchronization and connected features.'**
-  String get landingCloudSub;
+  /// **'Advanced User Administration'**
+  String get landingAdvancedAdminTitle;
 
-  /// No description provided for @landingCloudDesc.
+  /// No description provided for @landingAdvancedAdminSub.
   ///
   /// In en, this message translates to:
-  /// **'Future connected features for syncing, sharing, and accessing TournaQ across devices.'**
-  String get landingCloudDesc;
+  /// **'Manage players, teams, clubs, and organiser roles.'**
+  String get landingAdvancedAdminSub;
 
   /// No description provided for @promoSupportTitle.
   ///
