@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
 import '../services/scramble_service.dart';
 import '../models/player.dart';
@@ -159,6 +160,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             ? _kGold
             : Colors.black38;
 
+    final l10n = AppLocalizations.of(context)!;
     return InkWell(
       onTap: _showPlayersSheet,
       borderRadius: BorderRadius.circular(12),
@@ -175,12 +177,12 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             const SizedBox(width: 12),
             Expanded(
               child: count == 0
-                  ? const Text('Tap to add players',
-                      style: TextStyle(color: Colors.black38, fontSize: 13))
+                  ? Text(l10n.doghouseTapToAddPlayers,
+                      style: const TextStyle(color: Colors.black38, fontSize: 13))
                   : Text(
                       enough
-                          ? '$count players added'
-                          : '$count added · need at least $min',
+                          ? l10n.doghouseNPlayersAdded(count)
+                          : l10n.doghouseNeedAtLeastN(count, min),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -275,23 +277,22 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
               builder: (dCtx) => AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
-                title: const Text('Remove all players?',
-                    style: TextStyle(
+                title: Text(AppLocalizations.of(context)!.doghouseRemoveAllTitle,
+                    style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w700)),
-                content: const Text(
-                    'This will remove all added players from the list.',
-                    style:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
+                content: Text(
+                    AppLocalizations.of(context)!.doghouseRemoveAllBody,
+                    style: const TextStyle(fontSize: 14, color: Colors.black54)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(AppLocalizations.of(context)!.btnCancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(true),
                     style: TextButton.styleFrom(
                         foregroundColor: Colors.red),
-                    child: const Text('Remove all'),
+                    child: Text(AppLocalizations.of(context)!.doghouseRemoveAll),
                   ),
                 ],
               ),
@@ -310,8 +311,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                 children: [
                   Row(
                     children: [
-                      const Text('Players',
-                          style: TextStyle(
+                      Text(AppLocalizations.of(context)!.pagePlayers,
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w800)),
                       const Spacer(),
                       if (_players.isNotEmpty)
@@ -321,8 +322,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                               foregroundColor: Colors.red,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8)),
-                          child: const Text('Clear all',
-                              style: TextStyle(fontSize: 13)),
+                          child: Text(AppLocalizations.of(context)!.doghouseClearAll,
+                              style: const TextStyle(fontSize: 13)),
                         ),
                       Text(
                         '${_players.length} / $_targetPlayerCount',
@@ -339,7 +340,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                         child: TextField(
                           controller: _playerNameCtrl,
                           textCapitalization: TextCapitalization.words,
-                          decoration: _inputDecoration(hint: 'Player name'),
+                          decoration: _inputDecoration(hint: AppLocalizations.of(context)!.hintPlayerName),
                           onSubmitted: addByName,
                         ),
                       ),
@@ -354,19 +355,19 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Add'),
+                        child: Text(AppLocalizations.of(context)!.btnAdd),
                       ),
                     ],
                   ),
 
                   if (allExisting.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _fieldLabel('Existing Players (${allExisting.length})'),
+                    _fieldLabel('${AppLocalizations.of(context)!.pagePlayers} (${allExisting.length})'),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _playerSearchCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Search players…',
+                        hintText: AppLocalizations.of(context)!.hintSearchPlayers,
                         isDense: true,
                         prefixIcon: const Icon(Icons.search_rounded,
                             size: 18, color: Colors.black45),
@@ -382,10 +383,10 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     if (searchActive) ...[
                       const SizedBox(height: 6),
                       if (filteredExisting.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No players match.',
-                              style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(AppLocalizations.of(context)!.doghouseNoPlayersMatch,
+                              style: const TextStyle(
                                   color: Colors.black38, fontSize: 13)),
                         )
                       else
@@ -425,14 +426,14 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _fieldLabel(
-                          'Added (${_players.length}/$_targetPlayerCount)'),
+                          AppLocalizations.of(context)!.doghouseAddedCount(_players.length, _targetPlayerCount)),
                       TextButton.icon(
                         onPressed: _players.length < _targetPlayerCount
                             ? fillRandom
                             : null,
                         icon: const Icon(Icons.shuffle_rounded, size: 16),
                         label: Text(
-                            'Fill ${(_targetPlayerCount - _players.length).clamp(0, 999)} random'),
+                            AppLocalizations.of(context)!.doghouseFillNRandom((_targetPlayerCount - _players.length).clamp(0, 999))),
                         style: TextButton.styleFrom(
                             foregroundColor: _kGold),
                       ),
@@ -441,10 +442,10 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                   const SizedBox(height: 6),
 
                   if (_players.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text('No players added yet.',
-                          style: TextStyle(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(AppLocalizations.of(context)!.doghouseSetupNoPlayers,
+                          style: const TextStyle(
                               color: Colors.black38, fontSize: 13)),
                     )
                   else
@@ -480,7 +481,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                           ),
                           title: Text(p.name,
                               style: const TextStyle(fontSize: 13)),
-                          subtitle: Text(_sourceLabel(p.source),
+                          subtitle: Text(_sourceLabel(context, p.source),
                               style: const TextStyle(
                                   fontSize: 10,
                                   color: Colors.black38)),
@@ -508,13 +509,13 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     final canCreate = _canCreate;
 
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'Doghouse', subtitle: 'New Tournament'),
+      appBar: TournaQAppBar(title: AppLocalizations.of(context)!.doghouseTitle, subtitle: AppLocalizations.of(context)!.doghouseNewTournament),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _sectionHeader('Tournament Setup', Icons.tune_rounded),
+            _sectionHeader(AppLocalizations.of(context)!.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
             // Row 1 — players / time
@@ -523,7 +524,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Players',
+                    label:    AppLocalizations.of(context)!.pagePlayers,
                     ctrl:     _playerCountCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
@@ -535,7 +536,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Time',
+                    label:    AppLocalizations.of(context)!.labelTime,
                     ctrl:     _totalMinCtrl,
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
@@ -566,7 +567,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Escape Points',
+                    label:    AppLocalizations.of(context)!.labelEscapePoints,
                     ctrl:     _escapeCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
                     onParsed: (v) => _escapePoints = v.clamp(1, 999),
@@ -579,7 +580,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Loss Limit',
+                    label:    AppLocalizations.of(context)!.labelLossLimit,
                     ctrl:     _lossLimitCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
                     onParsed: (v) => _lossLimit = v.clamp(1, 999),
@@ -595,14 +596,14 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
 
             const Divider(),
             const SizedBox(height: 16),
-            _sectionHeader('Players', Icons.group_rounded),
+            _sectionHeader(AppLocalizations.of(context)!.pagePlayers, Icons.group_rounded),
             const SizedBox(height: 12),
             _buildPlayersSummaryCard(),
 
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name',
+            _fieldLabel(AppLocalizations.of(context)!.doghouseTournamentName,
                 help: 'A name for this session, used to identify '
                     'it in your tournament history.'),
             const SizedBox(height: 8),
@@ -640,7 +641,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    canCreate ? 'Setup looks good!' : 'Setup incomplete',
+                    canCreate ? AppLocalizations.of(context)!.doghouseSetupGood : AppLocalizations.of(context)!.doghouseSetupIncomplete,
                     style: TextStyle(
                       color: canCreate ? _kGold : Colors.red.shade600,
                       fontWeight: FontWeight.w600,
@@ -658,9 +659,9 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Create Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              child: Text(
+                AppLocalizations.of(context)!.btnCreateTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
               ),
             ),
           ],
@@ -676,7 +677,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Style',
+        _fieldLabel(AppLocalizations.of(context)!.labelStyle,
             help: 'The format of each game — 2vs2, 3vs3, and so on. '
                 'Sets how many players make up the doghouse team.'),
         const SizedBox(height: 6),
@@ -709,7 +710,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Assignment',
+        _fieldLabel(AppLocalizations.of(context)!.labelAssignment,
             help: 'How the next doghouse team is chosen.\n\n'
                 'Manual — the coach selects players from the queue by tapping them.\n\n'
                 'Automated — TournaQ suggests the best team, prioritising players '
@@ -724,14 +725,14 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10)),
           ),
-          items: const [
+          items: [
             DropdownMenuItem(
               value: DoghouseAssignmentMode.manual,
-              child: Text('Manual'),
+              child: Text(AppLocalizations.of(context)!.doghouseAssignmentManual),
             ),
             DropdownMenuItem(
               value: DoghouseAssignmentMode.automated,
-              child: Text('Automated'),
+              child: Text(AppLocalizations.of(context)!.doghouseAssignmentAutomated),
             ),
           ],
           onChanged: (v) {
@@ -838,7 +839,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got it'),
+            child: Text(AppLocalizations.of(context)!.labelGotIt),
           ),
         ],
       ),
@@ -879,9 +880,12 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
         DoghousePlayerSource.random   => Colors.blueGrey,
       };
 
-  String _sourceLabel(DoghousePlayerSource s) => switch (s) {
-        DoghousePlayerSource.existing => 'Existing player',
-        DoghousePlayerSource.created  => 'New player',
-        DoghousePlayerSource.random   => 'Random placeholder',
-      };
+  String _sourceLabel(BuildContext ctx, DoghousePlayerSource s) {
+    final l10n = AppLocalizations.of(ctx)!;
+    return switch (s) {
+      DoghousePlayerSource.existing => l10n.doghouseSourceExisting,
+      DoghousePlayerSource.created  => l10n.doghouseSourceNew,
+      DoghousePlayerSource.random   => l10n.doghouseSourceRandom,
+    };
+  }
 }

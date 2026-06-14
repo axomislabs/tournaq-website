@@ -1247,4 +1247,276 @@ class AppLocalizationsDe extends AppLocalizations {
   String doghouseStatsEscapes(int count) {
     return '$count Entkommen';
   }
+
+  @override
+  String get btnAdd => 'Hinzufügen';
+
+  @override
+  String get btnStop => 'Stopp';
+
+  @override
+  String get btnUndo => 'Rückgängig';
+
+  @override
+  String get labelOptions => 'Optionen';
+
+  @override
+  String get labelGotIt => 'Verstanden';
+
+  @override
+  String get labelTime => 'Zeit';
+
+  @override
+  String get labelAssignment => 'Zuweisung';
+
+  @override
+  String get labelEscapePoints => 'Ausstiegspunkte';
+
+  @override
+  String get labelLossLimit => 'Verlustlimit';
+
+  @override
+  String get hintPlayerName => 'Spielername';
+
+  @override
+  String get doghouseScoreboard => 'Spielstand';
+
+  @override
+  String get doghouseTimeUp => 'Zeit abgelaufen';
+
+  @override
+  String get doghouseTimerEndedBody =>
+      'Der Sitzungs-Timer ist abgelaufen. Turnier jetzt beenden?';
+
+  @override
+  String get doghouseCompleteTournament => 'Turnier beenden';
+
+  @override
+  String get doghouseContinueScoring => 'Weiter spielen';
+
+  @override
+  String doghouseSubstitute(String name) {
+    return '$name ersetzen';
+  }
+
+  @override
+  String doghouseReturnToQueue(String name) {
+    return '$name kommt zurück in die Warteschlange.';
+  }
+
+  @override
+  String get doghouseAddPlayersToQueue =>
+      'Spieler zur Warteschlange hinzufügen';
+
+  @override
+  String doghouseNAdded(int count) {
+    return '$count hinzugefügt';
+  }
+
+  @override
+  String get doghouseLateTagInfo =>
+      'Alle hier hinzugefügten Spieler werden in den Stats als \"Spät\" markiert.';
+
+  @override
+  String get doghouseNoPlayersMatch => 'Keine Spieler gefunden.';
+
+  @override
+  String get doghouseAdd4Random => '4 Zufällige hinzufügen';
+
+  @override
+  String get doghouseNoLatePlayersYet => 'Noch keine Nachzügler hinzugefügt.';
+
+  @override
+  String get doghouseEscapedExcl => 'Entkommen!';
+
+  @override
+  String doghouseEscapedScoreMsg(String names, int points) {
+    return '$names hat $points Punkte erzielt!';
+  }
+
+  @override
+  String get doghouseEscapeDesc =>
+      'Sie entkommen der Doghouse und kehren in die Warteschlange zurück.';
+
+  @override
+  String get doghouseEscapeBtn => 'Entkommen!';
+
+  @override
+  String get doghouseEjectedExcl => 'Rausgeworfen!';
+
+  @override
+  String doghouseEjectedScoreMsg(String names, int count) {
+    return '$names hat $count Spiele verloren!';
+  }
+
+  @override
+  String get doghouseEjectDesc =>
+      'Sie werden aus der Doghouse geworfen und kehren in die Warteschlange zurück.';
+
+  @override
+  String get doghouseEjectTeam => 'Team rauswerfen';
+
+  @override
+  String get doghouseLeaveTitle => 'Ohne Spielende verlassen?';
+
+  @override
+  String doghouseLeaveBodyPts(int count) {
+    return 'Das aktuelle Team hat $count ungespeicherte(n) Punkt(e). Beim Verlassen gehen sie verloren.';
+  }
+
+  @override
+  String get doghouseLeaveBodyEmpty =>
+      'Die ungespeicherten Daten des aktuellen Teams gehen verloren.';
+
+  @override
+  String get doghouseLeaveAnyway => 'Trotzdem verlassen';
+
+  @override
+  String get doghouseTournamentComplete => 'Turnier beendet';
+
+  @override
+  String doghouseSummaryStats(int games, int escapes) {
+    return '$games Spiel(e) · $escapes Entkommen';
+  }
+
+  @override
+  String get doghouseFinalStandings => 'Abschlussranking';
+
+  @override
+  String doghousePairStat(int escapes, int losses) {
+    return '$escapes entkommen · $losses verloren';
+  }
+
+  @override
+  String get doghousePlayerStats => 'Spielerstatistiken';
+
+  @override
+  String get doghouseSessionTimer => 'SITZUNGS-TIMER';
+
+  @override
+  String get doghouseGameplayControls => 'Steuerung';
+
+  @override
+  String get doghouseMatchControls => 'Spielsteuerung';
+
+  @override
+  String get doghouseStartRestart => 'Start / Neu starten';
+
+  @override
+  String get doghouseTournamentCompleted => 'Turnier abgeschlossen';
+
+  @override
+  String get doghouseNotEnoughInQueue =>
+      'Nicht genug Spieler in der Warteschlange.';
+
+  @override
+  String get doghouseSuggestedTeam => 'Vorgeschlagenes Team';
+
+  @override
+  String doghouseSelectPlayers(int needed, int selected) {
+    return '$needed Spieler auswählen ($selected / $needed)';
+  }
+
+  @override
+  String get doghouseQueueTapToAdd => 'Warteschlange — tippen zum Hinzufügen';
+
+  @override
+  String get doghouseEnterDoghouse => 'Doghouse betreten';
+
+  @override
+  String get doghouseViewAllGames => 'Alle abgeschlossenen Spiele anzeigen';
+
+  @override
+  String doghouseEscapePointsLabel(int count) {
+    return '$count Pkt Ausstieg';
+  }
+
+  @override
+  String doghouseLossLimitLabel(int count) {
+    return '$count Verlustlimit';
+  }
+
+  @override
+  String get doghouseAddPlayerToQueue => 'Spieler zur Warteschlange hinzufügen';
+
+  @override
+  String get doghouseUndoCompletion => 'Abschluss rückgängig';
+
+  @override
+  String get doghouseSaveAndReturn => 'Speichern und zurück';
+
+  @override
+  String get doghouseGameLost => 'Spiel\nVerloren';
+
+  @override
+  String get doghouseUndoGame => 'Rückgängig\nSpiel';
+
+  @override
+  String get doghouseUndoLastGame => 'Letztes Spiel rückgängig';
+
+  @override
+  String get doghouseTournamentSetup => 'Turnier-Einrichtung';
+
+  @override
+  String get doghouseTapToAddPlayers => 'Tippen um Spieler hinzuzufügen';
+
+  @override
+  String doghouseNPlayersAdded(int count) {
+    return '$count Spieler hinzugefügt';
+  }
+
+  @override
+  String doghouseNeedAtLeastN(int count, int min) {
+    return '$count hinzugefügt · mindestens $min benötigt';
+  }
+
+  @override
+  String get doghouseClearAll => 'Alle löschen';
+
+  @override
+  String doghouseFillNRandom(int count) {
+    return '$count Zufällige auffüllen';
+  }
+
+  @override
+  String get doghouseSetupNoPlayers => 'Noch keine Spieler hinzugefügt.';
+
+  @override
+  String get doghouseSourceExisting => 'Vorhandener Spieler';
+
+  @override
+  String get doghouseSourceNew => 'Neuer Spieler';
+
+  @override
+  String get doghouseSourceRandom => 'Zufälliger Platzhalter';
+
+  @override
+  String get doghouseTournamentName => 'Turniername';
+
+  @override
+  String get doghouseSetupGood => 'Einrichtung sieht gut aus!';
+
+  @override
+  String get doghouseSetupIncomplete => 'Einrichtung unvollständig';
+
+  @override
+  String get doghouseRemoveAllTitle => 'Alle Spieler entfernen?';
+
+  @override
+  String get doghouseRemoveAllBody =>
+      'Damit werden alle hinzugefügten Spieler aus der Liste entfernt.';
+
+  @override
+  String get doghouseRemoveAll => 'Alle entfernen';
+
+  @override
+  String get doghouseAssignmentManual => 'Manuell';
+
+  @override
+  String get doghouseAssignmentAutomated => 'Automatisch';
+
+  @override
+  String doghouseAddedCount(int added, int total) {
+    return 'Hinzugefügt ($added/$total)';
+  }
 }

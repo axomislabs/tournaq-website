@@ -2343,6 +2343,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} escapes'**
   String doghouseStatsEscapes(int count);
+
+  /// No description provided for @btnAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get btnAdd;
+
+  /// No description provided for @btnStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get btnStop;
+
+  /// No description provided for @btnUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get btnUndo;
+
+  /// No description provided for @labelOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get labelOptions;
+
+  /// No description provided for @labelGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get labelGotIt;
+
+  /// No description provided for @labelTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get labelTime;
+
+  /// No description provided for @labelAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get labelAssignment;
+
+  /// No description provided for @labelEscapePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Escape Points'**
+  String get labelEscapePoints;
+
+  /// No description provided for @labelLossLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss Limit'**
+  String get labelLossLimit;
+
+  /// No description provided for @hintPlayerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Player name'**
+  String get hintPlayerName;
+
+  /// No description provided for @doghouseScoreboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoreboard'**
+  String get doghouseScoreboard;
+
+  /// No description provided for @doghouseTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is up'**
+  String get doghouseTimeUp;
+
+  /// No description provided for @doghouseTimerEndedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The session timer has ended. Complete the tournament now?'**
+  String get doghouseTimerEndedBody;
+
+  /// No description provided for @doghouseCompleteTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Tournament'**
+  String get doghouseCompleteTournament;
+
+  /// No description provided for @doghouseContinueScoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue scoring'**
+  String get doghouseContinueScoring;
+
+  /// No description provided for @doghouseSubstitute.
+  ///
+  /// In en, this message translates to:
+  /// **'Substitute {name}'**
+  String doghouseSubstitute(String name);
+
+  /// No description provided for @doghouseReturnToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will return to the queue.'**
+  String doghouseReturnToQueue(String name);
+
+  /// No description provided for @doghouseAddPlayersToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Players to Queue'**
+  String get doghouseAddPlayersToQueue;
+
+  /// No description provided for @doghouseNAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} added'**
+  String doghouseNAdded(int count);
+
+  /// No description provided for @doghouseLateTagInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'All players added here will be tagged \"Late\" in stats.'**
+  String get doghouseLateTagInfo;
+
+  /// No description provided for @doghouseNoPlayersMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No players match.'**
+  String get doghouseNoPlayersMatch;
+
+  /// No description provided for @doghouseAdd4Random.
+  ///
+  /// In en, this message translates to:
+  /// **'Add 4 random'**
+  String get doghouseAdd4Random;
+
+  /// No description provided for @doghouseNoLatePlayersYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No late players added yet.'**
+  String get doghouseNoLatePlayersYet;
+
+  /// No description provided for @doghouseEscapedExcl.
+  ///
+  /// In en, this message translates to:
+  /// **'Escaped!'**
+  String get doghouseEscapedExcl;
+
+  /// No description provided for @doghouseEscapedScoreMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} scored {points} points!'**
+  String doghouseEscapedScoreMsg(String names, int points);
+
+  /// No description provided for @doghouseEscapeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'They escape the doghouse and return to the queue.'**
+  String get doghouseEscapeDesc;
+
+  /// No description provided for @doghouseEscapeBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Escape!'**
+  String get doghouseEscapeBtn;
+
+  /// No description provided for @doghouseEjectedExcl.
+  ///
+  /// In en, this message translates to:
+  /// **'Ejected!'**
+  String get doghouseEjectedExcl;
+
+  /// No description provided for @doghouseEjectedScoreMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} lost {count} games!'**
+  String doghouseEjectedScoreMsg(String names, int count);
+
+  /// No description provided for @doghouseEjectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'They are ejected from the doghouse and return to the queue.'**
+  String get doghouseEjectDesc;
+
+  /// No description provided for @doghouseEjectTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject Team'**
+  String get doghouseEjectTeam;
+
+  /// No description provided for @doghouseLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without ending game?'**
+  String get doghouseLeaveTitle;
+
+  /// No description provided for @doghouseLeaveBodyPts.
+  ///
+  /// In en, this message translates to:
+  /// **'The current team has {count} unrecorded point(s). Leaving now will discard them.'**
+  String doghouseLeaveBodyPts(int count);
+
+  /// No description provided for @doghouseLeaveBodyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The current team\'s unrecorded data will be lost.'**
+  String get doghouseLeaveBodyEmpty;
+
+  /// No description provided for @doghouseLeaveAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave anyway'**
+  String get doghouseLeaveAnyway;
+
+  /// No description provided for @doghouseTournamentComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Complete'**
+  String get doghouseTournamentComplete;
+
+  /// No description provided for @doghouseSummaryStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{games} game(s) · {escapes} escapes'**
+  String doghouseSummaryStats(int games, int escapes);
+
+  /// No description provided for @doghouseFinalStandings.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Standings'**
+  String get doghouseFinalStandings;
+
+  /// No description provided for @doghousePairStat.
+  ///
+  /// In en, this message translates to:
+  /// **'{escapes} escaped · {losses} lost'**
+  String doghousePairStat(int escapes, int losses);
+
+  /// No description provided for @doghousePlayerStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Stats'**
+  String get doghousePlayerStats;
+
+  /// No description provided for @doghouseSessionTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'SESSION TIMER'**
+  String get doghouseSessionTimer;
+
+  /// No description provided for @doghouseGameplayControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Gameplay Controls'**
+  String get doghouseGameplayControls;
+
+  /// No description provided for @doghouseMatchControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Controls'**
+  String get doghouseMatchControls;
+
+  /// No description provided for @doghouseStartRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start / Restart'**
+  String get doghouseStartRestart;
+
+  /// No description provided for @doghouseTournamentCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament completed'**
+  String get doghouseTournamentCompleted;
+
+  /// No description provided for @doghouseNotEnoughInQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough players in queue.'**
+  String get doghouseNotEnoughInQueue;
+
+  /// No description provided for @doghouseSuggestedTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested Team'**
+  String get doghouseSuggestedTeam;
+
+  /// No description provided for @doghouseSelectPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {needed} players ({selected} / {needed})'**
+  String doghouseSelectPlayers(int needed, int selected);
+
+  /// No description provided for @doghouseQueueTapToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue — tap to add'**
+  String get doghouseQueueTapToAdd;
+
+  /// No description provided for @doghouseEnterDoghouse.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Doghouse'**
+  String get doghouseEnterDoghouse;
+
+  /// No description provided for @doghouseViewAllGames.
+  ///
+  /// In en, this message translates to:
+  /// **'View all completed games'**
+  String get doghouseViewAllGames;
+
+  /// No description provided for @doghouseEscapePointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pt escape'**
+  String doghouseEscapePointsLabel(int count);
+
+  /// No description provided for @doghouseLossLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} loss limit'**
+  String doghouseLossLimitLabel(int count);
+
+  /// No description provided for @doghouseAddPlayerToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Player to Queue'**
+  String get doghouseAddPlayerToQueue;
+
+  /// No description provided for @doghouseUndoCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Completion'**
+  String get doghouseUndoCompletion;
+
+  /// No description provided for @doghouseSaveAndReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and Return'**
+  String get doghouseSaveAndReturn;
+
+  /// No description provided for @doghouseGameLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Game\nLost'**
+  String get doghouseGameLost;
+
+  /// No description provided for @doghouseUndoGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo\nGame'**
+  String get doghouseUndoGame;
+
+  /// No description provided for @doghouseUndoLastGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Last Game'**
+  String get doghouseUndoLastGame;
+
+  /// No description provided for @doghouseTournamentSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Setup'**
+  String get doghouseTournamentSetup;
+
+  /// No description provided for @doghouseTapToAddPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add players'**
+  String get doghouseTapToAddPlayers;
+
+  /// No description provided for @doghouseNPlayersAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} players added'**
+  String doghouseNPlayersAdded(int count);
+
+  /// No description provided for @doghouseNeedAtLeastN.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} added · need at least {min}'**
+  String doghouseNeedAtLeastN(int count, int min);
+
+  /// No description provided for @doghouseClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get doghouseClearAll;
+
+  /// No description provided for @doghouseFillNRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill {count} random'**
+  String doghouseFillNRandom(int count);
+
+  /// No description provided for @doghouseSetupNoPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'No players added yet.'**
+  String get doghouseSetupNoPlayers;
+
+  /// No description provided for @doghouseSourceExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing player'**
+  String get doghouseSourceExisting;
+
+  /// No description provided for @doghouseSourceNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New player'**
+  String get doghouseSourceNew;
+
+  /// No description provided for @doghouseSourceRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Random placeholder'**
+  String get doghouseSourceRandom;
+
+  /// No description provided for @doghouseTournamentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Name'**
+  String get doghouseTournamentName;
+
+  /// No description provided for @doghouseSetupGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup looks good!'**
+  String get doghouseSetupGood;
+
+  /// No description provided for @doghouseSetupIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup incomplete'**
+  String get doghouseSetupIncomplete;
+
+  /// No description provided for @doghouseRemoveAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all players?'**
+  String get doghouseRemoveAllTitle;
+
+  /// No description provided for @doghouseRemoveAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove all added players from the list.'**
+  String get doghouseRemoveAllBody;
+
+  /// No description provided for @doghouseRemoveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get doghouseRemoveAll;
+
+  /// No description provided for @doghouseAssignmentManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get doghouseAssignmentManual;
+
+  /// No description provided for @doghouseAssignmentAutomated.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated'**
+  String get doghouseAssignmentAutomated;
+
+  /// No description provided for @doghouseAddedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Added ({added}/{total})'**
+  String doghouseAddedCount(int added, int total);
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/scramble_service.dart';
@@ -126,12 +127,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 color: _kGold, size: 20),
           ),
           const SizedBox(width: 12),
-          const Text('Time is up',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          Text(AppLocalizations.of(context)!.doghouseTimeUp,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
         ]),
-        content: const Text(
-          'The session timer has ended. Complete the tournament now?',
-          style: TextStyle(fontSize: 14, height: 1.5),
+        content: Text(
+          AppLocalizations.of(context)!.doghouseTimerEndedBody,
+          style: const TextStyle(fontSize: 14, height: 1.5),
         ),
         actions: [
           SizedBox(
@@ -145,8 +146,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Complete Tournament',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(AppLocalizations.of(context)!.doghouseCompleteTournament,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
           const SizedBox(height: 6),
@@ -159,8 +160,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Continue scoring',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(AppLocalizations.of(context)!.doghouseContinueScoring,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -421,12 +422,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Substitute ${outgoing.name}',
+                  Text(AppLocalizations.of(context)!.doghouseSubstitute(outgoing.name),
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 4),
                   Text(
-                    '${outgoing.name} will return to the queue.',
+                    AppLocalizations.of(context)!.doghouseReturnToQueue(outgoing.name),
                     style: const TextStyle(
                         fontSize: 13, color: Colors.black54),
                   ),
@@ -492,25 +493,24 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   // ── Add late player ───────────────────────────────────────────────────────
 
   Future<void> _showAddPlayerToQueue() async {
+    final l10n = AppLocalizations.of(context)!;
     final proceed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
-        title: const Text('Add Late Player?',
-            style: TextStyle(
+        title: Text(l10n.doghouseAddPlayersToQueue,
+            style: const TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w700)),
-        content: const Text(
-          'This player is joining late and won\'t have had the same '
-          'opportunities as players who started at the beginning. '
-          'Their stats will be tagged as "Late".',
-          style: TextStyle(
+        content: Text(
+          l10n.doghouseLateTagInfo,
+          style: const TextStyle(
               fontSize: 14, color: Colors.black54, height: 1.4),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(l10n.btnCancel)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
@@ -519,7 +519,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Continue'),
+            child: Text(l10n.btnStart),
           ),
         ],
       ),
@@ -611,19 +611,19 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(children: [
-                    const Text('Add Players to Queue',
-                        style: TextStyle(
+                    Text(AppLocalizations.of(context)!.doghouseAddPlayersToQueue,
+                        style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800)),
                     const Spacer(),
-                    Text('${latePlayers.length} added',
+                    Text(AppLocalizations.of(context)!.doghouseNAdded(latePlayers.length),
                         style: const TextStyle(
                             color: Colors.black45, fontSize: 13)),
                   ]),
                   const SizedBox(height: 4),
-                  const Text(
-                    'All players added here will be tagged "Late" in stats.',
-                    style: TextStyle(fontSize: 12, color: Colors.black45),
+                  Text(
+                    AppLocalizations.of(context)!.doghouseLateTagInfo,
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
                   ),
                   const SizedBox(height: 16),
 
@@ -633,7 +633,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                         controller: nameCtrl,
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
-                          hintText: 'Player name',
+                          hintText: AppLocalizations.of(context)!.hintPlayerName,
                           isDense: true,
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
@@ -654,13 +654,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Add'),
+                      child: Text(AppLocalizations.of(context)!.btnAdd),
                     ),
                   ]),
 
                   if (allExisting.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('Existing Players (${allExisting.length})',
+                    Text('${AppLocalizations.of(context)!.pagePlayers} (${allExisting.length})',
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -669,7 +669,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     TextField(
                       controller: searchCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Search players…',
+                        hintText: AppLocalizations.of(context)!.hintSearchPlayers,
                         isDense: true,
                         prefixIcon: const Icon(Icons.search_rounded,
                             size: 18, color: Colors.black45),
@@ -685,10 +685,10 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     if (searchActive) ...[
                       const SizedBox(height: 6),
                       if (filtered.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No players match.',
-                              style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(AppLocalizations.of(context)!.doghouseNoPlayersMatch,
+                              style: const TextStyle(
                                   color: Colors.black38,
                                   fontSize: 13)),
                         )
@@ -730,7 +730,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                          '${latePlayers.length} player${latePlayers.length == 1 ? '' : 's'} added',
+                          AppLocalizations.of(context)!.doghouseNPlayersAdded(latePlayers.length),
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -738,7 +738,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                       TextButton.icon(
                         onPressed: fillRandom,
                         icon: const Icon(Icons.shuffle_rounded, size: 16),
-                        label: const Text('Add 4 random'),
+                        label: Text(AppLocalizations.of(context)!.doghouseAdd4Random),
                         style: TextButton.styleFrom(
                             foregroundColor: _kOlive),
                       ),
@@ -747,8 +747,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   const SizedBox(height: 6),
 
                   if (latePlayers.isEmpty)
-                    const Text('No late players added yet.',
-                        style: TextStyle(
+                    Text(AppLocalizations.of(context)!.doghouseNoLatePlayersYet,
+                        style: const TextStyle(
                             color: Colors.black38, fontSize: 13))
                   else
                     ListView.separated(
@@ -824,7 +824,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
-          'LATE',
+          AppLocalizations.of(context)!.labelLate,
           style: TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.w800,
@@ -859,9 +859,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 color: _kGold, size: 24),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Escaped!',
-                style: TextStyle(
+          Expanded(
+            child: Text(AppLocalizations.of(context)!.doghouseEscapedExcl,
+                style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.w800)),
           ),
         ]),
@@ -869,13 +869,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$names scored ${_t.escapePoints} points!',
+            Text(AppLocalizations.of(context)!.doghouseEscapedScoreMsg(names, _t.escapePoints),
                 style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            const Text(
-              'They escape the doghouse and return to the queue.',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
+            Text(
+              AppLocalizations.of(context)!.doghouseEscapeDesc,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
         ),
@@ -884,8 +884,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Escape!',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.doghouseEscapeBtn,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -930,9 +930,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 color: Colors.red.shade600, size: 24),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Ejected!',
-                style: TextStyle(
+          Expanded(
+            child: Text(AppLocalizations.of(context)!.doghouseEjectedExcl,
+                style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.w800)),
           ),
         ]),
@@ -940,13 +940,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$names lost ${_t.lossLimit} games!',
+            Text(AppLocalizations.of(context)!.doghouseEjectedScoreMsg(names, _t.lossLimit),
                 style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            const Text(
-              'They are ejected from the doghouse and return to the queue.',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
+            Text(
+              AppLocalizations.of(context)!.doghouseEjectDesc,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
         ),
@@ -955,8 +955,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Eject Team',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.doghouseEjectTeam,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade600,
                 foregroundColor: Colors.white,
@@ -1008,24 +1008,24 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16)),
-          title: const Text('Leave without ending game?',
-              style: TextStyle(
+          title: Text(AppLocalizations.of(context)!.doghouseLeaveTitle,
+              style: const TextStyle(
                   fontSize: 16, fontWeight: FontWeight.w700)),
           content: Text(
             pts > 0
-                ? 'The current team has $pts unrecorded point${pts == 1 ? '' : 's'}. Leaving now will discard them.'
-                : 'The current team\'s unrecorded data will be lost.',
+                ? AppLocalizations.of(context)!.doghouseLeaveBodyPts(pts)
+                : AppLocalizations.of(context)!.doghouseLeaveBodyEmpty,
             style: const TextStyle(
                 fontSize: 14, color: Colors.black54, height: 1.4),
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.of(context)!.btnCancel)),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Leave anyway'),
+              child: Text(AppLocalizations.of(context)!.doghouseLeaveAnyway),
             ),
           ],
         ),
@@ -1056,10 +1056,10 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20)),
         title: Row(children: [
-          Icon(Icons.pets_rounded, color: _kGold, size: 24),
+          const Icon(Icons.pets_rounded, color: _kGold, size: 24),
           const SizedBox(width: 8),
-          const Text('Tournament Complete',
-              style: TextStyle(
+          Text(AppLocalizations.of(context)!.doghouseTournamentComplete,
+              style: const TextStyle(
                   fontSize: 18, fontWeight: FontWeight.w800)),
         ]),
         content: SizedBox(
@@ -1069,13 +1069,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${_t.gameCount} game${_t.gameCount == 1 ? '' : 's'} · ${_t.totalEscapes} escapes',
+                AppLocalizations.of(context)!.doghouseSummaryStats(_t.gameCount, _t.totalEscapes),
                 style: const TextStyle(
                     fontSize: 13, color: Colors.black45),
               ),
               const SizedBox(height: 12),
-              const Text('Final Standings',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.doghouseFinalStandings,
+                  style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: Colors.black54)),
@@ -1092,7 +1092,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600))),
                     Text(
-                      '$escapes escaped · $losses lost',
+                      AppLocalizations.of(context)!.doghousePairStat(escapes, losses),
                       style: const TextStyle(
                           fontSize: 13, color: Colors.black54),
                     ),
@@ -1111,8 +1111,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Done',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            child: Text(AppLocalizations.of(context)!.btnDone,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -1144,12 +1144,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Player Stats',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.doghousePlayerStats,
+                  style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
               Text(
-                '${_t.gameCount} game${_t.gameCount == 1 ? '' : 's'} · ${_t.totalEscapes} escapes',
+                AppLocalizations.of(context)!.doghouseSummaryStats(_t.gameCount, _t.totalEscapes),
                 style: const TextStyle(
                     fontSize: 13, color: Colors.black45),
               ),
@@ -1157,19 +1157,19 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 4),
-                child: Row(children: const [
-                  SizedBox(width: 28),
+                child: Row(children: [
+                  const SizedBox(width: 28),
                   Expanded(
-                      child: Text('Player',
-                          style: TextStyle(
+                      child: Text(AppLocalizations.of(context)!.filterPlayer,
+                          style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: Colors.black45))),
                   SizedBox(
                     width: 44,
-                    child: Text('Games',
+                    child: Text(AppLocalizations.of(context)!.statGames,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.black45)),
@@ -1179,11 +1179,11 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.celebration_rounded,
+                        const Icon(Icons.celebration_rounded,
                             size: 11, color: Colors.black45),
-                        SizedBox(width: 2),
-                        Text('Esc',
-                            style: TextStyle(
+                        const SizedBox(width: 2),
+                        Text(AppLocalizations.of(context)!.statEsc,
+                            style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.black45)),
@@ -1192,18 +1192,18 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   ),
                   SizedBox(
                     width: 40,
-                    child: Text('Lost',
+                    child: Text(AppLocalizations.of(context)!.statLost,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.black45)),
                   ),
                   SizedBox(
                     width: 40,
-                    child: Text('Pts',
+                    child: Text(AppLocalizations.of(context)!.statPts,
                         textAlign: TextAlign.right,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: Colors.black45)),
@@ -1318,8 +1318,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Options',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.labelOptions,
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w700)),
               const SizedBox(height: 4),
               ListTile(
@@ -1327,15 +1327,15 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     const EdgeInsets.symmetric(horizontal: 8),
                 leading: Container(
                   width: 40, height: 40,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: _kGoldLight, shape: BoxShape.circle),
                   child: const Icon(Icons.history_rounded,
                       color: _kGold, size: 20),
                 ),
-                title: const Text('Game History',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('View all completed games',
-                    style: TextStyle(
+                title: Text(AppLocalizations.of(context)!.doghouseGameHistory,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text(AppLocalizations.of(context)!.doghouseViewAllGames,
+                    style: const TextStyle(
                         fontSize: 12, color: Colors.black45)),
                 onTap: () {
                   Navigator.of(sheetCtx).pop();
@@ -1365,15 +1365,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       onPressed: _showOptions,
     );
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: TournaQAppBar(
-        title: 'Doghouse',
-        subtitle: 'Scoreboard',
+        title: l10n.doghouseTitle,
+        subtitle: l10n.doghouseScoreboard,
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart_rounded,
                 color: _kGoldCardBg),
-            tooltip: 'Player Stats',
+            tooltip: l10n.doghousePlayerStats,
             onPressed: _openStats,
           ),
         ],
@@ -1392,13 +1393,14 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   }
 
   Widget _buildPortraitBody(Widget optionsButton) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _sectionHeader(
-            'Gameplay Controls',
+            l10n.doghouseGameplayControls,
             Icons.sports_volleyball_rounded,
             trailing: optionsButton,
           ),
@@ -1425,7 +1427,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             _buildUndoButton(),
           ],
           const SizedBox(height: 24),
-          _sectionHeader('Match Controls', Icons.pets_rounded),
+          _sectionHeader(l10n.doghouseMatchControls, Icons.pets_rounded),
           const SizedBox(height: 10),
           _buildMatchControls(),
           const SizedBox(height: 8),
@@ -1456,9 +1458,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 onFinished: _onSessionFinished,
               ),
               const SizedBox(width: 8),
-              _refBtn(Icons.pause_rounded, 'Stop', _pauseTimer),
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
               const SizedBox(width: 4),
-              _refBtn(Icons.replay_rounded, 'Start / Restart',
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
                   _startOrRestart,
                   primary: true),
               const SizedBox(width: 4),
@@ -1542,7 +1544,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Game\nLost',
+                        AppLocalizations.of(context)!.doghouseGameLost,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -1578,7 +1580,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Undo',
+                      AppLocalizations.of(context)!.btnUndo,
                       style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -1605,16 +1607,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12)),
       ),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.undo_rounded, size: 28),
-          SizedBox(height: 8),
+          const Icon(Icons.undo_rounded, size: 28),
+          const SizedBox(height: 8),
           Text(
-            'Undo\nGame',
+            AppLocalizations.of(context)!.doghouseUndoGame,
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
           ),
         ],
       ),
@@ -1625,8 +1627,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     return OutlinedButton.icon(
       onPressed: _undoEjection,
       icon: const Icon(Icons.undo_rounded, size: 18),
-      label: const Text('Undo Last Game',
-          style: TextStyle(fontWeight: FontWeight.w600)),
+      label: Text(AppLocalizations.of(context)!.doghouseUndoLastGame,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
       style: OutlinedButton.styleFrom(
         foregroundColor: _kGold,
         side: BorderSide(color: _kGold.withValues(alpha: 0.6)),
@@ -1653,9 +1655,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           Row(children: [
             const Icon(Icons.timer_rounded, size: 14, color: _kOlive),
             const SizedBox(width: 6),
-            const Text(
-              'SESSION TIMER',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.doghouseSessionTimer,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: _kOlive,
@@ -1681,8 +1683,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
-              _refBtn(Icons.pause_rounded, 'Stop', _pauseTimer),
-              _refBtn(Icons.replay_rounded, 'Start / Restart',
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
                   _startOrRestart,
                   primary: true),
               _refTextBtn('+30s',
@@ -1725,9 +1727,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         const Icon(Icons.lock_rounded,
             size: 16, color: Colors.black54),
         const SizedBox(width: 8),
-        const Expanded(
-            child: Text('Tournament completed',
-                style: TextStyle(
+        Expanded(
+            child: Text(AppLocalizations.of(context)!.doghouseTournamentCompleted,
+                style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                     fontWeight: FontWeight.w500))),
@@ -1771,7 +1773,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   color: canStart ? _kGold : Colors.black45),
               const SizedBox(width: 8),
               Text(
-                'Suggested Team',
+                AppLocalizations.of(context)!.doghouseSuggestedTeam,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -1782,8 +1784,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               TextButton.icon(
                 onPressed: canReroll ? _reroll : null,
                 icon: const Icon(Icons.refresh_rounded, size: 14),
-                label: const Text('Re-roll',
-                    style: TextStyle(fontSize: 12)),
+                label: Text(AppLocalizations.of(context)!.quickStartReRoll,
+                    style: const TextStyle(fontSize: 12)),
                 style: TextButton.styleFrom(
                   foregroundColor: _kOlive,
                   disabledForegroundColor: Colors.black26,
@@ -1797,8 +1799,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
             if (suggested.isEmpty) ...[
               SizedBox(height: compact ? 8 : 12),
-              const Text('Not enough players in queue.',
-                  style: TextStyle(color: Colors.black38, fontSize: 13)),
+              Text(AppLocalizations.of(context)!.doghouseNotEnoughInQueue,
+                  style: const TextStyle(color: Colors.black38, fontSize: 13)),
             ] else ...[
               SizedBox(height: compact ? 8 : 12),
               Wrap(
@@ -1827,8 +1829,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             ElevatedButton.icon(
               onPressed: canStart ? _confirmSuggestedTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Enter Doghouse',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.doghouseEnterDoghouse,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -1875,7 +1877,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   color: canStart ? _kGold : Colors.black45),
               const SizedBox(width: 8),
               Text(
-                'Select $needed players ($selected / $needed)',
+                AppLocalizations.of(context)!.doghouseSelectPlayers(needed, selected),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -1923,7 +1925,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
             if (_pool.isNotEmpty) ...[
               SizedBox(height: compact ? 6 : 10),
-              Text('Queue — tap to add',
+              Text(AppLocalizations.of(context)!.doghouseQueueTapToAdd,
                   style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -1969,8 +1971,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             ElevatedButton.icon(
               onPressed: canStart ? _confirmTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Enter Doghouse',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.doghouseEnterDoghouse,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -2217,13 +2219,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 '${_t.playersPerTeam}v${_t.playersPerTeam}',
                 Colors.grey.shade100, Colors.black45),
             _chip(Icons.people_rounded,
-                '${_t.playerCount} players',
+                AppLocalizations.of(context)!.doghouseStatsPlayers(_t.playerCount),
                 Colors.grey.shade100, Colors.black45),
             _chip(Icons.celebration_rounded,
-                '${_t.escapePoints} pt escape',
+                AppLocalizations.of(context)!.doghouseEscapePointsLabel(_t.escapePoints),
                 _kGoldLight, _kGold),
             _chip(Icons.sentiment_very_dissatisfied_rounded,
-                '${_t.lossLimit} loss limit',
+                AppLocalizations.of(context)!.doghouseLossLimitLabel(_t.lossLimit),
                 Colors.red.shade50, Colors.red.shade400),
           ],
         ),
@@ -2232,8 +2234,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         OutlinedButton.icon(
           onPressed: _isCompleted ? null : _showAddPlayerToQueue,
           icon: const Icon(Icons.person_add_rounded, size: 18),
-          label: const Text('Add Player to Queue',
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          label: Text(AppLocalizations.of(context)!.doghouseAddPlayerToQueue,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
             foregroundColor: _kOlive,
             side: BorderSide(color: Colors.grey.shade300),
@@ -2250,8 +2252,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           OutlinedButton.icon(
             onPressed: _undoCompletion,
             icon: const Icon(Icons.undo_rounded, size: 18),
-            label: const Text('Undo Completion',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text(AppLocalizations.of(context)!.doghouseUndoCompletion,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black54,
               side: BorderSide(color: Colors.grey.shade300),
@@ -2264,8 +2266,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           ElevatedButton.icon(
             onPressed: _completeDrill,
             icon: const Icon(Icons.pets_rounded, size: 18),
-            label: const Text('Complete Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(AppLocalizations.of(context)!.doghouseCompleteTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
               foregroundColor: Colors.white,
@@ -2279,8 +2281,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         OutlinedButton.icon(
           onPressed: _saveAndReturn,
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: const Text('Save and Return',
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          label: Text(AppLocalizations.of(context)!.doghouseSaveAndReturn,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.black54,
             padding: const EdgeInsets.symmetric(vertical: 12),

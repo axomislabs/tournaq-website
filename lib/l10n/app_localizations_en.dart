@@ -1233,4 +1233,274 @@ class AppLocalizationsEn extends AppLocalizations {
   String doghouseStatsEscapes(int count) {
     return '$count escapes';
   }
+
+  @override
+  String get btnAdd => 'Add';
+
+  @override
+  String get btnStop => 'Stop';
+
+  @override
+  String get btnUndo => 'Undo';
+
+  @override
+  String get labelOptions => 'Options';
+
+  @override
+  String get labelGotIt => 'Got it';
+
+  @override
+  String get labelTime => 'Time';
+
+  @override
+  String get labelAssignment => 'Assignment';
+
+  @override
+  String get labelEscapePoints => 'Escape Points';
+
+  @override
+  String get labelLossLimit => 'Loss Limit';
+
+  @override
+  String get hintPlayerName => 'Player name';
+
+  @override
+  String get doghouseScoreboard => 'Scoreboard';
+
+  @override
+  String get doghouseTimeUp => 'Time is up';
+
+  @override
+  String get doghouseTimerEndedBody =>
+      'The session timer has ended. Complete the tournament now?';
+
+  @override
+  String get doghouseCompleteTournament => 'Complete Tournament';
+
+  @override
+  String get doghouseContinueScoring => 'Continue scoring';
+
+  @override
+  String doghouseSubstitute(String name) {
+    return 'Substitute $name';
+  }
+
+  @override
+  String doghouseReturnToQueue(String name) {
+    return '$name will return to the queue.';
+  }
+
+  @override
+  String get doghouseAddPlayersToQueue => 'Add Players to Queue';
+
+  @override
+  String doghouseNAdded(int count) {
+    return '$count added';
+  }
+
+  @override
+  String get doghouseLateTagInfo =>
+      'All players added here will be tagged \"Late\" in stats.';
+
+  @override
+  String get doghouseNoPlayersMatch => 'No players match.';
+
+  @override
+  String get doghouseAdd4Random => 'Add 4 random';
+
+  @override
+  String get doghouseNoLatePlayersYet => 'No late players added yet.';
+
+  @override
+  String get doghouseEscapedExcl => 'Escaped!';
+
+  @override
+  String doghouseEscapedScoreMsg(String names, int points) {
+    return '$names scored $points points!';
+  }
+
+  @override
+  String get doghouseEscapeDesc =>
+      'They escape the doghouse and return to the queue.';
+
+  @override
+  String get doghouseEscapeBtn => 'Escape!';
+
+  @override
+  String get doghouseEjectedExcl => 'Ejected!';
+
+  @override
+  String doghouseEjectedScoreMsg(String names, int count) {
+    return '$names lost $count games!';
+  }
+
+  @override
+  String get doghouseEjectDesc =>
+      'They are ejected from the doghouse and return to the queue.';
+
+  @override
+  String get doghouseEjectTeam => 'Eject Team';
+
+  @override
+  String get doghouseLeaveTitle => 'Leave without ending game?';
+
+  @override
+  String doghouseLeaveBodyPts(int count) {
+    return 'The current team has $count unrecorded point(s). Leaving now will discard them.';
+  }
+
+  @override
+  String get doghouseLeaveBodyEmpty =>
+      'The current team\'s unrecorded data will be lost.';
+
+  @override
+  String get doghouseLeaveAnyway => 'Leave anyway';
+
+  @override
+  String get doghouseTournamentComplete => 'Tournament Complete';
+
+  @override
+  String doghouseSummaryStats(int games, int escapes) {
+    return '$games game(s) · $escapes escapes';
+  }
+
+  @override
+  String get doghouseFinalStandings => 'Final Standings';
+
+  @override
+  String doghousePairStat(int escapes, int losses) {
+    return '$escapes escaped · $losses lost';
+  }
+
+  @override
+  String get doghousePlayerStats => 'Player Stats';
+
+  @override
+  String get doghouseSessionTimer => 'SESSION TIMER';
+
+  @override
+  String get doghouseGameplayControls => 'Gameplay Controls';
+
+  @override
+  String get doghouseMatchControls => 'Match Controls';
+
+  @override
+  String get doghouseStartRestart => 'Start / Restart';
+
+  @override
+  String get doghouseTournamentCompleted => 'Tournament completed';
+
+  @override
+  String get doghouseNotEnoughInQueue => 'Not enough players in queue.';
+
+  @override
+  String get doghouseSuggestedTeam => 'Suggested Team';
+
+  @override
+  String doghouseSelectPlayers(int needed, int selected) {
+    return 'Select $needed players ($selected / $needed)';
+  }
+
+  @override
+  String get doghouseQueueTapToAdd => 'Queue — tap to add';
+
+  @override
+  String get doghouseEnterDoghouse => 'Enter Doghouse';
+
+  @override
+  String get doghouseViewAllGames => 'View all completed games';
+
+  @override
+  String doghouseEscapePointsLabel(int count) {
+    return '$count pt escape';
+  }
+
+  @override
+  String doghouseLossLimitLabel(int count) {
+    return '$count loss limit';
+  }
+
+  @override
+  String get doghouseAddPlayerToQueue => 'Add Player to Queue';
+
+  @override
+  String get doghouseUndoCompletion => 'Undo Completion';
+
+  @override
+  String get doghouseSaveAndReturn => 'Save and Return';
+
+  @override
+  String get doghouseGameLost => 'Game\nLost';
+
+  @override
+  String get doghouseUndoGame => 'Undo\nGame';
+
+  @override
+  String get doghouseUndoLastGame => 'Undo Last Game';
+
+  @override
+  String get doghouseTournamentSetup => 'Tournament Setup';
+
+  @override
+  String get doghouseTapToAddPlayers => 'Tap to add players';
+
+  @override
+  String doghouseNPlayersAdded(int count) {
+    return '$count players added';
+  }
+
+  @override
+  String doghouseNeedAtLeastN(int count, int min) {
+    return '$count added · need at least $min';
+  }
+
+  @override
+  String get doghouseClearAll => 'Clear all';
+
+  @override
+  String doghouseFillNRandom(int count) {
+    return 'Fill $count random';
+  }
+
+  @override
+  String get doghouseSetupNoPlayers => 'No players added yet.';
+
+  @override
+  String get doghouseSourceExisting => 'Existing player';
+
+  @override
+  String get doghouseSourceNew => 'New player';
+
+  @override
+  String get doghouseSourceRandom => 'Random placeholder';
+
+  @override
+  String get doghouseTournamentName => 'Tournament Name';
+
+  @override
+  String get doghouseSetupGood => 'Setup looks good!';
+
+  @override
+  String get doghouseSetupIncomplete => 'Setup incomplete';
+
+  @override
+  String get doghouseRemoveAllTitle => 'Remove all players?';
+
+  @override
+  String get doghouseRemoveAllBody =>
+      'This will remove all added players from the list.';
+
+  @override
+  String get doghouseRemoveAll => 'Remove all';
+
+  @override
+  String get doghouseAssignmentManual => 'Manual';
+
+  @override
+  String get doghouseAssignmentAutomated => 'Automated';
+
+  @override
+  String doghouseAddedCount(int added, int total) {
+    return 'Added ($added/$total)';
+  }
 }

@@ -1214,5 +1214,290 @@
   "doghouseStatsEscapes": "{count} escapes",
   "@doghouseStatsEscapes": {
     "placeholders": { "count": { "type": "int" } }
+  },
+
+  "btnAdd": "Add",
+  "@btnAdd": {},
+
+  "btnStop": "Stop",
+  "@btnStop": {},
+
+  "btnUndo": "Undo",
+  "@btnUndo": {},
+
+  "labelOptions": "Options",
+  "@labelOptions": {},
+
+  "labelGotIt": "Got it",
+  "@labelGotIt": {},
+
+  "labelTime": "Time",
+  "@labelTime": {},
+
+  "labelAssignment": "Assignment",
+  "@labelAssignment": {},
+
+  "labelEscapePoints": "Escape Points",
+  "@labelEscapePoints": {},
+
+  "labelLossLimit": "Loss Limit",
+  "@labelLossLimit": {},
+
+  "hintPlayerName": "Player name",
+  "@hintPlayerName": {},
+
+  "doghouseScoreboard": "Scoreboard",
+  "@doghouseScoreboard": {},
+
+  "doghouseTimeUp": "Time is up",
+  "@doghouseTimeUp": {},
+
+  "doghouseTimerEndedBody": "The session timer has ended. Complete the tournament now?",
+  "@doghouseTimerEndedBody": {},
+
+  "doghouseCompleteTournament": "Complete Tournament",
+  "@doghouseCompleteTournament": {},
+
+  "doghouseContinueScoring": "Continue scoring",
+  "@doghouseContinueScoring": {},
+
+  "doghouseSubstitute": "Substitute {name}",
+  "@doghouseSubstitute": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "doghouseReturnToQueue": "{name} will return to the queue.",
+  "@doghouseReturnToQueue": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "doghouseAddPlayersToQueue": "Add Players to Queue",
+  "@doghouseAddPlayersToQueue": {},
+
+  "doghouseNAdded": "{count} added",
+  "@doghouseNAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseLateTagInfo": "All players added here will be tagged \"Late\" in stats.",
+  "@doghouseLateTagInfo": {},
+
+  "doghouseNoPlayersMatch": "No players match.",
+  "@doghouseNoPlayersMatch": {},
+
+  "doghouseAdd4Random": "Add 4 random",
+  "@doghouseAdd4Random": {},
+
+  "doghouseNoLatePlayersYet": "No late players added yet.",
+  "@doghouseNoLatePlayersYet": {},
+
+  "doghouseEscapedExcl": "Escaped!",
+  "@doghouseEscapedExcl": {},
+
+  "doghouseEscapedScoreMsg": "{names} scored {points} points!",
+  "@doghouseEscapedScoreMsg": {
+    "placeholders": {
+      "names": { "type": "String" },
+      "points": { "type": "int" }
+    }
+  },
+
+  "doghouseEscapeDesc": "They escape the doghouse and return to the queue.",
+  "@doghouseEscapeDesc": {},
+
+  "doghouseEscapeBtn": "Escape!",
+  "@doghouseEscapeBtn": {},
+
+  "doghouseEjectedExcl": "Ejected!",
+  "@doghouseEjectedExcl": {},
+
+  "doghouseEjectedScoreMsg": "{names} lost {count} games!",
+  "@doghouseEjectedScoreMsg": {
+    "placeholders": {
+      "names": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+
+  "doghouseEjectDesc": "They are ejected from the doghouse and return to the queue.",
+  "@doghouseEjectDesc": {},
+
+  "doghouseEjectTeam": "Eject Team",
+  "@doghouseEjectTeam": {},
+
+  "doghouseLeaveTitle": "Leave without ending game?",
+  "@doghouseLeaveTitle": {},
+
+  "doghouseLeaveBodyPts": "The current team has {count} unrecorded point(s). Leaving now will discard them.",
+  "@doghouseLeaveBodyPts": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseLeaveBodyEmpty": "The current team's unrecorded data will be lost.",
+  "@doghouseLeaveBodyEmpty": {},
+
+  "doghouseLeaveAnyway": "Leave anyway",
+  "@doghouseLeaveAnyway": {},
+
+  "doghouseTournamentComplete": "Tournament Complete",
+  "@doghouseTournamentComplete": {},
+
+  "doghouseSummaryStats": "{games} game(s) · {escapes} escapes",
+  "@doghouseSummaryStats": {
+    "placeholders": {
+      "games": { "type": "int" },
+      "escapes": { "type": "int" }
+    }
+  },
+
+  "doghouseFinalStandings": "Final Standings",
+  "@doghouseFinalStandings": {},
+
+  "doghousePairStat": "{escapes} escaped · {losses} lost",
+  "@doghousePairStat": {
+    "placeholders": {
+      "escapes": { "type": "int" },
+      "losses": { "type": "int" }
+    }
+  },
+
+  "doghousePlayerStats": "Player Stats",
+  "@doghousePlayerStats": {},
+
+  "doghouseSessionTimer": "SESSION TIMER",
+  "@doghouseSessionTimer": {},
+
+  "doghouseGameplayControls": "Gameplay Controls",
+  "@doghouseGameplayControls": {},
+
+  "doghouseMatchControls": "Match Controls",
+  "@doghouseMatchControls": {},
+
+  "doghouseStartRestart": "Start / Restart",
+  "@doghouseStartRestart": {},
+
+  "doghouseTournamentCompleted": "Tournament completed",
+  "@doghouseTournamentCompleted": {},
+
+  "doghouseNotEnoughInQueue": "Not enough players in queue.",
+  "@doghouseNotEnoughInQueue": {},
+
+  "doghouseSuggestedTeam": "Suggested Team",
+  "@doghouseSuggestedTeam": {},
+
+  "doghouseSelectPlayers": "Select {needed} players ({selected} / {needed})",
+  "@doghouseSelectPlayers": {
+    "placeholders": {
+      "needed": { "type": "int" },
+      "selected": { "type": "int" }
+    }
+  },
+
+  "doghouseQueueTapToAdd": "Queue — tap to add",
+  "@doghouseQueueTapToAdd": {},
+
+  "doghouseEnterDoghouse": "Enter Doghouse",
+  "@doghouseEnterDoghouse": {},
+
+  "doghouseViewAllGames": "View all completed games",
+  "@doghouseViewAllGames": {},
+
+  "doghouseEscapePointsLabel": "{count} pt escape",
+  "@doghouseEscapePointsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseLossLimitLabel": "{count} loss limit",
+  "@doghouseLossLimitLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseAddPlayerToQueue": "Add Player to Queue",
+  "@doghouseAddPlayerToQueue": {},
+
+  "doghouseUndoCompletion": "Undo Completion",
+  "@doghouseUndoCompletion": {},
+
+  "doghouseSaveAndReturn": "Save and Return",
+  "@doghouseSaveAndReturn": {},
+
+  "doghouseGameLost": "Game\nLost",
+  "@doghouseGameLost": {},
+
+  "doghouseUndoGame": "Undo\nGame",
+  "@doghouseUndoGame": {},
+
+  "doghouseUndoLastGame": "Undo Last Game",
+  "@doghouseUndoLastGame": {},
+
+  "doghouseTournamentSetup": "Tournament Setup",
+  "@doghouseTournamentSetup": {},
+
+  "doghouseTapToAddPlayers": "Tap to add players",
+  "@doghouseTapToAddPlayers": {},
+
+  "doghouseNPlayersAdded": "{count} players added",
+  "@doghouseNPlayersAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseNeedAtLeastN": "{count} added · need at least {min}",
+  "@doghouseNeedAtLeastN": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "min": { "type": "int" }
+    }
+  },
+
+  "doghouseClearAll": "Clear all",
+  "@doghouseClearAll": {},
+
+  "doghouseFillNRandom": "Fill {count} random",
+  "@doghouseFillNRandom": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseSetupNoPlayers": "No players added yet.",
+  "@doghouseSetupNoPlayers": {},
+
+  "doghouseSourceExisting": "Existing player",
+  "@doghouseSourceExisting": {},
+
+  "doghouseSourceNew": "New player",
+  "@doghouseSourceNew": {},
+
+  "doghouseSourceRandom": "Random placeholder",
+  "@doghouseSourceRandom": {},
+
+  "doghouseTournamentName": "Tournament Name",
+  "@doghouseTournamentName": {},
+
+  "doghouseSetupGood": "Setup looks good!",
+  "@doghouseSetupGood": {},
+
+  "doghouseSetupIncomplete": "Setup incomplete",
+  "@doghouseSetupIncomplete": {},
+
+  "doghouseRemoveAllTitle": "Remove all players?",
+  "@doghouseRemoveAllTitle": {},
+
+  "doghouseRemoveAllBody": "This will remove all added players from the list.",
+  "@doghouseRemoveAllBody": {},
+
+  "doghouseRemoveAll": "Remove all",
+  "@doghouseRemoveAll": {},
+
+  "doghouseAssignmentManual": "Manual",
+  "@doghouseAssignmentManual": {},
+
+  "doghouseAssignmentAutomated": "Automated",
+  "@doghouseAssignmentAutomated": {},
+
+  "doghouseAddedCount": "Added ({added}/{total})",
+  "@doghouseAddedCount": {
+    "placeholders": {
+      "added": { "type": "int" },
+      "total": { "type": "int" }
+    }
   }
 }
