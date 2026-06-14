@@ -1520,16 +1520,22 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                         child: _buildActiveScoringTile(compact: true),
                       ),
                       const SizedBox(width: 6),
-                      // Column 3: Eject (+ Undo below when available)
+                      // Column 3: Eject (focal, flex 2) + Undo (secondary, flex 1)
                       SizedBox(
                         width: 64,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(child: _buildNarrowEjectButton()),
+                            Expanded(
+                              flex: _canUndo ? 2 : 1,
+                              child: _buildNarrowEjectButton(),
+                            ),
                             if (_canUndo) ...[
                               const SizedBox(height: 6),
-                              Expanded(child: _buildNarrowUndoButton()),
+                              Expanded(
+                                flex: 1,
+                                child: _buildNarrowUndoButton(),
+                              ),
                             ],
                           ],
                         ),
@@ -1569,19 +1575,21 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12)),
       ),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.logout_rounded, size: 22),
-          SizedBox(height: 6),
-          Text(
-            'Team\nEjected',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 11),
-          ),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.logout_rounded, size: 22),
+            SizedBox(height: 6),
+            Text(
+              'Team\nEjected',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1596,19 +1604,21 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12)),
       ),
-      child: const Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.undo_rounded, size: 22),
-          SizedBox(height: 6),
-          Text(
-            'Undo\nEject',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontWeight: FontWeight.w600, fontSize: 11),
-          ),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.undo_rounded, size: 16),
+            SizedBox(height: 4),
+            Text(
+              'Undo\nEject',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
+            ),
+          ],
+        ),
       ),
     );
   }

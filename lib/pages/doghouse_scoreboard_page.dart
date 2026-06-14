@@ -45,8 +45,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   int _currentGamesLost = 0;
 
   // ── Automated assignment ──────────────────────────────────────────────────
-  List<List<DoghousePlayer>> _candidates = [];
-  int _candidateIndex = 0;
+  List<List<DoghousePlayer>> _candidates     = [];
+  int                        _candidateIndex = 0;
+  List<DoghousePlayer>       _challengerTeam = [];
 
   // ── Session timer ─────────────────────────────────────────────────────────
   final _sessionTimerKey = GlobalKey<ScrambleTimerWidgetState>();
@@ -60,7 +61,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   bool get _canAddPlayer => _pendingSelection.length < _t.playersPerTeam;
   bool get _canStart     => _pendingSelection.length == _t.playersPerTeam;
   bool get _isCompleted  => _t.status == DoghouseTournamentStatus.completed;
-  bool get _canUndo      => !_hasTeam && _t.games.isNotEmpty;
+  bool get _canUndo => _t.games.isNotEmpty &&
+      (!_hasTeam || _t.assignmentMode == DoghouseAssignmentMode.automated);
 
   bool get _escapeReached  => _currentSideOuts >= _t.escapePoints;
   bool get _ejectReached   => _currentGamesLost >= _t.lossLimit;
@@ -193,8 +195,31 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _initSuggestion() {
     if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
-    _candidates    = _computeSuggestions();
+    _candidates     = _computeSuggestions();
     _candidateIndex = 0;
+  }
+
+  void _recomputeChallenger() {
+    if (_t.assignmentMode != DoghouseAssignmentMode.automated || !_hasTeam) return;
+    final challengerCands = _computeSuggestions();
+    final newChallenger   = challengerCands.isNotEmpty ? challengerCands.first : <DoghousePlayer>[];
+    final upNextPool      = _pool
+        .where((p) => !newChallenger.any((c) => c.id == p.id))
+        .toList();
+    _candidates     = _computeSuggestions(fromPool: upNextPool);
+    _candidateIndex = 0;
+    setState(() => _challengerTeam = newChallenger);
+  }
+
+  void _recomputeUpNext() {
+    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
+    final upNextPool = _pool
+        .where((p) => !_challengerTeam.any((c) => c.id == p.id))
+        .toList();
+    setState(() {
+      _candidates     = _computeSuggestions(fromPool: upNextPool);
+      _candidateIndex = 0;
+    });
   }
 
   void _reroll() {
@@ -210,6 +235,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     final suggested = _currentSuggestion;
     if (suggested.length != _t.playersPerTeam) return;
     _startTeam(suggested);
+    _recomputeChallenger();
   }
 
   void _startTeam(List<DoghousePlayer> players) {
@@ -229,14 +255,15 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       _pendingSelection = [];
       _currentSideOuts  = 0;
       _currentGamesLost = 0;
+      _challengerTeam   = [];
     });
   }
 
-  // Returns all possible teams from the pool, sorted by best mixup then
-  // longest wait. The first entry is the recommended pick.
-  List<List<DoghousePlayer>> _computeSuggestions() {
-    final n = _t.playersPerTeam;
-    if (_pool.length < n) return [];
+  // Returns all possible teams from pool, sorted by best mixup then longest wait.
+  List<List<DoghousePlayer>> _computeSuggestions({List<DoghousePlayer>? fromPool}) {
+    final pool = fromPool ?? _pool;
+    final n    = _t.playersPerTeam;
+    if (pool.length < n) return [];
 
     // Pair repetition counts from game history
     final pairCounts = <String, int>{};
@@ -259,7 +286,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     }
     final totalGames = _t.games.length;
 
-    final combos = _combinations(_pool, n);
+    final combos = _combinations(pool, n);
     combos.sort((a, b) {
       final aPairs = _pairScore(a, pairCounts);
       final bPairs = _pairScore(b, pairCounts);
@@ -321,6 +348,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     setState(() => _currentSideOuts--);
   }
 
+  void _rotateChallengers() {
+    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
+    if (_currentSuggestion.length != _t.playersPerTeam) return;
+    setState(() => _challengerTeam = List.from(_currentSuggestion));
+    _recomputeUpNext();
+  }
+
   void _addGameLost() {
     if (!_hasTeam || _isCompleted) return;
     if (_currentGamesLost >= _t.lossLimit) return;
@@ -331,6 +365,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     if (_ejectReached) {
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _showAutoEjectDialog());
+    } else {
+      // Rotate challengers on every non-ejecting game lost.
+      _rotateChallengers();
     }
   }
 
@@ -365,18 +402,42 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       ..stop()
       ..reset();
 
-    setState(() {
-      _teamPlayers      = [];
-      _pool             = List.from(_t.players);
-      _pendingSelection = [];
-      _currentSideOuts  = 0;
-      _currentGamesLost = 0;
-    });
-    _initSuggestion();
+    if (_t.assignmentMode == DoghouseAssignmentMode.automated &&
+        _challengerTeam.length == _t.playersPerTeam) {
+      // Transition: Challengers → Dogs, Up Next → Challengers, compute new Up Next.
+      final nextDogs       = List<DoghousePlayer>.from(_challengerTeam);
+      final nextChallenger = List<DoghousePlayer>.from(_currentSuggestion);
+      setState(() {
+        _teamPlayers      = [];
+        _pendingSelection = [];
+        _currentSideOuts  = 0;
+        _currentGamesLost = 0;
+        _challengerTeam   = [];
+      });
+      _startTeam(nextDogs);
+      setState(() => _challengerTeam = nextChallenger);
+      _recomputeUpNext();
+    } else {
+      setState(() {
+        _teamPlayers      = [];
+        _pool             = List.from(_t.players);
+        _pendingSelection = [];
+        _currentSideOuts  = 0;
+        _currentGamesLost = 0;
+        _challengerTeam   = [];
+      });
+      _initSuggestion();
+    }
   }
 
   void _undoEjection() {
     if (!_canUndo) return;
+    if (_hasTeam) {
+      _gameWatch
+        ..stop()
+        ..reset();
+    }
+
     final lastGame = _t.games.last;
     final restoredPlayers = lastGame.playerIds
         .map((id) => _t.players.firstWhere(
@@ -401,7 +462,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       _pendingSelection = [];
       _currentSideOuts  = lastGame.points;
       _currentGamesLost = lastGame.gamesLost;
+      _challengerTeam   = [];
     });
+    _recomputeChallenger();
   }
 
   // ── Player swap ───────────────────────────────────────────────────────────
@@ -480,6 +543,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                       _pool.removeWhere((q) => q.id == incoming.id);
                       _pool.add(outgoing);
                     });
+                    _recomputeUpNext();
                   },
                 );
               },
@@ -553,6 +617,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           void rebuild() {
             setSheet(() {});
             setState(() {});
+            _recomputeUpNext();
           }
 
           void addByName(String raw) {
@@ -1409,7 +1474,23 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           const SizedBox(height: 10),
           if (_isCompleted)
             _buildCompletedBanner()
-          else if (_hasTeam)
+          else if (_hasTeam && _t.assignmentMode == DoghouseAssignmentMode.automated) ...[
+            // Three-slot automated layout: Up Next → Challengers → Dogs
+            _buildUpNextTile(),
+            const SizedBox(height: 8),
+            _buildChallengersTile(),
+            const SizedBox(height: 8),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 4, child: _buildActiveScoringTile()),
+                  const SizedBox(width: 8),
+                  Expanded(flex: 1, child: _buildNarrowGameLostButton()),
+                ],
+              ),
+            ),
+          ] else if (_hasTeam)
             IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1477,23 +1558,68 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           ),
           const SizedBox(height: 4),
           Expanded(
-            child: (_hasTeam || _canUndo)
+            child: _hasTeam && _t.assignmentMode == DoghouseAssignmentMode.automated
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Column 1: Up Next (top) + Challengers (bottom)
                       Expanded(
-                          flex: 4,
-                          child: _buildScoringTile(compact: true)),
-                      const SizedBox(width: 8),
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: _buildUpNextTile(compact: true)),
+                            const SizedBox(height: 6),
+                            Expanded(child: _buildChallengersTile(compact: true)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Column 2: Dogs + Score
                       Expanded(
-                        flex: 1,
-                        child: _hasTeam
-                            ? _buildNarrowGameLostButton()
-                            : _buildNarrowUndoButton(),
+                        flex: 3,
+                        child: _buildActiveScoringTile(compact: true),
+                      ),
+                      const SizedBox(width: 6),
+                      // Column 3: Game Lost (2/3) + Undo (1/3) when available
+                      SizedBox(
+                        width: 64,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: _canUndo ? 2 : 1,
+                              child: _buildNarrowGameLostButton(),
+                            ),
+                            if (_canUndo) ...[
+                              const SizedBox(height: 6),
+                              Expanded(
+                                flex: 1,
+                                child: _buildNarrowUndoButton(),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ],
                   )
-                : _buildScoringTile(compact: true),
+                : (_hasTeam || _canUndo)
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                              flex: 4,
+                              child: _buildScoringTile(compact: true)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: _hasTeam
+                                ? _buildNarrowGameLostButton()
+                                : _buildNarrowUndoButton(),
+                          ),
+                        ],
+                      )
+                    : _buildScoringTile(compact: true),
           ),
         ],
       ),
@@ -1520,39 +1646,43 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             Expanded(
               child: InkWell(
                 onTap: canAdd ? _addGameLost : null,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.sentiment_very_dissatisfied_rounded,
-                        size: 26,
-                        color: Colors.white
-                            .withValues(alpha: canAdd ? 1.0 : 0.5),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '$_currentGamesLost / ${_t.lossLimit}',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 18,
-                            color: Colors.white
-                                .withValues(alpha: canAdd ? 1.0 : 0.6),
-                            height: 1.2),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        AppLocalizations.of(context)!.doghouseGameLost,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            color: Colors.white
-                                .withValues(alpha: canAdd ? 0.85 : 0.45)),
-                      ),
-                    ],
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.sentiment_very_dissatisfied_rounded,
+                          size: 26,
+                          color: Colors.white
+                              .withValues(alpha: canAdd ? 1.0 : 0.5),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '$_currentGamesLost / ${_t.lossLimit}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: Colors.white
+                                  .withValues(alpha: canAdd ? 1.0 : 0.6),
+                              height: 1.2),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context)!.doghouseGameLost,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: Colors.white
+                                  .withValues(alpha: canAdd ? 0.85 : 0.45)),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1607,18 +1737,21 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.undo_rounded, size: 28),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.doghouseUndoGame,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-          ),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.undo_rounded, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.doghouseUndoGame,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1744,6 +1877,152 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       ]),
     );
   }
+
+  // ── Up Next tile ────────────────────────────────────────────────────────────
+
+  Widget _buildUpNextTile({bool compact = false}) {
+    final team      = _currentSuggestion;
+    final hasTeam   = team.length == _t.playersPerTeam;
+    final canReroll = _candidates.length > 1;
+
+    return Card(
+      margin: compact ? EdgeInsets.zero : null,
+      color: _kGoldLight,
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: _kGold.withValues(alpha: 0.35)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 10 : 14),
+        child: Column(
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [
+              Icon(Icons.schedule_rounded,
+                  size: 15, color: _kGold.withValues(alpha: 0.7)),
+              const SizedBox(width: 6),
+              Text('Up Next',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: _kGold.withValues(alpha: 0.7),
+                    letterSpacing: 0.4,
+                  )),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: canReroll ? _reroll : null,
+                icon: const Icon(Icons.refresh_rounded, size: 13),
+                label: const Text('Re-roll',
+                    style: TextStyle(fontSize: 11)),
+                style: TextButton.styleFrom(
+                  foregroundColor: _kOlive,
+                  disabledForegroundColor: Colors.black26,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 2),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            if (!hasTeam)
+              Text('Not enough players in queue.',
+                  style: TextStyle(
+                      color: _kGold.withValues(alpha: 0.5), fontSize: 12))
+            else
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: team
+                    .map((p) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: _kGold.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: _kGold.withValues(alpha: 0.3)),
+                          ),
+                          child: Text(p.name,
+                              style: TextStyle(
+                                  fontSize: compact ? 11 : 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: _kGold.withValues(alpha: 0.8))),
+                        ))
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Challengers tile ────────────────────────────────────────────────────────
+
+  Widget _buildChallengersTile({bool compact = false}) {
+    final hasChallengers = _challengerTeam.length == _t.playersPerTeam;
+
+    return Card(
+      margin: compact ? EdgeInsets.zero : null,
+      color: _kGoldCardBg,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: _kGold.withValues(alpha: 0.55), width: 1.5),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 10 : 14),
+        child: Column(
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [
+              const Icon(Icons.groups_rounded, size: 15, color: _kGold),
+              const SizedBox(width: 6),
+              const Text('Challengers',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: _kGold,
+                    letterSpacing: 0.4,
+                  )),
+            ]),
+            const SizedBox(height: 8),
+            if (!hasChallengers)
+              Text('Waiting for players...',
+                  style: TextStyle(
+                      color: _kGold.withValues(alpha: 0.5), fontSize: 12))
+            else
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: _challengerTeam
+                    .map((p) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: _kGold.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: _kGold.withValues(alpha: 0.5)),
+                          ),
+                          child: Text(p.name,
+                              style: TextStyle(
+                                  fontSize: compact ? 11 : 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: _kGold)),
+                        ))
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Initial suggested-team tile (shown before any Dogs team is on court) ────
 
   Widget _buildAutomatedSuggestionTile({bool compact = false}) {
     final suggested = _currentSuggestion;
@@ -2013,8 +2292,23 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             ? const EdgeInsets.fromLTRB(12, 10, 12, 8)
             : const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           children: [
+            // "In Doghouse" label — only shown in three-slot automated layout
+            if (_t.assignmentMode == DoghouseAssignmentMode.automated) ...[
+              Row(children: [
+                const Icon(Icons.pets_rounded, size: 13, color: _kGold),
+                const SizedBox(width: 5),
+                const Text('In Doghouse',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: _kGold,
+                      letterSpacing: 0.4,
+                    )),
+              ]),
+              const SizedBox(height: 6),
+            ],
             // Player chips
             Wrap(
               spacing: 6,
@@ -2132,18 +2426,21 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               ),
             ]),
 
-            // Big side-out score — FittedBox lets it shrink when
-            // many player chips (e.g. 6v6) consume extra vertical space.
+            // Big side-out score — fills available height in compact/landscape.
             if (compact)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  '$_currentSideOuts',
-                  style: const TextStyle(
-                    fontSize: 80.0,
-                    fontWeight: FontWeight.bold,
-                    height: 1.0,
-                    color: Colors.black87,
+              Expanded(
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      '$_currentSideOuts',
+                      style: const TextStyle(
+                        fontSize: 200.0,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ),
                 ),
               )
