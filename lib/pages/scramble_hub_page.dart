@@ -172,12 +172,13 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                 const Icon(Icons.history_rounded,
                     size: 20, color: AppColors.oliveMedium),
                 const SizedBox(width: 8),
-                Text(
-                  'Tournament History (${_scrambles.length})',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800),
+                Expanded(
+                  child: Text(
+                    'Tournament History (${_scrambles.length})',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800),
+                  ),
                 ),
-                const Spacer(),
                 if (_scrambles.isNotEmpty)
                   TextButton.icon(
                     onPressed: _deleteAll,

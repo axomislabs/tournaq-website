@@ -162,12 +162,13 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
                 const Icon(Icons.history_rounded,
                     size: 20, color: AppColors.oliveMedium),
                 const SizedBox(width: 8),
-                Text(
-                  'Tournament History (${_tournaments.length})',
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800),
+                Expanded(
+                  child: Text(
+                    'Tournament History (${_tournaments.length})',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800),
+                  ),
                 ),
-                const Spacer(),
                 if (_tournaments.isNotEmpty)
                   TextButton.icon(
                     onPressed: _deleteAll,

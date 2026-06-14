@@ -167,12 +167,13 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
                 const Icon(Icons.history_rounded,
                     size: 20, color: AppColors.oliveMedium),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.doghouseTournamentHistory(_tournaments.length),
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800),
+                Expanded(
+                  child: Text(
+                    l10n.doghouseTournamentHistory(_tournaments.length),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w800),
+                  ),
                 ),
-                const Spacer(),
                 if (_tournaments.isNotEmpty)
                   TextButton.icon(
                     onPressed: _deleteAll,
