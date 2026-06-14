@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
 import '../widgets/tournaq_app_bar.dart';
 
@@ -18,21 +19,22 @@ class DoghouseHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final games = tournament.games.reversed.toList();
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: const TournaQAppBar(
-          title: 'Doghouse', subtitle: 'Game History'),
+      appBar: TournaQAppBar(
+          title: l10n.doghouseTitle, subtitle: l10n.doghouseGameHistory),
       body: Column(
         children: [
-          _buildSummaryBar(),
+          _buildSummaryBar(l10n),
           const Divider(height: 1),
           Expanded(
             child: games.isEmpty
-                ? _buildEmpty()
+                ? _buildEmpty(l10n)
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                     itemCount: games.length,
                     itemBuilder: (_, i) =>
-                        _buildGameCard(games[i], games.length - i),
+                        _buildGameCard(l10n, games[i], games.length - i),
                   ),
           ),
         ],
@@ -40,7 +42,7 @@ class DoghouseHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryBar() {
+  Widget _buildSummaryBar(AppLocalizations l10n) {
     return Container(
       color: Colors.grey.shade50,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -48,17 +50,17 @@ class DoghouseHistoryPage extends StatelessWidget {
         _chip(Icons.pets_rounded, tournament.name, _kOliveLight, _kOlive),
         const SizedBox(width: 8),
         _chip(Icons.sports_rounded,
-            '${tournament.gameCount} game${tournament.gameCount == 1 ? '' : 's'}',
+            l10n.doghouseStatsGames(tournament.gameCount),
             _kGoldLight, _kGold),
         const SizedBox(width: 8),
         _chip(Icons.celebration_rounded,
-            '${tournament.totalEscapes} escape${tournament.totalEscapes == 1 ? '' : 's'}',
+            l10n.doghouseStatsEscapes(tournament.totalEscapes),
             Colors.grey.shade100, Colors.black54),
       ]),
     );
   }
 
-  Widget _buildGameCard(DoghouseGame game, int number) {
+  Widget _buildGameCard(AppLocalizations l10n, DoghouseGame game, int number) {
     final escaped  = game.gamesWon > 0;
     final duration = game.endTime?.difference(game.startTime);
     final durStr   = duration != null
@@ -159,7 +161,7 @@ class DoghouseHistoryPage extends StatelessWidget {
                                           BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'LATE',
+                                      l10n.labelLate,
                                       style: TextStyle(
                                         fontSize: 8,
                                         fontWeight: FontWeight.w800,
@@ -203,7 +205,7 @@ class DoghouseHistoryPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'pts',
+                  l10n.statPts,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -219,14 +221,14 @@ class DoghouseHistoryPage extends StatelessWidget {
                       color: _kGold,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.celebration_rounded,
+                        const Icon(Icons.celebration_rounded,
                             size: 10, color: Colors.white),
-                        SizedBox(width: 2),
-                        Text('Escaped',
-                            style: TextStyle(
+                        const SizedBox(width: 2),
+                        Text(l10n.doghouseEscaped,
+                            style: const TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white)),
@@ -248,7 +250,7 @@ class DoghouseHistoryPage extends StatelessWidget {
                         Icon(Icons.sentiment_very_dissatisfied_rounded,
                             size: 10, color: Colors.red.shade500),
                         const SizedBox(width: 2),
-                        Text('${game.gamesLost} lost',
+                        Text(l10n.doghouseNGamesLost(game.gamesLost),
                             style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
@@ -264,7 +266,7 @@ class DoghouseHistoryPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -272,14 +274,14 @@ class DoghouseHistoryPage extends StatelessWidget {
           Icon(Icons.history_rounded,
               size: 52, color: Colors.grey.shade300),
           const SizedBox(height: 14),
-          const Text('No games yet.',
-              style: TextStyle(
+          Text(l10n.doghouseNoGamesYet,
+              style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black45,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          const Text('Games will appear here once a team finishes.',
-              style: TextStyle(fontSize: 13, color: Colors.black38)),
+          Text(l10n.doghouseNoGamesYetBody,
+              style: const TextStyle(fontSize: 13, color: Colors.black38)),
         ],
       ),
     );
