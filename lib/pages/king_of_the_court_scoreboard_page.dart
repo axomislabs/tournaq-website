@@ -43,8 +43,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
   int              _currentPoints    = 0;
 
   // ── Automated assignment ──────────────────────────────────────────────────
-  List<List<KotcPlayer>> _candidates  = [];
+  List<List<KotcPlayer>> _candidates     = [];
   int                    _candidateIndex = 0;
+  List<KotcPlayer>       _challengerTeam = [];
 
   // (undo state is derived from _t.games — no local storage needed)
 
@@ -64,8 +65,11 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       _strikeEnabled && _currentPoints >= _t.strikePoints;
   bool get _isCompleted =>
       _t.status == KotcTournamentStatus.completed;
-  // Undo is available whenever no team is on court and at least one game exists.
-  bool get _canUndo => !_hasTeam && _t.games.isNotEmpty;
+  // Undo is available when there is a recorded game to restore.
+  // In automated mode the new team starts immediately, so undo is also
+  // available while a team is on court (the current unrecorded game is discarded).
+  bool get _canUndo => _t.games.isNotEmpty &&
+      (!_hasTeam || _t.assignmentMode == KotcAssignmentMode.automated);
 
   @override
   void initState() {
@@ -201,6 +205,32 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     _candidateIndex = 0;
   }
 
+  // Two-step compute: Challengers from full pool, then Up Next from pool minus Challengers.
+  // No-op outside automated mode or when no team is playing.
+  void _recomputeChallenger() {
+    if (_t.assignmentMode != KotcAssignmentMode.automated || !_hasTeam) return;
+    final challengerCands = _computeSuggestions();
+    final newChallenger   = challengerCands.isNotEmpty ? challengerCands.first : <KotcPlayer>[];
+    final upNextPool      = _pool
+        .where((p) => !newChallenger.any((c) => c.id == p.id))
+        .toList();
+    _candidates     = _computeSuggestions(fromPool: upNextPool);
+    _candidateIndex = 0;
+    setState(() => _challengerTeam = newChallenger);
+  }
+
+  // Updates Up Next candidates after the challenger team is already known.
+  void _recomputeUpNext() {
+    if (_t.assignmentMode != KotcAssignmentMode.automated) return;
+    final upNextPool = _pool
+        .where((p) => !_challengerTeam.any((c) => c.id == p.id))
+        .toList();
+    setState(() {
+      _candidates     = _computeSuggestions(fromPool: upNextPool);
+      _candidateIndex = 0;
+    });
+  }
+
   void _reroll() {
     if (_candidates.length <= 1) return;
     setState(() =>
@@ -214,6 +244,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     final suggested = _currentSuggestion;
     if (suggested.length != _t.playersPerTeam) return;
     _startTeam(suggested);
+    _recomputeChallenger();
   }
 
   void _startTeam(List<KotcPlayer> players) {
@@ -232,12 +263,14 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           .toList();
       _pendingSelection = [];
       _currentPoints    = 0;
+      _challengerTeam   = [];
     });
   }
 
-  List<List<KotcPlayer>> _computeSuggestions() {
-    final n = _t.playersPerTeam;
-    if (_pool.length < n) return [];
+  List<List<KotcPlayer>> _computeSuggestions({List<KotcPlayer>? fromPool}) {
+    final pool = fromPool ?? _pool;
+    final n    = _t.playersPerTeam;
+    if (pool.length < n) return [];
 
     final pairCounts = <String, int>{};
     for (final game in _t.games) {
@@ -258,7 +291,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     }
     final totalGames = _t.games.length;
 
-    final combos = _kotcCombinations(_pool, n);
+    final combos = _kotcCombinations(pool, n);
     combos.sort((a, b) {
       final aPairs = _kotcPairScore(a, pairCounts);
       final bPairs = _kotcPairScore(b, pairCounts);
@@ -345,17 +378,42 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       ..stop()
       ..reset();
 
-    setState(() {
-      _teamPlayers      = [];
-      _pool             = List.from(_t.players);
-      _pendingSelection = [];
-      _currentPoints    = 0;
-    });
-    _initSuggestion();
+    if (_t.assignmentMode == KotcAssignmentMode.automated &&
+        _challengerTeam.length == _t.playersPerTeam) {
+      // Transition chain: Challengers → Court, Up Next → Challengers, compute new Up Next.
+      final nextCourt      = List<KotcPlayer>.from(_challengerTeam);
+      final nextChallenger = List<KotcPlayer>.from(_currentSuggestion);
+      setState(() {
+        _teamPlayers      = [];
+        _pendingSelection = [];
+        _currentPoints    = 0;
+        _challengerTeam   = [];
+      });
+      _startTeam(nextCourt);
+      // Assign old Up Next as the new Challengers, then recompute Up Next.
+      setState(() => _challengerTeam = nextChallenger);
+      _recomputeUpNext();
+    } else {
+      setState(() {
+        _teamPlayers      = [];
+        _pool             = List.from(_t.players);
+        _pendingSelection = [];
+        _currentPoints    = 0;
+        _challengerTeam   = [];
+      });
+      _initSuggestion();
+    }
   }
 
   void _undoEjection() {
     if (!_canUndo) return;
+    // In automated mode a new team is already on court — stop and discard them.
+    if (_hasTeam) {
+      _gameWatch
+        ..stop()
+        ..reset();
+    }
+
     final lastGame = _t.games.last;
     final restoredPlayers = lastGame.playerIds
         .map((id) => _t.players.firstWhere(
@@ -379,7 +437,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           .toList();
       _pendingSelection = [];
       _currentPoints    = lastGame.points;
+      _challengerTeam   = [];
     });
+    _recomputeChallenger();
   }
 
   // ── Player substitution ───────────────────────────────────────────────────
@@ -458,6 +518,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                       _pool.removeWhere((q) => q.id == incoming.id);
                       _pool.add(outgoing);
                     });
+                    _recomputeUpNext();
                   },
                 );
               },
@@ -532,6 +593,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           void rebuild() {
             setSheet(() {});
             setState(() {});
+            _recomputeUpNext();
           }
 
           void addByName(String raw) {
@@ -1347,10 +1409,25 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           // Timer above counter (Scramble-style)
           _buildSessionTimerRow(),
           const SizedBox(height: 10),
-          // Active: 4/5 counter + 1/5 eject strip
           if (_isCompleted)
             _buildCompletedBanner()
-          else if (_hasTeam)
+          else if (_hasTeam && _t.assignmentMode == KotcAssignmentMode.automated) ...[
+            // Three-slot automated layout: Up Next → Challengers → Court Team
+            _buildUpNextTile(),
+            const SizedBox(height: 8),
+            _buildChallengersTile(),
+            const SizedBox(height: 8),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 4, child: _buildActiveScoringTile()),
+                  const SizedBox(width: 8),
+                  Expanded(flex: 1, child: _buildNarrowEjectButton()),
+                ],
+              ),
+            ),
+          ] else if (_hasTeam)
             IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1418,25 +1495,64 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ],
           ),
           const SizedBox(height: 4),
-          // 4/5 scoring + 1/5 eject/undo strip
+          // Landscape content: 3-column automated or classic 2-column
           Expanded(
-            child: (_hasTeam || _canUndo)
+            child: _hasTeam && _t.assignmentMode == KotcAssignmentMode.automated
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Column 1: Up Next (top) + Challengers (bottom) — each fills half
                       Expanded(
-                          flex: 4,
-                          child: _buildScoringTile(compact: true)),
-                      const SizedBox(width: 8),
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: _buildUpNextTile(compact: true)),
+                            const SizedBox(height: 6),
+                            Expanded(child: _buildChallengersTile(compact: true)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Column 2: Court Team + Score
                       Expanded(
-                        flex: 1,
-                        child: _hasTeam
-                            ? _buildNarrowEjectButton()
-                            : _buildNarrowUndoButton(),
+                        flex: 3,
+                        child: _buildActiveScoringTile(compact: true),
+                      ),
+                      const SizedBox(width: 6),
+                      // Column 3: Eject (+ Undo below when available)
+                      SizedBox(
+                        width: 64,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: _buildNarrowEjectButton()),
+                            if (_canUndo) ...[
+                              const SizedBox(height: 6),
+                              Expanded(child: _buildNarrowUndoButton()),
+                            ],
+                          ],
+                        ),
                       ),
                     ],
                   )
-                : _buildScoringTile(compact: true),
+                : (_hasTeam || _canUndo)
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                              flex: 4,
+                              child: _buildScoringTile(compact: true)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: _hasTeam
+                                ? _buildNarrowEjectButton()
+                                : _buildNarrowUndoButton(),
+                          ),
+                        ],
+                      )
+                    : _buildScoringTile(compact: true),
           ),
         ],
       ),
@@ -1620,6 +1736,149 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       ]),
     );
   }
+
+  // ── Up Next tile (shown while game is in progress, automated mode) ─────────
+
+  Widget _buildUpNextTile({bool compact = false}) {
+    final team     = _currentSuggestion;
+    final hasTeam  = team.length == _t.playersPerTeam;
+    final canReroll = _candidates.length > 1;
+
+    return Card(
+      margin: compact ? EdgeInsets.zero : null,
+      color: Colors.grey.shade50,
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 10 : 14),
+        child: Column(
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [
+              Icon(Icons.schedule_rounded,
+                  size: 15, color: Colors.grey.shade500),
+              const SizedBox(width: 6),
+              Text('Up Next',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade500,
+                    letterSpacing: 0.4,
+                  )),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: canReroll ? _reroll : null,
+                icon: const Icon(Icons.refresh_rounded, size: 13),
+                label: const Text('Re-roll',
+                    style: TextStyle(fontSize: 11)),
+                style: TextButton.styleFrom(
+                  foregroundColor: _kOlive,
+                  disabledForegroundColor: Colors.black26,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 2),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            if (!hasTeam)
+              Text('Not enough players in queue.',
+                  style: TextStyle(
+                      color: Colors.grey.shade400, fontSize: 12))
+            else
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: team
+                    .map((p) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(p.name,
+                              style: TextStyle(
+                                  fontSize: compact ? 11 : 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600)),
+                        ))
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Challengers tile (shown while game is in progress, automated mode) ─────
+
+  Widget _buildChallengersTile({bool compact = false}) {
+    final hasChallengers = _challengerTeam.length == _t.playersPerTeam;
+
+    return Card(
+      margin: compact ? EdgeInsets.zero : null,
+      color: _kOliveLight,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: _kOlive.withValues(alpha: 0.35), width: 1.5),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(compact ? 10 : 14),
+        child: Column(
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [
+              const Icon(Icons.groups_rounded, size: 15, color: _kOlive),
+              const SizedBox(width: 6),
+              const Text('Challengers',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: _kOlive,
+                    letterSpacing: 0.4,
+                  )),
+            ]),
+            const SizedBox(height: 8),
+            if (!hasChallengers)
+              const Text('Waiting for players...',
+                  style: TextStyle(color: _kOlive, fontSize: 12))
+            else
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: _challengerTeam
+                    .map((p) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: _kOlive.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: _kOlive.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(p.name,
+                              style: TextStyle(
+                                  fontSize: compact ? 11 : 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: _kOlive)),
+                        ))
+                    .toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Initial suggested-team tile (shown before any team is on court) ─────────
 
   Widget _buildAutomatedSuggestionTile({bool compact = false}) {
     final suggested = _currentSuggestion;
@@ -1896,7 +2155,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ? const EdgeInsets.fromLTRB(12, 10, 12, 8)
             : const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           children: [
             // Player chips — tap to substitute
             Wrap(
@@ -1989,16 +2248,34 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               ],
             ]),
 
-            // Big score
-            Text(
-              '$_currentPoints',
-              style: TextStyle(
-                fontSize: compact ? 52.0 : 96.0,
-                fontWeight: FontWeight.bold,
-                height: 1.0,
-                color: Colors.black87,
+            // Big score — scales to fill available space in compact/landscape mode
+            if (compact)
+              Expanded(
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: Text(
+                      '$_currentPoints',
+                      style: const TextStyle(
+                        fontSize: 200.0,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else
+              Text(
+                '$_currentPoints',
+                style: const TextStyle(
+                  fontSize: 96.0,
+                  fontWeight: FontWeight.bold,
+                  height: 1.0,
+                  color: Colors.black87,
+                ),
               ),
-            ),
 
             // +/- buttons — disabled when timer is not running
             Row(
