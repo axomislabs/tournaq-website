@@ -411,5 +411,62 @@
   "sectionGamesCount": "Spiele ({count})",
   "noGamesCreatedYet": "Noch keine Spiele erstellt.",
   "notInAnyClubsYet": "Noch in keinem Club.",
-  "clubPlayersAndTeams": "{players} Spieler • {teams} Teams"
+  "clubPlayersAndTeams": "{players} Spieler • {teams} Teams",
+
+  "labelStyle": "Stil",
+  "assignNothingAvailable": "Nichts zum Zuweisen verfügbar.",
+  "btnDeleteAll": "Alle löschen",
+  "statusSetup": "Einrichtung",
+  "statusCompleted": "Abgeschlossen",
+  "statusInProgress": "Laufend",
+  "dateToday": "Heute",
+  "dateYesterday": "Gestern",
+  "dateDaysAgo": "Vor {count} Tagen",
+  "@dateDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "labelLate": "SPÄT",
+  "statPts": "Pkt",
+  "statEsc": "Ent",
+  "statGames": "Spiele",
+  "statLost": "Verl",
+  "doghouseTitle": "Doghouse",
+  "doghouseGameHistory": "Spielhistorie",
+  "doghouseEscaped": "Entkommen",
+  "doghouseEjected": "Rausgeworfen",
+  "doghouseNGamesLost": "{count} verl.",
+  "@doghouseNGamesLost": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseNoGamesYet": "Noch keine Spiele.",
+  "doghouseNoGamesYetBody": "Spiele erscheinen hier, sobald ein Team fertig ist.",
+  "doghouseNoTournamentsYet": "Noch keine Turniere.",
+  "doghouseNoTournamentsHint": "Tippe auf Neues Turnier, um loszulegen.",
+  "doghouseDeleteTournamentTitle": "Turnier löschen?",
+  "doghouseDeleteTournamentBody": "Damit wird \"{name}\" und alle zugehörigen Daten dauerhaft gelöscht.",
+  "@doghouseDeleteTournamentBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "doghouseDeleteAllTitle": "Alle Turniere löschen?",
+  "doghouseDeleteAllBody": "Damit werden alle {count} Turnier(e) dauerhaft gelöscht.",
+  "@doghouseDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseNewTournament": "Neues Turnier",
+  "doghouseTournamentHistory": "Turnierhistorie ({count})",
+  "@doghouseTournamentHistory": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsPlayers": "{count} Spieler",
+  "@doghouseStatsPlayers": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsGames": "{count} Spiele",
+  "@doghouseStatsGames": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsEscapes": "{count} Entkommen",
+  "@doghouseStatsEscapes": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

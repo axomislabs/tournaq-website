@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 /// Shared card for displaying a tournament in any history view.
 /// Each tournament type fills the slots via its own adapter function.
@@ -124,16 +125,16 @@ class TournamentHistoryCard extends StatelessWidget {
                   onSelected: (v) {
                     if (v == 'delete') onDeleteTap!();
                   },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline,
+                          const Icon(Icons.delete_outline,
                               size: 18, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Delete',
-                              style: TextStyle(color: Colors.red)),
+                          const SizedBox(width: 8),
+                          Text(AppLocalizations.of(ctx)!.btnDelete,
+                              style: const TextStyle(color: Colors.red)),
                         ],
                       ),
                     ),

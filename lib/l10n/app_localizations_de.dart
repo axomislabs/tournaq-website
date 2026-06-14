@@ -1133,4 +1133,118 @@ class AppLocalizationsDe extends AppLocalizations {
   String clubPlayersAndTeams(int players, int teams) {
     return '$players Spieler • $teams Teams';
   }
+
+  @override
+  String get labelStyle => 'Stil';
+
+  @override
+  String get assignNothingAvailable => 'Nichts zum Zuweisen verfügbar.';
+
+  @override
+  String get btnDeleteAll => 'Alle löschen';
+
+  @override
+  String get statusSetup => 'Einrichtung';
+
+  @override
+  String get statusCompleted => 'Abgeschlossen';
+
+  @override
+  String get statusInProgress => 'Laufend';
+
+  @override
+  String get dateToday => 'Heute';
+
+  @override
+  String get dateYesterday => 'Gestern';
+
+  @override
+  String dateDaysAgo(int count) {
+    return 'Vor $count Tagen';
+  }
+
+  @override
+  String get labelLate => 'SPÄT';
+
+  @override
+  String get statPts => 'Pkt';
+
+  @override
+  String get statEsc => 'Ent';
+
+  @override
+  String get statGames => 'Spiele';
+
+  @override
+  String get statLost => 'Verl';
+
+  @override
+  String get doghouseTitle => 'Doghouse';
+
+  @override
+  String get doghouseGameHistory => 'Spielhistorie';
+
+  @override
+  String get doghouseEscaped => 'Entkommen';
+
+  @override
+  String get doghouseEjected => 'Rausgeworfen';
+
+  @override
+  String doghouseNGamesLost(int count) {
+    return '$count verl.';
+  }
+
+  @override
+  String get doghouseNoGamesYet => 'Noch keine Spiele.';
+
+  @override
+  String get doghouseNoGamesYetBody =>
+      'Spiele erscheinen hier, sobald ein Team fertig ist.';
+
+  @override
+  String get doghouseNoTournamentsYet => 'Noch keine Turniere.';
+
+  @override
+  String get doghouseNoTournamentsHint =>
+      'Tippe auf Neues Turnier, um loszulegen.';
+
+  @override
+  String get doghouseDeleteTournamentTitle => 'Turnier löschen?';
+
+  @override
+  String doghouseDeleteTournamentBody(String name) {
+    return 'Damit wird \"$name\" und alle zugehörigen Daten dauerhaft gelöscht.';
+  }
+
+  @override
+  String get doghouseDeleteAllTitle => 'Alle Turniere löschen?';
+
+  @override
+  String doghouseDeleteAllBody(int count) {
+    return 'Damit werden alle $count Turnier(e) dauerhaft gelöscht.';
+  }
+
+  @override
+  String get doghouseNewTournament => 'Neues Turnier';
+
+  @override
+  String doghouseTournamentHistory(int count) {
+    return 'Turnierhistorie ($count)';
+  }
+
+  @override
+  String doghouseStatsPlayers(int count) {
+    return '$count Spieler';
+  }
+
+  @override
+  String doghouseStatsGames(int count) {
+    return '$count Spiele';
+  }
+
+  @override
+  String doghouseStatsEscapes(int count) {
+    return '$count Entkommen';
+  }
 }

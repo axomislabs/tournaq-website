@@ -208,11 +208,12 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
   }
 
   Widget _buildPlayerCountSelector() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const Text(
-          'Style',
-          style: TextStyle(
+        Text(
+          l10n.labelStyle,
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 14,
             color: Colors.black54,

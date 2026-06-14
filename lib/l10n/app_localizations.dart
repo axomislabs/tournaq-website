@@ -2151,6 +2151,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{players} player(s) • {teams} team(s)'**
   String clubPlayersAndTeams(int players, int teams);
+
+  /// No description provided for @labelStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get labelStyle;
+
+  /// No description provided for @assignNothingAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing available to assign.'**
+  String get assignNothingAvailable;
+
+  /// No description provided for @btnDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All'**
+  String get btnDeleteAll;
+
+  /// No description provided for @statusSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup'**
+  String get statusSetup;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get statusInProgress;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dateToday;
+
+  /// No description provided for @dateYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get dateYesterday;
+
+  /// No description provided for @dateDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String dateDaysAgo(int count);
+
+  /// No description provided for @labelLate.
+  ///
+  /// In en, this message translates to:
+  /// **'LATE'**
+  String get labelLate;
+
+  /// No description provided for @statPts.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get statPts;
+
+  /// No description provided for @statEsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get statEsc;
+
+  /// No description provided for @statGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get statGames;
+
+  /// No description provided for @statLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Lost'**
+  String get statLost;
+
+  /// No description provided for @doghouseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doghouse'**
+  String get doghouseTitle;
+
+  /// No description provided for @doghouseGameHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Game History'**
+  String get doghouseGameHistory;
+
+  /// No description provided for @doghouseEscaped.
+  ///
+  /// In en, this message translates to:
+  /// **'Escaped'**
+  String get doghouseEscaped;
+
+  /// No description provided for @doghouseEjected.
+  ///
+  /// In en, this message translates to:
+  /// **'Ejected'**
+  String get doghouseEjected;
+
+  /// No description provided for @doghouseNGamesLost.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lost'**
+  String doghouseNGamesLost(int count);
+
+  /// No description provided for @doghouseNoGamesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No games yet.'**
+  String get doghouseNoGamesYet;
+
+  /// No description provided for @doghouseNoGamesYetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Games will appear here once a team finishes.'**
+  String get doghouseNoGamesYetBody;
+
+  /// No description provided for @doghouseNoTournamentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No tournaments yet.'**
+  String get doghouseNoTournamentsYet;
+
+  /// No description provided for @doghouseNoTournamentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap New Tournament to get started.'**
+  String get doghouseNoTournamentsHint;
+
+  /// No description provided for @doghouseDeleteTournamentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Tournament?'**
+  String get doghouseDeleteTournamentTitle;
+
+  /// No description provided for @doghouseDeleteTournamentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete \"{name}\" and all its data.'**
+  String doghouseDeleteTournamentBody(String name);
+
+  /// No description provided for @doghouseDeleteAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete All Tournaments?'**
+  String get doghouseDeleteAllTitle;
+
+  /// No description provided for @doghouseDeleteAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all {count} tournament(s).'**
+  String doghouseDeleteAllBody(int count);
+
+  /// No description provided for @doghouseNewTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'New Tournament'**
+  String get doghouseNewTournament;
+
+  /// No description provided for @doghouseTournamentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament History ({count})'**
+  String doghouseTournamentHistory(int count);
+
+  /// No description provided for @doghouseStatsPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} players'**
+  String doghouseStatsPlayers(int count);
+
+  /// No description provided for @doghouseStatsGames.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} games'**
+  String doghouseStatsGames(int count);
+
+  /// No description provided for @doghouseStatsEscapes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} escapes'**
+  String doghouseStatsEscapes(int count);
 }
 
 class _AppLocalizationsDelegate

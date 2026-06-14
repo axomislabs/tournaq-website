@@ -411,5 +411,62 @@
   "sectionGamesCount": "Partidos ({count})",
   "noGamesCreatedYet": "Aún no se han creado partidos.",
   "notInAnyClubsYet": "Aún no pertenece a ningún club.",
-  "clubPlayersAndTeams": "{players} jugador(es) • {teams} equipo(s)"
+  "clubPlayersAndTeams": "{players} jugador(es) • {teams} equipo(s)",
+
+  "labelStyle": "Estilo",
+  "assignNothingAvailable": "Nada disponible para asignar.",
+  "btnDeleteAll": "Eliminar todo",
+  "statusSetup": "Configuración",
+  "statusCompleted": "Completado",
+  "statusInProgress": "En curso",
+  "dateToday": "Hoy",
+  "dateYesterday": "Ayer",
+  "dateDaysAgo": "Hace {count} días",
+  "@dateDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "labelLate": "TARDE",
+  "statPts": "Pts",
+  "statEsc": "Esc",
+  "statGames": "Partidos",
+  "statLost": "Perd",
+  "doghouseTitle": "Doghouse",
+  "doghouseGameHistory": "Historial de partidos",
+  "doghouseEscaped": "Escapado",
+  "doghouseEjected": "Expulsado",
+  "doghouseNGamesLost": "{count} perd.",
+  "@doghouseNGamesLost": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseNoGamesYet": "Aún no hay partidos.",
+  "doghouseNoGamesYetBody": "Los partidos aparecerán aquí cuando un equipo termine.",
+  "doghouseNoTournamentsYet": "Aún no hay torneos.",
+  "doghouseNoTournamentsHint": "Toca Nuevo torneo para empezar.",
+  "doghouseDeleteTournamentTitle": "¿Eliminar torneo?",
+  "doghouseDeleteTournamentBody": "Se eliminará permanentemente \"{name}\" y todos sus datos.",
+  "@doghouseDeleteTournamentBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "doghouseDeleteAllTitle": "¿Eliminar todos los torneos?",
+  "doghouseDeleteAllBody": "Se eliminarán permanentemente los {count} torneo(s).",
+  "@doghouseDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseNewTournament": "Nuevo torneo",
+  "doghouseTournamentHistory": "Historial de torneos ({count})",
+  "@doghouseTournamentHistory": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsPlayers": "{count} jugadores",
+  "@doghouseStatsPlayers": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsGames": "{count} partidos",
+  "@doghouseStatsGames": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "doghouseStatsEscapes": "{count} escapados",
+  "@doghouseStatsEscapes": {
+    "placeholders": { "count": { "type": "int" } }
+  }
 }

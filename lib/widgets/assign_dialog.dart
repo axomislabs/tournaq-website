@@ -7,12 +7,13 @@ Future<String?> showAssignDialog({
   required BuildContext context,
   required String title,
   required List<({String id, String name})> items,
-  String emptyMessage = 'Nothing available to assign.',
+  String? emptyMessage,
 }) async {
   if (items.isEmpty) {
     if (context.mounted) {
+      final msg = emptyMessage ?? AppLocalizations.of(context)!.assignNothingAvailable;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(emptyMessage)));
+          .showSnackBar(SnackBar(content: Text(msg)));
     }
     return null;
   }

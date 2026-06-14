@@ -1102,5 +1102,117 @@
       "players": { "type": "int" },
       "teams": { "type": "int" }
     }
+  },
+
+  "labelStyle": "Style",
+  "@labelStyle": {},
+
+  "assignNothingAvailable": "Nothing available to assign.",
+  "@assignNothingAvailable": {},
+
+  "btnDeleteAll": "Delete All",
+  "@btnDeleteAll": {},
+
+  "statusSetup": "Setup",
+  "@statusSetup": {},
+
+  "statusCompleted": "Completed",
+  "@statusCompleted": {},
+
+  "statusInProgress": "In Progress",
+  "@statusInProgress": {},
+
+  "dateToday": "Today",
+  "@dateToday": {},
+
+  "dateYesterday": "Yesterday",
+  "@dateYesterday": {},
+
+  "dateDaysAgo": "{count} days ago",
+  "@dateDaysAgo": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "labelLate": "LATE",
+  "@labelLate": {},
+
+  "statPts": "pts",
+  "@statPts": {},
+
+  "statEsc": "Esc",
+  "@statEsc": {},
+
+  "statGames": "Games",
+  "@statGames": {},
+
+  "statLost": "Lost",
+  "@statLost": {},
+
+  "doghouseTitle": "Doghouse",
+  "@doghouseTitle": {},
+
+  "doghouseGameHistory": "Game History",
+  "@doghouseGameHistory": {},
+
+  "doghouseEscaped": "Escaped",
+  "@doghouseEscaped": {},
+
+  "doghouseEjected": "Ejected",
+  "@doghouseEjected": {},
+
+  "doghouseNGamesLost": "{count} lost",
+  "@doghouseNGamesLost": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseNoGamesYet": "No games yet.",
+  "@doghouseNoGamesYet": {},
+
+  "doghouseNoGamesYetBody": "Games will appear here once a team finishes.",
+  "@doghouseNoGamesYetBody": {},
+
+  "doghouseNoTournamentsYet": "No tournaments yet.",
+  "@doghouseNoTournamentsYet": {},
+
+  "doghouseNoTournamentsHint": "Tap New Tournament to get started.",
+  "@doghouseNoTournamentsHint": {},
+
+  "doghouseDeleteTournamentTitle": "Delete Tournament?",
+  "@doghouseDeleteTournamentTitle": {},
+
+  "doghouseDeleteTournamentBody": "This will permanently delete \"{name}\" and all its data.",
+  "@doghouseDeleteTournamentBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "doghouseDeleteAllTitle": "Delete All Tournaments?",
+  "@doghouseDeleteAllTitle": {},
+
+  "doghouseDeleteAllBody": "This will permanently delete all {count} tournament(s).",
+  "@doghouseDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseNewTournament": "New Tournament",
+  "@doghouseNewTournament": {},
+
+  "doghouseTournamentHistory": "Tournament History ({count})",
+  "@doghouseTournamentHistory": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseStatsPlayers": "{count} players",
+  "@doghouseStatsPlayers": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseStatsGames": "{count} games",
+  "@doghouseStatsGames": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "doghouseStatsEscapes": "{count} escapes",
+  "@doghouseStatsEscapes": {
+    "placeholders": { "count": { "type": "int" } }
   }
 }
