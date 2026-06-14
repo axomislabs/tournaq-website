@@ -105,6 +105,20 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     _scoreA = _game.sideAScore;
     _scoreB = _game.sideBScore;
     _matchCompleted = _game.isCompleted;
+    _activeIndex = _initialActiveIndex(_game);
+  }
+
+  /// Derives the starting _activeIndex from the scheduled first server.
+  /// activeIndex encodes: even = Side A serving, odd = Side B serving;
+  /// activeIndex ~/ 2 = which player on the serving team is active.
+  static int _initialActiveIndex(ScrambleGame game) {
+    final id = game.firstServerId;
+    if (id == null) return 0;
+    final indexInA = game.sideAPlayerIds.indexOf(id);
+    if (indexInA >= 0) return indexInA * 2;
+    final indexInB = game.sideBPlayerIds.indexOf(id);
+    if (indexInB >= 0) return indexInB * 2 + 1;
+    return 0;
   }
 
   // ── Persistence ───────────────────────────────────────────────────────────
@@ -693,6 +707,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         optionsButton,
                       ],
                     ),
+                    if (_game.status == ScrambleGameStatus.scheduled &&
+                        _game.firstServerId != null) ...[
+                      const SizedBox(height: 4),
+                      _buildServesFirstBanner(),
+                    ],
                     if (_matchCompleted) ...[
                       const SizedBox(height: 4),
                       _buildLockBanner(),
@@ -756,11 +775,17 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   ),
                   const SizedBox(height: 10),
                   _buildGameplayTimerRow(),
-                  const SizedBox(height: 10),
+                  if (_game.status == ScrambleGameStatus.scheduled &&
+                      _game.firstServerId != null) ...[
+                    const SizedBox(height: 10),
+                    _buildServesFirstBanner(),
+                  ],
                   if (_matchCompleted) ...[
+                    const SizedBox(height: 10),
                     _buildLockBanner(),
                     const SizedBox(height: 8),
-                  ],
+                  ] else
+                    const SizedBox(height: 10),
                   // Score cards side by side — pills stacked inside each card.
                   IntrinsicHeight(
                     child: Row(
@@ -993,6 +1018,36 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       ],
     ),
   );
+
+  // ── Serves-first banner ───────────────────────────────────────────────────
+
+  Widget _buildServesFirstBanner() {
+    final serverName = _t.getPlayer(_game.firstServerId!)?.name ?? '';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: _kOliveLight,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _kOlive.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.sports_volleyball_rounded, size: 14, color: _kOlive),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$serverName starts serving',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: _kOlive,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ── Lock banner ───────────────────────────────────────────────────────────
 

@@ -87,9 +87,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           children: [
             _buildHeader(completed, total, progress),
             const SizedBox(height: 20),
-            _buildPlayerGrid(),
-            const SizedBox(height: 20),
             ..._buildRoundSections(),
+            _buildPlayerGrid(),
           ],
         ),
       ),

@@ -88,10 +88,29 @@ class ScrambleGameTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     _teamRow(teamB, game.sideBScore, game.winningSide == 'B'),
                     const SizedBox(height: 4),
-                    Text(
-                      ScrambleService.formatTime(round.scheduledStartTime),
-                      style: const TextStyle(
-                          fontSize: 11, color: Colors.black38),
+                    Row(
+                      children: [
+                        Text(
+                          ScrambleService.formatTime(round.scheduledStartTime),
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.black38),
+                        ),
+                        if (game.status == ScrambleGameStatus.scheduled &&
+                            game.firstServerId != null) ...[
+                          const SizedBox(width: 6),
+                          const Icon(Icons.sports_volleyball_rounded,
+                              size: 9, color: Colors.black38),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              '${tournament.getPlayer(game.firstServerId!)?.name ?? ''} starts serving',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.black38),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),

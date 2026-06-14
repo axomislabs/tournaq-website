@@ -147,26 +147,12 @@ class ScrambleStatsPage extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  s.playerName,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isLeader
-                        ? FontWeight.w800
-                        : FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  '${s.uniqueTeammates} unique teammates · '
-                  '${s.uniqueOpponents} unique opponents',
-                  style: const TextStyle(
-                      fontSize: 10, color: Colors.black38),
-                ),
-              ],
+            child: Text(
+              s.playerName,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isLeader ? FontWeight.w800 : FontWeight.w500,
+              ),
             ),
           ),
           _statCell('${s.totalPoints}',

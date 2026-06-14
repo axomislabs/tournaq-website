@@ -78,6 +78,8 @@ class ScrambleService {
 
     // Games played per player — drives sit-out rotation.
     final gamesPlayed = List.filled(n, 0);
+    // Serve count per player — drives first-server assignment.
+    final serveCount = List.filled(n, 0);
 
     final rounds = <ScrambleRound>[];
     final games = <ScrambleGame>[];
@@ -128,6 +130,17 @@ class ScrambleService {
 
       for (var c = 0; c < courtAssignments.length; c++) {
         final (sideA, sideB) = courtAssignments[c];
+
+        // Greedy first-server: pick the on-court player with the fewest serves.
+        // Ties broken by position in the combined list (stable, bias-free).
+        final onCourt = [...sideA, ...sideB];
+        final server = onCourt.reduce((a, b) {
+          final ca = serveCount[playerIndex[a.id]!];
+          final cb = serveCount[playerIndex[b.id]!];
+          return ca <= cb ? a : b;
+        });
+        serveCount[playerIndex[server.id]!]++;
+
         games.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: roundId,
@@ -137,6 +150,7 @@ class ScrambleService {
           // Sit-outs are attached to the first court's game for display;
           // all games in the round share the same sitting-out list.
           sittingOutPlayerIds: c == 0 ? sittingOutIds : const [],
+          firstServerId: server.id,
         ));
 
         _updatePairMatrices(
