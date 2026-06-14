@@ -221,6 +221,29 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     _candidateIndex = 0;
   }
 
+  // Checks whether the admin would appear in Up Next using the full pool (admin included).
+  // Only runs once Challengers are established. Sets or clears _nextAdminPlayerId accordingly.
+  void _updateAdminHandoffCheck() {
+    if (!_isAllPlay || _adminPlayerId == null) return;
+    if (_challengerTeam.length != _t.playersPerTeam) return;
+
+    final upNextPool = _pool
+        .where((p) => !_challengerTeam.any((c) => c.id == p.id))
+        .toList();
+    final fullUpNext = _computeSuggestions(fromPool: upNextPool);
+    final adminNeeded = fullUpNext.isNotEmpty &&
+        fullUpNext.first.any((p) => p.id == _adminPlayerId);
+
+    if (adminNeeded) {
+      if (_nextAdminPlayerId == null && _teamPlayers.isNotEmpty) {
+        setState(() => _nextAdminPlayerId =
+            _teamPlayers[Random().nextInt(_teamPlayers.length)].id);
+      }
+    } else if (_nextAdminPlayerId != null) {
+      setState(() => _nextAdminPlayerId = null);
+    }
+  }
+
   // Two-step compute: Challengers from active pool, then Up Next from pool minus Challengers.
   // No-op outside auto modes or when no team is playing.
   void _recomputeChallenger() {
@@ -234,6 +257,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     _candidates     = _computeSuggestions(fromPool: upNextPool);
     _candidateIndex = 0;
     setState(() => _challengerTeam = newChallenger);
+    _updateAdminHandoffCheck();
   }
 
   // Updates Up Next candidates after the challenger team is already known.
@@ -246,6 +270,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       _candidates     = _computeSuggestions(fromPool: upNextPool);
       _candidateIndex = 0;
     });
+    _updateAdminHandoffCheck();
   }
 
   void _reroll() {
@@ -273,10 +298,6 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     _gameWatch
       ..reset()
       ..start();
-    // In allPlay mode, announce the next admin from the incoming court team.
-    if (_isAllPlay && players.isNotEmpty) {
-      _nextAdminPlayerId = players[Random().nextInt(players.length)].id;
-    }
     setState(() {
       _teamPlayers      = List.from(players);
       _pool             = _t.players
@@ -404,7 +425,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       final nextCourt      = List<KotcPlayer>.from(_challengerTeam);
       final nextChallenger = List<KotcPlayer>.from(_currentSuggestion);
       // Hand off admin before starting next team so _activePool excludes the new admin.
-      if (_isAllPlay) {
+      if (_isAllPlay && _nextAdminPlayerId != null) {
         _adminPlayerId     = _nextAdminPlayerId;
         _nextAdminPlayerId = null;
       }
