@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/king_of_the_court_tournament.dart';
@@ -47,6 +49,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
   int                    _candidateIndex = 0;
   List<KotcPlayer>       _challengerTeam = [];
 
+  // ── Admin (automatedAllPlay only) ─────────────────────────────────────────
+  String? _adminPlayerId;
+  String? _nextAdminPlayerId;
+
   // (undo state is derived from _t.games — no local storage needed)
 
   // ── Session timer ─────────────────────────────────────────────────────────
@@ -65,17 +71,27 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       _strikeEnabled && _currentPoints >= _t.strikePoints;
   bool get _isCompleted =>
       _t.status == KotcTournamentStatus.completed;
+  bool get _isAllPlay  => _t.assignmentMode == KotcAssignmentMode.automatedAllPlay;
+  bool get _isAutoMode => _t.assignmentMode == KotcAssignmentMode.automated || _isAllPlay;
   // Undo is available when there is a recorded game to restore.
-  // In automated mode the new team starts immediately, so undo is also
+  // In automated/allPlay mode the new team starts immediately, so undo is also
   // available while a team is on court (the current unrecorded game is discarded).
   bool get _canUndo => _t.games.isNotEmpty &&
-      (!_hasTeam || _t.assignmentMode == KotcAssignmentMode.automated);
+      (!_hasTeam || _isAutoMode);
+
+  // Pool available for suggestions — excludes current admin in automatedAllPlay.
+  List<KotcPlayer> get _activePool => _isAllPlay && _adminPlayerId != null
+      ? _pool.where((p) => p.id != _adminPlayerId).toList()
+      : _pool;
 
   @override
   void initState() {
     super.initState();
     _t    = widget.tournament;
     _pool = List.from(_t.players);
+    if (_isAllPlay && _t.players.isNotEmpty) {
+      _adminPlayerId = _t.players[Random().nextInt(_t.players.length)].id;
+    }
     _initSuggestion();
   }
 
@@ -200,18 +216,19 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
   // ── Automated assignment ──────────────────────────────────────────────────
 
   void _initSuggestion() {
-    if (_t.assignmentMode != KotcAssignmentMode.automated) return;
-    _candidates     = _computeSuggestions();
+    if (!_isAutoMode) return;
+    _candidates     = _computeSuggestions(fromPool: _activePool);
     _candidateIndex = 0;
   }
 
-  // Two-step compute: Challengers from full pool, then Up Next from pool minus Challengers.
-  // No-op outside automated mode or when no team is playing.
+  // Two-step compute: Challengers from active pool, then Up Next from pool minus Challengers.
+  // No-op outside auto modes or when no team is playing.
   void _recomputeChallenger() {
-    if (_t.assignmentMode != KotcAssignmentMode.automated || !_hasTeam) return;
-    final challengerCands = _computeSuggestions();
+    if (!_isAutoMode || !_hasTeam) return;
+    final active          = _activePool;
+    final challengerCands = _computeSuggestions(fromPool: active);
     final newChallenger   = challengerCands.isNotEmpty ? challengerCands.first : <KotcPlayer>[];
-    final upNextPool      = _pool
+    final upNextPool      = active
         .where((p) => !newChallenger.any((c) => c.id == p.id))
         .toList();
     _candidates     = _computeSuggestions(fromPool: upNextPool);
@@ -221,8 +238,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
 
   // Updates Up Next candidates after the challenger team is already known.
   void _recomputeUpNext() {
-    if (_t.assignmentMode != KotcAssignmentMode.automated) return;
-    final upNextPool = _pool
+    if (!_isAutoMode) return;
+    final upNextPool = _activePool
         .where((p) => !_challengerTeam.any((c) => c.id == p.id))
         .toList();
     setState(() {
@@ -256,6 +273,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     _gameWatch
       ..reset()
       ..start();
+    // In allPlay mode, announce the next admin from the incoming court team.
+    if (_isAllPlay && players.isNotEmpty) {
+      _nextAdminPlayerId = players[Random().nextInt(players.length)].id;
+    }
     setState(() {
       _teamPlayers      = List.from(players);
       _pool             = _t.players
@@ -378,11 +399,15 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       ..stop()
       ..reset();
 
-    if (_t.assignmentMode == KotcAssignmentMode.automated &&
-        _challengerTeam.length == _t.playersPerTeam) {
+    if (_isAutoMode && _challengerTeam.length == _t.playersPerTeam) {
       // Transition chain: Challengers → Court, Up Next → Challengers, compute new Up Next.
       final nextCourt      = List<KotcPlayer>.from(_challengerTeam);
       final nextChallenger = List<KotcPlayer>.from(_currentSuggestion);
+      // Hand off admin before starting next team so _activePool excludes the new admin.
+      if (_isAllPlay) {
+        _adminPlayerId     = _nextAdminPlayerId;
+        _nextAdminPlayerId = null;
+      }
       setState(() {
         _teamPlayers      = [];
         _pendingSelection = [];
@@ -390,9 +415,14 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         _challengerTeam   = [];
       });
       _startTeam(nextCourt);
-      // Assign old Up Next as the new Challengers, then recompute Up Next.
-      setState(() => _challengerTeam = nextChallenger);
-      _recomputeUpNext();
+      if (nextChallenger.length == _t.playersPerTeam) {
+        // Enough players for a pre-defined Up Next — promote it to Challengers.
+        setState(() => _challengerTeam = nextChallenger);
+        _recomputeUpNext();
+      } else {
+        // Too few players for Up Next — pick the best available from the pool.
+        _recomputeChallenger();
+      }
     } else {
       setState(() {
         _teamPlayers      = [];
@@ -884,6 +914,180 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           ),
         ),
       );
+
+  // ── Admin tile (automatedAllPlay only) ───────────────────────────────────
+
+  Widget _buildAdminTile() {
+    final admin     = _t.players.where((p) => p.id == _adminPlayerId).firstOrNull;
+    final nextAdmin = _t.players.where((p) => p.id == _nextAdminPlayerId).firstOrNull;
+
+    return GestureDetector(
+      onTap: _showAdminOverrideSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(children: [
+          const Icon(Icons.manage_accounts_rounded,
+              size: 15, color: Colors.black45),
+          const SizedBox(width: 6),
+          const Text(
+            'ADMIN',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: Colors.black45,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            admin?.name ?? '—',
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w700),
+          ),
+          if (nextAdmin != null) ...[
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward_rounded,
+                size: 13, color: Colors.black38),
+            const SizedBox(width: 6),
+            Text(
+              nextAdmin.name,
+              style: const TextStyle(
+                  fontSize: 12, color: Colors.black54),
+            ),
+          ],
+          const Spacer(),
+          const Icon(Icons.edit_rounded, size: 13, color: Colors.black38),
+        ]),
+      ),
+    );
+  }
+
+  void _showAdminOverrideSheet() {
+    if (!_isAllPlay) return;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => TournaQSheet(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('Change Admin',
+                  style: TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              const Text(
+                'Select who keeps score. The current admin returns to the queue.',
+                style: TextStyle(fontSize: 12, color: Colors.black45),
+              ),
+              const SizedBox(height: 16),
+              // Current admin + pool players
+              ..._pool.map((p) {
+                final isCurrent = p.id == _adminPlayerId;
+                return ListTile(
+                  dense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 4),
+                  leading: CircleAvatar(
+                    radius: 14,
+                    backgroundColor:
+                        isCurrent ? _kGoldLight : Colors.grey.shade100,
+                    child: Text(
+                      p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isCurrent ? _kGold : Colors.black54),
+                    ),
+                  ),
+                  title: Text(p.name,
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: isCurrent
+                              ? FontWeight.w700
+                              : FontWeight.w500)),
+                  trailing: isCurrent
+                      ? const Icon(Icons.manage_accounts_rounded,
+                          size: 18, color: _kGold)
+                      : null,
+                  onTap: isCurrent
+                      ? null
+                      : () {
+                          Navigator.of(ctx).pop();
+                          setState(() => _adminPlayerId = p.id);
+                          if (_hasTeam) {
+                            _recomputeChallenger();
+                          } else {
+                            _initSuggestion();
+                          }
+                        },
+                );
+              }),
+              if (_hasTeam && _nextAdminPlayerId != null) ...[
+                const Divider(height: 24),
+                const Text(
+                  'NEXT ADMIN',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black45,
+                      letterSpacing: 0.5),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Suggested from the current court team.',
+                  style: TextStyle(fontSize: 12, color: Colors.black45),
+                ),
+                const SizedBox(height: 8),
+                ..._teamPlayers.map((p) {
+                  final isNext = p.id == _nextAdminPlayerId;
+                  return ListTile(
+                    dense: true,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 4),
+                    leading: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: isNext
+                          ? Colors.grey.shade200
+                          : Colors.grey.shade100,
+                      child: Text(
+                        p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black54),
+                      ),
+                    ),
+                    title: Text(p.name,
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: isNext
+                                ? FontWeight.w700
+                                : FontWeight.w500)),
+                    trailing: isNext
+                        ? const Icon(Icons.schedule_rounded,
+                            size: 18, color: Colors.black45)
+                        : null,
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      setState(() => _nextAdminPlayerId = p.id);
+                    },
+                  );
+                }),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<void> _showStrikeDialog() async {
     if (!mounted) return;
@@ -1411,7 +1615,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           const SizedBox(height: 10),
           if (_isCompleted)
             _buildCompletedBanner()
-          else if (_hasTeam && _t.assignmentMode == KotcAssignmentMode.automated) ...[
+          else if (_hasTeam && _isAutoMode) ...[
             // Three-slot automated layout: Up Next → Challengers → Court Team
             _buildUpNextTile(),
             const SizedBox(height: 8),
@@ -1427,6 +1631,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 ],
               ),
             ),
+            if (_isAllPlay) ...[
+              const SizedBox(height: 8),
+              _buildAdminTile(),
+            ],
           ] else if (_hasTeam)
             IntrinsicHeight(
               child: Row(
@@ -1438,8 +1646,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 ],
               ),
             )
-          else
+          else ...[
             _buildSelectionTile(),
+            if (_isAllPlay) ...[
+              const SizedBox(height: 8),
+              _buildAdminTile(),
+            ],
+          ],
           if (_canUndo) ...[
             const SizedBox(height: 10),
             _buildUndoEjectionButton(),
@@ -1497,11 +1710,11 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           const SizedBox(height: 4),
           // Landscape content: 3-column automated or classic 2-column
           Expanded(
-            child: _hasTeam && _t.assignmentMode == KotcAssignmentMode.automated
+            child: _hasTeam && _isAutoMode
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Column 1: Up Next (top) + Challengers (bottom) — each fills half
+                      // Column 1: Up Next (top) + Challengers (middle) + Admin (bottom, allPlay only)
                       Expanded(
                         flex: 2,
                         child: Column(
@@ -1510,6 +1723,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                             Expanded(child: _buildUpNextTile(compact: true)),
                             const SizedBox(height: 6),
                             Expanded(child: _buildChallengersTile(compact: true)),
+                            if (_isAllPlay) ...[
+                              const SizedBox(height: 6),
+                              _buildAdminTile(),
+                            ],
                           ],
                         ),
                       ),
@@ -1990,7 +2207,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
   }
 
   Widget _buildSelectionTile({bool compact = false}) {
-    if (_t.assignmentMode == KotcAssignmentMode.automated) {
+    if (_isAutoMode) {
       return _buildAutomatedSuggestionTile(compact: compact);
     }
     final needed   = _t.playersPerTeam;

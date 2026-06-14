@@ -7,7 +7,7 @@ enum KotcTournamentStatus { setup, inProgress, completed }
 
 enum KotcPlayerSource { existing, created, random }
 
-enum KotcAssignmentMode { manual, automated }
+enum KotcAssignmentMode { manual, automated, automatedAllPlay }
 
 // ── Player ────────────────────────────────────────────────────────────────────
 

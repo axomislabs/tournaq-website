@@ -415,8 +415,14 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         _challengerTeam   = [];
       });
       _startTeam(nextDogs);
-      setState(() => _challengerTeam = nextChallenger);
-      _recomputeUpNext();
+      if (nextChallenger.length == _t.playersPerTeam) {
+        // Enough players for a pre-defined Up Next — promote it to Challengers.
+        setState(() => _challengerTeam = nextChallenger);
+        _recomputeUpNext();
+      } else {
+        // Too few players for Up Next — pick the best available from the pool.
+        _recomputeChallenger();
+      }
     } else {
       setState(() {
         _teamPlayers      = [];

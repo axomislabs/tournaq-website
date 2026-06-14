@@ -716,7 +716,11 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                 'Manual — the coach selects players from the queue by tapping them.\n\n'
                 'Automated — TournaQ suggests the best team, prioritising players '
                 'who have waited longest and haven\'t been paired together recently. '
-                'The coach can re-roll before confirming.'),
+                'The coach can re-roll before confirming.\n\n'
+                'Automated — All Play — like Automated but no dedicated coach. '
+                'A rotating admin keeps score while everyone else plays. '
+                'TournaQ picks a random starting admin and suggests the next handoff '
+                'from the ejected team after each game.'),
         const SizedBox(height: 6),
         DropdownButtonFormField<KotcAssignmentMode>(
           initialValue: _assignmentMode,
@@ -734,6 +738,10 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             DropdownMenuItem(
               value: KotcAssignmentMode.automated,
               child: Text('Automated'),
+            ),
+            DropdownMenuItem(
+              value: KotcAssignmentMode.automatedAllPlay,
+              child: Text('Automated — All Play'),
             ),
           ],
           onChanged: (v) {
