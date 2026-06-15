@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.group-single-elimination.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Group &amp; Single Elimination – TournaQ Game Modes</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .under-construction-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff8e1;
+      border: 1px solid #f9a825;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
+    .under-construction-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #7c5a00;
+      line-height: 1.4;
+    }
+    .under-construction-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #9e7500;
+      margin-top: 2px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .detail-box {
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .detail-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .detail-box .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--olive-dark);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.group-single-elimination.hero.title">Group &amp; Single Elimination</h1>
+      <p class="subtitle" data-i18n="modes.group-single-elimination.hero.subtitle">Pool play to sort the draw, then a knockout bracket to crown the winner.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="planned-status status-badge" data-i18n="modes.group-single-elimination.status">Planned</div>
+      <h2 data-i18n="modes.group-single-elimination.hero.title">Group &amp; Single Elimination</h2>
+      <div class="under-construction-banner">
+        <div class="sign">🚧</div>
+        <div class="sign-text" data-i18n-html="modes.group-single-elimination.construction">
+          Page Under Construction
+          <span>This page is being updated. Content may be incomplete.</span>
+        </div>
+      </div>
+
+      <div style="display:none">
+        <p data-i18n="modes.group-single-elimination.intro">A two-phase format common in beach volleyball tournaments. Teams are divided into groups for round-robin pool play, with the top teams from each group advancing to a single-elimination knockout bracket. TournaQ manages both phases — from the initial group draw through to the knockout final.</p>
+
+        <div class="detail-row">
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.group-single-elimination.detail.teams.label">Teams</div>
+            <div class="value" data-i18n="modes.group-single-elimination.detail.teams.value">8–32</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.group-single-elimination.detail.phase1.label">Phase 1</div>
+            <div class="value" data-i18n="modes.group-single-elimination.detail.phase1.value">Group stage</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.group-single-elimination.detail.phase2.label">Phase 2</div>
+            <div class="value" data-i18n="modes.group-single-elimination.detail.phase2.value">KO bracket</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.group-single-elimination.detail.tournament.label">Tournament required</div>
+            <div class="value" data-i18n="modes.group-single-elimination.detail.tournament.value">Yes</div>
+          </div>
+        </div>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.group-single-elimination.how.title">How it works</h3>
+        <p data-i18n="modes.group-single-elimination.how.text">The organiser defines the number of groups, teams per group, and how many teams advance. TournaQ generates the group schedules and tracks standings within each group. Once the group phase is complete, the knockout bracket is seeded automatically based on group results. Match-ups are then played to a single-elimination conclusion.</p>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.group-single-elimination.setup.title">Setup options</h3>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li data-i18n="modes.group-single-elimination.setup.li1">Number of groups and teams per group</li>
+          <li data-i18n="modes.group-single-elimination.setup.li2">Advancement spots: configurable per group</li>
+          <li data-i18n="modes.group-single-elimination.setup.li3">Group seeding: random draw, manual, or ranked placement</li>
+          <li data-i18n="modes.group-single-elimination.setup.li4">Knockout bracket seeding: by group position or cross-group ranking</li>
+          <li data-i18n="modes.group-single-elimination.setup.li5">Match format: independently configurable for group and knockout phases</li>
+        </ul>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.group-single-elimination.bestfor.title">Best for</h3>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li data-i18n="modes.group-single-elimination.bestfor.li1">Day-long tournaments with large draws</li>
+          <li data-i18n="modes.group-single-elimination.bestfor.li2">Events where every team gets meaningful matches before knockouts</li>
+          <li data-i18n="modes.group-single-elimination.bestfor.li3">Formats where a pool phase helps seed the bracket fairly</li>
+          <li data-i18n="modes.group-single-elimination.bestfor.li4">Standard beach volleyball tournament structure</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.group-single-elimination.feedback.text">Have a question about Group &amp; Single Elimination, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

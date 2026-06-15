@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.quick-game.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Game – TournaQ Game Modes</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .modes-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 40px;
+    }
+
+    .modes-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .modes-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .modes-subnav-links a:hover,
+    .modes-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .detail-box {
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .detail-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .detail-box .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--olive-dark);
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+
+      .guide-grid,
+      .guide-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .guide-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .guide-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .guide-card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .guide-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--olive-light);
+      margin-top: 8px;
+    }
+
+    .guide-card img.vertical {
+      max-width: 230px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 760px) {
+      .guide-card img.vertical {
+        max-width: 280px;
+      }
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+    }
+
+    .card-nav {
+      margin: 20px 0;
+      padding: 14px 16px;
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .card-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .card-nav-links a {
+      background: white;
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .card-nav-links a:hover {
+      background: var(--olive);
+      color: white;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.quick-game.hero.title">Quick Game</h1>
+      <p class="subtitle" data-i18n="modes.quick-game.hero.subtitle">Two teams. One court. Standard beach volleyball rules. Get playing in seconds.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <!-- Overview -->
+    <section class="card">
+      <div class="completed-status phase-status" data-i18n="modes.quick-game.status">Available Now</div>
+      <h2 data-i18n="modes.quick-game.hero.title">Quick Game</h2>
+      <p data-i18n="modes.quick-game.intro">Quick Game focuses on providing quick access to one of TournaQs core elements: The Scoreboard — set up a game
+        quickly and start scoring. You might set up a game between available or new teams and players, or save your time
+        randomize a the settings and just start scoring.</p>
+
+      <img src="../../assets/scoreboard_landscape.PNG" alt="TournaQ landscape scoreboard"
+        style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
+
+
+
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.quick-game.bestfor.title">Best for</h3>
+      <ul style="padding-left: 20px; line-height: 2; font-size: 14px;">
+        <li data-i18n="modes.quick-game.bestfor.li1">Casual matches at the beach or training</li>
+        <li data-i18n="modes.quick-game.bestfor.li2">Informal club sessions with fixed teams</li>
+        <li data-i18n="modes.quick-game.bestfor.li3">Any situation where you just need a scorekeeper</li>
+      </ul>
+      <div class="card-nav">
+        <div class="card-nav-label" data-i18n="modes.quick-game.jumpto">Jump to section</div>
+        <div class="card-nav-links">
+          <a href="#setup" data-i18n="modes.quick-game.nav.setup">Setting Up</a>
+          <a href="#scoreboard" data-i18n="modes.quick-game.nav.scoreboard">Scoreboard</a>
+          <a href="#match-controls" data-i18n="modes.quick-game.nav.controls">Match Controls</a>
+          <a href="#completion" data-i18n="modes.quick-game.nav.completion">Set &amp; Game Completion</a>
+          <a href="#workflow" data-i18n="modes.quick-game.nav.workflow">Workflow</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Setup -->
+    <section id="setup" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.quick-game.setup.title">Setting Up a Quick Game</h2>
+      <p class="section-text" data-i18n="modes.quick-game.setup.text">Quick Start Game allows you to create a beach volleyball match quickly without any complex
+        setup.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.setup.card1.title">Select Match Format</h3>
+          <p data-i18n="modes.quick-game.setup.card1.text">Choose One Set or Best of Three Sets as the match format before entering team details.</p>
+          <img class="vertical" src="../../assets/quickstart_sets.PNG" alt="TournaQ quick start screen">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.setup.card2.title">Choose Teams</h3>
+          <p data-i18n="modes.quick-game.setup.card2.text">Select existing teams, create new teams manually, or let the app generate random teams.</p>
+          <img class="vertical" src="../../assets/createteams.PNG" alt="TournaQ create teams screen">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.setup.card3.title">Random Team Generator</h3>
+          <p data-i18n="modes.quick-game.setup.card3.text">Generate fun random team names, re-roll if needed, and start the match immediately.</p>
+          <img class="vertical" src="../../assets/randomteams.PNG" alt="TournaQ team generator screen">
+        </div>
+      </div>
+    </section>
+
+    <!-- Scoreboard -->
+    <section id="scoreboard" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.quick-game.scoreboard.title">Scoreboard</h2>
+      <p class="section-text" data-i18n="modes.quick-game.scoreboard.text">The Scoreboard is the main live scoring screen. It displays team names, scores, sets,
+        player names, active player information and match actions.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.scoreboard.card1.title">Vertical Scoreboard</h3>
+          <p data-i18n="modes.quick-game.scoreboard.card1.text">The vertical scoreboard provides a complete view for live scoring, including all information needed during
+            a match.</p>
+          <img class="vertical" src="../../assets/scoreboard.PNG" alt="TournaQ vertical scoreboard">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.scoreboard.card2.title">Landscape Scoreboard</h3>
+          <p data-i18n="modes.quick-game.scoreboard.card2.text">The landscape scoreboard is optimized for horizontal mobile use during live matches.</p>
+          <img src="../../assets/scoreboard_landscape.PNG" alt="TournaQ landscape scoreboard">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.scoreboard.card3.title">Match History</h3>
+          <p data-i18n="modes.quick-game.scoreboard.card3.text">The Match History view shows a point-by-point log of the match, including who scored each point and when
+            sides switched.</p>
+          <img class="vertical" src="../../assets/scoreboard_match_history.PNG" alt="TournaQ match history">
+        </div>
+      </div>
+    </section>
+
+    <!-- Match Controls -->
+    <section id="match-controls" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.quick-game.controls.title">Match Controls</h2>
+      <p class="section-text" data-i18n="modes.quick-game.controls.text">Match controls help you manage side changes, team positions, service order, and player
+        names during live scoring.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.controls.card1.title">Side Change Reminder</h3>
+          <p data-i18n="modes.quick-game.controls.card1.text">When the total score reaches the target, a dialog prompts teams to switch sides. Confirm to continue the
+            match.</p>
+          <img class="vertical" src="../../assets/scoreboard_sidechange_dialog.PNG" alt="TournaQ side change dialog">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.controls.card2.title">After Side Change</h3>
+          <p data-i18n="modes.quick-game.controls.card2.text">After confirming a side change, the teams are automatically swapped on the scoreboard so the display always
+            reflects the physical court position.</p>
+          <img class="vertical" src="../../assets/scoreboard_after_change.PNG"
+            alt="TournaQ scoreboard after side change">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.controls.card3.title">Change Service</h3>
+          <p data-i18n="modes.quick-game.controls.card3.text">The active server is highlighted on the scoreboard. Service changes automatically when the non-serving team
+            scores, and can also be adjusted manually.</p>
+          <img class="vertical" src="../../assets/socreboard_change_serve.PNG" alt="TournaQ change service">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.controls.card4.title">Player Names &amp; Service</h3>
+          <p data-i18n="modes.quick-game.controls.card4.text">Player names are shown directly on the scoreboard. They can be edited ad-hoc by tapping on the team name.
+          </p>
+          <img class="vertical" src="../../assets/scoreboard_names.PNG" alt="TournaQ player names and service">
+        </div>
+      </div>
+    </section>
+
+    <!-- Set & Game Completion -->
+    <section id="completion" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.quick-game.completion.title">Set &amp; Game Completion</h2>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.completion.card1.title">Set Complete</h3>
+          <p data-i18n="modes.quick-game.completion.card1.text">When a team reaches the target score the set is completed. The result is locked and you can proceed to the
+            next set or complete the game.</p>
+          <img class="vertical" src="../../assets/scoreboard_set_complete.PNG" alt="TournaQ set complete">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.completion.card2.title">Game Complete</h3>
+          <p data-i18n="modes.quick-game.completion.card2.text">When the match is decided the game completion screen shows all set results and the winner. The match is
+            saved to Match History.</p>
+          <img class="vertical" src="../../assets/scoreboard_gamecompletion.PNG" alt="TournaQ game complete">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.quick-game.completion.card3.title">Games &amp; Match History</h3>
+          <p data-i18n="modes.quick-game.completion.card3.text">The Games screen shows in-progress and completed matches with team names, set scores, match status and the
+            winner when the match is completed.</p>
+          <img class="vertical" src="../../assets/gamescard_winner_inprogress.PNG" alt="TournaQ games screen">
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow -->
+    <section id="workflow" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.quick-game.workflow.title">Step-by-Step Workflow</h2>
+      <div class="workflow-card">
+        <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
+          <li data-i18n="modes.quick-game.workflow.li1">Open TournaQ.</li>
+          <li data-i18n="modes.quick-game.workflow.li2">Tap Quick Start Game.</li>
+          <li data-i18n="modes.quick-game.workflow.li3">Select One Set or Best of Three Sets.</li>
+          <li data-i18n="modes.quick-game.workflow.li4">Choose existing teams, create new teams or generate random teams.</li>
+          <li data-i18n="modes.quick-game.workflow.li5">Start the game.</li>
+          <li data-i18n="modes.quick-game.workflow.li6">Use the plus and minus buttons to score.</li>
+          <li data-i18n="modes.quick-game.workflow.li7">Confirm side changes when prompted.</li>
+          <li data-i18n="modes.quick-game.workflow.li8">Complete the set.</li>
+          <li data-i18n="modes.quick-game.workflow.li9">Complete the game.</li>
+          <li data-i18n="modes.quick-game.workflow.li10">Return to Games to review match history.</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.quick-game.feedback.text">Have a question about Quick Game, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+
+</html>

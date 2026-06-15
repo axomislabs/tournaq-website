@@ -7,6 +7,7 @@
   <title>TournaQ – Scoring, Games and Tournament Management</title>
 
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
 
   <style>
@@ -15,20 +16,60 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 24px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
-    .feature-card h3 { color: var(--olive); font-size: 18px; margin-bottom: 10px; }
-    .feature-card p  { font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+
+    .feature-card h3 {
+      color: var(--olive);
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
     .feature-card img {
       max-width: 160px;
       width: 100%;
       border-radius: 12px;
       border: 1px solid var(--border);
       margin-top: auto;
+    }
+
+    .img-placeholder {
+      max-width: 160px;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      background: var(--olive-light);
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--olive);
+    }
+
+    .img-placeholder .ph-icon {
+      font-size: 28px;
+      opacity: 0.5;
+    }
+
+    .img-placeholder .ph-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
     }
 
     .cta-row {
@@ -38,6 +79,7 @@
       flex-wrap: wrap;
       margin-top: 32px;
     }
+
     .btn-outline {
       display: inline-block;
       border: 2px solid var(--olive);
@@ -49,7 +91,11 @@
       border-radius: 10px;
       transition: background 0.15s, color 0.15s;
     }
-    .btn-outline:hover { background: var(--olive); color: white; }
+
+    .btn-outline:hover {
+      background: var(--olive);
+      color: white;
+    }
   </style>
 </head>
 
@@ -68,13 +114,7 @@
         <span></span>
       </label>
 
-      <div class="nav-links">
-        <a href="index.html" data-i18n="nav.home">Home</a>
-        <a href="user-guide.html" data-i18n="nav.guide">User Guide</a>
-        <a href="downloads.html" data-i18n="nav.downloads">Downloads</a>
-        <a href="legal.html" data-i18n="nav.legal">Legal</a>
-        <a href="contact.html" data-i18n="nav.contact">Contact</a>
-      </div>
+      <div id="main-nav-links"></div>
       <div class="lang-switcher"></div>
     </nav>
 
@@ -82,123 +122,59 @@
 
     <div class="hero">
       <h1 data-i18n="index.hero.title">Overview</h1>
-      <p class="subtitle" data-i18n="index.hero.subtitle">Built for Beach Volleyball today. Designed for Tournaments tomorrow.</p>
+      <p class="subtitle" data-i18n="index.hero.subtitle">TournaQ - More than a Scoreboard
+      </p>
     </div>
   </header>
 
   <main>
 
+    <!-- The Problem -->
+    <section class="highlight" id="problem">
+      <h2 data-i18n="index.problem.title">Play More. Organize Less.</h2>
+      <p data-i18n="index.problem.intro">TournaQ makes beach volleyball events effortless.</p>
+      <p data-i18n="index.problem.body">Create teams in seconds, launch social scramble formats, track every rally with
+        a beautiful live scoreboard, and keep players focused on what matters most: playing volleyball and having fun.
+      </p>
+      <p data-i18n="index.problem.nopaper">No paper score sheets. No spreadsheets. No confusion.</p>
+      <p style="margin-top: 16px;" data-i18n="index.problem.text">From casual beach sessions to competitive tournaments,
+        TournaQ helps players, organizers, and clubs create better volleyball experiences with less effort and more
+        excitement.</p>
+      <p data-i18n="index.problem.future">The future of beach volleyball game & tournament management starts here.</p>
+    </section>
+
     <!-- What it does today -->
     <section id="features">
       <h2 class="section-title" data-i18n="index.features.title">Available Today</h2>
-      <p class="section-text" data-i18n="index.features.text">
-        TournaQ currently focuses on practical beach volleyball scoring and match organization.
-      </p>
+      <p class="section-text" data-i18n="index.features.text">Everything you need to run a great beach volleyball session — right now, on your phone.</p>
 
       <div class="grid">
         <div class="feature-card">
           <h3 data-i18n="index.card.scoring.title">Match Scoring</h3>
-          <p data-i18n="index.card.scoring.text">Keep track of beach volleyball scores in a simple and focused interface.</p>
+          <p data-i18n="index.card.scoring.text">Live scoring with a clean, distraction-free interface. Track sets, points, and match history without touching paper.</p>
           <img src="../assets/scoreboard.PNG" alt="TournaQ scoreboard">
         </div>
 
         <div class="feature-card">
           <h3 data-i18n="index.card.teams.title">Teams &amp; Games</h3>
-          <p data-i18n="index.card.teams.text">Support for organizing teams and games as the foundation for future tournament tools.</p>
+          <p data-i18n="index.card.teams.text">Create teams, set up games, and manage your session in seconds. Built for the beach — fast, simple, and flexible.</p>
           <img src="../assets/gamescard_winner_inprogress.PNG" alt="TournaQ games">
         </div>
 
         <div class="feature-card">
-          <h3 data-i18n="index.card.multilingual.title">Multilingual App</h3>
-          <p data-i18n="index.card.multilingual.text">Designed with international use in mind, including English, German and Spanish.</p>
-          <img src="../assets/homescreen_spanish.PNG" alt="TournaQ in Spanish">
+          <h3 data-i18n="index.card.tournaments.title">Tournaments</h3>
+          <p data-i18n="index.card.tournaments.text">Run social scrambles and ad-hoc tournament formats that get players competing with minimal setup time.</p>
+          <div class="img-placeholder">
+            <div class="ph-icon">🏆</div>
+            <div class="ph-label">Screenshot Coming Soon</div>
+          </div>
         </div>
       </div>
 
       <div class="cta-row">
-        <a href="user-guide.html" class="button" data-i18n="index.cta.guide">Read User Guide</a>
+        <a href="features.html" class="button">Feature List</a>
         <a href="downloads.html" class="btn-outline" data-i18n="index.cta.downloads">View Downloads</a>
       </div>
-    </section>
-
-    <!-- The Problem -->
-    <section class="highlight" id="problem">
-      <h2 data-i18n="index.problem.title">Tournament Management Still Runs on Paper</h2>
-      <p data-i18n="index.problem.intro">Running a beach volleyball tournament still largely happens on paper. Score sheets have to be prepared beforehand, distributed to each court, collected after every match, and manually tallied — a slow, error-prone process that TournaQ already replaces with live digital scoring.</p>
-
-      <ul>
-        <li data-i18n="index.problem.li1">Court changes and late cancellations are difficult to communicate on the fly</li>
-        <li data-i18n="index.problem.li2">Injuries and team withdrawals require unplanned bracket adjustments</li>
-        <li data-i18n="index.problem.li3">Standings, seeding, and double-elimination systems demand complex manual calculations</li>
-        <li data-i18n="index.problem.li4">League phases and scramble formats add significant organisational overhead</li>
-      </ul>
-
-      <p style="margin-top: 16px;" data-i18n="index.problem.text">
-        There is no widely adopted digital platform built specifically for beach volleyball.
-        TournaQ is being built to change that — starting with scoring and growing into a complete
-        tournament management solution.
-      </p>
-    </section>
-
-    <!-- Product Direction -->
-    <section id="direction">
-      <h2 class="section-title" data-i18n="index.vision.title">Where We're Headed</h2>
-
-      <div class="three-grid">
-        <div class="card">
-          <h3 data-i18n="product.direction.today.title">Today</h3>
-          <p data-i18n="product.direction.today.text">TournaQ provides a fast and reliable beach volleyball scoring experience.</p>
-          <ul>
-            <li data-i18n="product.direction.today.li1">Scoring</li>
-            <li data-i18n="product.direction.today.li2">Teams</li>
-            <li data-i18n="product.direction.today.li3">Players</li>
-            <li data-i18n="product.direction.today.li4">Match management</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3 data-i18n="product.direction.next.title">Next</h3>
-          <p data-i18n="product.direction.next.text">Future development will expand tournament functionality.</p>
-          <ul>
-            <li data-i18n="product.direction.next.li1">Tournament setup</li>
-            <li data-i18n="product.direction.next.li2">Scheduling</li>
-            <li data-i18n="product.direction.next.li3">Standings</li>
-            <li data-i18n="product.direction.next.li4">Competition formats</li>
-            <li data-i18n="product.direction.next.li5">Bracket management</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3 data-i18n="product.direction.longterm.title">Long-Term</h3>
-          <p data-i18n="product.direction.longterm.text">A complete tournament management platform from planning through final results.</p>
-          <ul>
-            <li data-i18n="product.direction.longterm.li1">Competition administration</li>
-            <li data-i18n="product.direction.longterm.li2">Participant management</li>
-            <li data-i18n="product.direction.longterm.li3">Tournament operations</li>
-            <li data-i18n="product.direction.longterm.li4">Rankings and statistics</li>
-            <li data-i18n="product.direction.longterm.li5">Historical tournament data</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- Who it's for -->
-    <section class="highlight" id="who">
-      <h2 data-i18n="product.who.title">Who Is TournaQ For?</h2>
-      <p data-i18n="product.who.intro">TournaQ is currently designed for:</p>
-
-      <ul>
-        <li data-i18n="product.who.li1">Beach Volleyball Tournament Organizers</li>
-        <li data-i18n="product.who.li2">Referees</li>
-        <li data-i18n="product.who.li3">Coaches</li>
-        <li data-i18n="product.who.li4">Clubs</li>
-        <li data-i18n="product.who.li5">Players</li>
-        <li data-i18n="product.who.li6">Recreational and Competitive Beach Volleyball Communities</li>
-      </ul>
-
-      <p style="margin-top: 16px;" data-i18n="product.who.text">
-        As the platform evolves, support for additional competition management workflows will continue to expand.
-      </p>
     </section>
 
     <!-- Roadmap -->
@@ -212,22 +188,30 @@
         <div class="roadmap-step">
           <div class="phase-status completed-status" data-i18n="index.roadmap.phase1.status">✓ Completed</div>
           <strong data-i18n="index.roadmap.phase1.label">Phase 1</strong>
-          <div data-i18n="index.roadmap.phase1.name">Scoring</div>
+          <div data-i18n="index.roadmap.phase1.name">Scoring, Games and Selected Ad-Hoc Tournaments</div>
         </div>
 
         <div class="roadmap-step">
           <div class="phase-status planned-status" data-i18n="index.roadmap.phase2.status">Planned</div>
           <strong data-i18n="index.roadmap.phase2.label">Phase 2</strong>
-          <div data-i18n="index.roadmap.phase2.name">Tournaments &amp; Administration</div>
+          <div data-i18n="index.roadmap.phase2.name">Advanced Tournament Management &amp; Administration</div>
         </div>
 
         <div class="roadmap-step">
           <div class="phase-status planned-status" data-i18n="index.roadmap.phase3.status">Planned</div>
           <strong data-i18n="index.roadmap.phase3.label">Phase 3</strong>
-          <div data-i18n="index.roadmap.phase3.name">Organizer Platform</div>
+          <div data-i18n="index.roadmap.phase3.name">Live Tournament Features</div>
         </div>
       </div>
     </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong>Questions or Feedback?</strong>
+        <p>Interested in TournaQ, have a question, or want to share feedback? We'd love to hear from you.</p>
+      </div>
+      <a href="contact.html" class="feedback-cta-btn">Get in Touch</a>
+    </div>
 
   </main>
 

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.other-tournament-modes.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Other Tournament Modes – TournaQ Game Modes</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .under-construction-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff8e1;
+      border: 1px solid #f9a825;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
+    .under-construction-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #7c5a00;
+      line-height: 1.4;
+    }
+    .under-construction-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #9e7500;
+      margin-top: 2px;
+    }
+
+    .modes-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+    .modes-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .modes-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .modes-subnav-links a:hover,
+    .modes-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.other-tournament-modes.hero.title">Other Tournament Modes</h1>
+      <p class="subtitle" data-i18n="modes.other-tournament-modes.hero.subtitle">More formats are on the way — descriptions will be added as development progresses.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="planned-status status-badge" data-i18n="modes.other-tournament-modes.status">Planned</div>
+      <h2 data-i18n="modes.other-tournament-modes.hero.title">Other Tournament Modes</h2>
+      <div class="under-construction-banner">
+        <div class="sign">🚧</div>
+        <div class="sign-text" data-i18n-html="modes.other-tournament-modes.construction">
+          Page Under Construction
+          <span>This page is being updated. Content may be incomplete.</span>
+        </div>
+      </div>
+
+      <div style="display:none">
+        <p data-i18n="modes.other-tournament-modes.intro">TournaQ will support additional tournament formats beyond those listed here. Individual pages with full descriptions, rules, and setup guides will be added as each mode moves into active development.</p>
+        <p style="margin-top: 14px;" data-i18n-html="modes.other-tournament-modes.suggest">If you have a specific format you would like to see supported, you can submit a suggestion via the <a href="../contact.html" style="color: var(--olive); font-weight: 700;">Contact &amp; Feedback</a> page.</p>
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.other-tournament-modes.feedback.text">Have a question about upcoming tournament modes, or want to suggest a format we should support?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

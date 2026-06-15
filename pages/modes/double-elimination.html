@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.double-elimination.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Double Elimination – TournaQ Game Modes</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .under-construction-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff8e1;
+      border: 1px solid #f9a825;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
+    .under-construction-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #7c5a00;
+      line-height: 1.4;
+    }
+    .under-construction-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #9e7500;
+      margin-top: 2px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+    .detail-box {
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+    .detail-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .detail-box .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--olive-dark);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.double-elimination.hero.title">Double Elimination</h1>
+      <p class="subtitle" data-i18n="modes.double-elimination.hero.subtitle">Two losses and you're out — a second chance keeps competition alive longer.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="planned-status status-badge" data-i18n="modes.double-elimination.status">Planned</div>
+      <h2 data-i18n="modes.double-elimination.hero.title">Double Elimination</h2>
+      <div class="under-construction-banner">
+        <div class="sign">🚧</div>
+        <div class="sign-text" data-i18n-html="modes.double-elimination.construction">
+          Page Under Construction
+          <span>This page is being updated. Content may be incomplete.</span>
+        </div>
+      </div>
+
+      <div style="display:none">
+        <p data-i18n="modes.double-elimination.intro">Double elimination gives every team a second chance. Teams start in the winner's bracket and drop to the loser's bracket after their first defeat — only a second loss eliminates a team entirely. The last team standing in the loser's bracket meets the winner's bracket champion in a grand final. TournaQ tracks both brackets simultaneously.</p>
+
+        <div class="detail-row">
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.double-elimination.detail.teams.label">Teams</div>
+            <div class="value" data-i18n="modes.double-elimination.detail.teams.value">4, 8, 16</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.double-elimination.detail.elimination.label">Elimination</div>
+            <div class="value" data-i18n="modes.double-elimination.detail.elimination.value">Two losses</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.double-elimination.detail.brackets.label">Brackets</div>
+            <div class="value" data-i18n="modes.double-elimination.detail.brackets.value">Winner + Loser</div>
+          </div>
+          <div class="detail-box">
+            <div class="label" data-i18n="modes.double-elimination.detail.tournament.label">Tournament required</div>
+            <div class="value" data-i18n="modes.double-elimination.detail.tournament.value">Yes</div>
+          </div>
+        </div>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.double-elimination.how.title">How it works</h3>
+        <p data-i18n="modes.double-elimination.how.text">The organiser configures the draw size and seeding. TournaQ generates both the winner's and loser's brackets and manages the flow of teams between them as results come in. Every match placement is handled automatically — including the grand final, which may require two matches if the loser's bracket finalist wins the first game.</p>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.double-elimination.setup.title">Setup options</h3>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li data-i18n="modes.double-elimination.setup.li1">Number of teams: 4, 8, or 16</li>
+          <li data-i18n="modes.double-elimination.setup.li2">Seeding: random draw or manual placement</li>
+          <li data-i18n="modes.double-elimination.setup.li3">Grand final format: one or two matches</li>
+          <li data-i18n="modes.double-elimination.setup.li4">Match format: configurable sets and points per match</li>
+        </ul>
+
+        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.double-elimination.bestfor.title">Best for</h3>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li data-i18n="modes.double-elimination.bestfor.li1">Competitive tournaments where one bad match shouldn't end a team's run</li>
+          <li data-i18n="modes.double-elimination.bestfor.li2">Events where players want more guaranteed matches than single elimination</li>
+          <li data-i18n="modes.double-elimination.bestfor.li3">Brackets where seeding quality is uncertain and upsets are expected</li>
+          <li data-i18n="modes.double-elimination.bestfor.li4">Formats where the final should feature the two strongest surviving teams</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.double-elimination.feedback.text">Have a question about Double Elimination, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

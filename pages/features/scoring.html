@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.scoring.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoring – TournaQ Features</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .features-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+    .features-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .features-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .features-subnav-links a:hover,
+    .features-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+    .coming-soon-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .pill {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .pill-available  { background: #2e7d32; color: white; }
+    .pill-soon       { background: var(--gold); color: var(--gold-dark); }
+    .pill-planned    { background: rgba(85,107,47,0.12); color: var(--olive); }
+    .feature-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+    .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
+    .in-progress-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="features.scoring.hero.title">Scoring</h1>
+      <p class="subtitle" data-i18n="features.scoring.hero.subtitle">Live match scoring designed for beach volleyball on the court.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="in-progress-status" data-i18n="features.scoring.status">In Progress</div>
+      <h2 data-i18n="features.scoring.feature.title">Match Scoring</h2>
+      <p data-i18n="features.scoring.feature.text">Core point tracking, set management, and score correction are live. Timeout tracking, player statistics, and match analytics are in active development.</p>
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li1.title">Live point-by-point scoring</strong>
+            <p data-i18n="features.scoring.feature.li1.text">Tap to award points to either team in real time. The interface is optimised for one-handed use during active play.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li2.title">Set management</strong>
+            <p data-i18n="features.scoring.feature.li2.text">Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets without manual input.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li3.title">Score correction</strong>
+            <p data-i18n="features.scoring.feature.li3.text">Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li4.title">Timeout tracking</strong>
+            <p data-i18n="features.scoring.feature.li4.text">Record timeouts per team per set, in line with standard beach volleyball rules.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li5.title">Match result &amp; history</strong>
+            <p data-i18n="features.scoring.feature.li5.text">Completed matches are saved locally on the device with full score history per set.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li6.title">Player point statistics</strong>
+            <p data-i18n="features.scoring.feature.li6.text">Track individual player contributions within a match — points won, errors, and serve effectiveness.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.scoring.feature.li7.title">Historical match analytics</strong>
+            <p data-i18n="features.scoring.feature.li7.text">Aggregated statistics and trends across matches and seasons for teams and individual players.</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="features.scoring.feedback.text">Have a question about Platform Features, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.user-administration.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Administration – TournaQ Features</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .features-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+    .features-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .features-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .features-subnav-links a:hover,
+    .features-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+    .coming-soon-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .pill {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .pill-available  { background: #2e7d32; color: white; }
+    .pill-soon       { background: var(--gold); color: var(--gold-dark); }
+    .pill-planned    { background: rgba(85,107,47,0.12); color: var(--olive); }
+    .feature-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+    .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="features.user-administration.hero.title">User Administration</h1>
+      <p class="subtitle" data-i18n="features.user-administration.hero.subtitle">Accounts, roles, and permissions for organisers running events at scale.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="planned-status status-badge" data-i18n="features.user-administration.status">Planned</div>
+      <h2 data-i18n="features.user-administration.feature.title">Advanced User Administration</h2>
+      <p data-i18n="features.user-administration.feature.text">User administration is part of the long-term platform vision. These features target established clubs, federations, and tournament series that need structured organiser roles, access control, and accountability across multiple events.</p>
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li1.title">Organiser accounts</strong>
+            <p data-i18n="features.user-administration.feature.li1.text">Dedicated organiser accounts with persistent access to event history, team data, and tournament configurations.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li2.title">Role-based access control</strong>
+            <p data-i18n="features.user-administration.feature.li2.text">Assign different permission levels to users — e.g. head organiser, scorekeeper, referee, read-only viewer — so each person sees and can do only what's appropriate for their role.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li3.title">Multi-organiser events</strong>
+            <p data-i18n="features.user-administration.feature.li3.text">Allow multiple people to co-manage a single event — useful for large tournaments with separate court managers or a dedicated administration team.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li4.title">Event-level permissions</strong>
+            <p data-i18n="features.user-administration.feature.li4.text">Control who can view, edit, or publish results for a specific event — independently of organisation-wide roles.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li5.title">Audit log</strong>
+            <p data-i18n="features.user-administration.feature.li5.text">A timestamped log of actions taken during an event — score changes, bracket edits, withdrawals — for dispute resolution and record-keeping.</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="features.user-administration.feedback.text">Have a question about Platform Features, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

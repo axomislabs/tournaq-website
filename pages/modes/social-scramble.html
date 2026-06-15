@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.social-scramble.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Scramble – TournaQ Game Modes</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .modes-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 40px;
+    }
+
+    .modes-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .modes-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .modes-subnav-links a:hover,
+    .modes-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+    .coming-soon-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .detail-box {
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .detail-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .detail-box .value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--olive-dark);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.social-scramble.hero.title">Social Scramble</h1>
+      <p class="subtitle" data-i18n="modes.social-scramble.hero.subtitle">Everyone plays with everyone — randomly shuffled teams, round after round.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="completed-status phase-status" data-i18n="modes.social-scramble.status">Available</div>
+      <h2 data-i18n="modes.social-scramble.hero.title">Social Scramble</h2>
+      <p data-i18n="modes.social-scramble.intro">Social Scramble is a rotating partner format where players are reshuffled into new teams at the start of each
+        round. No two people should be paired together more than once. The result is a social event where everyone
+        interacts with everyone — competitive enough to be engaging, but designed to mix the group rather than crown a
+        winner.</p>
+
+      <div class="detail-row">
+        <div class="detail-box">
+          <div class="label" data-i18n="modes.social-scramble.detail.players.label">Players</div>
+          <div class="value" data-i18n="modes.social-scramble.detail.players.value">4 – 32+</div>
+        </div>
+        <div class="detail-box">
+          <div class="label" data-i18n="modes.social-scramble.detail.teams.label">Teams per round</div>
+          <div class="value" data-i18n="modes.social-scramble.detail.teams.value">2 per court</div>
+        </div>
+        <div class="detail-box">
+          <div class="label" data-i18n="modes.social-scramble.detail.assignment.label">Player assignment</div>
+          <div class="value" data-i18n="modes.social-scramble.detail.assignment.value">Randomised</div>
+        </div>
+        <div class="detail-box">
+          <div class="label" data-i18n="modes.social-scramble.detail.tournament.label">Tournament required</div>
+          <div class="value" data-i18n="modes.social-scramble.detail.tournament.value">Yes</div>
+        </div>
+      </div>
+
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.social-scramble.how.title">How it works</h3>
+      <p data-i18n="modes.social-scramble.how.text">The organiser sets up the event and registers all players before the event starts. Available time can be
+        considered as well as match length. Play tournaments between 15 min or multiple hours, you choose. TournaQ
+        generates a match schedule where partners
+        rotate each round, minimising repeat pairings. Scores are recorded per match. At the end of all rounds,
+        individual standings are calculated based on personal win/point totals — because in a scramble, you compete as
+        an individual across changing teams.</p>
+
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.social-scramble.bestfor.title">Best for</h3>
+      <ul style="padding-left: 20px; line-height: 2;">
+        <li data-i18n="modes.social-scramble.bestfor.li1">Club social days and open events</li>
+        <li data-i18n="modes.social-scramble.bestfor.li2">Mixed-ability groups where balanced competition matters</li>
+        <li data-i18n="modes.social-scramble.bestfor.li3">Events where meeting new players is part of the fun</li>
+        <li data-i18n="modes.social-scramble.bestfor.li4">Beach volleyball clinics and training days with multiple participants</li>
+      </ul>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.social-scramble.feedback.text">Have a question about Social Scramble, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+
+</html>
