@@ -2523,6 +2523,7 @@
     });
     var titleKey = html.getAttribute('data-i18n-title');
     if (titleKey && t[titleKey]) document.title = t[titleKey];
+    document.body.style.visibility = '';
   }
 
   function updateSwitcher(lang) {
