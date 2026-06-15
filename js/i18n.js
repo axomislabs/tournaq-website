@@ -16,8 +16,8 @@
   "footer.legalHub": "Legal Hub",
   "footer.contact": "Contact",
   "page.index.title": "TournaQ – Scoring, Games and Tournament Management",
-  "index.hero.title": "Overview",
-  "index.hero.subtitle": "TournaQ - More than a Scoreboard",
+  "index.hero.title": "TournaQ - Beach Volley",
+  "index.hero.subtitle": "More than a Scoreboard",
   "index.about.title": "About TournaQ",
   "index.about.text": "TournaQ is developed as a focused sports management tool for beach volleyball. The current release supports scoring, while the long-term goal is to simplify the entire tournament workflow.",
   "index.features.title": "Available Today",
@@ -849,8 +849,8 @@
   "footer.legalHub": "Rechtliches",
   "footer.contact": "Kontakt",
   "page.index.title": "TournaQ – Punktewertung, Spiele und Turnierverwaltung",
-  "index.hero.title": "Überblick",
-  "index.hero.subtitle": "TournaQ - More than a Scoreboard",
+  "index.hero.title": "TournaQ - Beach Volley",
+  "index.hero.subtitle": "More than a Scoreboard",
   "index.about.title": "Über TournaQ",
   "index.about.text": "TournaQ ist ein fokussiertes Sportverwaltungs-Tool für Beach-Volleyball. Die aktuelle Version unterstützt die Spielpunktzahl, während das langfristige Ziel darin besteht, den gesamten Turnierablauf zu vereinfachen.",
   "index.features.title": "Aktuell verfügbar",
@@ -1682,8 +1682,8 @@
   "footer.legalHub": "Legal",
   "footer.contact": "Contacto",
   "page.index.title": "TournaQ – Puntuación, Juegos y Gestión de Torneos",
-  "index.hero.title": "Resumen",
-  "index.hero.subtitle": "TournaQ - More than a Scoreboard",
+  "index.hero.title": "TournaQ - Beach Volley",
+  "index.hero.subtitle": "More than a Scoreboard",
   "index.about.title": "Sobre TournaQ",
   "index.about.text": "TournaQ es una herramienta de gestión deportiva enfocada en el voleibol playa. La versión actual admite puntuación, mientras que el objetivo a largo plazo es simplificar todo el flujo de trabajo de torneos.",
   "index.features.title": "Disponible hoy",
@@ -2523,7 +2523,7 @@
     });
     var titleKey = html.getAttribute('data-i18n-title');
     if (titleKey && t[titleKey]) document.title = t[titleKey];
-    document.body.style.visibility = '';
+    document.body.style.visibility = 'visible';
   }
 
   function updateSwitcher(lang) {
