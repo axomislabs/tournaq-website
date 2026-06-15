@@ -64,6 +64,7 @@ class ScrambleGame {
   final DateTime? actualStartTime;
   final DateTime? actualEndTime;
   final String? firstServerId;
+  final String? arbitratorId;
 
   const ScrambleGame({
     required this.id,
@@ -78,6 +79,7 @@ class ScrambleGame {
     this.actualStartTime,
     this.actualEndTime,
     this.firstServerId,
+    this.arbitratorId,
   });
 
   bool get isCompleted => status == ScrambleGameStatus.completed;
@@ -110,6 +112,7 @@ class ScrambleGame {
         actualStartTime: actualStartTime ?? this.actualStartTime,
         actualEndTime: actualEndTime ?? this.actualEndTime,
         firstServerId: firstServerId,
+        arbitratorId: arbitratorId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -125,6 +128,7 @@ class ScrambleGame {
         'actualStartTime': actualStartTime?.toIso8601String(),
         'actualEndTime': actualEndTime?.toIso8601String(),
         'firstServerId': firstServerId,
+        'arbitratorId': arbitratorId,
       };
 
   factory ScrambleGame.fromJson(Map<String, dynamic> j) => ScrambleGame(
@@ -148,6 +152,7 @@ class ScrambleGame {
             ? DateTime.parse(j['actualEndTime'] as String)
             : null,
         firstServerId: j['firstServerId'] as String?,
+        arbitratorId: j['arbitratorId'] as String?,
       );
 
   static String generateId() => _uuid.v4();

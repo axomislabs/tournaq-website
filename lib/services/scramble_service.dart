@@ -80,6 +80,8 @@ class ScrambleService {
     final gamesPlayed = List.filled(n, 0);
     // Serve count per player — drives first-server assignment.
     final serveCount = List.filled(n, 0);
+    // Arb count per player — drives fair arbitrator assignment.
+    final arbCount = List.filled(n, 0);
 
     final rounds = <ScrambleRound>[];
     final games = <ScrambleGame>[];
@@ -128,6 +130,11 @@ class ScrambleService {
         totalPlayers: n,
       );
 
+      // Arb queue for this round: sitting-out players sorted by fewest arbs.
+      // One arb is popped per court; if exhausted the court gets null (manual).
+      final arbQueue = sittingOutIndices.toList()
+        ..sort((a, b) => arbCount[a].compareTo(arbCount[b]));
+
       for (var c = 0; c < courtAssignments.length; c++) {
         final (sideA, sideB) = courtAssignments[c];
 
@@ -141,6 +148,14 @@ class ScrambleService {
         });
         serveCount[playerIndex[server.id]!]++;
 
+        // Greedy arbitrator: draw from sitting-out queue; null when pool empty.
+        String? arbitratorId;
+        if (arbQueue.isNotEmpty) {
+          final arbIdx = arbQueue.removeAt(0);
+          arbitratorId = players[arbIdx].id;
+          arbCount[arbIdx]++;
+        }
+
         games.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: roundId,
@@ -151,6 +166,7 @@ class ScrambleService {
           // all games in the round share the same sitting-out list.
           sittingOutPlayerIds: c == 0 ? sittingOutIds : const [],
           firstServerId: server.id,
+          arbitratorId: arbitratorId,
         ));
 
         _updatePairMatrices(

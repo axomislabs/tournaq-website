@@ -741,7 +741,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             ),
             DropdownMenuItem(
               value: KotcAssignmentMode.automatedAllPlay,
-              child: Text('Automated — All Play'),
+              child: Text('Auto-Allplay'),
             ),
           ],
           onChanged: (v) {

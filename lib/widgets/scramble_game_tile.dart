@@ -112,6 +112,26 @@ class ScrambleGameTile extends StatelessWidget {
                         ],
                       ],
                     ),
+                    if (!game.isCompleted) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.gavel_rounded,
+                              size: 9, color: Colors.blueGrey),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              game.arbitratorId != null
+                                  ? '${tournament.getPlayer(game.arbitratorId!)?.name ?? ''} arbs'
+                                  : 'Assign arb manually',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.blueGrey),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

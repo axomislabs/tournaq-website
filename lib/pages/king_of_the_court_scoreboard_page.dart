@@ -965,23 +965,29 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ),
           ),
           const SizedBox(width: 10),
-          Text(
-            admin?.name ?? '—',
-            style: const TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w700),
+          Flexible(
+            child: Text(
+              admin?.name ?? '—',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w700),
+            ),
           ),
           if (nextAdmin != null) ...[
             const SizedBox(width: 8),
             const Icon(Icons.arrow_forward_rounded,
                 size: 13, color: Colors.black38),
             const SizedBox(width: 6),
-            Text(
-              nextAdmin.name,
-              style: const TextStyle(
-                  fontSize: 12, color: Colors.black54),
+            Flexible(
+              child: Text(
+                nextAdmin.name,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontSize: 12, color: Colors.black54),
+              ),
             ),
           ],
-          const Spacer(),
+          const SizedBox(width: 8),
           const Icon(Icons.edit_rounded, size: 13, color: Colors.black38),
         ]),
       ),
@@ -1735,7 +1741,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Column 1: Up Next (top) + Challengers (middle) + Admin (bottom, allPlay only)
+                      // Column 1: Up Next (top) + Challengers (bottom)
                       Expanded(
                         flex: 2,
                         child: Column(
@@ -1744,18 +1750,23 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                             Expanded(child: _buildUpNextTile(compact: true)),
                             const SizedBox(height: 6),
                             Expanded(child: _buildChallengersTile(compact: true)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      // Column 2: Scoring tile + Admin tile below (allPlay only)
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: _buildActiveScoringTile(compact: true)),
                             if (_isAllPlay) ...[
                               const SizedBox(height: 6),
                               _buildAdminTile(),
                             ],
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      // Column 2: Court Team + Score
-                      Expanded(
-                        flex: 3,
-                        child: _buildActiveScoringTile(compact: true),
                       ),
                       const SizedBox(width: 6),
                       // Column 3: Eject (focal, flex 2) + Undo (secondary, flex 1)

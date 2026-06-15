@@ -1049,6 +1049,40 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     );
   }
 
+  // ── Arbitrator banner ─────────────────────────────────────────────────────
+
+  Widget _buildArbBanner() {
+    final arbName = _game.arbitratorId != null
+        ? _t.getPlayer(_game.arbitratorId!)?.name
+        : null;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.blueGrey.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.gavel_rounded, size: 14, color: Colors.blueGrey.shade600),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              arbName != null
+                  ? '$arbName suggested as arbitrator'
+                  : 'Assign an arbitrator manually',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey.shade700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Lock banner ───────────────────────────────────────────────────────────
 
   Widget _buildLockBanner() {
@@ -1312,6 +1346,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _buildArbBanner(),
+        const SizedBox(height: 10),
         // Info pills row
         Wrap(
           spacing: 8,
