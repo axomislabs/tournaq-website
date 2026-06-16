@@ -84,6 +84,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Match state ───────────────────────────────────────────────────────────
   bool _matchCompleted = false;
+  bool _adjusting = false;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   final _matchTimerKey = GlobalKey<ScrambleTimerWidgetState>();
@@ -192,7 +193,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Game completion ───────────────────────────────────────────────────────
 
-  void _completeGame() {
+  Future<void> _completeGame() async {
     final now = DateTime.now();
     final started = _game.actualStartTime ?? now;
     final delta = now.difference(started) - _round.matchDuration;
@@ -218,9 +219,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     setState(() {
       _game = updatedGame;
       _matchCompleted = true;
+      _adjusting = false;
     });
     _matchTimerKey.currentState?.pause();
     _persist(updated);
+    await _showPostCompletionDialog();
   }
 
   void _undoCompletion() {
@@ -257,7 +260,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       status: ScrambleGameStatus.inProgress,
       actualStartTime: DateTime.now(),
     );
-    setState(() => _game = updatedGame);
+    setState(() {
+      _game = updatedGame;
+      _adjusting = false;
+    });
     _persist(_t.updateGame(updatedGame));
     // restart() resets remaining to widget.initial (= _round.matchDuration)
     // and sets state to idle; start() then begins the countdown.
@@ -348,7 +354,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
     if (!mounted) return;
     if (adjust == false) {
-      _completeGame();
+      await _completeGame();
     }
     // adjust == true → user stays on scorecard to fix score, then taps Complete Game
   }
@@ -631,7 +637,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final leftPlayers = _isSwapped ? sideBPlayers : sideAPlayers;
     final rightPlayers = _isSwapped ? sideAPlayers : sideBPlayers;
     final leftIsA = !_isSwapped;
-    final scoreLocked = _matchCompleted;
+    final timerState = _matchTimerKey.currentState?.timerState ??
+        ScrambleTimerState.idle;
+    final timerRunning = timerState == ScrambleTimerState.running;
+    final timerFinished = timerState == ScrambleTimerState.finished;
+    final scoreLocked = _matchCompleted ||
+        (!timerRunning && !(timerFinished && _adjusting));
 
     final optionsButton = IconButton(
       icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
@@ -673,35 +684,71 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                           mode: ScrambleTimerMode.countdown,
                           autoStart: false,
                           compact: true,
+                          onTick: (_) => setState(() {}),
                           onFinished: _onMatchTimerFinished,
                         ),
                         if (!_matchCompleted) ...[
                           const SizedBox(width: 8),
-                          _refBtn(
-                            Icons.pause_rounded,
-                            'Stop',
-                            () => _matchTimerKey.currentState?.pause(),
-                          ),
-                          const SizedBox(width: 4),
-                          _refBtn(
-                            Icons.replay_rounded,
-                            'Start / Restart',
-                            _startOrRestart,
-                          ),
-                          const SizedBox(width: 4),
-                          _refTextBtn(
-                            '+30s',
-                            () => _matchTimerKey.currentState?.addTime(
-                              const Duration(seconds: 30),
+                          if (timerFinished) ...[
+                            _refBtn(
+                              _adjusting
+                                  ? Icons.check_rounded
+                                  : Icons.edit_rounded,
+                              _adjusting ? 'Done' : 'Adjust Final Score',
+                              () => setState(() => _adjusting = !_adjusting),
+                              primary: _adjusting,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          _refTextBtn(
-                            '−30s',
-                            () => _matchTimerKey.currentState?.addTime(
-                              const Duration(seconds: -30),
+                            const SizedBox(width: 4),
+                            _refBtn(
+                              Icons.replay_rounded,
+                              'Restart',
+                              _startOrRestart,
                             ),
-                          ),
+                          ] else ...[
+                            if (timerRunning)
+                              _refBtn(
+                                Icons.pause_rounded,
+                                'Stop',
+                                () {
+                                  _matchTimerKey.currentState?.pause();
+                                  setState(() {});
+                                },
+                              )
+                            else if (timerState == ScrambleTimerState.paused)
+                              _refBtn(
+                                Icons.play_arrow_rounded,
+                                'Resume',
+                                () {
+                                  _matchTimerKey.currentState?.resume();
+                                  setState(() {});
+                                },
+                                primary: true,
+                              ),
+                            const SizedBox(width: 4),
+                            _refBtn(
+                              timerState == ScrambleTimerState.idle
+                                  ? Icons.play_arrow_rounded
+                                  : Icons.replay_rounded,
+                              timerState == ScrambleTimerState.idle
+                                  ? 'Start'
+                                  : 'Restart',
+                              _startOrRestart,
+                            ),
+                            const SizedBox(width: 4),
+                            _refTextBtn(
+                              '+30s',
+                              () => _matchTimerKey.currentState?.addTime(
+                                const Duration(seconds: 30),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            _refTextBtn(
+                              '−30s',
+                              () => _matchTimerKey.currentState?.addTime(
+                                const Duration(seconds: -30),
+                              ),
+                            ),
+                          ],
                         ],
                         const Spacer(),
                         optionsButton,
@@ -774,7 +821,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     trailing: optionsButton,
                   ),
                   const SizedBox(height: 10),
-                  _buildGameplayTimerRow(),
+                  _buildGameplayTimerRow(
+                    timerState: timerState,
+                    timerRunning: timerRunning,
+                    timerFinished: timerFinished,
+                  ),
                   if (_game.status == ScrambleGameStatus.scheduled &&
                       _game.firstServerId != null) ...[
                     const SizedBox(height: 10),
@@ -889,7 +940,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Gameplay timer row ────────────────────────────────────────────────────
 
-  Widget _buildGameplayTimerRow() {
+  Widget _buildGameplayTimerRow({
+    required ScrambleTimerState timerState,
+    required bool timerRunning,
+    required bool timerFinished,
+  }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -920,6 +975,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 mode: ScrambleTimerMode.countdown,
                 autoStart: false,
                 compact: true,
+                onTick: (_) => setState(() {}),
                 onFinished: _onMatchTimerFinished,
               ),
             ],
@@ -931,28 +987,58 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               runSpacing: 6,
               alignment: WrapAlignment.center,
               children: [
-                _refBtn(
-                  Icons.pause_rounded,
-                  'Stop',
-                  () => _matchTimerKey.currentState?.pause(),
-                ),
-                _refBtn(
-                  Icons.replay_rounded,
-                  'Start / Restart',
-                  _startOrRestart,
-                ),
-                _refTextBtn(
-                  '+30s',
-                  () => _matchTimerKey.currentState?.addTime(
-                    const Duration(seconds: 30),
+                if (timerFinished) ...[
+                  _refBtn(
+                    _adjusting ? Icons.check_rounded : Icons.edit_rounded,
+                    _adjusting ? 'Done' : 'Adjust Final Score',
+                    () => setState(() => _adjusting = !_adjusting),
+                    primary: _adjusting,
                   ),
-                ),
-                _refTextBtn(
-                  '−30s',
-                  () => _matchTimerKey.currentState?.addTime(
-                    const Duration(seconds: -30),
+                  _refBtn(
+                    Icons.replay_rounded,
+                    'Restart',
+                    _startOrRestart,
                   ),
-                ),
+                ] else ...[
+                  if (timerRunning)
+                    _refBtn(
+                      Icons.pause_rounded,
+                      'Stop',
+                      () {
+                        _matchTimerKey.currentState?.pause();
+                        setState(() {});
+                      },
+                    )
+                  else if (timerState == ScrambleTimerState.paused)
+                    _refBtn(
+                      Icons.play_arrow_rounded,
+                      'Resume',
+                      () {
+                        _matchTimerKey.currentState?.resume();
+                        setState(() {});
+                      },
+                      primary: true,
+                    ),
+                  _refBtn(
+                    timerState == ScrambleTimerState.idle
+                        ? Icons.play_arrow_rounded
+                        : Icons.replay_rounded,
+                    timerState == ScrambleTimerState.idle ? 'Start' : 'Restart',
+                    _startOrRestart,
+                  ),
+                  _refTextBtn(
+                    '+30s',
+                    () => _matchTimerKey.currentState?.addTime(
+                      const Duration(seconds: 30),
+                    ),
+                  ),
+                  _refTextBtn(
+                    '−30s',
+                    () => _matchTimerKey.currentState?.addTime(
+                      const Duration(seconds: -30),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
@@ -1069,8 +1155,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           Expanded(
             child: Text(
               arbName != null
-                  ? '$arbName suggested as arbitrator'
-                  : 'Assign an arbitrator manually',
+                  ? '$arbName suggested as referee'
+                  : 'Assign a referee manually',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1488,7 +1574,24 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     }
   }
 
-  Future<void> _showManualScoreDialog() async {
+  Future<void> _openUpcomingGame(
+    ScrambleGame game,
+    ScrambleRound round,
+  ) async {
+    final updated = await Navigator.of(context).push<ScrambleTournament>(
+      MaterialPageRoute(
+        builder: (_) => ScrambleScorecardPage(
+          tournament: _t,
+          game: game,
+          round: round,
+          onChanged: widget.onChanged,
+        ),
+      ),
+    );
+    if (updated != null && mounted) _persist(updated);
+  }
+
+  Future<void> _showManualScoreDialog({bool showPostDialog = true}) async {
     final sideALabel = _game.sideAPlayerIds
         .map((id) => _t.getPlayer(id)?.name ?? id)
         .join(' & ');
@@ -1577,7 +1680,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       final a = int.tryParse(ctrlA.text) ?? 0;
                       final b = int.tryParse(ctrlB.text) ?? 0;
                       Navigator.of(ctx).pop();
-                      _completeWithManualScore(a, b);
+                      _completeWithManualScore(a, b, showPostDialog: showPostDialog);
                     },
                     child: const Text(
                       'Complete Game',
@@ -1591,8 +1694,15 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         ),
       );
     } finally {
-      ctrlA.dispose();
-      ctrlB.dispose();
+      // Delay disposal until the dialog's exit animation (~150ms) is fully done.
+      // Navigator.pop() completes the showDialog future immediately, but the
+      // dialog widget stays in the overlay for the exit animation and its builder
+      // keeps referencing these controllers — disposing them synchronously here
+      // causes "used after dispose" errors during those animation frames.
+      Future.delayed(const Duration(milliseconds: 300), () {
+        ctrlA.dispose();
+        ctrlB.dispose();
+      });
     }
   }
 
@@ -1699,7 +1809,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     );
   }
 
-  void _completeWithManualScore(int scoreA, int scoreB) {
+  Future<void> _completeWithManualScore(
+    int scoreA,
+    int scoreB, {
+    bool showPostDialog = true,
+  }) async {
     final now = DateTime.now();
     final updatedGame = _game.copyWith(
       sideAScore: scoreA,
@@ -1713,8 +1827,231 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _scoreB = scoreB;
       _game = updatedGame;
       _matchCompleted = true;
+      _adjusting = false;
     });
     _persist(_t.updateGame(updatedGame));
+    if (showPostDialog) await _showPostCompletionDialog();
+  }
+
+  // ── Post-completion dialog ────────────────────────────────────────────────
+
+  Future<void> _showPostCompletionDialog() async {
+    if (!mounted) return;
+    final upcoming = _upcomingGames();
+    final isZeroZero = _scoreA == 0 && _scoreB == 0;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _kOliveLight,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: _kOlive,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Game Complete',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        content: const Text(
+          'What would you like to do next?',
+          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+        ),
+        actions: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (isZeroZero) ...[
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kOlive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _showManualScoreDialog(showPostDialog: false);
+                  },
+                  icon: const Icon(Icons.edit_rounded, size: 16),
+                  label: const Text(
+                    'Set Score Manually',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: upcoming.isEmpty ? Colors.grey.shade100 : _kGold,
+                  foregroundColor:
+                      upcoming.isEmpty ? Colors.grey.shade400 : Colors.black87,
+                  disabledBackgroundColor: Colors.grey.shade100,
+                  disabledForegroundColor: Colors.grey.shade400,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: upcoming.isEmpty
+                    ? null
+                    : () {
+                        Navigator.of(ctx).pop();
+                        if (upcoming.length == 1) {
+                          _openUpcomingGame(
+                              upcoming.first.game, upcoming.first.round);
+                        } else {
+                          _showNextGamePicker(upcoming);
+                        }
+                      },
+                icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                label: Text(
+                  upcoming.isEmpty ? 'No Upcoming Games' : 'Start Next Game',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop(_t);
+                },
+                icon: const Icon(Icons.calendar_today_rounded, size: 16),
+                label: const Text(
+                  'Back to Schedule',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showNextGamePicker(
+    List<({ScrambleGame game, ScrambleRound round})> upcoming,
+  ) async {
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'SELECT NEXT GAME',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: _kOlive,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...upcoming.map((entry) {
+                final g = entry.game;
+                final r = entry.round;
+                final sideANames = g.sideAPlayerIds
+                    .map((id) => _t.getPlayer(id)?.name ?? id)
+                    .join(' & ');
+                final sideBNames = g.sideBPlayerIds
+                    .map((id) => _t.getPlayer(id)?.name ?? id)
+                    .join(' & ');
+                return ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  leading: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: _kOliveLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('R${r.roundNumber}',
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: _kOlive)),
+                        Text('C${g.courtNumber}',
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: _kOlive)),
+                      ],
+                    ),
+                  ),
+                  title: Text(sideANames,
+                      style: const TextStyle(fontSize: 13),
+                      overflow: TextOverflow.ellipsis),
+                  subtitle: Text('vs $sideBNames',
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.black54),
+                      overflow: TextOverflow.ellipsis),
+                  trailing: Text(
+                    ScrambleService.formatTime(r.scheduledStartTime),
+                    style: const TextStyle(
+                        fontSize: 12, color: Colors.black45),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    _openUpcomingGame(g, r);
+                  },
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ── Upcoming Games section ────────────────────────────────────────────────
@@ -1747,80 +2084,115 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         final sideBNames = g.sideBPlayerIds
             .map((id) => _t.getPlayer(id)?.name ?? id)
             .join(' & ');
+        final refName = g.arbitratorId != null
+            ? _t.getPlayer(g.arbitratorId!)?.name
+            : null;
 
-        return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Material(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: InkWell(
+              onTap: () => _openUpcomingGame(g, r),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: _kOliveLight,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: Row(
                   children: [
-                    Text(
-                      'R${r.roundNumber}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: _kOlive,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _kOliveLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'R${r.roundNumber}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              color: _kOlive,
+                            ),
+                          ),
+                          Text(
+                            'C${g.courtNumber}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              color: _kOlive,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sideANames,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            'vs $sideBNames',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Icon(Icons.gavel_rounded,
+                                  size: 9, color: Colors.blueGrey.shade400),
+                              const SizedBox(width: 2),
+                              Flexible(
+                                child: Text(
+                                  refName != null
+                                      ? '$refName refs'
+                                      : 'Assign ref manually',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.blueGrey.shade400),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                     Text(
-                      'C${g.courtNumber}',
+                      ScrambleService.formatTime(r.scheduledStartTime),
                       style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _kOlive,
+                        fontSize: 12,
+                        color: Colors.black45,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.chevron_right_rounded,
+                        size: 16, color: Colors.grey.shade400),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sideANames,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      'vs $sideBNames',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                ScrambleService.formatTime(r.scheduledStartTime),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.black45,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+            ),
           ),
         );
       }).toList(),

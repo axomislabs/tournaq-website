@@ -68,12 +68,12 @@ class ScrambleGameTile extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 7,
                             color: AppColors.olive,
-                            fontWeight: FontWeight.w600)),
+                            fontWeight: FontWeight.w400)),
                     Text('${game.courtNumber}',
                         style: const TextStyle(
                             fontSize: 16,
                             color: AppColors.olive,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w400,
                             height: 1)),
                   ],
                 ),
@@ -88,50 +88,28 @@ class ScrambleGameTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     _teamRow(teamB, game.sideBScore, game.winningSide == 'B'),
                     const SizedBox(height: 4),
+                    Text(
+                      ScrambleService.formatTime(round.scheduledStartTime),
+                      style: const TextStyle(fontSize: 11, color: Colors.black38),
+                    ),
+                    const SizedBox(height: 2),
                     Row(
                       children: [
-                        Text(
-                          ScrambleService.formatTime(round.scheduledStartTime),
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.black38),
-                        ),
-                        if (game.status == ScrambleGameStatus.scheduled &&
-                            game.firstServerId != null) ...[
-                          const SizedBox(width: 6),
-                          const Icon(Icons.sports_volleyball_rounded,
-                              size: 9, color: Colors.black38),
-                          const SizedBox(width: 2),
-                          Flexible(
-                            child: Text(
-                              '${tournament.getPlayer(game.firstServerId!)?.name ?? ''} starts serving',
-                              style: const TextStyle(
-                                  fontSize: 10, color: Colors.black38),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                        const Icon(Icons.gavel_rounded,
+                            size: 9, color: Colors.blueGrey),
+                        const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            game.arbitratorId != null
+                                ? '${tournament.getPlayer(game.arbitratorId!)?.name ?? ''} refs'
+                                : 'Assign ref manually',
+                            style: const TextStyle(
+                                fontSize: 10, color: Colors.blueGrey),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
+                        ),
                       ],
                     ),
-                    if (!game.isCompleted) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.gavel_rounded,
-                              size: 9, color: Colors.blueGrey),
-                          const SizedBox(width: 2),
-                          Flexible(
-                            child: Text(
-                              game.arbitratorId != null
-                                  ? '${tournament.getPlayer(game.arbitratorId!)?.name ?? ''} arbs'
-                                  : 'Assign arb manually',
-                              style: const TextStyle(
-                                  fontSize: 10, color: Colors.blueGrey),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -156,10 +134,10 @@ class ScrambleGameTile extends StatelessWidget {
         Expanded(
           child: Text(
             name,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
-              fontWeight: isWinner ? FontWeight.w700 : FontWeight.w500,
-              color: isWinner ? Colors.black87 : Colors.black54,
+              fontWeight: FontWeight.w400,
+              color: Colors.black87,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -168,7 +146,7 @@ class ScrambleGameTile extends StatelessWidget {
           '$score',
           style: TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w400,
             color: isWinner ? AppColors.goldDark : Colors.black38,
           ),
         ),
