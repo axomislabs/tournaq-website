@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../models/doghouse_drill.dart';
+import '../models/king_of_the_court_tournament.dart';
 import '../models/player.dart';
+import '../models/scramble_tournament.dart';
 import '../services/app_data_service.dart';
+import '../services/doghouse_storage_service.dart';
+import '../services/king_of_the_court_storage_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
@@ -28,13 +33,86 @@ class UserDetailPage extends StatefulWidget {
   State<UserDetailPage> createState() => _UserDetailPageState();
 }
 
+typedef _TournamentEntry = ({
+  String name,
+  String typeLabel,
+  IconData icon,
+  String statusLabel,
+  bool isActive,
+});
+
 class _UserDetailPageState extends State<UserDetailPage> {
   late AppState _localState;
+  List<_TournamentEntry> _playerTournaments = [];
 
   @override
   void initState() {
     super.initState();
     _localState = widget.appState;
+    _loadTournaments();
+  }
+
+  void _loadTournaments() {
+    final id = widget.userId;
+    final results = <({_TournamentEntry entry, DateTime date})>[];
+
+    for (final t in ScrambleStorageService.loadAll()) {
+      if (t.players.any((p) => p.appUserId == id)) {
+        results.add((
+          entry: (
+            name:        t.name,
+            typeLabel:   'Social Scramble',
+            icon:        Icons.shuffle_rounded,
+            statusLabel: switch (t.status) {
+              ScrambleTournamentStatus.completed  => 'Completed',
+              ScrambleTournamentStatus.inProgress => 'In Progress',
+              ScrambleTournamentStatus.setup      => 'Setup',
+            },
+            isActive: t.status != ScrambleTournamentStatus.completed,
+          ),
+          date: t.startTime,
+        ));
+      }
+    }
+    for (final t in KingOfTheCourtStorageService.loadAll()) {
+      if (t.players.any((p) => p.appUserId == id)) {
+        results.add((
+          entry: (
+            name:        t.name,
+            typeLabel:   'King of the Court',
+            icon:        Icons.workspace_premium_rounded,
+            statusLabel: switch (t.status) {
+              KotcTournamentStatus.completed  => 'Completed',
+              KotcTournamentStatus.inProgress => 'In Progress',
+              KotcTournamentStatus.setup      => 'Setup',
+            },
+            isActive: t.status != KotcTournamentStatus.completed,
+          ),
+          date: t.createdAt,
+        ));
+      }
+    }
+    for (final t in DoghouseStorageService.loadAll()) {
+      if (t.players.any((p) => p.appUserId == id)) {
+        results.add((
+          entry: (
+            name:        t.name,
+            typeLabel:   'Doghouse',
+            icon:        Icons.pets_rounded,
+            statusLabel: switch (t.status) {
+              DoghouseTournamentStatus.completed  => 'Completed',
+              DoghouseTournamentStatus.inProgress => 'In Progress',
+              DoghouseTournamentStatus.setup      => 'Setup',
+            },
+            isActive: t.status != DoghouseTournamentStatus.completed,
+          ),
+          date: t.createdAt,
+        ));
+      }
+    }
+
+    results.sort((a, b) => b.date.compareTo(a.date));
+    setState(() => _playerTournaments = results.map((r) => r.entry).toList());
   }
 
   void _updateState(AppState newState) {
@@ -96,6 +174,50 @@ class _UserDetailPageState extends State<UserDetailPage> {
     if (selected != null && mounted) {
       _updateState(AppDataService.assignPlayerToClub(_localState, playerId: widget.userId, clubId: selected));
     }
+  }
+
+  Future<void> _editName() async {
+    final user = _user;
+    if (user == null) return;
+    final ctrl = TextEditingController(text: user.name);
+    final l10n = AppLocalizations.of(context)!;
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Edit Name',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        content: TextField(
+          controller: ctrl,
+          textCapitalization: TextCapitalization.words,
+          autofocus: true,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Player name',
+          ),
+          onSubmitted: (v) {
+            if (v.trim().isNotEmpty) Navigator.of(ctx).pop(v.trim());
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.btnCancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final v = ctrl.text.trim();
+              if (v.isNotEmpty) Navigator.of(ctx).pop(v);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (newName == null || !mounted) return;
+    final updated = user.copyWith(name: newName);
+    await LocalStorageService.savePlayer(updated);
+    _updateState(_localState.updatePlayer(updated));
   }
 
   Future<void> _setSkillRating(int rating) async {
@@ -224,8 +346,16 @@ class _UserDetailPageState extends State<UserDetailPage> {
     final userClubs = _localState.getPlayerClubs(user.id);
 
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
-      appBar: TournaQAppBar(title: l10n.pagePlayerDetails),
+      appBar: TournaQAppBar(
+        title: l10n.pagePlayerDetails,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_rounded),
+            tooltip: 'Edit name',
+            onPressed: _editName,
+          ),
+        ],
+      ),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -289,6 +419,43 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   trailing: IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
                     onPressed: () => _removeFromTeam(team.id),
+                  ),
+                ),
+              )),
+
+            const SizedBox(height: 20),
+
+            Text(
+              'Tournaments (${_playerTournaments.length})',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            if (_playerTournaments.isEmpty)
+              Center(child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text('Not participating in any tournaments', style: const TextStyle(color: Colors.black45)),
+              ))
+            else
+              ..._playerTournaments.map((t) => Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: ListTile(
+                  leading: Icon(t.icon, color: AppColors.gold),
+                  title: Text(t.name),
+                  subtitle: Text(t.typeLabel),
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: t.isActive ? AppColors.oliveLight : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      t.statusLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: t.isActive ? AppColors.olive : Colors.black45,
+                      ),
+                    ),
                   ),
                 ),
               )),

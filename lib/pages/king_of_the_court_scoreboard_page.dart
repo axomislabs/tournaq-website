@@ -22,12 +22,14 @@ class KingOfTheCourtScoreboardPage extends StatefulWidget {
   final KingOfTheCourtTournament tournament;
   final List<Player> existingPlayers;
   final void Function(KingOfTheCourtTournament) onChanged;
+  final Player Function(String name)? onCreatePlayer;
 
   const KingOfTheCourtScoreboardPage({
     super.key,
     required this.tournament,
     required this.existingPlayers,
     required this.onChanged,
+    this.onCreatePlayer,
   });
 
   @override
@@ -650,11 +652,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           void addByName(String raw) {
             final name = raw.trim();
             if (name.isEmpty) return;
+            final globalPlayer = widget.onCreatePlayer?.call(name);
             final p = KotcPlayer(
-              id:     KotcPlayer.generateId(),
-              name:   name,
-              source: KotcPlayerSource.created,
-              isLate: true,
+              id:        KotcPlayer.generateId(),
+              name:      name,
+              source:    globalPlayer != null ? KotcPlayerSource.existing : KotcPlayerSource.created,
+              appUserId: globalPlayer?.id,
+              isLate:    true,
             );
             _t = _t.copyWith(players: [..._t.players, p]);
             _persist();
@@ -910,10 +914,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           );
         },
       ),
-    ).whenComplete(() {
-      nameCtrl.dispose();
-      searchCtrl.dispose();
-    });
+    );
   }
 
   // ── Late chip ──────────────────────────────────────────────────────────────

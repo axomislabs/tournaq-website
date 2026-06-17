@@ -196,6 +196,16 @@ class AppDataService {
     required String team2Id,
     MatchFormat matchFormat = MatchFormat.oneSet,
   }) {
+    final t1Name = state.getTeamById(team1Id)?.name ?? '';
+    final t2Name = state.getTeamById(team2Id)?.name ?? '';
+    final t1Players = state.getPlayersForTeam(team1Id);
+    final t2Players = state.getPlayersForTeam(team2Id);
+    final lineups = [
+      if (t1Players.isNotEmpty)
+        GameTeamLineup(teamId: team1Id, playerNames: t1Players.map((p) => p.name).toList()),
+      if (t2Players.isNotEmpty)
+        GameTeamLineup(teamId: team2Id, playerNames: t2Players.map((p) => p.name).toList()),
+    ];
     final initialSet = GameSet(
       id: AppState.generateId(),
       setNumber: 1,
@@ -204,12 +214,15 @@ class AppDataService {
       id: AppState.generateId(),
       team1Id: team1Id,
       team2Id: team2Id,
+      team1Name: t1Name,
+      team2Name: t2Name,
       round: 1,
       source: GameSource.quickLocal,
       isLocalOnly: true,
       matchFormat: matchFormat,
       sets: [initialSet],
       status: GameStatus.inProgress,
+      lineups: lineups,
     );
     return state.addGame(game);
   }

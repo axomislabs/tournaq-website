@@ -22,12 +22,14 @@ class DoghouseScoreboardPage extends StatefulWidget {
   final DoghouseTournament tournament;
   final List<Player> existingPlayers;
   final void Function(DoghouseTournament) onChanged;
+  final Player Function(String name)? onCreatePlayer;
 
   const DoghouseScoreboardPage({
     super.key,
     required this.tournament,
     required this.existingPlayers,
     required this.onChanged,
+    this.onCreatePlayer,
   });
 
   @override
@@ -629,11 +631,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           void addByName(String raw) {
             final name = raw.trim();
             if (name.isEmpty) return;
+            final globalPlayer = widget.onCreatePlayer?.call(name);
             final p = DoghousePlayer(
-              id:     DoghousePlayer.generateId(),
-              name:   name,
-              source: DoghousePlayerSource.created,
-              isLate: true,
+              id:        DoghousePlayer.generateId(),
+              name:      name,
+              source:    globalPlayer != null ? DoghousePlayerSource.existing : DoghousePlayerSource.created,
+              appUserId: globalPlayer?.id,
+              isLate:    true,
             );
             _t = _t.copyWith(players: [..._t.players, p]);
             _persist();

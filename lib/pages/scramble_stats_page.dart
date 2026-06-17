@@ -38,8 +38,16 @@ class ScrambleStatsPage extends StatelessWidget {
                 ),
               )
             else ...[
-              _buildTableHeader(),
-              ...stats.map((s) => _buildPlayerRow(s, stats.first)),
+              Builder(builder: (ctx) {
+                final portrait = MediaQuery.orientationOf(ctx) ==
+                    Orientation.portrait;
+                return Column(
+                  children: [
+                    _buildTableHeader(portrait),
+                    ...stats.map((s) => _buildPlayerRow(s, stats.first, portrait)),
+                  ],
+                );
+              }),
             ],
           ],
         ),
@@ -91,31 +99,31 @@ class ScrambleStatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(bool portrait) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.olive,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          SizedBox(width: 28, child: Text('#', style: _headerStyle)),
-          SizedBox(width: 8),
-          Expanded(child: Text('Player', style: _headerStyle)),
-          _StatHeader('Pts'),
-          _StatHeader('G'),
-          _StatHeader('W'),
-          _StatHeader('L'),
-          _StatHeader('D'),
-          _StatHeader('+/-'),
-          _StatHeader('Avg'),
+          const SizedBox(width: 28, child: Text('#', style: _headerStyle)),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Player', style: _headerStyle)),
+          const _StatHeader('RP'),
+          const _StatHeader('W'),
+          const _StatHeader('D'),
+          if (!portrait) const _StatHeader('L'),
+          if (!portrait) const _StatHeader('Pts'),
+          const _StatHeader('+/-'),
+          if (!portrait) const _StatHeader('G'),
         ],
       ),
     );
   }
 
-  Widget _buildPlayerRow(ScramblePlayerStats s, ScramblePlayerStats leader) {
+  Widget _buildPlayerRow(ScramblePlayerStats s, ScramblePlayerStats leader, bool portrait) {
     final isLeader = s.rank == 1;
     final rowBg = isLeader ? AppColors.goldCream : Colors.white;
     final rankColor = isLeader ? AppColors.goldDark : Colors.black45;
@@ -147,28 +155,63 @@ class ScrambleStatsPage extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              s.playerName,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: isLeader ? FontWeight.w800 : FontWeight.w500,
-              ),
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    s.playerName,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isLeader ? FontWeight.w800 : FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (s.status != ScramblePlayerStatus.active) ...[
+                  const SizedBox(width: 4),
+                  _statusBadge(s.status),
+                ],
+              ],
             ),
           ),
-          _statCell('${s.totalPoints}',
-              isLeader ? AppColors.goldDark : Colors.black87,
-              true),
-          _statCell('${s.gamesPlayed}'),
+          _statCell('${s.rankingPoints}',
+              isLeader ? AppColors.goldDark : Colors.black87, true),
           _statCell('${s.wins}', AppColors.olive),
-          _statCell('${s.losses}', Colors.red.shade400),
           _statCell('${s.draws}'),
+          if (!portrait) _statCell('${s.losses}', Colors.red.shade400),
+          if (!portrait) _statCell('${s.totalPoints}'),
           _statCell(
             '${s.pointDifference >= 0 ? '+' : ''}${s.pointDifference}',
             s.pointDifference >= 0 ? AppColors.olive : Colors.red.shade400,
           ),
-          _statCell(s.averagePointsPerGame.toStringAsFixed(1)),
+          if (!portrait) _statCell('${s.gamesPlayed}'),
         ],
       ),
+    );
+  }
+
+  Widget _statusBadge(ScramblePlayerStatus status) {
+    final (label, color) = switch (status) {
+      ScramblePlayerStatus.ejected => ('OUT', Colors.red.shade400),
+      ScramblePlayerStatus.swappedOut => ('SUB−', Colors.orange.shade600),
+      ScramblePlayerStatus.swappedIn => ('SUB+', AppColors.olive),
+      ScramblePlayerStatus.late => ('LATE', Colors.blue.shade400),
+      ScramblePlayerStatus.active => ('', Colors.transparent),
+    };
+    if (label.isEmpty) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(label,
+          style: TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.w700,
+              color: color,
+              letterSpacing: 0.3)),
     );
   }
 

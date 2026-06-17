@@ -11,10 +11,12 @@ import 'doghouse_setup_page.dart';
 
 class DoghouseHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final Player Function(String name) onCreatePlayer;
 
   const DoghouseHubPage({
     super.key,
     required this.existingPlayers,
+    required this.onCreatePlayer,
   });
 
   @override
@@ -51,6 +53,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
       builder: (_) => DoghouseSetupPage(
         existingPlayers: widget.existingPlayers,
         onCreated: _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }
@@ -61,6 +64,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
         tournament: t,
         existingPlayers: widget.existingPlayers,
         onChanged:  _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }

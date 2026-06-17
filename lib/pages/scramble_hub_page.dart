@@ -10,10 +10,12 @@ import 'scramble_setup_page.dart';
 
 class ScrambleHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final Player Function(String name) onCreatePlayer;
 
   const ScrambleHubPage({
     super.key,
     required this.existingPlayers,
+    required this.onCreatePlayer,
   });
 
   @override
@@ -52,6 +54,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
       builder: (_) => ScrambleSetupPage(
         existingPlayers: widget.existingPlayers,
         onCreated: _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }
@@ -59,8 +62,9 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   void _openOverview(ScrambleTournament t) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ScrambleOverviewPage(
-        tournament: t,
-        onChanged: _persist,
+        tournament:     t,
+        onChanged:      _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }

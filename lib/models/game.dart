@@ -61,6 +61,9 @@ class Game {
   final String? tournamentId;
   final String team1Id;
   final String team2Id;
+  // Snapshot of team names at game creation — used so display survives pool deletions.
+  final String team1Name;
+  final String team2Name;
   final int round;
   final GameStatus status;
   final GameResult? result; // kept for backwards compatibility
@@ -80,6 +83,8 @@ class Game {
     this.tournamentId,
     required this.team1Id,
     required this.team2Id,
+    this.team1Name = '',
+    this.team2Name = '',
     required this.round,
     this.status = GameStatus.scheduled,
     this.result,
@@ -161,6 +166,8 @@ class Game {
     String? tournamentId,
     String? team1Id,
     String? team2Id,
+    String? team1Name,
+    String? team2Name,
     int? round,
     GameStatus? status,
     GameResult? result,
@@ -178,6 +185,8 @@ class Game {
       tournamentId: tournamentId ?? this.tournamentId,
       team1Id: team1Id ?? this.team1Id,
       team2Id: team2Id ?? this.team2Id,
+      team1Name: team1Name ?? this.team1Name,
+      team2Name: team2Name ?? this.team2Name,
       round: round ?? this.round,
       status: status ?? this.status,
       result: result ?? this.result,
@@ -200,6 +209,8 @@ class Game {
         'tournamentId': tournamentId,
         'team1Id': team1Id,
         'team2Id': team2Id,
+        'team1Name': team1Name,
+        'team2Name': team2Name,
         'round': round,
         'status': status.name,
         'result': result?.toJson(),
@@ -220,6 +231,8 @@ class Game {
         tournamentId: json['tournamentId'] as String?,
         team1Id: json['team1Id'] as String,
         team2Id: json['team2Id'] as String,
+        team1Name: json['team1Name'] as String? ?? '',
+        team2Name: json['team2Name'] as String? ?? '',
         round: json['round'] as int,
         status: GameStatus.values.firstWhere(
           (e) => e.name == json['status'],

@@ -193,10 +193,32 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Game completion ───────────────────────────────────────────────────────
 
+  /// Stamps the round's actualEndTime and reflows ALL pending round times
+  /// once every game in the current round is complete.
+  /// Uses the global reflow so out-of-order completions (a later round done
+  /// while an earlier round is still pending) are handled correctly.
+  ScrambleTournament _reflowIfRoundComplete(ScrambleTournament updated) {
+    final roundGames = updated.getGamesForRound(_round.id);
+    if (!roundGames.every((g) => g.isCompleted)) return updated;
+
+    final now = DateTime.now();
+    final actualEnd = roundGames
+        .map((g) => g.actualEndTime ?? now)
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+
+    // Record actual end time on the round for display.
+    // Use the round from `updated` (not `_round`) to preserve any scheduledStartTime
+    // already adjusted by a previous reflow.
+    final liveRound = updated.getRound(_round.id) ?? _round;
+    updated = updated.updateRound(liveRound.copyWith(actualEndTime: actualEnd));
+
+    // Recalculate all pending round start times from the new baseline.
+    return ScrambleService.reflowAllPending(updated);
+  }
+
   Future<void> _completeGame() async {
     final now = DateTime.now();
     final started = _game.actualStartTime ?? now;
-    final delta = now.difference(started) - _round.matchDuration;
 
     final updatedGame = _game.copyWith(
       sideAScore: _scoreA,
@@ -206,15 +228,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       actualEndTime: now,
     );
 
-    var updated = _t.updateGame(updatedGame);
-
-    if (delta.abs().inSeconds > 30) {
-      updated = ScrambleService.reflowSchedule(
-        updated,
-        fromRoundNumber: _round.roundNumber + 1,
-        delta: delta,
-      );
-    }
+    final updated = _reflowIfRoundComplete(_t.updateGame(updatedGame));
 
     setState(() {
       _game = updatedGame;
@@ -500,99 +514,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         serviceChanged: e.serviceChanged,
       );
     }).toList();
-  }
-
-  // ── Player name editing ───────────────────────────────────────────────────
-
-  Future<void> _editPlayerName(ScramblePlayer player) async {
-    if (_matchCompleted) return;
-    final ctrl = TextEditingController(text: player.name);
-    try {
-      final saved = await showModalBottomSheet<String>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Rename Player',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  player.source == ScramblePlayerSource.existing
-                      ? 'Updates tournament display only.'
-                      : 'Updates name in stats and schedule.',
-                  style: const TextStyle(fontSize: 12, color: Colors.black45),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: ctrl,
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    hintText: 'Player name',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(ctrl.text.trim()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _kOlive,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      if (saved == null || saved.isEmpty || !mounted) return;
-      final updatedPlayers = _t.players.map((p) {
-        return p.id == player.id ? p.copyWith(name: saved) : p;
-      }).toList();
-      _persist(_t.copyWith(players: updatedPlayers));
-    } finally {
-      ctrl.dispose();
-    }
   }
 
   // ── Upcoming games helper ────────────────────────────────────────────────
@@ -916,7 +837,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         isServing: isServing,
         activeColor: activeColor,
         fontSize: fontSize,
-        onTap: disabled ? null : () => _editPlayerName(e.value),
+        onTap: null,
       );
     }).toList();
 
@@ -1190,21 +1111,24 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.lock_rounded, size: 16, color: Colors.black54),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Game completed — undo to edit scores',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black54,
-                fontWeight: FontWeight.w500,
+          Row(
+            children: const [
+              Icon(Icons.lock_rounded, size: 16, color: Colors.black54),
+              SizedBox(width: 8),
+              Text(
+                'Game completed — undo to edit scores',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 8),
+          const SizedBox(height: 4),
           if (winnerNames != null)
             Text(
               'Winner: $winnerNames',
@@ -1574,11 +1498,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     }
   }
 
-  Future<void> _openUpcomingGame(
-    ScrambleGame game,
-    ScrambleRound round,
-  ) async {
-    final updated = await Navigator.of(context).push<ScrambleTournament>(
+  void _openUpcomingGame(ScrambleGame game, ScrambleRound round) {
+    Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => ScrambleScorecardPage(
           tournament: _t,
@@ -1588,7 +1509,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         ),
       ),
     );
-    if (updated != null && mounted) _persist(updated);
   }
 
   Future<void> _showManualScoreDialog({bool showPostDialog = true}) async {
@@ -1822,6 +1742,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       actualStartTime: now,
       actualEndTime: now,
     );
+    final updated = _reflowIfRoundComplete(_t.updateGame(updatedGame));
     setState(() {
       _scoreA = scoreA;
       _scoreB = scoreB;
@@ -1829,7 +1750,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _matchCompleted = true;
       _adjusting = false;
     });
-    _persist(_t.updateGame(updatedGame));
+    _persist(updated);
     if (showPostDialog) await _showPostCompletionDialog();
   }
 
@@ -1890,7 +1811,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   ),
                   onPressed: () {
                     Navigator.of(ctx).pop();
-                    _showManualScoreDialog(showPostDialog: false);
+                    _showManualScoreDialog(showPostDialog: true);
                   },
                   icon: const Icon(Icons.edit_rounded, size: 16),
                   label: const Text(
@@ -1902,7 +1823,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               ],
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: upcoming.isEmpty ? Colors.grey.shade100 : _kGold,
+                  backgroundColor: upcoming.isEmpty ? Colors.grey.shade100 : AppColors.goldLight,
                   foregroundColor:
                       upcoming.isEmpty ? Colors.grey.shade400 : Colors.black87,
                   disabledBackgroundColor: Colors.grey.shade100,
@@ -2003,6 +1924,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 final sideBNames = g.sideBPlayerIds
                     .map((id) => _t.getPlayer(id)?.name ?? id)
                     .join(' & ');
+                final refName = g.arbitratorId != null
+                    ? _t.getPlayer(g.arbitratorId!)?.name
+                    : null;
                 return ListTile(
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -2030,12 +1954,31 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     ),
                   ),
                   title: Text(sideANames,
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
                       overflow: TextOverflow.ellipsis),
-                  subtitle: Text('vs $sideBNames',
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.black54),
-                      overflow: TextOverflow.ellipsis),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('vs $sideBNames',
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black54),
+                          overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.gavel_rounded, size: 9, color: Colors.blueGrey.shade400),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              refName != null ? '$refName refs' : 'Assign ref manually',
+                              style: TextStyle(fontSize: 10, color: Colors.blueGrey.shade400),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                   trailing: Text(
                     ScrambleService.formatTime(r.scheduledStartTime),
                     style: const TextStyle(

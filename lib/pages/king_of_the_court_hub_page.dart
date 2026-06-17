@@ -10,10 +10,12 @@ import 'king_of_the_court_setup_page.dart';
 
 class KingOfTheCourtHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final Player Function(String name) onCreatePlayer;
 
   const KingOfTheCourtHubPage({
     super.key,
     required this.existingPlayers,
+    required this.onCreatePlayer,
   });
 
   @override
@@ -50,6 +52,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
       builder: (_) => KingOfTheCourtSetupPage(
         existingPlayers: widget.existingPlayers,
         onCreated: _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }
@@ -60,6 +63,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
         tournament: s,
         existingPlayers: widget.existingPlayers,
         onChanged:  _persist,
+        onCreatePlayer: widget.onCreatePlayer,
       ),
     ));
   }

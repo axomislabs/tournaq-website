@@ -4,6 +4,7 @@ import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
+import '../models/player.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -50,6 +51,12 @@ class _TournamentsPageState extends State<TournamentsPage> {
     widget.onAppStateChanged(s);
   }
 
+  Player _createPlayer(String name) {
+    final player = Player(id: AppState.generateId(), name: name);
+    _updateState(_localState.addPlayer(player));
+    return player;
+  }
+
   void _refreshCounts() {
     setState(() {
       _scrambleCount  = ScrambleStorageService.loadAll().length;
@@ -64,6 +71,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => ScrambleHubPage(
             existingPlayers: _localState.players,
+            onCreatePlayer: _createPlayer,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -74,6 +82,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => KingOfTheCourtHubPage(
             existingPlayers: _localState.players,
+            onCreatePlayer: _createPlayer,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -84,6 +93,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => DoghouseHubPage(
             existingPlayers: _localState.players,
+            onCreatePlayer: _createPlayer,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -94,6 +104,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
       builder: (_) => TournamentHistoryPage(
         existingPlayers: _localState.players,
         initialFilter: filter,
+        onCreatePlayer: _createPlayer,
       ),
     ));
   }

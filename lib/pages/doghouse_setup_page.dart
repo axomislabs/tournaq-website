@@ -17,11 +17,13 @@ const _kGoldLight = AppColors.goldCream;
 class DoghouseSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final void Function(DoghouseTournament) onCreated;
+  final Player Function(String name) onCreatePlayer;
 
   const DoghouseSetupPage({
     super.key,
     required this.existingPlayers,
     required this.onCreated,
+    required this.onCreatePlayer,
   });
 
   @override
@@ -124,9 +126,10 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => DoghouseScoreboardPage(
-        tournament: tournament,
+        tournament:      tournament,
         existingPlayers: widget.existingPlayers,
-        onChanged:  widget.onCreated,
+        onChanged:       widget.onCreated,
+        onCreatePlayer:  widget.onCreatePlayer,
       ),
     ));
   }
@@ -207,7 +210,9 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
 
   void _showPlayersSheet() {
     _playerSearchCtrl.clear();
-    var searchActive = false;
+    var createExpanded  = false;
+    var existingExpanded = false;
+    var addedExpanded   = false;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -229,13 +234,45 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             setState(() {});
           }
 
-          void addByName(String name) {
+          Future<void> addByName(String name) async {
             final trimmed = name.trim();
             if (trimmed.isEmpty) return;
+            if (_players.any((p) =>
+                p.name.toLowerCase() == trimmed.toLowerCase())) {
+              final proceed = await showDialog<bool>(
+                context: ctx,
+                builder: (dCtx) => AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  title: const Text('Duplicate Name',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w700)),
+                  content: Text(
+                    '"$trimmed" is already added to this tournament. '
+                    'Add anyway?',
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.black54),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(dCtx).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(dCtx).pop(true),
+                      child: const Text('Add Anyway'),
+                    ),
+                  ],
+                ),
+              );
+              if (proceed != true) return;
+            }
+            final newPlayer = widget.onCreatePlayer(trimmed);
             _players.add(DoghousePlayer(
-              id:     DoghousePlayer.generateId(),
-              name:   trimmed,
-              source: DoghousePlayerSource.created,
+              id:        DoghousePlayer.generateId(),
+              name:      trimmed,
+              source:    DoghousePlayerSource.existing,
+              appUserId: newPlayer.id,
             ));
             _playerNameCtrl.clear();
             rebuild();
@@ -303,12 +340,45 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             }
           }
 
+          Widget sectionHeader(
+            String title,
+            bool expanded,
+            VoidCallback onToggle, {
+            Widget? trailing,
+          }) =>
+              InkWell(
+                onTap: onToggle,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: [
+                      Text(title,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87)),
+                      const Spacer(),
+                      if (trailing case final t?) t,
+                      Icon(
+                        expanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        size: 20,
+                        color: Colors.black45,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+
           return TournaQSheet(
             body: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // ── Main header ─────────────────────────────────────────
                   Row(
                     children: [
                       Text(AppLocalizations.of(context)!.pagePlayers,
@@ -322,7 +392,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                               foregroundColor: Colors.red,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8)),
-                          child: Text(AppLocalizations.of(context)!.doghouseClearAll,
+                          child: Text(
+                              AppLocalizations.of(context)!.doghouseClearAll,
                               style: const TextStyle(fontSize: 13)),
                         ),
                       Text(
@@ -332,42 +403,62 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const Divider(height: 16),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _playerNameCtrl,
-                          textCapitalization: TextCapitalization.words,
-                          decoration: _inputDecoration(hint: AppLocalizations.of(context)!.hintPlayerName),
-                          onSubmitted: addByName,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => addByName(_playerNameCtrl.text),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _kGold,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.btnAdd),
-                      ),
-                    ],
+                  // ── Create Player ───────────────────────────────────────
+                  sectionHeader(
+                    'Create Player',
+                    createExpanded,
+                    () => setSheetState(
+                        () => createExpanded = !createExpanded),
                   ),
-
-                  if (allExisting.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    _fieldLabel('${AppLocalizations.of(context)!.pagePlayers} (${allExisting.length})'),
+                  if (createExpanded) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _playerNameCtrl,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: _inputDecoration(
+                                hint: AppLocalizations.of(context)!
+                                    .hintPlayerName),
+                            onSubmitted: addByName,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () =>
+                              addByName(_playerNameCtrl.text),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _kGold,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text(
+                              AppLocalizations.of(context)!.btnAdd),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
+                  ],
+                  const Divider(height: 8),
+
+                  // ── Existing Players ────────────────────────────────────
+                  sectionHeader(
+                    'Add Existing Players (${allExisting.length})',
+                    existingExpanded,
+                    () => setSheetState(
+                        () => existingExpanded = !existingExpanded),
+                  ),
+                  if (existingExpanded) ...[
                     TextField(
                       controller: _playerSearchCtrl,
                       decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.hintSearchPlayers,
+                        hintText: AppLocalizations.of(context)!
+                            .hintSearchPlayers,
                         isDense: true,
                         prefixIcon: const Icon(Icons.search_rounded,
                             size: 18, color: Colors.black45),
@@ -376,123 +467,135 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                       ),
-                      onTap: () => setSheetState(() => searchActive = true),
-                      onChanged: (_) =>
-                          setSheetState(() => searchActive = true),
+                      onChanged: (_) => setSheetState(() {}),
                     ),
-                    if (searchActive) ...[
-                      const SizedBox(height: 6),
-                      if (filteredExisting.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(AppLocalizations.of(context)!.doghouseNoPlayersMatch,
-                              style: const TextStyle(
-                                  color: Colors.black38, fontSize: 13)),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filteredExisting.length,
-                          separatorBuilder: (_, _) =>
-                              const Divider(height: 1),
-                          itemBuilder: (_, i) {
-                            final u = filteredExisting[i];
-                            return ListTile(
-                              dense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 4),
-                              title: Text(u.name,
-                                  style:
-                                      const TextStyle(fontSize: 13)),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                    Icons.add_circle_outline_rounded,
-                                    size: 20,
-                                    color: _kGold),
-                                onPressed: () =>
-                                    addExisting(u.id, u.name),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ],
-
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _fieldLabel(
-                          AppLocalizations.of(context)!.doghouseAddedCount(_players.length, _targetPlayerCount)),
-                      TextButton.icon(
-                        onPressed: _players.length < _targetPlayerCount
-                            ? fillRandom
-                            : null,
-                        icon: const Icon(Icons.shuffle_rounded, size: 16),
-                        label: Text(
-                            AppLocalizations.of(context)!.doghouseFillNRandom((_targetPlayerCount - _players.length).clamp(0, 999))),
-                        style: TextButton.styleFrom(
-                            foregroundColor: _kGold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-
-                  if (_players.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(AppLocalizations.of(context)!.doghouseSetupNoPlayers,
-                          style: const TextStyle(
-                              color: Colors.black38, fontSize: 13)),
-                    )
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _players.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: 4),
-                      itemBuilder: (_, i) {
-                        final p = _players[i];
-                        return ListTile(
-                          dense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side:
-                                BorderSide(color: Colors.grey.shade200),
-                          ),
-                          leading: CircleAvatar(
-                            radius: 14,
-                            backgroundColor: _sourceColor(p.source),
-                            child: Text(
-                              p.name.isNotEmpty
-                                  ? p.name[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700),
+                    const SizedBox(height: 6),
+                    if (filteredExisting.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                            AppLocalizations.of(context)!
+                                .doghouseNoPlayersMatch,
+                            style: const TextStyle(
+                                color: Colors.black38, fontSize: 13)),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredExisting.length,
+                        separatorBuilder: (_, _) =>
+                            const Divider(height: 1),
+                        itemBuilder: (_, i) {
+                          final u = filteredExisting[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 4),
+                            title: Text(u.name,
+                                style: const TextStyle(fontSize: 13)),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                  Icons.add_circle_outline_rounded,
+                                  size: 20,
+                                  color: _kGold),
+                              onPressed: () =>
+                                  addExisting(u.id, u.name),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
                             ),
-                          ),
-                          title: Text(p.name,
-                              style: const TextStyle(fontSize: 13)),
-                          subtitle: Text(_sourceLabel(context, p.source),
-                              style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.black38)),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close_rounded,
-                                size: 16, color: Colors.black38),
-                            onPressed: () => remove(i),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 8),
+                  ],
+                  const Divider(height: 8),
+
+                  // ── Added ───────────────────────────────────────────────
+                  sectionHeader(
+                    AppLocalizations.of(context)!.doghouseAddedCount(
+                        _players.length, _targetPlayerCount),
+                    addedExpanded,
+                    () => setSheetState(
+                        () => addedExpanded = !addedExpanded),
+                    trailing: _players.length < _targetPlayerCount
+                        ? TextButton.icon(
+                            onPressed: fillRandom,
+                            icon: const Icon(Icons.shuffle_rounded,
+                                size: 14),
+                            label: Text(
+                              AppLocalizations.of(context)!
+                                  .doghouseFillNRandom(
+                                      (_targetPlayerCount -
+                                              _players.length)
+                                          .clamp(0, 999)),
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: _kGold,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4),
+                            ),
+                          )
+                        : null,
+                  ),
+                  if (addedExpanded) ...[
+                    if (_players.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                            AppLocalizations.of(context)!
+                                .doghouseSetupNoPlayers,
+                            style: const TextStyle(
+                                color: Colors.black38, fontSize: 13)),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _players.length,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(height: 4),
+                        itemBuilder: (_, i) {
+                          final p = _players[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(
+                                  color: Colors.grey.shade200),
+                            ),
+                            leading: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: _sourceColor(p.source),
+                              child: Text(
+                                p.name.isNotEmpty
+                                    ? p.name[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            title: Text(p.name,
+                                style: const TextStyle(fontSize: 13)),
+                            subtitle: Text(
+                                _sourceLabel(context, p.source),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.black38)),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close_rounded,
+                                  size: 16, color: Colors.black38),
+                              onPressed: () => remove(i),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
                 ],
               ),
             ),

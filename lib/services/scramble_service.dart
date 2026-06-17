@@ -546,6 +546,7 @@ class ScrambleService {
       statsMap[player.id] = ScramblePlayerStats(
         playerId: player.id,
         playerName: player.name,
+        status: player.status,
       );
     }
 
@@ -564,6 +565,7 @@ class ScrambleService {
         statsMap[id] = ScramblePlayerStats(
           playerId: s.playerId,
           playerName: s.playerName,
+          status: s.status,
           totalPoints: s.totalPoints + aScore,
           pointsAgainst: s.pointsAgainst + bScore,
           gamesPlayed: s.gamesPlayed + 1,
@@ -584,6 +586,7 @@ class ScrambleService {
         statsMap[id] = ScramblePlayerStats(
           playerId: s.playerId,
           playerName: s.playerName,
+          status: s.status,
           totalPoints: s.totalPoints + bScore,
           pointsAgainst: s.pointsAgainst + aScore,
           gamesPlayed: s.gamesPlayed + 1,
@@ -601,10 +604,8 @@ class ScrambleService {
 
     final sorted = statsMap.values.toList()
       ..sort((a, b) {
-        final byPoints = b.totalPoints.compareTo(a.totalPoints);
-        if (byPoints != 0) return byPoints;
-        final byWins = b.wins.compareTo(a.wins);
-        if (byWins != 0) return byWins;
+        final byRp = b.rankingPoints.compareTo(a.rankingPoints);
+        if (byRp != 0) return byRp;
         return b.pointDifference.compareTo(a.pointDifference);
       });
 
@@ -615,7 +616,217 @@ class ScrambleService {
     return sorted;
   }
 
+  // ── Mid-Tournament Rebuild ────────────────────────────────────────────────
+
+  /// Regenerates all unstarted rounds after a player roster change (eject,
+  /// swap, or late addition). Completed and in-progress games are preserved
+  /// verbatim; pair-encounter history is reconstructed from those games so the
+  /// mixing algorithm continues to avoid repeated pairings.
+  ///
+  /// [newPlayers] is the full updated player list (including ejected/swapped-out
+  /// entries — inactive players are filtered internally).
+  static ScrambleTournament rebuildRemainingRounds(
+    ScrambleTournament tournament,
+    List<ScramblePlayer> newPlayers,
+  ) {
+    final activePlayers = newPlayers.where((p) => p.isActive).toList();
+    final n = activePlayers.length;
+    final playersPerCourt = tournament.playersPerTeam * 2;
+
+    final sortedRounds = tournament.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+
+    // First round whose games are all still scheduled (none started yet).
+    int rebuildFromNumber = sortedRounds.length + 1;
+    for (final round in sortedRounds) {
+      final games = tournament.getGamesForRound(round.id);
+      if (games.every((g) => g.status == ScrambleGameStatus.scheduled)) {
+        rebuildFromNumber = round.roundNumber;
+        break;
+      }
+    }
+
+    if (rebuildFromNumber > sortedRounds.length) {
+      return tournament.copyWith(players: newPlayers);
+    }
+
+    final futureRoundIds = sortedRounds
+        .where((r) => r.roundNumber >= rebuildFromNumber)
+        .map((r) => r.id)
+        .toSet();
+
+    final pastGames = tournament.games
+        .where((g) => !futureRoundIds.contains(g.roundId))
+        .toList();
+    final futureRounds = sortedRounds
+        .where((r) => r.roundNumber >= rebuildFromNumber)
+        .toList();
+
+    final playerIndex = {
+      for (var i = 0; i < n; i++) activePlayers[i].id: i
+    };
+
+    final teammateCount = List.generate(n, (_) => List.filled(n, 0));
+    final opponentCount = List.generate(n, (_) => List.filled(n, 0));
+    final gamesPlayed = List.filled(n, 0);
+    final serveCount = List.filled(n, 0);
+    final arbCount = List.filled(n, 0);
+
+    // Seed matrices from completed/in-progress history, restricted to active players.
+    for (final game in pastGames) {
+      final sideA = game.sideAPlayerIds
+          .where(playerIndex.containsKey)
+          .map((id) => activePlayers[playerIndex[id]!])
+          .toList();
+      final sideB = game.sideBPlayerIds
+          .where(playerIndex.containsKey)
+          .map((id) => activePlayers[playerIndex[id]!])
+          .toList();
+
+      if (sideA.isNotEmpty && sideB.isNotEmpty) {
+        _updatePairMatrices(
+          sideA: sideA,
+          sideB: sideB,
+          playerIndex: playerIndex,
+          teammateCount: teammateCount,
+          opponentCount: opponentCount,
+          gamesPlayed: gamesPlayed,
+        );
+      }
+      if (game.firstServerId != null &&
+          playerIndex.containsKey(game.firstServerId)) {
+        serveCount[playerIndex[game.firstServerId]!]++;
+      }
+      if (game.arbitratorId != null &&
+          playerIndex.containsKey(game.arbitratorId)) {
+        arbCount[playerIndex[game.arbitratorId]!]++;
+      }
+    }
+
+    final newGames = <ScrambleGame>[];
+
+    for (final round in futureRounds) {
+      final activeCourts = min(tournament.courtCount, n ~/ playersPerCourt);
+      if (activeCourts == 0) continue;
+
+      final sortedByGames = List<int>.generate(n, (i) => i)
+        ..sort((a, b) => gamesPlayed[a].compareTo(gamesPlayed[b]));
+      final activeIndices =
+          sortedByGames.take(activeCourts * playersPerCourt).toSet();
+      final sittingOutIndices =
+          sortedByGames.skip(activeCourts * playersPerCourt).toSet();
+
+      final roundActivePlayers = activePlayers
+          .where((p) => activeIndices.contains(playerIndex[p.id]))
+          .toList();
+      final sittingOutIds = activePlayers
+          .where((p) => sittingOutIndices.contains(playerIndex[p.id]))
+          .map((p) => p.id)
+          .toList();
+
+      final courtAssignments = _optimiseAssignments(
+        activePlayers: roundActivePlayers,
+        activeCourts: activeCourts,
+        playersPerTeam: tournament.playersPerTeam,
+        teammateCount: teammateCount,
+        opponentCount: opponentCount,
+        playerIndex: playerIndex,
+        totalPlayers: n,
+      );
+
+      final arbQueue = sittingOutIndices.toList()
+        ..sort((a, b) => arbCount[a].compareTo(arbCount[b]));
+
+      for (var c = 0; c < courtAssignments.length; c++) {
+        final (sideA, sideB) = courtAssignments[c];
+
+        final onCourt = [...sideA, ...sideB];
+        final server = onCourt.reduce((a, b) {
+          final ca = serveCount[playerIndex[a.id]!];
+          final cb = serveCount[playerIndex[b.id]!];
+          return ca <= cb ? a : b;
+        });
+        serveCount[playerIndex[server.id]!]++;
+
+        String? arbitratorId;
+        if (arbQueue.isNotEmpty) {
+          final arbIdx = arbQueue.removeAt(0);
+          arbitratorId = activePlayers[arbIdx].id;
+          arbCount[arbIdx]++;
+        }
+
+        newGames.add(ScrambleGame(
+          id: ScrambleGame.generateId(),
+          roundId: round.id,
+          courtNumber: c + 1,
+          sideAPlayerIds: sideA.map((p) => p.id).toList(),
+          sideBPlayerIds: sideB.map((p) => p.id).toList(),
+          sittingOutPlayerIds: c == 0 ? sittingOutIds : const [],
+          firstServerId: server.id,
+          arbitratorId: arbitratorId,
+        ));
+
+        _updatePairMatrices(
+          sideA: sideA,
+          sideB: sideB,
+          playerIndex: playerIndex,
+          teammateCount: teammateCount,
+          opponentCount: opponentCount,
+          gamesPlayed: gamesPlayed,
+        );
+      }
+    }
+
+    return tournament.copyWith(
+      players: newPlayers,
+      games: [...pastGames, ...newGames],
+    );
+  }
+
   // ── Schedule Reflow ───────────────────────────────────────────────────────
+
+  /// Shifts all pending round start times globally based on the latest actual
+  /// end time across ALL completed rounds (not just the one that just finished).
+  ///
+  /// This handles out-of-order completions: if Round 4 finishes while Round 3
+  /// is still pending, Round 3 gets rescheduled after Round 4's end, and any
+  /// subsequent pending rounds are chained from there.
+  ///
+  /// Pending rounds already scheduled later than the chain are not moved back.
+  static ScrambleTournament reflowAllPending(ScrambleTournament tournament) {
+    final sortedRounds = tournament.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+
+    // Latest actual finish (including break) across all completed rounds.
+    DateTime? baseline;
+    for (final r in sortedRounds) {
+      if (r.actualEndTime == null) continue;
+      final withBreak = r.actualEndTime!.add(r.breakDuration);
+      if (baseline == null || withBreak.isAfter(baseline)) baseline = withBreak;
+    }
+    if (baseline == null) return tournament;
+
+    final updated = List<ScrambleRound>.from(sortedRounds);
+    var next = baseline;
+    var changed = false;
+
+    for (var i = 0; i < updated.length; i++) {
+      final r = updated[i];
+      if (r.actualEndTime != null) continue; // completed — leave untouched
+
+      if (next.isAfter(r.scheduledStartTime)) {
+        // Pending round is behind the chain — push it forward.
+        updated[i] = r.copyWith(scheduledStartTime: next);
+        changed = true;
+      } else {
+        // Already scheduled later — advance the chain to after this round.
+        next = r.scheduledStartTime;
+      }
+      next = updated[i].scheduledStartTime.add(r.matchDuration + r.breakDuration);
+    }
+
+    return changed ? tournament.copyWith(rounds: updated) : tournament;
+  }
 
   static ScrambleTournament reflowSchedule(
     ScrambleTournament tournament, {

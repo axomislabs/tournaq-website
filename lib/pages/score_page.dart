@@ -136,6 +136,18 @@ class _ScorePageState extends State<ScorePage> {
   bool get _isGameComplete => _game.isMatchComplete;
   bool get _isTeam1Serving => _activePlayerIndex % 2 == 0;
   int get _activePlayerOnSide => _activePlayerIndex ~/ 2;
+
+  // Prefer the name snapshot stored at game-creation time; fall back to live
+  // lookup for games created before the snapshot field was added.
+  String get _team1DisplayName =>
+      _game.team1Name.isNotEmpty
+          ? _game.team1Name
+          : _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
+  String get _team2DisplayName =>
+      _game.team2Name.isNotEmpty
+          ? _game.team2Name
+          : _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
+
   int get _playersPerTeam {
     final lineup = _game.lineups.isNotEmpty ? _game.lineups.first : null;
     final count = lineup?.playerNames.length ?? 0;
@@ -397,7 +409,7 @@ class _ScorePageState extends State<ScorePage> {
       orElse: () => GameTeamLineup(teamId: teamId),
     );
     final teamUsers = _localState.getPlayersForTeam(teamId);
-    final teamName = _localState.getTeamById(teamId)?.name ?? 'Team';
+    final teamName = teamId == _game.team1Id ? _team1DisplayName : _team2DisplayName;
 
     String nameAt(int index) {
       if (index < lineup.playerNames.length && lineup.playerNames[index].isNotEmpty) {
@@ -501,8 +513,8 @@ class _ScorePageState extends State<ScorePage> {
       builder: (sheetCtx) {
         void openHistory() {
           Navigator.of(sheetCtx).pop();
-          final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
-          final team2Name = _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
+          final team1Name = _team1DisplayName;
+          final team2Name = _team2DisplayName;
           Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => GameplayHistoryPage(
               team1Name: team1Name,
@@ -663,12 +675,12 @@ class _ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
-    final team1Name = _localState.getTeamById(_game.team1Id)?.name ?? 'Team 1';
-    final team2Name = _localState.getTeamById(_game.team2Id)?.name ?? 'Team 2';
+    final team1Name = _team1DisplayName;
+    final team2Name = _team2DisplayName;
     final leftTeamId = _leftTeamId;
     final rightTeamId = _rightTeamId;
-    final leftName = _localState.getTeamById(leftTeamId)?.name ?? 'Team 1';
-    final rightName = _localState.getTeamById(rightTeamId)?.name ?? 'Team 2';
+    final leftName = leftTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName;
+    final rightName = rightTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName;
     final scoreLocked = _isGameComplete || _isActiveSetCompleted;
 
     return Scaffold(
@@ -707,7 +719,7 @@ class _ScorePageState extends State<ScorePage> {
                         child: _buildLockBanner(
                           AppLocalizations.of(context)!.lockBannerGame,
                           winnerName: _game.effectiveWinnerTeamId != null
-                              ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
+                              ? (_game.effectiveWinnerTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName)
                               : null,
                           winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
                           gameComplete: true,
@@ -808,7 +820,7 @@ class _ScorePageState extends State<ScorePage> {
                   _buildLockBanner(
                     AppLocalizations.of(context)!.lockBannerGame,
                     winnerName: _game.effectiveWinnerTeamId != null
-                        ? _localState.getTeamById(_game.effectiveWinnerTeamId!)?.name
+                        ? (_game.effectiveWinnerTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName)
                         : null,
                     winnerColor: _game.effectiveWinnerTeamId == _game.team1Id ? _kGold : _kOlive,
                     gameComplete: true,
@@ -891,7 +903,7 @@ class _ScorePageState extends State<ScorePage> {
 
     String? winnerShort;
     if (isCompleted && set?.winnerTeamId != null) {
-      final name = _localState.getTeamById(set!.winnerTeamId!)?.name ?? '';
+      final name = set!.winnerTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName;
       winnerShort = '${name.length > 7 ? '${name.substring(0, 7)}…' : name} ✓';
     }
 

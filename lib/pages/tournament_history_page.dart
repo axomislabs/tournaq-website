@@ -31,11 +31,13 @@ extension on TournamentFilter {
 class TournamentHistoryPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final TournamentFilter initialFilter;
+  final Player Function(String name)? onCreatePlayer;
 
   const TournamentHistoryPage({
     super.key,
     required this.existingPlayers,
     this.initialFilter = TournamentFilter.all,
+    this.onCreatePlayer,
   });
 
   @override
@@ -97,19 +99,19 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.scramble) {
       for (final t in _scrambles) {
-        entries.add(_HistoryEntry.fromScramble(t, _onScrambleChanged));
+        entries.add(_HistoryEntry.fromScramble(t, _onScrambleChanged, widget.onCreatePlayer));
       }
     }
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.kingOfTheCourt) {
       for (final s in _kotcTournaments) {
-        entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.existingPlayers));
+        entries.add(_HistoryEntry.fromKotc(s, _onKotcChanged, widget.existingPlayers, widget.onCreatePlayer));
       }
     }
     if (_filter == TournamentFilter.all ||
         _filter == TournamentFilter.doghouse) {
       for (final d in _doghouseDrills) {
-        entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.existingPlayers));
+        entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.existingPlayers, widget.onCreatePlayer));
       }
     }
     entries.sort((a, b) => b.date.compareTo(a.date));
@@ -253,6 +255,7 @@ class _HistoryEntry {
   factory _HistoryEntry.fromScramble(
     ScrambleTournament t,
     void Function(ScrambleTournament) onChanged,
+    Player Function(String name)? onCreatePlayer,
   ) {
     final statusLabel = switch (t.status) {
       ScrambleTournamentStatus.completed  => 'Completed',
@@ -276,8 +279,9 @@ class _HistoryEntry {
       ],
       onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => ScrambleOverviewPage(
-          tournament: t,
-          onChanged:  onChanged,
+          tournament:     t,
+          onChanged:      onChanged,
+          onCreatePlayer: onCreatePlayer,
         ),
       )),
     );
@@ -287,6 +291,7 @@ class _HistoryEntry {
     KingOfTheCourtTournament s,
     void Function(KingOfTheCourtTournament) onChanged,
     List<Player> existingPlayers,
+    Player Function(String name)? onCreatePlayer,
   ) {
     final statusLabel = switch (s.status) {
       KotcTournamentStatus.completed  => 'Completed',
@@ -310,9 +315,10 @@ class _HistoryEntry {
       ],
       onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => KingOfTheCourtScoreboardPage(
-          tournament: s,
+          tournament:      s,
           existingPlayers: existingPlayers,
-          onChanged:  onChanged,
+          onChanged:       onChanged,
+          onCreatePlayer:  onCreatePlayer,
         ),
       )),
     );
@@ -322,6 +328,7 @@ class _HistoryEntry {
     DoghouseTournament d,
     void Function(DoghouseTournament) onChanged,
     List<Player> existingPlayers,
+    Player Function(String name)? onCreatePlayer,
   ) {
     final statusLabel = switch (d.status) {
       DoghouseTournamentStatus.completed  => 'Completed',
@@ -345,9 +352,10 @@ class _HistoryEntry {
       ],
       onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
         builder: (_) => DoghouseScoreboardPage(
-          tournament: d,
+          tournament:      d,
           existingPlayers: existingPlayers,
-          onChanged: onChanged,
+          onChanged:       onChanged,
+          onCreatePlayer:  onCreatePlayer,
         ),
       )),
     );
