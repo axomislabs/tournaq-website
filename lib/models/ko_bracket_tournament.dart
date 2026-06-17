@@ -204,6 +204,8 @@ class KoMatch {
   final List<KoSet> sets;
   final KoMatchStatus status;
   final int? courtAssignment;
+  final DateTime? scheduledStartTime;
+  final DateTime? scheduledEndTime;
   final DateTime? startedAt;
   final DateTime? completedAt;
 
@@ -218,6 +220,8 @@ class KoMatch {
     this.sets = const [],
     this.status = KoMatchStatus.scheduled,
     this.courtAssignment,
+    this.scheduledStartTime,
+    this.scheduledEndTime,
     this.startedAt,
     this.completedAt,
   });
@@ -244,6 +248,8 @@ class KoMatch {
     List<KoSet>? sets,
     KoMatchStatus? status,
     int? courtAssignment,
+    DateTime? scheduledStartTime,
+    DateTime? scheduledEndTime,
     DateTime? startedAt,
     DateTime? completedAt,
   }) =>
@@ -258,6 +264,8 @@ class KoMatch {
         sets: sets ?? this.sets,
         status: status ?? this.status,
         courtAssignment: courtAssignment ?? this.courtAssignment,
+        scheduledStartTime: scheduledStartTime ?? this.scheduledStartTime,
+        scheduledEndTime: scheduledEndTime ?? this.scheduledEndTime,
         startedAt: startedAt ?? this.startedAt,
         completedAt: completedAt ?? this.completedAt,
       );
@@ -273,6 +281,8 @@ class KoMatch {
         'sets': sets.map((s) => s.toJson()).toList(),
         'status': status.name,
         'courtAssignment': courtAssignment,
+        'scheduledStartTime': scheduledStartTime?.toIso8601String(),
+        'scheduledEndTime': scheduledEndTime?.toIso8601String(),
         'startedAt': startedAt?.toIso8601String(),
         'completedAt': completedAt?.toIso8601String(),
       };
@@ -291,6 +301,12 @@ class KoMatch {
         status: KoMatchStatus.values.byName(
             (j['status'] as String?) ?? KoMatchStatus.scheduled.name),
         courtAssignment: j['courtAssignment'] as int?,
+        scheduledStartTime: j['scheduledStartTime'] != null
+            ? DateTime.parse(j['scheduledStartTime'] as String)
+            : null,
+        scheduledEndTime: j['scheduledEndTime'] != null
+            ? DateTime.parse(j['scheduledEndTime'] as String)
+            : null,
         startedAt: j['startedAt'] != null ? DateTime.parse(j['startedAt'] as String) : null,
         completedAt:
             j['completedAt'] != null ? DateTime.parse(j['completedAt'] as String) : null,
@@ -309,12 +325,13 @@ class KoBracketTournament {
   final KoOddTeamStrategy oddTeamStrategy;
   final int playersPerSide;
   final int courtCount;
-  final int minutesPerGame;
   final KoRoundFormat earlyRoundFormat;
   final KoRoundFormat finalRoundFormat;
 
   /// Last N rounds (counting from the final) that use [finalRoundFormat].
   final int finalRoundsCount;
+  final int earlyBreakMinutes;
+  final int finalBreakMinutes;
   final DateTime? estimatedStart;
   final List<KoTeam> teams;
   final List<KoMatch> matches;
@@ -330,10 +347,11 @@ class KoBracketTournament {
     this.oddTeamStrategy = KoOddTeamStrategy.byes,
     this.playersPerSide = 2,
     this.courtCount = 1,
-    this.minutesPerGame = 30,
     required this.earlyRoundFormat,
     required this.finalRoundFormat,
     this.finalRoundsCount = 2,
+    this.earlyBreakMinutes = 0,
+    this.finalBreakMinutes = 0,
     this.estimatedStart,
     this.teams = const [],
     this.matches = const [],
@@ -373,18 +391,34 @@ class KoBracketTournament {
     return earlyRoundFormat;
   }
 
+  static int _minsForFormat(KoRoundFormat f) =>
+      (((f.setsPerGame + 1) ~/ 2) * f.pointsPerSet).clamp(5, 999);
+
+  int minutesForRound(int round) => _minsForFormat(formatForRound(round));
+
+  // Convenience getter — uses early-round format (e.g. for chips / fallbacks).
+  int get minutesPerGame => _minsForFormat(earlyRoundFormat);
+
+  int breakAfterRound(int round) {
+    final lastMain = mainRoundCount;
+    if (round >= lastMain - finalRoundsCount + 1) return finalBreakMinutes;
+    return earlyBreakMinutes;
+  }
+
   /// Estimated total duration based on round structure and court count.
   Duration get estimatedDuration {
     if (teams.isEmpty) return Duration.zero;
     var totalMinutes = 0;
     final rCount = mainRoundCount;
+    if (playInMatchCount > 0) {
+      totalMinutes += (playInMatchCount / courtCount).ceil() * minutesForRound(0);
+      totalMinutes += breakAfterRound(0);
+    }
     for (var r = 1; r <= rCount; r++) {
       final matchesInRound = bracketSize ~/ pow(2, r).toInt();
       final parallelSlots = (matchesInRound / courtCount).ceil();
-      totalMinutes += parallelSlots * minutesPerGame;
-    }
-    if (playInMatchCount > 0) {
-      totalMinutes += (playInMatchCount / courtCount).ceil() * minutesPerGame;
+      totalMinutes += parallelSlots * minutesForRound(r);
+      if (r < rCount) totalMinutes += breakAfterRound(r);
     }
     return Duration(minutes: totalMinutes);
   }
@@ -434,10 +468,11 @@ class KoBracketTournament {
     KoOddTeamStrategy? oddTeamStrategy,
     int? playersPerSide,
     int? courtCount,
-    int? minutesPerGame,
     KoRoundFormat? earlyRoundFormat,
     KoRoundFormat? finalRoundFormat,
     int? finalRoundsCount,
+    int? earlyBreakMinutes,
+    int? finalBreakMinutes,
     DateTime? estimatedStart,
     List<KoTeam>? teams,
     List<KoMatch>? matches,
@@ -451,10 +486,11 @@ class KoBracketTournament {
         oddTeamStrategy: oddTeamStrategy ?? this.oddTeamStrategy,
         playersPerSide: playersPerSide ?? this.playersPerSide,
         courtCount: courtCount ?? this.courtCount,
-        minutesPerGame: minutesPerGame ?? this.minutesPerGame,
         earlyRoundFormat: earlyRoundFormat ?? this.earlyRoundFormat,
         finalRoundFormat: finalRoundFormat ?? this.finalRoundFormat,
         finalRoundsCount: finalRoundsCount ?? this.finalRoundsCount,
+        earlyBreakMinutes: earlyBreakMinutes ?? this.earlyBreakMinutes,
+        finalBreakMinutes: finalBreakMinutes ?? this.finalBreakMinutes,
         estimatedStart: estimatedStart ?? this.estimatedStart,
         teams: teams ?? this.teams,
         matches: matches ?? this.matches,
@@ -485,10 +521,11 @@ class KoBracketTournament {
         'oddTeamStrategy': oddTeamStrategy.name,
         'playersPerSide': playersPerSide,
         'courtCount': courtCount,
-        'minutesPerGame': minutesPerGame,
         'earlyRoundFormat': earlyRoundFormat.toJson(),
         'finalRoundFormat': finalRoundFormat.toJson(),
         'finalRoundsCount': finalRoundsCount,
+        'earlyBreakMinutes': earlyBreakMinutes,
+        'finalBreakMinutes': finalBreakMinutes,
         'estimatedStart': estimatedStart?.toIso8601String(),
         'teams': teams.map((t) => t.toJson()).toList(),
         'matches': matches.map((m) => m.toJson()).toList(),
@@ -508,12 +545,13 @@ class KoBracketTournament {
             (j['oddTeamStrategy'] as String?) ?? KoOddTeamStrategy.byes.name),
         playersPerSide: j['playersPerSide'] as int? ?? 2,
         courtCount: j['courtCount'] as int? ?? 1,
-        minutesPerGame: j['minutesPerGame'] as int? ?? 30,
         earlyRoundFormat: KoRoundFormat.fromJson(
             Map<String, dynamic>.from(j['earlyRoundFormat'] as Map? ?? {})),
         finalRoundFormat: KoRoundFormat.fromJson(
             Map<String, dynamic>.from(j['finalRoundFormat'] as Map? ?? {})),
         finalRoundsCount: j['finalRoundsCount'] as int? ?? 2,
+        earlyBreakMinutes: j['earlyBreakMinutes'] as int? ?? j['breakBetweenRoundsMinutes'] as int? ?? 0,
+        finalBreakMinutes: j['finalBreakMinutes'] as int? ?? 0,
         estimatedStart: j['estimatedStart'] != null
             ? DateTime.parse(j['estimatedStart'] as String)
             : null,
@@ -765,6 +803,51 @@ class KoBracketGenerator {
       updated = propagateWinner(updated, m.id);
     }
     return updated;
+  }
+}
+
+// ── Scheduler ─────────────────────────────────────────────────────────────────
+
+class KoBracketScheduler {
+  /// Assigns [KoMatch.scheduledStartTime] and [KoMatch.scheduledEndTime] to
+  /// every match based on the tournament's [estimatedStart], [minutesPerGame],
+  /// and [courtCount].
+  ///
+  /// Matches within a round are distributed across courts in parallel:
+  ///   slotIndex = matchIndex ~/ courtCount
+  ///   start     = roundStart + slotIndex × minutesPerGame
+  ///   end       = start + minutesPerGame
+  ///
+  /// Returns the tournament unchanged if [estimatedStart] is null or there are
+  /// no matches.
+  static KoBracketTournament assignTimes(KoBracketTournament t) {
+    if (t.estimatedStart == null || t.matches.isEmpty) return t;
+
+    var roundStart = t.estimatedStart!;
+    final updated = <KoMatch>[];
+
+    for (final round in t.allRounds) {
+      final roundMatches = t.matchesForRound(round); // sorted by matchIndex
+      final courts = t.courtCount;
+      final mins = t.minutesForRound(round);
+
+      for (final m in roundMatches) {
+        final slotIndex = m.matchIndex ~/ courts;
+        final start = roundStart.add(Duration(minutes: slotIndex * mins));
+        updated.add(m.copyWith(
+          scheduledStartTime: start,
+          scheduledEndTime: start.add(Duration(minutes: mins)),
+          courtAssignment: (m.matchIndex % courts) + 1,
+        ));
+      }
+
+      final slots = (roundMatches.length / courts).ceil();
+      roundStart = roundStart.add(Duration(minutes: slots * mins + t.breakAfterRound(round)));
+    }
+
+    final updatedIds = {for (final m in updated) m.id};
+    final untouched = t.matches.where((m) => !updatedIds.contains(m.id));
+    return t.copyWith(matches: [...updated, ...untouched]);
   }
 }
 

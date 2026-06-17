@@ -4,8 +4,8 @@ import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../widgets/player_pill.dart';
+import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
-import '../widgets/scrollable_page.dart';
 
 const _kGold = AppColors.gold;
 const _kGoldDark = AppColors.goldDark;
@@ -48,6 +48,10 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   Timer? _timer;
   bool _timerRunning = false;
 
+  // ── Time-cap state ────────────────────────────────────────────────────────
+  bool _timeUp = false;
+  bool _suddenDeath = false;
+
   // ── Undo stack ────────────────────────────────────────────────────────────
   final List<({bool isTeam1, int prev1, int prev2})> _undoStack = [];
 
@@ -57,9 +61,30 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     _tournament = widget.tournament;
     _match = _tournament.matches.firstWhere((m) => m.id == widget.matchId);
     _fmt = _tournament.formatForRound(_match.round);
-    _remainingSeconds = _tournament.minutesPerGame * 60;
+    _remainingSeconds = _computeRemainingSeconds();
     _initScores();
-    _startTimer();
+    if (!_isMatchComplete) {
+      _startTimer();
+      // Mark as started on first open if not already
+      if (_match.startedAt == null &&
+          _match.team1Id != null &&
+          _match.team2Id != null) {
+        final started = _match.copyWith(
+          startedAt: DateTime.now(),
+          status: KoMatchStatus.inProgress,
+        );
+        final t = _tournament.updateMatch(started);
+        KoBracketStorageService.save(t);
+        _tournament = t;
+        _match = started;
+        // Defer parent notification — initState runs during build
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) widget.onChanged(t);
+        });
+      }
+      // If the scheduled window already expired, show time-up immediately
+      if (_remainingSeconds == 0) _timeUp = true;
+    }
   }
 
   @override
@@ -98,22 +123,53 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   // ── Timer ─────────────────────────────────────────────────────────────────
 
+  int _computeRemainingSeconds() {
+    // Prefer actual start time so the timer shows real game duration,
+    // not how far away the pre-scheduled slot is.
+    final started = _match.startedAt;
+    if (started != null) {
+      final diff = started
+          .add(Duration(minutes: _tournament.minutesForRound(_match.round)))
+          .difference(DateTime.now())
+          .inSeconds;
+      return diff > 0 ? diff : 0;
+    }
+    // Not yet started — fall back to the pre-scheduled slot end
+    final end = _match.scheduledEndTime;
+    if (end != null) {
+      final diff = end.difference(DateTime.now()).inSeconds;
+      return diff > 0 ? diff : 0;
+    }
+    return _tournament.minutesForRound(_match.round) * 60;
+  }
+
+  bool get _hasScheduledEnd =>
+      _match.startedAt != null || _match.scheduledEndTime != null;
+
   void _startTimer() {
     _timerRunning = true;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
+        if (_hasScheduledEnd) {
+          _remainingSeconds = _computeRemainingSeconds();
         } else {
+          if (_remainingSeconds > 0) _remainingSeconds--;
+        }
+        if (_remainingSeconds == 0 &&
+            _timerRunning &&
+            !_isMatchComplete &&
+            !_timeUp) {
           _timer?.cancel();
           _timerRunning = false;
+          _onTimeUp();
         }
       });
     });
   }
 
   void _toggleTimer() {
+    if (_hasScheduledEnd) return; // absolute countdown — no manual pause
     setState(() {
       if (_timerRunning) {
         _timer?.cancel();
@@ -122,6 +178,73 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         _startTimer();
       }
     });
+  }
+
+  // ── Time-cap logic ────────────────────────────────────────────────────────
+
+  void _onTimeUp() {
+    setState(() => _timeUp = true);
+    _resolveByTime();
+  }
+
+  void _resolveByTime() {
+    if (_isMatchComplete) return;
+
+    // Fold any live in-progress scores into a partial set
+    final s1 = _isSwapped ? _score2 : _score1;
+    final s2 = _isSwapped ? _score1 : _score2;
+    final sets = (!_currentSetDone && (s1 > 0 || s2 > 0))
+        ? [..._match.sets, KoSet(score1: s1, score2: s2, isCompleted: true)]
+        : List<KoSet>.from(_match.sets);
+
+    final t1Sets =
+        sets.where((s) => s.isCompleted && s.score1 > s.score2).length;
+    final t2Sets =
+        sets.where((s) => s.isCompleted && s.score2 > s.score1).length;
+
+    if (t1Sets != t2Sets) {
+      _applyTimeupResult(
+          sets: sets,
+          winnerId: t1Sets > t2Sets ? _match.team1Id : _match.team2Id);
+      return;
+    }
+
+    // Tiebreak: total points across all completed sets
+    final t1Pts = sets.fold<int>(0, (sum, s) => sum + s.score1);
+    final t2Pts = sets.fold<int>(0, (sum, s) => sum + s.score2);
+
+    if (t1Pts != t2Pts) {
+      _applyTimeupResult(
+          sets: sets,
+          winnerId: t1Pts > t2Pts ? _match.team1Id : _match.team2Id);
+      return;
+    }
+
+    // Still tied → sudden death
+    setState(() {
+      _suddenDeath = true;
+      _score1 = 0;
+      _score2 = 0;
+      _undoStack.clear();
+    });
+  }
+
+  void _applyTimeupResult(
+      {required List<KoSet> sets, required String? winnerId}) {
+    final resolved = _match.copyWith(
+      sets: sets,
+      winnerId: winnerId,
+      status: KoMatchStatus.completed,
+      completedAt: DateTime.now(),
+    );
+    setState(() {
+      _timeUp = false;
+      _suddenDeath = false;
+      _score1 = 0;
+      _score2 = 0;
+      _undoStack.clear();
+    });
+    _persist(resolved, isComplete: true);
   }
 
   Color get _timerColor {
@@ -140,6 +263,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   void _addScore({required bool isLeft}) {
     if (_isMatchComplete || _currentSetDone) return;
+    if (_timeUp && !_suddenDeath) return;
     final isTeam1 = isLeft ? !_isSwapped : _isSwapped;
     setState(() {
       _undoStack.add((isTeam1: isTeam1, prev1: _score1, prev2: _score2));
@@ -149,10 +273,16 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         _score2++;
       }
     });
+    if (_suddenDeath) {
+      // First point wins — resolve immediately
+      final winnerId = isTeam1 ? _match.team1Id : _match.team2Id;
+      _applyTimeupResult(sets: _match.sets, winnerId: winnerId);
+    }
   }
 
   void _removeScore({required bool isLeft}) {
     if (_isMatchComplete || _currentSetDone) return;
+    if (_timeUp) return; // no undo after time cap
     if (_undoStack.isEmpty) return;
     final isTeam1 = isLeft ? !_isSwapped : _isSwapped;
     // Find last event for this team and undo it.
@@ -301,7 +431,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   Widget build(BuildContext context) {
     final team1Name = _team1?.name ?? 'Team 1';
     final team2Name = _team2?.name ?? 'Team 2';
-    final scoreLocked = _isMatchComplete || _currentSetDone;
+    final scoreLocked =
+        _isMatchComplete || _currentSetDone || (_timeUp && !_suddenDeath);
 
     return Scaffold(
       appBar: TournaQAppBar(
@@ -309,30 +440,26 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         subtitle: 'KO Bracket · Scorecard',
         actions: [
           IconButton(
-            icon: const Icon(Icons.swap_horiz_rounded, size: 20, color: _kOlive),
-            tooltip: 'Swap sides',
-            onPressed: scoreLocked ? null : () => setState(() => _isSwapped = !_isSwapped),
+            icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
+            tooltip: 'Match Options',
+            onPressed: _showOptions,
           ),
         ],
       ),
-      body: ScrollablePage(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Context chips ────────────────────────────────────────────
-            _buildContextChips(),
-            const SizedBox(height: 12),
-
-            // ── Timer ────────────────────────────────────────────────────
-            _buildTimer(),
-            const SizedBox(height: 16),
-
-            // ── Set overview ─────────────────────────────────────────────
+            // ── Gameplay Controls ─────────────────────────────────────────
+            _sectionHeader('Gameplay Controls', Icons.sports_volleyball_rounded),
+            const SizedBox(height: 10),
+            _buildTimerCard(),
+            const SizedBox(height: 10),
             _buildSetOverview(),
-            const SizedBox(height: 12),
 
-            // ── Lock banner ───────────────────────────────────────────────
+            // ── Banners ───────────────────────────────────────────────────
+            const SizedBox(height: 10),
             if (_isMatchComplete)
               _buildLockBanner(
                 'Match complete',
@@ -340,39 +467,48 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                     ? _tournament.teamById(_match.winnerId!)?.name
                     : null,
               )
+            else if (_suddenDeath)
+              _buildTimeUpBanner(suddenDeath: true)
+            else if (_timeUp)
+              _buildTimeUpBanner(suddenDeath: false)
             else if (_currentSetDone)
               _buildLockBanner('Set complete — confirm before next set'),
 
-            // ── Score cards ──────────────────────────────────────────────
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _buildScoreCard(
-                    team: _leftTeam,
-                    score: _leftScore,
-                    isLeading: _isLeftLeading,
-                    isTeam1: !_isSwapped,
-                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
-                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+            // ── Score cards ───────────────────────────────────────────────
+            const SizedBox(height: 10),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: _buildScoreCard(
+                      team: _leftTeam,
+                      score: _leftScore,
+                      isLeading: _isLeftLeading,
+                      isTeam1: !_isSwapped,
+                      onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                      onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildScoreCard(
-                    team: _rightTeam,
-                    score: _rightScore,
-                    isLeading: _isRightLeading,
-                    isTeam1: _isSwapped,
-                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
-                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildScoreCard(
+                      team: _rightTeam,
+                      score: _rightScore,
+                      isLeading: _isRightLeading,
+                      isTeam1: _isSwapped,
+                      onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                      onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
 
-            // ── Match actions ────────────────────────────────────────────
+            // ── Match Controls ────────────────────────────────────────────
+            _sectionHeader('Match Controls', Icons.emoji_events_rounded),
+            const SizedBox(height: 10),
             _buildMatchActions(),
             const SizedBox(height: 24),
           ],
@@ -381,74 +517,190 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     );
   }
 
-  // ── Context chips ─────────────────────────────────────────────────────────
+  // ── Section header ────────────────────────────────────────────────────────
 
-  Widget _buildContextChips() {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        _contextChip(Icons.account_tree_rounded, _bracketPositionLabel, _kGold),
-        if (_match.courtAssignment != null)
-          _contextChip(Icons.sports_tennis_rounded, 'Court ${_match.courtAssignment}', _kOlive),
-        _contextChip(Icons.info_outline_rounded, _fmt.label, Colors.black45),
-      ],
-    );
-  }
-
-  Widget _contextChip(IconData icon, String label, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: color == _kGold ? _kGoldCream : _kOliveLight,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 5),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: color)),
-        ]),
-      );
-
-  // ── Timer ─────────────────────────────────────────────────────────────────
-
-  Widget _buildTimer() {
-    return GestureDetector(
-      onTap: _isMatchComplete ? null : _toggleTimer,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: _timerColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: _timerColor.withValues(alpha: 0.3)),
-        ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(
-            _timerRunning ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded,
-            size: 20,
-            color: _timerColor,
-          ),
-          const SizedBox(width: 8),
+  Widget _sectionHeader(String title, IconData icon, {Widget? trailing}) => Row(
+        children: [
+          Icon(icon, size: 15, color: _kOlive),
+          const SizedBox(width: 6),
           Text(
-            _timerLabel,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: _timerColor,
-              fontFeatures: const [FontFeature.tabularFigures()],
+            title.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: _kOlive,
+              letterSpacing: 0.4,
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            _timerRunning ? 'Tap to pause' : 'Tap to resume',
-            style: TextStyle(fontSize: 11, color: _timerColor.withValues(alpha: 0.6)),
+          if (trailing != null) ...[const Spacer(), trailing],
+        ],
+      );
+
+  // ── Options sheet ─────────────────────────────────────────────────────────
+
+  void _showOptions() {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetCtx) => TournaQSheet(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Match Options',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 4),
+              _optionTile(
+                sheetCtx,
+                icon: Icons.swap_horiz_rounded,
+                iconBg: _isMatchComplete ? Colors.grey.shade100 : _kGoldCream,
+                iconColor: _isMatchComplete ? Colors.grey : _kGoldDark,
+                label: 'Swap Sides',
+                subtitle: 'Switch left and right display',
+                enabled: !_isMatchComplete,
+                onTap: () {
+                  Navigator.of(sheetCtx).pop();
+                  setState(() => _isSwapped = !_isSwapped);
+                },
+              ),
+            ],
           ),
-        ]),
+        ),
       ),
     );
   }
+
+  Widget _optionTile(
+    BuildContext sheetCtx, {
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String label,
+    required String subtitle,
+    required bool enabled,
+    required VoidCallback onTap,
+  }) =>
+      ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+        title: Text(label,
+            style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: enabled ? Colors.black87 : Colors.grey)),
+        subtitle: Text(subtitle,
+            style: const TextStyle(fontSize: 12, color: Colors.black45)),
+        onTap: enabled ? onTap : null,
+      );
+
+  // ── Timer card ────────────────────────────────────────────────────────────
+
+  Widget _buildTimerCard() {
+    final isAbsolute = _hasScheduledEnd;
+    final expired = _timeUp || _remainingSeconds == 0;
+    final timerColor = expired ? Colors.red : _timerColor;
+    final bgColor =
+        expired ? Colors.red.withValues(alpha: 0.06) : Colors.grey.shade50;
+    final borderColor =
+        expired ? Colors.red.withValues(alpha: 0.3) : Colors.grey.shade200;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                expired ? Icons.timer_off_rounded : Icons.timer_rounded,
+                size: 14,
+                color: timerColor,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'MATCH TIMER',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: timerColor,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _timerLabel,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: timerColor,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+          if (expired || isAbsolute)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                expired ? "Time's up!" : 'Scheduled end',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: expired
+                      ? Colors.red.withValues(alpha: 0.7)
+                      : Colors.black38,
+                ),
+              ),
+            ),
+          if (!isAbsolute && !_isMatchComplete && !expired) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              alignment: WrapAlignment.center,
+              children: [
+                _refBtn(
+                  _timerRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  _timerRunning ? 'Pause' : 'Resume',
+                  _toggleTimer,
+                  primary: _timerRunning,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _refBtn(IconData icon, String label, VoidCallback onTap,
+          {bool primary = false}) =>
+      OutlinedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 14),
+        label: Text(label, style: const TextStyle(fontSize: 12)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primary ? Colors.white : _kOlive,
+          backgroundColor: primary ? _kOlive : null,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          side: BorderSide(
+              color: primary ? _kOlive : Colors.grey.shade300),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      );
 
   // ── Set overview ──────────────────────────────────────────────────────────
 
@@ -537,6 +789,35 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           Text('🏆 $winnerName',
               style: const TextStyle(fontSize: 12, color: _kGoldDark, fontWeight: FontWeight.w700)),
         ],
+      ]),
+    );
+  }
+
+  Widget _buildTimeUpBanner({required bool suddenDeath}) {
+    final color = suddenDeath ? Colors.deepOrange : Colors.red;
+    final label = suddenDeath
+        ? 'Sudden death — next point wins!'
+        : "Time's up! Resolving…";
+    final icon =
+        suddenDeath ? Icons.flash_on_rounded : Icons.timer_off_rounded;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(label,
+              style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w700)),
+        ),
       ]),
     );
   }
@@ -648,67 +929,139 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   // ── Match actions ─────────────────────────────────────────────────────────
 
+  String _fmtTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  Widget _chip(IconData icon, String label, Color bg, Color fg) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 11, color: fg),
+          const SizedBox(width: 3),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11, color: fg, fontWeight: FontWeight.w600)),
+        ]),
+      );
+
   Widget _buildMatchActions() {
     final isOneSet = _fmt.setsPerGame == 1;
+    final startTime = _match.scheduledStartTime;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Complete Set — hidden for single-set format
-          if (!isOneSet) ...[
-            ElevatedButton.icon(
-              onPressed: _isMatchComplete
-                  ? null
-                  : _currentSetDone
-                      ? _undoSetCompletion
-                      : _completeSet,
-              icon: Icon(
-                _currentSetDone ? Icons.undo_rounded : Icons.check_circle_outline_rounded,
-                size: 18,
-              ),
-              label: Text(_currentSetDone ? 'Undo Set' : 'Complete Set'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isMatchComplete
-                    ? null
-                    : _currentSetDone
-                        ? Colors.grey.shade500
-                        : _kGold,
-                foregroundColor: _isMatchComplete ? null : Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Info chips
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: [
+            _chip(Icons.account_tree_rounded, _bracketPositionLabel,
+                _kGoldCream, _kGoldDark),
+            if (_match.courtAssignment != null)
+              _chip(Icons.sports_tennis_rounded,
+                  'Court ${_match.courtAssignment}', _kOliveLight, _kOlive),
+            _chip(Icons.info_outline_rounded, _fmt.label,
+                Colors.grey.shade100, Colors.black45),
+            if (startTime != null)
+              _chip(Icons.schedule_rounded, 'Starts ${_fmtTime(startTime)}',
+                  Colors.grey.shade100, Colors.black45),
+            _chip(Icons.timer_rounded, '${_tournament.minutesForRound(_match.round)} min',
+                _kOliveLight, _kOlive),
           ],
+        ),
+        const SizedBox(height: 12),
 
-          // Complete / Undo Match
+        // Resolve by time
+        if (_timeUp && !_isMatchComplete && !_suddenDeath) ...[
           ElevatedButton.icon(
-            onPressed: _isMatchComplete ? _undoMatchCompletion : _completeMatch,
-            icon: Icon(
-              _isMatchComplete ? Icons.undo_rounded : Icons.emoji_events_rounded,
-              size: 18,
-            ),
-            label: Text(_isMatchComplete ? 'Undo Match Completion' : 'Complete Match'),
+            onPressed: _resolveByTime,
+            icon: const Icon(Icons.timer_off_rounded, size: 18),
+            label: const Text('Resolve by Time',
+                style: TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _kOlive,
+              backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
           const SizedBox(height: 8),
-
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_rounded, size: 18),
-            label: const Text('Back to Bracket'),
-          ),
         ],
-      ),
+
+        // Complete Set (multi-set only)
+        if (!isOneSet) ...[
+          ElevatedButton.icon(
+            onPressed: _isMatchComplete
+                ? null
+                : _currentSetDone
+                    ? _undoSetCompletion
+                    : _completeSet,
+            icon: Icon(
+              _currentSetDone
+                  ? Icons.undo_rounded
+                  : Icons.check_circle_outline_rounded,
+              size: 18,
+            ),
+            label: Text(_currentSetDone ? 'Undo Set' : 'Complete Set',
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _isMatchComplete
+                  ? null
+                  : _currentSetDone
+                      ? Colors.grey.shade500
+                      : _kGold,
+              foregroundColor: _isMatchComplete ? null : Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // Complete / Undo Match
+        ElevatedButton.icon(
+          onPressed:
+              _isMatchComplete ? _undoMatchCompletion : _completeMatch,
+          icon: Icon(
+            _isMatchComplete
+                ? Icons.undo_rounded
+                : Icons.emoji_events_rounded,
+            size: 18,
+          ),
+          label: Text(
+            _isMatchComplete ? 'Undo Match Completion' : 'Complete Match',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _kOlive,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_rounded, size: 18),
+          label: const Text('Back to Bracket'),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
     );
   }
 }

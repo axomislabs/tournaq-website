@@ -63,10 +63,11 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   KoOddTeamStrategy _oddStrategy = KoOddTeamStrategy.byes;
 
   // ── Game settings ─────────────────────────────────────────────────────────
-  int _minutesPerGame = 30;
   KoRoundFormat _earlyFormat = const KoRoundFormat(setsPerGame: 1, pointsPerSet: 15);
   KoRoundFormat _finalFormat = const KoRoundFormat(setsPerGame: 3, pointsPerSet: 21);
   int _finalRoundsCount = 2;
+  int _earlyBreakMinutes = 0;
+  int _finalBreakMinutes = 0;
 
   // ── Schedule ──────────────────────────────────────────────────────────────
   DateTime _estimatedStart = DateTime.now().add(const Duration(hours: 1));
@@ -76,7 +77,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Name ──────────────────────────────────────────────────────────────────
   late final TextEditingController _nameCtrl;
-  late final TextEditingController _minutesCtrl;
   late final TextEditingController _teamCountCtrl;
   late final TextEditingController _courtCtrl;
 
@@ -84,7 +84,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: _randomName());
-    _minutesCtrl = TextEditingController(text: '$_minutesPerGame');
     _teamCountCtrl = TextEditingController(text: '$_teamCount');
     _courtCtrl = TextEditingController(text: '$_courtCount');
     _teams = _generateTeams(_teamCount);
@@ -93,9 +92,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _minutesCtrl.dispose();
     _teamCountCtrl.dispose();
     _courtCtrl.dispose();
+
     super.dispose();
   }
 
@@ -184,20 +183,26 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Estimated schedule ────────────────────────────────────────────────────
 
-  KoBracketTournament get _previewTournament => KoBracketTournament(
-        id: '',
-        name: '',
-        generationMode: _generationMode,
-        oddTeamStrategy: _oddStrategy,
-        playersPerSide: _playersPerSide,
-        courtCount: _courtCount,
-        minutesPerGame: _minutesPerGame,
-        earlyRoundFormat: _earlyFormat,
-        finalRoundFormat: _finalFormat,
-        finalRoundsCount: _finalRoundsCount,
-        estimatedStart: _estimatedStart,
-        teams: _teams,
-      );
+  KoBracketTournament get _previewTournament {
+    final base = KoBracketTournament(
+      id: '',
+      name: '',
+      generationMode: _generationMode,
+      oddTeamStrategy: _oddStrategy,
+      playersPerSide: _playersPerSide,
+      courtCount: _courtCount,
+
+      earlyRoundFormat: _earlyFormat,
+      finalRoundFormat: _finalFormat,
+      finalRoundsCount: _finalRoundsCount,
+      earlyBreakMinutes: _earlyBreakMinutes,
+      finalBreakMinutes: _finalBreakMinutes,
+      estimatedStart: _estimatedStart,
+      teams: _teams,
+    );
+    final withMatches = base.copyWith(matches: KoBracketGenerator.generate(base));
+    return KoBracketScheduler.assignTimes(withMatches);
+  }
 
   String _formatDuration(Duration d) {
     final h = d.inHours;
@@ -211,17 +216,19 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   void _create() {
     if (!_canCreate) return;
-    final tournament = KoBracketTournament(
+    final base = KoBracketTournament(
       id: KoBracketTournament.generateId(),
       name: _nameCtrl.text.trim(),
       generationMode: _generationMode,
       oddTeamStrategy: _oddStrategy,
       playersPerSide: _playersPerSide,
       courtCount: _courtCount,
-      minutesPerGame: _minutesPerGame,
+
       earlyRoundFormat: _earlyFormat,
       finalRoundFormat: _finalFormat,
       finalRoundsCount: _finalRoundsCount,
+      earlyBreakMinutes: _earlyBreakMinutes,
+      finalBreakMinutes: _finalBreakMinutes,
       estimatedStart: _estimatedStart,
       teams: _teams,
       matches: KoBracketGenerator.generate(
@@ -232,7 +239,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           oddTeamStrategy: _oddStrategy,
           playersPerSide: _playersPerSide,
           courtCount: _courtCount,
-          minutesPerGame: _minutesPerGame,
+    
           earlyRoundFormat: _earlyFormat,
           finalRoundFormat: _finalFormat,
           finalRoundsCount: _finalRoundsCount,
@@ -242,6 +249,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       ),
       status: KoBracketStatus.inProgress,
     );
+    final tournament = KoBracketScheduler.assignTimes(base);
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (_) => KoBracketBracketPage(
@@ -303,19 +311,20 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   @override
   Widget build(BuildContext context) {
     final preview = _previewTournament;
-    final end = preview.estimatedEnd;
     final unrated = _unratedPlayerNames;
 
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'KO Bracket', subtitle: 'New Tournament'),
+      appBar: const TournaQAppBar(
+          title: 'New Tournament', subtitle: 'Single Elimination'),
       body: ScrollablePage(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Section 1: Format ─────────────────────────────────────────
-            _sectionHeader('Format', Icons.tune_rounded),
+            // ══ SECTION 1: Tournament Setup ═══════════════════════════════
+            _sectionDivider('Tournament Setup', Icons.tune_rounded),
             const SizedBox(height: 14),
+
             Row(children: [
               Expanded(
                 child: _comboField(
@@ -337,48 +346,86 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                   label: 'Courts',
                   ctrl: _courtCtrl,
                   presets: [1, 2, 3, 4, 5, 6],
-                  onParsed: (v) => setState(() => _courtCount = v.clamp(1, 32)),
+                  onParsed: (v) =>
+                      setState(() => _courtCount = v.clamp(1, 32)),
                 ),
               ),
             ]),
-
-            // ── Section 2: Bracket Mode ───────────────────────────────────
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            _sectionHeader('Bracket Mode', Icons.account_tree_rounded),
             const SizedBox(height: 14),
-            _fieldLabel('Generation'),
-            const SizedBox(height: 8),
-            _segmentedRow(
-              options: const ['Random', 'Seeded'],
-              selected: _generationMode == KoBracketGenerationMode.random ? 0 : 1,
-              onSelected: (i) => setState(() => _generationMode =
-                  i == 0 ? KoBracketGenerationMode.random : KoBracketGenerationMode.seeded),
-            ),
-            const SizedBox(height: 14),
-            Row(children: [
-              Expanded(child: _fieldLabel('Odd Teams')),
-              GestureDetector(
-                onTap: _showOddTeamsHelp,
-                child: const Icon(Icons.help_outline_rounded, size: 18, color: _kOlive),
-              ),
-            ]),
-            const SizedBox(height: 8),
-            _oddStrategyControl(),
-
-            // ── Section 3: Game Settings ──────────────────────────────────
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            _sectionHeader('Game Settings', Icons.sports_volleyball_rounded),
-            const SizedBox(height: 14),
-            _comboField(
-              label: 'Time per Game',
-              ctrl: _minutesCtrl,
-              presets: [15, 20, 30, 45, 60, 90],
-              onParsed: (v) => setState(() => _minutesPerGame = v.clamp(5, 999)),
-              unit: 'min',
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _fieldLabel('Generation'),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<KoBracketGenerationMode>(
+                        initialValue: _generationMode,
+                        isDense: true,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(12, 10, 4, 10),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                              value: KoBracketGenerationMode.random,
+                              child: Text('Random')),
+                          DropdownMenuItem(
+                              value: KoBracketGenerationMode.seeded,
+                              child: Text('Seeded')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) setState(() => _generationMode = v);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [
+                        Expanded(child: _fieldLabel('Odd Teams')),
+                        GestureDetector(
+                          onTap: _showOddTeamsHelp,
+                          child: const Icon(Icons.help_outline_rounded,
+                              size: 18, color: _kOlive),
+                        ),
+                      ]),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<KoOddTeamStrategy>(
+                        initialValue: _oddStrategy,
+                        isDense: true,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(12, 10, 4, 10),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                              value: KoOddTeamStrategy.byes,
+                              child: Text('Byes')),
+                          DropdownMenuItem(
+                              value: KoOddTeamStrategy.playIn,
+                              child: Text('Play-in')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) setState(() => _oddStrategy = v);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 14),
             _roundFormatCard(
@@ -393,67 +440,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
               onChanged: (f) => setState(() => _finalFormat = f),
               showFinalRoundsCount: true,
             ),
-
-            // ── Section 4: Schedule ───────────────────────────────────────
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            _sectionHeader('Schedule', Icons.schedule_rounded),
             const SizedBox(height: 14),
-            Row(children: [
-              Expanded(
-                child: _infoChip(
-                  icon: Icons.play_circle_outline_rounded,
-                  label: 'Start',
-                  value: _formatDateTime(_estimatedStart),
-                  onTap: _pickStartTime,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _infoChip(
-                  icon: Icons.stop_circle_outlined,
-                  label: 'Est. End',
-                  value: end != null ? _formatDateTime(end) : '—',
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _infoChip(
-                  icon: Icons.timer_outlined,
-                  label: 'Duration',
-                  value: _formatDuration(preview.estimatedDuration),
-                ),
-              ),
-            ]),
-
-            // ── Section 5: Teams ──────────────────────────────────────────
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
-            Row(children: [
-              Expanded(child: _sectionHeader('Teams', Icons.groups_rounded)),
-              TextButton.icon(
-                onPressed: _shuffleTeams,
-                icon: const Icon(Icons.shuffle_rounded, size: 16),
-                label: const Text('Shuffle'),
-                style: TextButton.styleFrom(foregroundColor: _kOlive),
-              ),
-            ]),
-            const SizedBox(height: 8),
-            _buildTeamList(),
-
-            // ── Seeded warning ────────────────────────────────────────────
-            if (_generationMode == KoBracketGenerationMode.seeded &&
-                unrated.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              _unratedWarning(unrated),
-            ],
-
-            // ── Name ──────────────────────────────────────────────────────
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 16),
+            _buildSchedulePreview(preview),
+            const SizedBox(height: 14),
             _fieldLabel('Tournament Name'),
             const SizedBox(height: 8),
             Row(children: [
@@ -461,25 +450,69 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 child: TextField(
                   controller: _nameCtrl,
                   textCapitalization: TextCapitalization.words,
-                  decoration: _inputDecoration(),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    contentPadding:
+                        const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
                   onChanged: (_) => setState(() {}),
                 ),
               ),
               const SizedBox(width: 8),
               IconButton(
-                onPressed: () => setState(() => _nameCtrl.text = _randomName()),
+                onPressed: () =>
+                    setState(() => _nameCtrl.text = _randomName()),
                 icon: const Icon(Icons.refresh_rounded),
                 tooltip: 'Suggest name',
               ),
             ]),
+            const SizedBox(height: 28),
 
-            // ── Create ────────────────────────────────────────────────────
-            const SizedBox(height: 24),
+            // ══ SECTION 2: Teams & Players ════════════════════════════════
+            Row(children: [
+              const Icon(Icons.groups_rounded,
+                  size: 14, color: AppColors.oliveMedium),
+              const SizedBox(width: 6),
+              const Text(
+                'TEAMS & PLAYERS',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.oliveMedium,
+                    letterSpacing: 0.6),
+              ),
+              const SizedBox(width: 8),
+              const Expanded(child: Divider(height: 1)),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                onPressed: _shuffleTeams,
+                icon: const Icon(Icons.shuffle_rounded, size: 14),
+                label: const Text('Shuffle',
+                    style: TextStyle(fontSize: 12)),
+                style: TextButton.styleFrom(
+                    foregroundColor: _kOlive,
+                    visualDensity: VisualDensity.compact),
+              ),
+            ]),
+            const SizedBox(height: 10),
+            _buildTeamList(),
+            if (_generationMode == KoBracketGenerationMode.seeded &&
+                unrated.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _unratedWarning(unrated),
+            ],
+            const SizedBox(height: 32),
+
+            // ══ Create ════════════════════════════════════════════════════
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(children: [
                 Icon(
-                  _canCreate ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+                  _canCreate
+                      ? Icons.check_circle_rounded
+                      : Icons.error_outline_rounded,
                   color: _canCreate ? _kOlive : Colors.red.shade600,
                   size: 16,
                 ),
@@ -499,7 +532,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text(
                 'Create Tournament',
@@ -654,6 +688,71 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     );
   }
 
+  // ── Break picker ──────────────────────────────────────────────────────────
+
+  void _pickBreak({required bool isFinal}) {
+    final current = isFinal ? _finalBreakMinutes : _earlyBreakMinutes;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TournaQSheet(
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Break — ${isFinal ? 'Final' : 'Early'} Rounds',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [0, 5, 10, 15, 20, 30, 45, 60].map((v) {
+                  final selected = v == current;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isFinal) {
+                          _finalBreakMinutes = v;
+                        } else {
+                          _earlyBreakMinutes = v;
+                        }
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected ? _kGold : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: selected ? _kGoldDark : Colors.grey.shade300,
+                          width: selected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        v == 0 ? 'No break' : '$v min',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: selected ? Colors.white : Colors.black54,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ── Odd teams help sheet ──────────────────────────────────────────────────
 
   void _showOddTeamsHelp() {
@@ -692,17 +791,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                     'Nobody gets a free pass — every team has to win to advance.',
                 example: 'Example (5 teams): Seeds 4 and 5 play a play-in. '
                     'Winner takes the last slot in the main bracket.',
-              ),
-              const SizedBox(height: 16),
-              _helpItem(
-                icon: Icons.refresh_rounded,
-                color: Colors.deepOrange,
-                title: 'Play-in + Repechage',
-                body: 'Same as play-in, but the highest-scoring loser gets one '
-                    'wildcard match for a second chance at the bracket.',
-                example: 'Example (5 teams): Seeds 3–5 play two matches. '
-                    'Both winners advance. Best-scoring loser plays a repechage '
-                    'match — winner takes the final bracket spot.',
               ),
             ],
           ),
@@ -819,60 +907,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           ],
         ],
       ),
-    );
-  }
-
-  // ── Segmented row ─────────────────────────────────────────────────────────
-
-  Widget _segmentedRow({
-    required List<String> options,
-    required int selected,
-    required void Function(int) onSelected,
-  }) {
-    return Row(
-      children: options.asMap().entries.map((e) {
-        final isSelected = e.key == selected;
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => onSelected(e.key),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              margin: EdgeInsets.only(right: e.key < options.length - 1 ? 8 : 0),
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected ? _kGold : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: isSelected ? _kGoldDark : Colors.grey.shade300,
-                  width: isSelected ? 1.5 : 1,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  e.value,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    color: isSelected ? Colors.white : Colors.black54,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  // ── Odd strategy control (3-way) ──────────────────────────────────────────
-
-  Widget _oddStrategyControl() {
-    const options = ['Byes', 'Play-in', 'Play-in + Repechage'];
-    final selected = _oddStrategy.index;
-    return _segmentedRow(
-      options: options,
-      selected: selected,
-      onSelected: (i) => setState(() => _oddStrategy = KoOddTeamStrategy.values[i]),
     );
   }
 
@@ -1026,49 +1060,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     );
   }
 
-  // ── Schedule info chip ────────────────────────────────────────────────────
-
-  Widget _infoChip({
-    required IconData icon,
-    required String label,
-    required String value,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: _kGoldCream,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.goldBadgeBorder),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(children: [
-              Icon(icon, size: 13, color: _kGoldDark),
-              const SizedBox(width: 4),
-              Text(label,
-                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: _kGoldDark)),
-              if (onTap != null) ...[
-                const Spacer(),
-                const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
-              ],
-            ]),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black87),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ── Stepper ───────────────────────────────────────────────────────────────
 
   Widget _stepper({
@@ -1098,29 +1089,179 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Shared helpers ────────────────────────────────────────────────────────
 
-  Widget _sectionHeader(String title, IconData icon) => Row(children: [
-        Icon(icon, size: 15, color: _kOlive),
+  Widget _sectionDivider(String label, IconData icon) => Row(children: [
+        Icon(icon, size: 14, color: AppColors.oliveMedium),
         const SizedBox(width: 6),
         Text(
-          title.toUpperCase(),
+          label.toUpperCase(),
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: _kOlive,
-            letterSpacing: 0.4,
+            color: AppColors.oliveMedium,
+            letterSpacing: 0.6,
           ),
         ),
+        const SizedBox(width: 8),
+        const Expanded(child: Divider(height: 1)),
       ]);
+
+  // ── Schedule preview ──────────────────────────────────────────────────────
+
+  Widget _buildSchedulePreview(KoBracketTournament preview) {
+    final rounds = preview.allRounds;
+    if (rounds.isEmpty) return const SizedBox.shrink();
+
+    DateTime? cursor = preview.estimatedStart;
+    final rows = <Widget>[];
+
+    final roundList = rounds.where((r) => preview.matchesForRound(r).isNotEmpty).toList();
+    for (var i = 0; i < roundList.length; i++) {
+      final round = roundList[i];
+      final matches = preview.matchesForRound(round);
+      final slots = (matches.length / preview.courtCount).ceil();
+      final gameMins = slots * preview.minutesForRound(round);
+      final start = cursor;
+      final end = cursor?.add(Duration(minutes: gameMins));
+
+      final stepsFromFinal = preview.mainRoundCount - round;
+      final label = round == 0
+          ? 'Play-in'
+          : switch (stepsFromFinal) {
+              0 => 'Final',
+              1 => 'Semi-final',
+              2 => 'Quarter-final',
+              _ => 'Round $round',
+            };
+
+      rows.add(Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Row(children: [
+          SizedBox(
+            width: 92,
+            child: Text(label,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87)),
+          ),
+          Text(
+            '${matches.length} match${matches.length == 1 ? '' : 'es'}',
+            style: const TextStyle(fontSize: 11, color: Colors.black45),
+          ),
+          const Spacer(),
+          if (start != null && end != null)
+            Text(
+              '${_fmtTime(start)} – ${_fmtTime(end)}',
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _kGoldDark),
+            ),
+        ]),
+      ));
+
+      final breakMins = preview.breakAfterRound(round);
+      final isLast = i == roundList.length - 1;
+      if (!isLast) {
+        final isFinalBreak = round >= preview.mainRoundCount - preview.finalRoundsCount + 1;
+        rows.add(GestureDetector(
+          onTap: () => _pickBreak(isFinal: isFinalBreak),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(children: [
+              const SizedBox(width: 92),
+              Icon(
+                breakMins > 0 ? Icons.coffee_rounded : Icons.add_circle_outline_rounded,
+                size: 11,
+                color: breakMins > 0 ? _kOlive : Colors.black26,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                breakMins > 0 ? '$breakMins min break' : 'Add break',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: breakMins > 0 ? _kOlive : Colors.black38,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.edit_rounded, size: 9, color: Colors.black26),
+            ]),
+          ),
+        ));
+      }
+
+      cursor = end?.add(Duration(minutes: isLast ? 0 : breakMins));
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _kGoldCream,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.goldBadgeBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: title + total duration
+          Row(children: [
+            const Icon(Icons.schedule_rounded,
+                size: 13, color: _kGoldDark),
+            const SizedBox(width: 6),
+            const Text('Schedule Preview',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: _kGoldDark)),
+            const Spacer(),
+            Text(
+              _formatDuration(preview.estimatedDuration),
+              style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _kGoldDark),
+            ),
+          ]),
+          const SizedBox(height: 6),
+          // Tappable start time
+          GestureDetector(
+            onTap: _pickStartTime,
+            child: Row(children: [
+              const Icon(Icons.play_circle_outline_rounded,
+                  size: 12, color: _kGoldDark),
+              const SizedBox(width: 4),
+              Text(
+                'Starts: ${_formatDateTime(_estimatedStart)}',
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: _kGoldDark),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.edit_rounded,
+                  size: 10, color: _kGoldDark),
+            ]),
+          ),
+          if (rows.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: AppColors.goldBadgeBorder),
+            const SizedBox(height: 8),
+            ...rows,
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _fmtTime(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
 
   Widget _fieldLabel(String text) => Text(
         text,
         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
-      );
-
-  InputDecoration _inputDecoration({String? hint}) => InputDecoration(
-        hintText: hint,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       );
 
   String _formatDateTime(DateTime dt) {

@@ -231,9 +231,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     final progress = total == 0 ? 0.0 : completed / total;
     final isComplete =
         _tournament.status == KoBracketStatus.completed;
-    final duration = _tournament.estimatedDuration;
-    final start    = _tournament.estimatedStart;
-    final end      = _tournament.estimatedEnd;
+    final start = _tournament.estimatedStart;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -258,21 +256,29 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                           style: const TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 15),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${_tournament.teamCount} teams  ·  '
-                          '${_tournament.courtCount} court${_tournament.courtCount > 1 ? 's' : ''}',
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.black54),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _chip(Icons.groups_rounded,
+                                '${_tournament.teamCount} teams',
+                                _kOliveLight, _kOlive),
+                            _chip(Icons.sports_tennis_rounded,
+                                '${_tournament.courtCount} court${_tournament.courtCount > 1 ? 's' : ''}',
+                                _kOliveLight, _kOlive),
+                            _chip(Icons.timer_rounded,
+                                '${_tournament.minutesPerGame} min',
+                                Colors.grey.shade100, Colors.black45),
+                            _chip(Icons.info_outline_rounded,
+                                _tournament.earlyRoundFormat.label,
+                                Colors.grey.shade100, Colors.black45),
+                            if (start != null)
+                              _chip(Icons.schedule_rounded,
+                                  'Starts ${_fmtT(start)}',
+                                  _kGoldCream, _kGoldDark),
+                          ],
                         ),
-                        if (start != null || end != null || duration > Duration.zero) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            _timingLabel(start, end, duration),
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.black54),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -324,30 +330,24 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     );
   }
 
-  String _timingLabel(DateTime? start, DateTime? end, Duration duration) {
-    String fmtDt(DateTime dt) {
-      final h = dt.hour.toString().padLeft(2, '0');
-      final m = dt.minute.toString().padLeft(2, '0');
-      return '${dt.day}/${dt.month} $h:$m';
-    }
-
-    String fmtDur(Duration d) {
-      final h = d.inHours;
-      final m = d.inMinutes % 60;
-      if (h == 0) return '${m}min';
-      if (m == 0) return '${h}h';
-      return '${h}h ${m}min';
-    }
-
-    if (start != null && end != null) {
-      return '${fmtDt(start)} – ${fmtDt(end)}  (${fmtDur(duration)})';
-    } else if (start != null) {
-      return 'Starts ${fmtDt(start)}  ·  ${fmtDur(duration)}';
-    } else if (end != null) {
-      return 'Ends ${fmtDt(end)}';
-    }
-    return fmtDur(duration);
-  }
+  Widget _chip(IconData icon, String label, Color bg, Color fg) =>
+      Container(
+        padding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 11, color: fg),
+          const SizedBox(width: 3),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11,
+                  color: fg,
+                  fontWeight: FontWeight.w600)),
+        ]),
+      );
 
   // ── Winner banner ─────────────────────────────────────────────────────────
 
@@ -546,41 +546,73 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
   // ── Round header ──────────────────────────────────────────────────────────
 
+  static String _fmtT(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
   Widget _roundHeader(int round, List<KoMatch> matches) {
-    final done  = matches.where((m) => m.isComplete).length;
-    final total = matches.length;
+    final done    = matches.where((m) => m.isComplete).length;
+    final total   = matches.length;
+    final allDone = done == total && total > 0;
     final isCurrentRound = done < total &&
         (round == 0 ||
             _tournament
                 .matchesForRound(round - 1)
                 .every((m) => m.isComplete));
 
-    return Row(children: [
-      Icon(
-        round == 0
-            ? Icons.play_arrow_rounded
-            : Icons.account_tree_rounded,
-        size: 15,
-        color: isCurrentRound ? _kGold : _kOlive,
-      ),
-      const SizedBox(width: 6),
-      Text(
-        _roundLabel(round).toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: isCurrentRound ? _kGold : _kOlive,
-          letterSpacing: 0.4,
+    DateTime? earliest, latest;
+    for (final m in matches) {
+      if (m.scheduledStartTime != null) {
+        if (earliest == null ||
+            m.scheduledStartTime!.isBefore(earliest)) {
+          earliest = m.scheduledStartTime;
+        }
+      }
+      if (m.scheduledEndTime != null) {
+        if (latest == null || m.scheduledEndTime!.isAfter(latest)) {
+          latest = m.scheduledEndTime;
+        }
+      }
+    }
+
+    return Row(
+      children: [
+        Container(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: allDone
+                ? _kOlive
+                : isCurrentRound
+                    ? _kGoldCream
+                    : Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _roundLabel(round),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: allDone
+                  ? Colors.white
+                  : isCurrentRound
+                      ? _kGoldDark
+                      : Colors.black45,
+            ),
+          ),
         ),
-      ),
-      const SizedBox(width: 8),
-      Text(
-        '$done / $total',
-        style: const TextStyle(fontSize: 12, color: Colors.black38),
-      ),
-      const Spacer(),
-      _formatBadge(_tournament.formatForRound(round)),
-    ]);
+        const SizedBox(width: 8),
+        if (earliest != null && latest != null)
+          Text(
+            '${_fmtT(earliest)} – ${_fmtT(latest)}',
+            style: const TextStyle(fontSize: 12, color: Colors.black45),
+          ),
+        const Spacer(),
+        _formatBadge(_tournament.formatForRound(round)),
+      ],
+    );
   }
 
   Widget _formatBadge(KoRoundFormat fmt) => Container(
@@ -600,188 +632,193 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
         ),
       );
 
-  // ── Match card ────────────────────────────────────────────────────────────
+  // ── Match card ─────────────────────────────────────────────────────────────
 
   Widget _matchCard(KoMatch match, int round) {
-    final team1     = match.team1Id != null
+    final team1      = match.team1Id != null
         ? _tournament.teamById(match.team1Id!)
         : null;
-    final team2     = match.team2Id != null
+    final team2      = match.team2Id != null
         ? _tournament.teamById(match.team2Id!)
         : null;
-    final isBye       = match.status == KoMatchStatus.bye;
-    final isWalkover  = match.status == KoMatchStatus.walkover;
-    final isComplete  = match.isComplete;
-    final canTap      = !isComplete && team1 != null && team2 != null;
-    final isRepechage = match.status == KoMatchStatus.repechage;
-    final isPlayIn    = match.status == KoMatchStatus.playIn;
+    final isBye      = match.status == KoMatchStatus.bye;
+    final isWalkover = match.status == KoMatchStatus.walkover;
+    final isComplete = match.isComplete;
+    final canTap     = !isComplete &&
+        team1 != null &&
+        team2 != null &&
+        !isBye &&
+        !isWalkover;
 
-    Color borderColor = Colors.grey.shade200;
-    Color bgColor     = Colors.white;
-    if (match.status == KoMatchStatus.inProgress) {
-      borderColor = _kGold;
-      bgColor     = _kGoldCream;
-    } else if (isComplete) {
-      borderColor = _kOlive.withValues(alpha: 0.4);
-      bgColor     = _kOliveLight;
-    }
+    final statusColor = switch (match.status) {
+      KoMatchStatus.completed  => _kOlive,
+      KoMatchStatus.inProgress => _kGold,
+      KoMatchStatus.walkover   => Colors.orange,
+      KoMatchStatus.bye        => Colors.grey,
+      _                        => Colors.black38,
+    };
 
-    return GestureDetector(
-      onTap: canTap ? () => _openMatch(match) : null,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: borderColor, width: isComplete ? 1 : 1.5),
-          boxShadow: canTap
-              ? [
-                  BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2))
-                ]
-              : null,
+    final statusIcon = switch (match.status) {
+      KoMatchStatus.completed  => Icons.check_circle_rounded,
+      KoMatchStatus.inProgress => Icons.sports_tennis_rounded,
+      KoMatchStatus.walkover   => Icons.person_off_rounded,
+      KoMatchStatus.bye        => Icons.do_not_disturb_alt_rounded,
+      _                        => Icons.schedule_rounded,
+    };
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 6),
+      elevation: 0,
+      color: match.status == KoMatchStatus.inProgress
+          ? _kGoldCream
+          : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: match.status == KoMatchStatus.inProgress
+              ? _kGold.withValues(alpha: 0.5)
+              : Colors.grey.shade200,
+          width:
+              match.status == KoMatchStatus.inProgress ? 1.5 : 1.0,
         ),
-        child: Column(
-          children: [
-            if (isBye || isWalkover || isRepechage || isPlayIn)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                    children: [_statusTag(match.status)]),
-              ),
-            Row(children: [
-              Expanded(
-                  child: _teamSlot(
-                      team1, match.winnerId == match.team1Id, match)),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  isComplete ? _scoreLabel(match) : 'vs',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: isComplete ? 15 : 13,
-                    color: isComplete
-                        ? Colors.black87
-                        : Colors.black38,
+      ),
+      child: InkWell(
+        onTap: canTap ? () => _openMatch(match) : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 10),
+          child: Row(
+            children: [
+              // Court badge
+              if (match.courtAssignment != null) ...[
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: _kOliveLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Court',
+                          style: TextStyle(
+                              fontSize: 7,
+                              color: _kOlive,
+                              fontWeight: FontWeight.w400)),
+                      Text('${match.courtAssignment}',
+                          style: const TextStyle(
+                              fontSize: 16,
+                              color: _kOlive,
+                              fontWeight: FontWeight.w400,
+                              height: 1)),
+                    ],
                   ),
                 ),
-              ),
+                const SizedBox(width: 12),
+              ],
+              // Teams + time
               Expanded(
-                  child: _teamSlot(team2,
-                      match.winnerId == match.team2Id, match,
-                      alignRight: true)),
-            ]),
-            if (canTap) ...[
-              const SizedBox(height: 8),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.touch_app_rounded,
-                        size: 12,
-                        color: _kGold.withValues(alpha: 0.7)),
-                    const SizedBox(width: 4),
-                    Text('Tap to score',
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: _kGold.withValues(alpha: 0.7))),
-                  ]),
+                    if (isBye ||
+                        isWalkover ||
+                        match.status == KoMatchStatus.repechage ||
+                        match.status == KoMatchStatus.playIn)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: _statusTag(match.status),
+                      ),
+                    _teamRow(
+                      team1?.name ?? 'TBD',
+                      _teamScore(match, isTeam1: true),
+                      match.winnerId == match.team1Id && isComplete,
+                      team1?.isWithdrawn ?? false,
+                      team1 == null,
+                    ),
+                    const SizedBox(height: 2),
+                    _teamRow(
+                      team2?.name ?? 'TBD',
+                      _teamScore(match, isTeam1: false),
+                      match.winnerId == match.team2Id && isComplete,
+                      team2?.isWithdrawn ?? false,
+                      team2 == null,
+                    ),
+                    if (match.scheduledStartTime != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        _fmtT(match.scheduledStartTime!),
+                        style: const TextStyle(
+                            fontSize: 11, color: Colors.black38),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              // Status icon
+              const SizedBox(width: 8),
+              Icon(statusIcon, size: 18, color: statusColor),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _teamSlot(KoTeam? team, bool isWinner, KoMatch match,
-      {bool alignRight = false}) {
-    final isWithdrawn = team?.isWithdrawn ?? false;
-    final textAlign  = alignRight ? TextAlign.right : TextAlign.left;
-    final crossAxis  =
-        alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-
-    if (team == null) {
-      return Column(crossAxisAlignment: crossAxis, children: [
-        Text('TBD',
-            textAlign: textAlign,
-            style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black26,
-                fontWeight: FontWeight.w600)),
-      ]);
-    }
-
-    return Column(
-      crossAxisAlignment: crossAxis,
+  Widget _teamRow(
+      String name, String? score, bool isWinner, bool isWithdrawn, bool isTbd) {
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: alignRight
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
-          children: [
-            if (isWinner && !alignRight) ...[
-              const Icon(Icons.emoji_events_rounded,
-                  size: 14, color: _kGold),
-              const SizedBox(width: 4),
-            ],
-            Flexible(
-              child: Text(
-                team.name,
-                textAlign: textAlign,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  color: isWithdrawn
-                      ? Colors.grey
-                      : isWinner
-                          ? _kGoldDark
-                          : Colors.black87,
-                  decoration: isWithdrawn
-                      ? TextDecoration.lineThrough
-                      : null,
-                ),
-              ),
-            ),
-            if (isWinner && alignRight) ...[
-              const SizedBox(width: 4),
-              const Icon(Icons.emoji_events_rounded,
-                  size: 14, color: _kGold),
-            ],
-            if (isWithdrawn) ...[
-              const SizedBox(width: 4),
-              const Icon(Icons.warning_amber_rounded,
-                  size: 13, color: Colors.orange),
-            ],
-          ],
-        ),
-        if (team.players.isNotEmpty)
-          Text(
-            team.players.map((p) => p.name).join(' · '),
-            textAlign: textAlign,
-            maxLines: 1,
+        if (isWinner)
+          const Padding(
+            padding: EdgeInsets.only(right: 4),
+            child: Icon(Icons.emoji_events_rounded,
+                size: 12, color: _kGoldDark),
+          ),
+        Expanded(
+          child: Text(
+            name,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                fontSize: 11, color: Colors.black38),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: isTbd
+                  ? Colors.black26
+                  : isWithdrawn
+                      ? Colors.grey
+                      : Colors.black87,
+              decoration:
+                  isWithdrawn ? TextDecoration.lineThrough : null,
+            ),
+          ),
+        ),
+        if (score != null)
+          Text(
+            score,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: isWinner ? _kGoldDark : Colors.black38,
+            ),
           ),
       ],
     );
   }
 
-  String _scoreLabel(KoMatch match) {
-    if (match.sets.isEmpty) return '—';
-    final t1 = match.team1Sets;
-    final t2 = match.team2Sets;
-    if (t1 + t2 == 1) {
+  String? _teamScore(KoMatch match, {required bool isTeam1}) {
+    if (!match.isComplete || match.sets.isEmpty) return null;
+    final fmt = _tournament.formatForRound(match.round);
+    if (fmt.setsPerGame == 1) {
       final s = match.sets.first;
-      return '${s.score1}–${s.score2}';
+      return isTeam1 ? '${s.score1}' : '${s.score2}';
     }
-    return '$t1–$t2';
+    final won = match.sets
+        .where((s) => s.isCompleted &&
+            (isTeam1 ? s.score1 > s.score2 : s.score2 > s.score1))
+        .length;
+    return '$won';
   }
 
   Widget _statusTag(KoMatchStatus status) {
