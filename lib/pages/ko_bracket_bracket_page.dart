@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
+import '../models/player.dart';
+import '../models/team.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
+import '../widgets/sheet_helpers.dart';
 import 'ko_bracket_match_page.dart';
+import 'ko_bracket_setup_page.dart';
 
 const _kGold     = AppColors.gold;
 const _kGoldDark = AppColors.goldDark;
@@ -15,11 +19,19 @@ const _kOliveLight = AppColors.oliveLight;
 class KoBracketBracketPage extends StatefulWidget {
   final KoBracketTournament tournament;
   final void Function(KoBracketTournament) onChanged;
+  final List<Player> existingPlayers;
+  final List<Team> existingTeams;
+  final Player Function(String name) onCreatePlayer;
+  final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
 
   const KoBracketBracketPage({
     super.key,
     required this.tournament,
     required this.onChanged,
+    required this.existingPlayers,
+    required this.existingTeams,
+    required this.onCreatePlayer,
+    required this.onCreateTeam,
   });
 
   @override
@@ -33,7 +45,54 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   @override
   void initState() {
     super.initState();
-    _tournament = widget.tournament;
+    _tournament = _syncTeamsFromHub(widget.tournament);
+  }
+
+  KoBracketTournament _syncTeamsFromHub(KoBracketTournament t) {
+    var changed = false;
+    final synced = t.teams.map((koTeam) {
+      if (koTeam.hubTeamId == null) return koTeam;
+      final hubTeam = widget.existingTeams
+          .where((ht) => ht.id == koTeam.hubTeamId)
+          .firstOrNull;
+      if (hubTeam == null) return koTeam;
+
+      final slots = koTeam.players.length;
+      final newPlayers = <KoPlayerSnapshot>[];
+      for (final uid in hubTeam.userIds) {
+        if (newPlayers.length >= slots) break;
+        final p = widget.existingPlayers
+            .where((ep) => ep.id == uid)
+            .firstOrNull;
+        if (p != null) {
+          newPlayers.add(KoPlayerSnapshot(
+            appPlayerId: p.id,
+            name: p.name,
+            skillRating: p.skillRating,
+          ));
+        }
+      }
+      while (newPlayers.length < slots) {
+        newPlayers.add(KoPlayerSnapshot(
+          appPlayerId: '', name: 'Player ${newPlayers.length + 1}'));
+      }
+
+      final playersChanged = newPlayers.length != koTeam.players.length ||
+          newPlayers.asMap().entries.any((e) {
+            final old = koTeam.players[e.key];
+            return e.value.appPlayerId != old.appPlayerId ||
+                e.value.name != old.name ||
+                e.value.skillRating != old.skillRating;
+          });
+      if (!playersChanged) return koTeam;
+      changed = true;
+      return koTeam.copyWith(players: newPlayers);
+    }).toList();
+
+    if (!changed) return t;
+    final updated = t.copyWith(teams: synced);
+    KoBracketStorageService.save(updated);
+    return updated;
   }
 
   void _persist(KoBracketTournament updated) {
@@ -146,12 +205,63 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     _persist(updated);
   }
 
+  // ── Swap team ─────────────────────────────────────────────────────────────
+
+  void _swapTeam(KoTeam team) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _SwapPickerSheet(
+        replacing: team,
+        existingTeams: widget.existingTeams,
+        takenHubTeamIds: _tournament.teams
+            .where((t) => t.hubTeamId != null)
+            .map((t) => t.hubTeamId!)
+            .toSet(),
+        playersPerSide: _tournament.teams.isNotEmpty
+            ? _tournament.teams.first.players.length
+            : 2,
+        existingPlayers: widget.existingPlayers,
+        onSwap: (newTeam) {
+          // Give the incoming team a fresh KoTeam id so it doesn't clash.
+          final incoming = KoTeam(
+            id: KoTeam.generateId(),
+            name: newTeam.name,
+            players: newTeam.players,
+            hubTeamId: newTeam.hubTeamId,
+          );
+          _persist(_tournament.swapTeam(team.id, incoming));
+        },
+      ),
+    );
+  }
+
+  // ── Edit team ─────────────────────────────────────────────────────────────
+
+  void _editTeam(KoTeam team) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => KoTeamEditorSheet(
+        team: team,
+        existingPlayers: widget.existingPlayers,
+        existingTeams: widget.existingTeams,
+        generationMode: _tournament.generationMode,
+        onCreatePlayer: widget.onCreatePlayer,
+        onCreateTeam: widget.onCreateTeam,
+        onSave: (updated) => _persist(_tournament.updateTeam(updated)),
+      ),
+    );
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: TournaQAppBar(title: _tournament.name),
+      appBar: TournaQAppBar(title: 'Single Elimination', subtitle: _tournament.name),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         child: Column(
@@ -490,19 +600,43 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
               ],
             ),
           ),
-          if (isLive && !isWithdrawn)
+          if (!isWithdrawn) ...[
             Tooltip(
-              message: 'Withdraw',
+              message: 'Edit Players',
               child: InkWell(
-                onTap: () => _withdrawTeam(team),
+                onTap: () => _editTeam(team),
                 borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Icon(Icons.person_remove_rounded,
-                      size: 18, color: Colors.red.shade400),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(Icons.edit_rounded, size: 16, color: Colors.black38),
                 ),
               ),
             ),
+            Tooltip(
+              message: 'Swap Team',
+              child: InkWell(
+                onTap: () => _swapTeam(team),
+                borderRadius: BorderRadius.circular(8),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(Icons.swap_horiz_rounded, size: 18, color: Colors.black38),
+                ),
+              ),
+            ),
+            if (isLive)
+              Tooltip(
+                message: 'Withdraw',
+                child: InkWell(
+                  onTap: () => _withdrawTeam(team),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(Icons.person_remove_rounded,
+                        size: 18, color: Colors.red.shade400),
+                  ),
+                ),
+              ),
+          ],
         ],
       ),
     );
@@ -843,6 +977,165 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: color)),
+    );
+  }
+}
+
+// ── Swap picker sheet ─────────────────────────────────────────────────────────
+
+class _SwapPickerSheet extends StatefulWidget {
+  final KoTeam replacing;
+  final List<Team> existingTeams;
+  final Set<String> takenHubTeamIds;
+  final int playersPerSide;
+  final List<Player> existingPlayers;
+  final void Function(KoTeam) onSwap;
+
+  const _SwapPickerSheet({
+    required this.replacing,
+    required this.existingTeams,
+    required this.takenHubTeamIds,
+    required this.playersPerSide,
+    required this.existingPlayers,
+    required this.onSwap,
+  });
+
+  @override
+  State<_SwapPickerSheet> createState() => _SwapPickerSheetState();
+}
+
+class _SwapPickerSheetState extends State<_SwapPickerSheet> {
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  KoTeam _buildKoTeam(Team hubTeam) {
+    final slots = widget.playersPerSide;
+    final players = <KoPlayerSnapshot>[];
+    for (final uid in hubTeam.userIds) {
+      if (players.length >= slots) break;
+      final p = widget.existingPlayers.where((ep) => ep.id == uid).firstOrNull;
+      if (p != null) {
+        players.add(KoPlayerSnapshot(
+          appPlayerId: p.id,
+          name: p.name,
+          skillRating: p.skillRating,
+        ));
+      }
+    }
+    while (players.length < slots) {
+      players.add(KoPlayerSnapshot(appPlayerId: '', name: 'Player ${players.length + 1}'));
+    }
+    return KoTeam(
+      id: KoTeam.generateId(),
+      name: hubTeam.name,
+      players: players,
+      hubTeamId: hubTeam.id,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = _searchCtrl.text.toLowerCase();
+    final available = widget.existingTeams
+        .where((t) => !widget.takenHubTeamIds.contains(t.id))
+        .where((t) => query.isEmpty || t.name.toLowerCase().contains(query))
+        .toList();
+
+    return TournaQSheet(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Swap Team',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 2),
+                Text(
+                  'Replacing "${widget.replacing.name}" in all pending matches.',
+                  style: const TextStyle(fontSize: 12, color: Colors.black45),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _searchCtrl,
+                  autofocus: true,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: 'Search teams…',
+                    prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.black45),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: available.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        widget.existingTeams.isEmpty
+                            ? 'No teams in Teams Hub yet.'
+                            : 'All hub teams are already in this tournament.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 13, color: Colors.black38),
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                    itemCount: available.length,
+                    itemBuilder: (_, i) {
+                      final t = available[i];
+                      final pc = t.userIds.length;
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(color: Colors.grey.shade200)),
+                        elevation: 0,
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: _kGoldCream,
+                            child: Text(
+                              t.name.isNotEmpty ? t.name[0].toUpperCase() : '?',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: _kGoldDark,
+                                  fontSize: 14),
+                            ),
+                          ),
+                          title: Text(t.name,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 14)),
+                          subtitle: pc > 0
+                              ? Text('$pc player${pc == 1 ? '' : 's'}',
+                                  style: const TextStyle(fontSize: 12))
+                              : null,
+                          trailing: const Icon(Icons.swap_horiz_rounded,
+                              color: _kGold, size: 20),
+                          onTap: () {
+                            widget.onSwap(_buildKoTeam(t));
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

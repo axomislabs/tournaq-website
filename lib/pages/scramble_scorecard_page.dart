@@ -88,6 +88,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   final _matchTimerKey = GlobalKey<ScrambleTimerWidgetState>();
+  Duration? _timerInitialRemaining;
 
   // ── Computed helpers ──────────────────────────────────────────────────────
   int get _n => _t.playersPerTeam;
@@ -107,6 +108,24 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     _scoreB = _game.sideBScore;
     _matchCompleted = _game.isCompleted;
     _activeIndex = _initialActiveIndex(_game);
+
+    if (!_matchCompleted &&
+        _game.status == ScrambleGameStatus.inProgress &&
+        _game.actualStartTime != null) {
+      final elapsed = DateTime.now().difference(_game.actualStartTime!);
+      final remaining = _round.matchDuration - elapsed;
+      if (remaining > Duration.zero) {
+        _timerInitialRemaining = remaining;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _matchTimerKey.currentState?.start();
+        });
+      } else {
+        _timerInitialRemaining = Duration.zero;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _onMatchTimerFinished();
+        });
+      }
+    }
   }
 
   /// Derives the starting _activeIndex from the scheduled first server.
@@ -237,7 +256,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     });
     _matchTimerKey.currentState?.pause();
     _persist(updated);
-    await _showPostCompletionDialog();
+
+    final allDone = updated.games.every((g) => g.isCompleted);
+    if (allDone) {
+      await _showTournamentCompleteDialog(updated);
+    } else {
+      await _showPostCompletionDialog();
+    }
   }
 
   void _undoCompletion() {
@@ -601,7 +626,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         const SizedBox(width: 4),
                         ScrambleTimerWidget(
                           key: _matchTimerKey,
-                          initial: _round.matchDuration,
+                          initial: _timerInitialRemaining ?? _round.matchDuration,
                           mode: ScrambleTimerMode.countdown,
                           autoStart: false,
                           compact: true,
@@ -1751,8 +1776,216 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _adjusting = false;
     });
     _persist(updated);
-    if (showPostDialog) await _showPostCompletionDialog();
+    if (!showPostDialog) return;
+    final allDone = updated.games.every((g) => g.isCompleted);
+    if (allDone) {
+      await _showTournamentCompleteDialog(updated);
+    } else {
+      await _showPostCompletionDialog();
+    }
   }
+
+  // ── Tournament complete dialog (shown when last game is done) ────────────
+
+  Future<void> _showTournamentCompleteDialog(ScrambleTournament t) async {
+    if (!mounted) return;
+    final stats = ScrambleService.computeStats(t);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (_, scrollCtrl) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: _kGoldLight,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.emoji_events_rounded,
+                          color: _kGold, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tournament Complete',
+                            style: TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.w800),
+                          ),
+                          Text(
+                            t.name,
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.black45),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView(
+                  controller: scrollCtrl,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  children: [
+                    _buildRankingsHeader(),
+                    ...stats.map((s) => _buildRankingRow(s)),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    16, 8, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kOlive,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      Navigator.of(context).pop(_t);
+                    },
+                    icon: const Icon(Icons.calendar_today_rounded, size: 16),
+                    label: const Text('Back to Schedule',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRankingsHeader() => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    margin: const EdgeInsets.only(bottom: 4),
+    decoration: BoxDecoration(
+      color: _kOlive,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: const Row(
+      children: [
+        SizedBox(width: 28, child: Text('#', style: _kRankHeaderStyle)),
+        SizedBox(width: 8),
+        Expanded(child: Text('Player', style: _kRankHeaderStyle)),
+        SizedBox(width: 36, child: Text('RP', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        SizedBox(width: 36, child: Text('W', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        SizedBox(width: 36, child: Text('D', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        SizedBox(width: 36, child: Text('L', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        SizedBox(width: 36, child: Text('+/-', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+      ],
+    ),
+  );
+
+  Widget _buildRankingRow(ScramblePlayerStats s) {
+    final isLeader = s.rank == 1;
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isLeader ? _kGoldCardBg : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: isLeader
+            ? Border.all(color: _kGold.withValues(alpha: 0.4))
+            : Border.all(color: Colors.grey.shade100),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            child: isLeader
+                ? const Icon(Icons.emoji_events_rounded,
+                    size: 16, color: _kGold)
+                : Text(
+                    '${s.rank}',
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black45),
+                  ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              s.playerName,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isLeader ? FontWeight.w800 : FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          _rankCell('${s.rankingPoints}',
+              color: isLeader ? _kGold : Colors.black87, bold: true),
+          _rankCell('${s.wins}', color: _kOlive),
+          _rankCell('${s.draws}'),
+          _rankCell('${s.losses}', color: Colors.red.shade400),
+          _rankCell(
+            '${s.pointDifference >= 0 ? '+' : ''}${s.pointDifference}',
+            color: s.pointDifference >= 0 ? _kOlive : Colors.red.shade400,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _rankCell(String text,
+      {Color color = Colors.black54, bool bold = false}) =>
+      SizedBox(
+        width: 36,
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: color,
+            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      );
+
+  static const _kRankHeaderStyle = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+    letterSpacing: 0.5,
+  );
 
   // ── Post-completion dialog ────────────────────────────────────────────────
 
@@ -1954,7 +2187,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     ),
                   ),
                   title: Text(sideANames,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
                       overflow: TextOverflow.ellipsis),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

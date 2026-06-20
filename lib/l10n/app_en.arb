@@ -13,7 +13,7 @@
   "navQuickStart": "Quick Start Game",
   "@navQuickStart": {},
 
-  "navTournaments": "Tournaments",
+  "navTournaments": "Tournament Hub",
   "@navTournaments": {},
 
   "navTeams": "Teams",
@@ -43,7 +43,7 @@
   "pagePlayers": "Players",
   "@pagePlayers": {},
 
-  "pageTournaments": "Tournaments",
+  "pageTournaments": "Tournament Hub",
   "@pageTournaments": {},
 
   "pageClubs": "Clubs",

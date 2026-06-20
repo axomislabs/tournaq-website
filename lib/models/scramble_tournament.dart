@@ -33,12 +33,17 @@ class ScramblePlayer {
       status == ScramblePlayerStatus.late ||
       status == ScramblePlayerStatus.swappedIn;
 
-  ScramblePlayer copyWith({String? name, ScramblePlayerStatus? status}) =>
+  ScramblePlayer copyWith({
+    String? name,
+    ScramblePlayerStatus? status,
+    String? appUserId,
+    bool clearAppUserId = false,
+  }) =>
       ScramblePlayer(
         id: id,
         name: name ?? this.name,
         source: source,
-        appUserId: appUserId,
+        appUserId: clearAppUserId ? null : (appUserId ?? this.appUserId),
         status: status ?? this.status,
       );
 

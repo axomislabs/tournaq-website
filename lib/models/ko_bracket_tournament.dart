@@ -82,6 +82,7 @@ class KoTeam {
   final List<KoPlayerSnapshot> players;
   final bool isWithdrawn;
   final int? withdrawnAtRound;
+  final String? hubTeamId;
 
   const KoTeam({
     required this.id,
@@ -89,6 +90,7 @@ class KoTeam {
     required this.players,
     this.isWithdrawn = false,
     this.withdrawnAtRound,
+    this.hubTeamId,
   });
 
   /// Weighted team rating: players sorted descending, weights [0.6, 0.4] for 2
@@ -128,6 +130,8 @@ class KoTeam {
     List<KoPlayerSnapshot>? players,
     bool? isWithdrawn,
     int? withdrawnAtRound,
+    String? hubTeamId,
+    bool clearHubTeamId = false,
   }) =>
       KoTeam(
         id: id,
@@ -135,6 +139,7 @@ class KoTeam {
         players: players ?? this.players,
         isWithdrawn: isWithdrawn ?? this.isWithdrawn,
         withdrawnAtRound: withdrawnAtRound ?? this.withdrawnAtRound,
+        hubTeamId: clearHubTeamId ? null : (hubTeamId ?? this.hubTeamId),
       );
 
   Map<String, dynamic> toJson() => {
@@ -143,6 +148,7 @@ class KoTeam {
         'players': players.map((p) => p.toJson()).toList(),
         'isWithdrawn': isWithdrawn,
         'withdrawnAtRound': withdrawnAtRound,
+        if (hubTeamId != null) 'hubTeamId': hubTeamId,
       };
 
   factory KoTeam.fromJson(Map<String, dynamic> j) => KoTeam(
@@ -153,6 +159,7 @@ class KoTeam {
             .toList(),
         isWithdrawn: j['isWithdrawn'] as bool? ?? false,
         withdrawnAtRound: j['withdrawnAtRound'] as int?,
+        hubTeamId: j['hubTeamId'] as String?,
       );
 
   static String generateId() => _uuid.v4();
@@ -509,6 +516,25 @@ class KoBracketTournament {
     return copyWith(
       teams: teams.map((t) => t.id == updated.id ? updated : t).toList(),
     );
+  }
+
+  /// Replaces [oldTeamId] with [newTeam] in all pending (not-yet-completed) matches.
+  /// Completed match results are preserved as-is.
+  KoBracketTournament swapTeam(String oldTeamId, KoTeam newTeam) {
+    final updatedTeams = teams
+        .where((t) => t.id != oldTeamId)
+        .toList()
+      ..add(newTeam);
+
+    final updatedMatches = matches.map((m) {
+      if (m.isComplete) return m;
+      return m.copyWith(
+        team1Id: m.team1Id == oldTeamId ? newTeam.id : m.team1Id,
+        team2Id: m.team2Id == oldTeamId ? newTeam.id : m.team2Id,
+      );
+    }).toList();
+
+    return copyWith(teams: updatedTeams, matches: updatedMatches);
   }
 
   // ── Serialisation ─────────────────────────────────────────────────────────

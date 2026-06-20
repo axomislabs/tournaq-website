@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
+import '../models/team.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -10,10 +11,16 @@ import 'ko_bracket_setup_page.dart';
 
 class KoBracketHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Team> existingTeams;
+  final Player Function(String name) onCreatePlayer;
+  final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
 
   const KoBracketHubPage({
     super.key,
     required this.existingPlayers,
+    required this.existingTeams,
+    required this.onCreatePlayer,
+    required this.onCreateTeam,
   });
 
   @override
@@ -51,6 +58,9 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KoBracketSetupPage(
         existingPlayers: widget.existingPlayers,
+        existingTeams: widget.existingTeams,
+        onCreatePlayer: widget.onCreatePlayer,
+        onCreateTeam: widget.onCreateTeam,
         onCreated: _persist,
       ),
     )).then((_) => _loadTournaments());
@@ -61,6 +71,10 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
       builder: (_) => KoBracketBracketPage(
         tournament: t,
         onChanged: _persist,
+        existingPlayers: widget.existingPlayers,
+        existingTeams: widget.existingTeams,
+        onCreatePlayer: widget.onCreatePlayer,
+        onCreateTeam: widget.onCreateTeam,
       ),
     )).then((_) => _loadTournaments());
   }

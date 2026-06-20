@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
-import '../models/doghouse_drill.dart';
-import '../models/king_of_the_court_tournament.dart';
 import '../models/player.dart';
-import '../models/scramble_tournament.dart';
 import '../services/app_data_service.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
@@ -15,6 +12,9 @@ import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
 import 'club_detail_page.dart';
+import 'doghouse_scoreboard_page.dart';
+import 'king_of_the_court_scoreboard_page.dart';
+import 'scramble_overview_page.dart';
 import 'team_detail_page.dart';
 
 class UserDetailPage extends StatefulWidget {
@@ -34,11 +34,9 @@ class UserDetailPage extends StatefulWidget {
 }
 
 typedef _TournamentEntry = ({
+  String id,
   String name,
-  String typeLabel,
-  IconData icon,
-  String statusLabel,
-  bool isActive,
+  String tournamentType, // 'scramble' | 'kotc' | 'doghouse'
 });
 
 class _UserDetailPageState extends State<UserDetailPage> {
@@ -59,17 +57,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     for (final t in ScrambleStorageService.loadAll()) {
       if (t.players.any((p) => p.appUserId == id)) {
         results.add((
-          entry: (
-            name:        t.name,
-            typeLabel:   'Social Scramble',
-            icon:        Icons.shuffle_rounded,
-            statusLabel: switch (t.status) {
-              ScrambleTournamentStatus.completed  => 'Completed',
-              ScrambleTournamentStatus.inProgress => 'In Progress',
-              ScrambleTournamentStatus.setup      => 'Setup',
-            },
-            isActive: t.status != ScrambleTournamentStatus.completed,
-          ),
+          entry: (id: t.id, name: t.name, tournamentType: 'scramble'),
           date: t.startTime,
         ));
       }
@@ -77,17 +65,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     for (final t in KingOfTheCourtStorageService.loadAll()) {
       if (t.players.any((p) => p.appUserId == id)) {
         results.add((
-          entry: (
-            name:        t.name,
-            typeLabel:   'King of the Court',
-            icon:        Icons.workspace_premium_rounded,
-            statusLabel: switch (t.status) {
-              KotcTournamentStatus.completed  => 'Completed',
-              KotcTournamentStatus.inProgress => 'In Progress',
-              KotcTournamentStatus.setup      => 'Setup',
-            },
-            isActive: t.status != KotcTournamentStatus.completed,
-          ),
+          entry: (id: t.id, name: t.name, tournamentType: 'kotc'),
           date: t.createdAt,
         ));
       }
@@ -95,17 +73,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     for (final t in DoghouseStorageService.loadAll()) {
       if (t.players.any((p) => p.appUserId == id)) {
         results.add((
-          entry: (
-            name:        t.name,
-            typeLabel:   'Doghouse',
-            icon:        Icons.pets_rounded,
-            statusLabel: switch (t.status) {
-              DoghouseTournamentStatus.completed  => 'Completed',
-              DoghouseTournamentStatus.inProgress => 'In Progress',
-              DoghouseTournamentStatus.setup      => 'Setup',
-            },
-            isActive: t.status != DoghouseTournamentStatus.completed,
-          ),
+          entry: (id: t.id, name: t.name, tournamentType: 'doghouse'),
           date: t.createdAt,
         ));
       }
@@ -220,22 +188,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
     _updateState(_localState.updatePlayer(updated));
   }
 
-  Future<void> _setSkillRating(int rating) async {
-    final user = _user;
-    if (user == null) return;
-    final updated = user.copyWith(skillRating: rating);
-    await LocalStorageService.savePlayer(updated);
-    _updateState(_localState.updatePlayer(updated));
-  }
-
-  Future<void> _clearSkillRating() async {
-    final user = _user;
-    if (user == null) return;
-    final updated = user.copyWith(clearSkillRating: true);
-    await LocalStorageService.savePlayer(updated);
-    _updateState(_localState.updatePlayer(updated));
-  }
-
   Future<void> _removeFromClub(String clubId) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -254,82 +206,45 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
   }
 
-  Widget _buildSkillLevelRow(Player user) {
-    final current = user.skillRating;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text(
-              'Skill Level',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54),
-            ),
-            const SizedBox(width: 6),
-            if (current != null)
-              GestureDetector(
-                onTap: _clearSkillRating,
-                child: const Icon(Icons.close_rounded, size: 14, color: Colors.black38),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: List.generate(10, (i) {
-            final level = i + 1;
-            final selected = current != null && level <= current;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => _setSkillRating(level),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: selected ? AppColors.gold : Colors.white.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: selected ? AppColors.goldDark : Colors.white.withValues(alpha: 0.6),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$level',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : Colors.black45,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          current == null
-              ? 'Not set — required for seeded tournaments'
-              : _skillLabel(current),
-          style: TextStyle(
-            fontSize: 11,
-            color: current == null ? Colors.orange.shade700 : Colors.black45,
+  void _openTournament(_TournamentEntry t) {
+    switch (t.tournamentType) {
+      case 'scramble':
+        final tournament = ScrambleStorageService.loadAll()
+            .where((s) => s.id == t.id)
+            .firstOrNull;
+        if (tournament == null || !mounted) return;
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ScrambleOverviewPage(
+            tournament: tournament,
+            onChanged: ScrambleStorageService.save,
           ),
-        ),
-      ],
-    );
+        ));
+      case 'kotc':
+        final tournament = KingOfTheCourtStorageService.loadAll()
+            .where((s) => s.id == t.id)
+            .firstOrNull;
+        if (tournament == null || !mounted) return;
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => KingOfTheCourtScoreboardPage(
+            tournament: tournament,
+            existingPlayers: _localState.players,
+            onChanged: KingOfTheCourtStorageService.save,
+          ),
+        ));
+      case 'doghouse':
+        final tournament = DoghouseStorageService.loadAll()
+            .where((s) => s.id == t.id)
+            .firstOrNull;
+        if (tournament == null || !mounted) return;
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => DoghouseScoreboardPage(
+            tournament: tournament,
+            existingPlayers: _localState.players,
+            onChanged: DoghouseStorageService.save,
+          ),
+        ));
+    }
   }
-
-  String _skillLabel(int rating) => switch (rating) {
-        1 || 2 => 'Beginner',
-        3 || 4 => 'Recreational',
-        5 || 6 => 'Intermediate',
-        7 || 8 => 'Advanced',
-        9 || 10 => 'Elite',
-        _ => '',
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -377,8 +292,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       const SizedBox(height: 4),
                       Text(l10n.userRoleLabel(user.role!), style: const TextStyle(color: Colors.black54)),
                     ],
-                    const SizedBox(height: 16),
-                    _buildSkillLevelRow(user),
                     const SizedBox(height: 16),
                     Wrap(spacing: 10, runSpacing: 8, children: [
                       ElevatedButton.icon(
@@ -439,24 +352,10 @@ class _UserDetailPageState extends State<UserDetailPage> {
               ..._playerTournaments.map((t) => Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
-                  leading: Icon(t.icon, color: AppColors.gold),
+                  leading: const Icon(Icons.emoji_events_rounded, color: AppColors.gold),
                   title: Text(t.name),
-                  subtitle: Text(t.typeLabel),
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: t.isActive ? AppColors.oliveLight : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      t.statusLabel,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: t.isActive ? AppColors.olive : Colors.black45,
-                      ),
-                    ),
-                  ),
+                  trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
+                  onTap: () => _openTournament(t),
                 ),
               )),
 

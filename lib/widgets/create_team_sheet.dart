@@ -15,9 +15,14 @@ class CreateTeamSheet extends StatefulWidget {
 }
 
 class _CreateTeamSheetState extends State<CreateTeamSheet> {
-  final _nameCtrl = TextEditingController();
+  final _nameCtrl         = TextEditingController();
+  final _playerSearchCtrl = TextEditingController();
+  final _clubSearchCtrl   = TextEditingController();
   TeamScope _scope = TeamScope.temporary;
-  final Set<String> _clubIds = {};
+  final Set<String> _playerIds = {};
+  final Set<String> _clubIds   = {};
+  bool _playerExpanded = false;
+  bool _clubExpanded   = false;
   final _rng = Random();
 
   static const _prefixes = ['Falcon','Phoenix','Lion','Tiger','Eagle','Storm','Dragon','Viper','Thunder','Raven','Comet','Shadow','Blaze','Orbit','Nova'];
@@ -27,7 +32,12 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   void initState() { super.initState(); _suggestName(); }
 
   @override
-  void dispose() { _nameCtrl.dispose(); super.dispose(); }
+  void dispose() {
+    _nameCtrl.dispose();
+    _playerSearchCtrl.dispose();
+    _clubSearchCtrl.dispose();
+    super.dispose();
+  }
 
   void _suggestName() {
     setState(() {
@@ -38,63 +48,242 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   bool get _canCreate => _nameCtrl.text.trim().isNotEmpty;
 
   String _scopeLabel(AppLocalizations l10n, TeamScope s) => switch (s) {
-    TeamScope.temporary => l10n.scopeTemporary,
+    TeamScope.temporary  => l10n.scopeTemporary,
     TeamScope.tournament => l10n.scopeTournament,
-    TeamScope.club => l10n.scopeClub,
+    TeamScope.club       => l10n.scopeClub,
   };
 
   void _create() {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
-    var state = AppDataService.createTeamWithPlayers(widget.appState, name: name, scope: _scope);
+    var state = AppDataService.createTeam(widget.appState, name: name, scope: _scope);
     final teamId = state.teams.last.id;
+    for (final id in _playerIds) {
+      state = AppDataService.assignUserToTeam(state, userId: id, teamId: teamId);
+    }
     for (final id in _clubIds) {
       state = AppDataService.assignTeamToClub(state, teamId: teamId, clubId: id);
     }
     Navigator.pop(context, state);
   }
 
-  Widget _buildChipSection(String label, List<({String id, String name})> items, Set<String> selected) {
+  // ── Searchable multi-select picker ────────────────────────────────────────
+
+  Widget _buildSearchPicker({
+    required String label,
+    required List<({String id, String name})> items,
+    required Set<String> selected,
+    required TextEditingController searchCtrl,
+    required bool expanded,
+    required VoidCallback onToggleExpand,
+  }) {
     if (items.isEmpty) return const SizedBox.shrink();
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SizedBox(height: 16),
-      Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
-      const SizedBox(height: 8),
-      Wrap(spacing: 8, runSpacing: 4,
-        children: items.map((item) => FilterChip(
-          label: Text(item.name),
-          selected: selected.contains(item.id),
-          selectedColor: AppColors.goldCream,
-          checkmarkColor: AppColors.gold,
-          onSelected: (v) => setState(() {
-            if (v) { selected.add(item.id); } else { selected.remove(item.id); }
+
+    final query    = searchCtrl.text.toLowerCase();
+    final filtered = query.isEmpty
+        ? items
+        : items.where((i) => i.name.toLowerCase().contains(query)).toList();
+
+    final selectedNames = items
+        .where((i) => selected.contains(i.id))
+        .map((i) => i.name)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Text(label,
+            style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.black54)),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () => setState(() {
+            onToggleExpand();
+            if (!expanded) searchCtrl.clear();
           }),
-        )).toList(),
-      ),
-    ]);
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: expanded ? AppColors.gold : Colors.grey.shade400,
+                width: expanded ? 1.5 : 1.0,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: selectedNames.isEmpty
+                      ? Text('Select $label…',
+                          style: TextStyle(
+                              fontSize: 14, color: Colors.grey.shade500))
+                      : Text(
+                          selectedNames.join(', '),
+                          style: const TextStyle(fontSize: 14),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                ),
+                if (selected.isNotEmpty) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldCream,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text('${selected.length}',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.goldDark)),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Icon(
+                  expanded
+                      ? Icons.keyboard_arrow_up_rounded
+                      : Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: Colors.black45,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (expanded) ...[
+          const SizedBox(height: 4),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.gold, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                  child: TextField(
+                    controller: searchCtrl,
+                    autofocus: true,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: 'Search…',
+                      prefixIcon: const Icon(Icons.search_rounded,
+                          size: 18, color: Colors.black45),
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 8),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  child: filtered.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text('No results.',
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.black38)),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filtered.length,
+                          itemBuilder: (_, i) {
+                            final item       = filtered[i];
+                            final isSelected = selected.contains(item.id);
+                            return InkWell(
+                              onTap: () => setState(() {
+                                if (isSelected) {
+                                  selected.remove(item.id);
+                                } else {
+                                  selected.add(item.id);
+                                }
+                              }),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(item.name,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.w400,
+                                          )),
+                                    ),
+                                    if (isSelected)
+                                      const Icon(Icons.check_rounded,
+                                          size: 18, color: AppColors.gold),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
-  Widget _buildPortrait(AppLocalizations l10n, List<({String id, String name})> clubs) {
+  // ── Portrait ──────────────────────────────────────────────────────────────
+
+  Widget _buildPortrait(
+    AppLocalizations l10n,
+    List<({String id, String name})> players,
+    List<({String id, String name})> clubs,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          Container(padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
-            child: const Icon(Icons.group_rounded, color: AppColors.gold, size: 22)),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+                color: AppColors.goldCream, shape: BoxShape.circle),
+            child: const Icon(Icons.group_rounded,
+                color: AppColors.gold, size: 22),
+          ),
           const SizedBox(width: 12),
-          Text(l10n.btnCreateTeam, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          Text(l10n.btnCreateTeam,
+              style: const TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.w800)),
         ]),
         const SizedBox(height: 24),
 
+        // Name
         Row(children: [
-          Expanded(child: Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54))),
+          Expanded(
+            child: Text(l10n.labelName,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.black54)),
+          ),
           GestureDetector(
             onTap: _suggestName,
             child: Row(children: [
-              const Icon(Icons.shuffle_rounded, size: 14, color: AppColors.gold),
+              const Icon(Icons.shuffle_rounded,
+                  size: 14, color: AppColors.gold),
               const SizedBox(width: 4),
-              Text(l10n.btnSuggest, style: const TextStyle(fontSize: 12, color: AppColors.gold, fontWeight: FontWeight.w600)),
+              Text(l10n.btnSuggest,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w600)),
             ]),
           ),
         ]),
@@ -102,36 +291,82 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
         TextField(
           controller: _nameCtrl,
           textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
 
-        Text(l10n.labelScope, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
+        // Scope
+        Text(l10n.labelScope,
+            style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.black54)),
         const SizedBox(height: 8),
         DropdownButtonFormField<TeamScope>(
           initialValue: _scope,
-          decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)),
-          items: TeamScope.values.map((s) => DropdownMenuItem(value: s, child: Text(_scopeLabel(l10n, s)))).toList(),
-          onChanged: (v) { if (v != null) setState(() => _scope = v); },
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          items: TeamScope.values
+              .map((s) => DropdownMenuItem(
+                  value: s, child: Text(_scopeLabel(l10n, s))))
+              .toList(),
+          onChanged: (v) {
+            if (v != null) setState(() => _scope = v);
+          },
         ),
 
-        _buildChipSection(l10n.labelAssignToClubs, clubs, _clubIds),
-        const SizedBox(height: 24),
+        // Players
+        _buildSearchPicker(
+          label: l10n.labelAssignToTeams.replaceFirst('Teams', 'Players'),
+          items: players,
+          selected: _playerIds,
+          searchCtrl: _playerSearchCtrl,
+          expanded: _playerExpanded,
+          onToggleExpand: () {
+            _playerExpanded = !_playerExpanded;
+            if (_playerExpanded) _clubExpanded = false;
+          },
+        ),
 
-        SizedBox(width: double.infinity,
+        // Clubs
+        _buildSearchPicker(
+          label: l10n.labelAssignToClubs,
+          items: clubs,
+          selected: _clubIds,
+          searchCtrl: _clubSearchCtrl,
+          expanded: _clubExpanded,
+          onToggleExpand: () {
+            _clubExpanded = !_clubExpanded;
+            if (_clubExpanded) _playerExpanded = false;
+          },
+        ),
+
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded),
-            label: Text(l10n.btnCreateTeam, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+            label: Text(l10n.btnCreateTeam,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 16)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
               disabledBackgroundColor: Colors.grey[200],
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -139,92 +374,172 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     );
   }
 
-  Widget _buildLandscape(AppLocalizations l10n, List<({String id, String name})> clubs) {
+  // ── Landscape ─────────────────────────────────────────────────────────────
+
+  Widget _buildLandscape(
+    AppLocalizations l10n,
+    List<({String id, String name})> players,
+    List<({String id, String name})> clubs,
+  ) {
+    final fieldBorder  = OutlineInputBorder(borderRadius: BorderRadius.circular(10));
+    const fieldPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 10);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
-          Container(padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(color: AppColors.goldCream, shape: BoxShape.circle),
-            child: const Icon(Icons.group_rounded, color: AppColors.gold, size: 18)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+                color: AppColors.goldCream, shape: BoxShape.circle),
+            child: const Icon(Icons.group_rounded,
+                color: AppColors.gold, size: 18),
+          ),
           const SizedBox(width: 10),
-          Expanded(child: Text(l10n.btnCreateTeam, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+          Expanded(
+            child: Text(l10n.btnCreateTeam,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w800)),
+          ),
           ElevatedButton.icon(
             onPressed: _canCreate ? _create : null,
             icon: const Icon(Icons.check_rounded, size: 16),
-            label: Text(l10n.btnCreate, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            label: Text(l10n.btnCreate,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 14)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               foregroundColor: Colors.white,
               disabledBackgroundColor: Colors.grey[200],
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
         ]),
         const SizedBox(height: 12),
 
+        // Name + Scope row
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(flex: 5, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(child: Text(l10n.labelName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54))),
-              GestureDetector(
-                onTap: _suggestName,
-                child: Row(children: [
-                  const Icon(Icons.shuffle_rounded, size: 12, color: AppColors.gold),
-                  const SizedBox(width: 3),
-                  Text(l10n.btnSuggest, style: const TextStyle(fontSize: 11, color: AppColors.gold, fontWeight: FontWeight.w600)),
-                ]),
+          Expanded(
+            flex: 5,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Expanded(
+                  child: Text(l10n.labelName,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: Colors.black54)),
+                ),
+                GestureDetector(
+                  onTap: _suggestName,
+                  child: Row(children: [
+                    const Icon(Icons.shuffle_rounded,
+                        size: 12, color: AppColors.gold),
+                    const SizedBox(width: 3),
+                    Text(l10n.btnSuggest,
+                        style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.w600)),
+                  ]),
+                ),
+              ]),
+              const SizedBox(height: 6),
+              TextField(
+                controller: _nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                    border: fieldBorder,
+                    contentPadding: fieldPadding,
+                    isDense: true),
+                onChanged: (_) => setState(() {}),
               ),
             ]),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _nameCtrl,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                isDense: true,
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-          ])),
+          ),
           const SizedBox(width: 12),
-          Expanded(flex: 4, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(l10n.labelScope, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
-            const SizedBox(height: 6),
-            DropdownButtonFormField<TeamScope>(
-              initialValue: _scope,
-              isDense: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          Expanded(
+            flex: 4,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(l10n.labelScope,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      color: Colors.black54)),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<TeamScope>(
+                initialValue: _scope,
+                isDense: true,
+                decoration: InputDecoration(
+                  border: fieldBorder,
+                  contentPadding: fieldPadding,
+                ),
+                items: TeamScope.values
+                    .map((s) => DropdownMenuItem(
+                        value: s,
+                        child: Text(_scopeLabel(l10n, s),
+                            style: const TextStyle(fontSize: 13))))
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) setState(() => _scope = v);
+                },
               ),
-              items: TeamScope.values.map((s) => DropdownMenuItem(
-                value: s,
-                child: Text(_scopeLabel(l10n, s), style: const TextStyle(fontSize: 13)),
-              )).toList(),
-              onChanged: (v) { if (v != null) setState(() => _scope = v); },
-            ),
-          ])),
+            ]),
+          ),
         ]),
 
-        _buildChipSection(l10n.pageClubs, clubs, _clubIds),
+        // Players + Clubs row
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: _buildSearchPicker(
+              label: 'Players',
+              items: players,
+              selected: _playerIds,
+              searchCtrl: _playerSearchCtrl,
+              expanded: _playerExpanded,
+              onToggleExpand: () {
+                _playerExpanded = !_playerExpanded;
+                if (_playerExpanded) _clubExpanded = false;
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSearchPicker(
+              label: l10n.pageClubs,
+              items: clubs,
+              selected: _clubIds,
+              searchCtrl: _clubSearchCtrl,
+              expanded: _clubExpanded,
+              onToggleExpand: () {
+                _clubExpanded = !_clubExpanded;
+                if (_clubExpanded) _playerExpanded = false;
+              },
+            ),
+          ),
+        ]),
       ]),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final clubs = widget.appState.clubs.map((c) => (id: c.id, name: c.name)).toList();
+    final l10n    = AppLocalizations.of(context)!;
+    final players = widget.appState.players
+        .map((p) => (id: p.id, name: p.name))
+        .toList();
+    final clubs   = widget.appState.clubs
+        .map((c) => (id: c.id, name: c.name))
+        .toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(l10n, clubs)
-            : _buildPortrait(l10n, clubs),
+            ? _buildLandscape(l10n, players, clubs)
+            : _buildPortrait(l10n, players, clubs),
       ),
     );
   }

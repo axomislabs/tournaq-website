@@ -16,12 +16,14 @@ class ScrambleOverviewPage extends StatefulWidget {
   final ScrambleTournament tournament;
   final void Function(ScrambleTournament) onChanged;
   final Player Function(String name)? onCreatePlayer;
+  final void Function(String playerId, String newName)? onUpdatePlayer;
 
   const ScrambleOverviewPage({
     super.key,
     required this.tournament,
     required this.onChanged,
     this.onCreatePlayer,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -74,7 +76,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
     return Scaffold(
       appBar: TournaQAppBar(
-        title: _t.name,
+        title: 'Social Scramble',
+        subtitle: _t.name,
         actions: [
           IconButton(
             icon: const Icon(Icons.leaderboard_rounded,
@@ -375,6 +378,78 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       swappedIn,
     ];
     _update(ScrambleService.rebuildRemainingRounds(_t, newPlayers));
+  }
+
+  // ── Edit player sheet ─────────────────────────────────────────────────────
+
+  void _showEditPlayerSheet(ScramblePlayer player) {
+    final nameCtrl = TextEditingController(text: player.name);
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => TournaQSheet(
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(children: [
+                const Expanded(
+                  child: Text('Edit Player',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    final name = nameCtrl.text.trim();
+                    if (name.isEmpty) return;
+                    _update(_t.copyWith(
+                      players: _t.players
+                          .map((p) => p.id == player.id ? p.copyWith(name: name) : p)
+                          .toList(),
+                    ));
+                    if (player.appUserId != null) {
+                      widget.onUpdatePlayer?.call(player.appUserId!, name);
+                    }
+                    Navigator.of(ctx).pop();
+                  },
+                  style: TextButton.styleFrom(foregroundColor: AppColors.gold),
+                  child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              const SizedBox(height: 16),
+              const Text('Name',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                onSubmitted: (_) {
+                  final name = nameCtrl.text.trim();
+                  if (name.isEmpty) return;
+                  _update(_t.copyWith(
+                    players: _t.players
+                        .map((p) => p.id == player.id ? p.copyWith(name: name) : p)
+                        .toList(),
+                  ));
+                  if (player.appUserId != null) {
+                    widget.onUpdatePlayer?.call(player.appUserId!, name);
+                  }
+                  Navigator.of(ctx).pop();
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ── Generic player picker sheet ───────────────────────────────────────────
@@ -702,19 +777,27 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               ],
             ),
           ),
-          if (isLive && !inactive) ...[
+          if (!inactive) ...[
             _actionBtn(
-              icon: Icons.person_off_rounded,
-              color: Colors.red.shade400,
-              tooltip: 'Eject',
-              onTap: () => _confirmEject(p),
+              icon: Icons.edit_rounded,
+              color: Colors.black38,
+              tooltip: 'Edit',
+              onTap: () => _showEditPlayerSheet(p),
             ),
-            _actionBtn(
-              icon: Icons.swap_horiz_rounded,
-              color: Colors.orange.shade700,
-              tooltip: 'Swap',
-              onTap: () => _showSwapSheet(p),
-            ),
+            if (isLive) ...[
+              _actionBtn(
+                icon: Icons.person_off_rounded,
+                color: Colors.red.shade400,
+                tooltip: 'Eject',
+                onTap: () => _confirmEject(p),
+              ),
+              _actionBtn(
+                icon: Icons.swap_horiz_rounded,
+                color: Colors.orange.shade700,
+                tooltip: 'Swap',
+                onTap: () => _showSwapSheet(p),
+              ),
+            ],
           ],
         ],
       ),

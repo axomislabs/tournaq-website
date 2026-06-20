@@ -429,15 +429,13 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final team1Name = _team1?.name ?? 'Team 1';
-    final team2Name = _team2?.name ?? 'Team 2';
     final scoreLocked =
         _isMatchComplete || _currentSetDone || (_timeUp && !_suddenDeath);
 
     return Scaffold(
       appBar: TournaQAppBar(
-        title: '$team1Name vs $team2Name',
-        subtitle: 'KO Bracket · Scorecard',
+        title: 'Single Elimination',
+        subtitle: 'Scorecard',
         actions: [
           IconButton(
             icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),

@@ -5,6 +5,7 @@ import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../models/player.dart';
+import '../models/team.dart';
 import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -57,6 +58,18 @@ class _TournamentsPageState extends State<TournamentsPage> {
     return player;
   }
 
+  void _updatePlayer(String playerId, String newName) {
+    final player = _localState.getPlayerById(playerId);
+    if (player == null) return;
+    _updateState(_localState.updatePlayer(player.copyWith(name: newName)));
+  }
+
+  String _createTeam(String name, List<String> linkedPlayerIds) {
+    final team = Team(id: AppState.generateId(), name: name, userIds: linkedPlayerIds);
+    _updateState(_localState.addTeam(team));
+    return team.id;
+  }
+
   void _refreshCounts() {
     setState(() {
       _scrambleCount  = ScrambleStorageService.loadAll().length;
@@ -72,6 +85,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
           builder: (_) => ScrambleHubPage(
             existingPlayers: _localState.players,
             onCreatePlayer: _createPlayer,
+            onUpdatePlayer: _updatePlayer,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -114,6 +128,9 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => KoBracketHubPage(
             existingPlayers: _localState.players,
+            existingTeams: _localState.teams,
+            onCreatePlayer: _createPlayer,
+            onCreateTeam: _createTeam,
           ),
         ))
         .then((_) => _refreshCounts());
@@ -175,7 +192,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
         actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        title: const Text('Tournaments',
+        title: const Text('Tournament Hub',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
         content: const SingleChildScrollView(
           child: Text(
@@ -205,11 +222,11 @@ class _TournamentsPageState extends State<TournamentsPage> {
       drawer: AppDrawer(
           appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(
-        title: 'Tournaments',
+        title: 'Tournament Hub',
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
-            tooltip: 'About Tournaments',
+            tooltip: 'About Tournament Hub',
             onPressed: _showPageInfo,
           ),
         ],
@@ -227,12 +244,12 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 icon:        Icons.shuffle_rounded,
                 color:       AppColors.gold,
                 gradientEnd: AppColors.goldGradientEnd,
-                name:        'Social Scramble',
+                name:        'Social Scrambles',
                 description: 'Timed round-robin mixer',
                 count:       _scrambleCount,
                 onTap:       _openScrambleHub,
                 helpText:
-                    'Social Scramble is a timed, rotating mixer where teams are randomly '
+                    'Social Scrambles is a timed, rotating mixer where teams are randomly '
                     'reshuffled every round. No one stays partnered for long — the whole '
                     'point is to play with and against as many different people as possible '
                     'across the session.\n\n'
@@ -419,7 +436,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             ),
             const SizedBox(height: 6),
             _HistoryShortcutTile(
-              label:     'Social Scramble',
+              label:     'Social Scrambles',
               count:     _scrambleCount,
               typeColor: AppColors.gold,
               typeIcon:  Icons.shuffle_rounded,

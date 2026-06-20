@@ -1443,8 +1443,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: TournaQAppBar(
-        title: l10n.doghouseTitle,
-        subtitle: l10n.doghouseScoreboard,
+        title: 'Doghouse',
+        subtitle: _t.name,
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart_rounded,

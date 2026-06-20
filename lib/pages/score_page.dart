@@ -683,7 +683,12 @@ class _ScorePageState extends State<ScorePage> {
     final rightName = rightTeamId == _game.team1Id ? _team1DisplayName : _team2DisplayName;
     final scoreLocked = _isGameComplete || _isActiveSetCompleted;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _saveAndBack();
+      },
+      child: Scaffold(
       appBar: const TournaQAppBar(title: 'Quick Game', subtitle: 'Scorecard'),
       body: OrientationBuilder(
         builder: (context, orientation) {
@@ -838,7 +843,7 @@ class _ScorePageState extends State<ScorePage> {
           );
         },
       ),
-    );
+    )); // closes Scaffold + PopScope
   }
 
   // ── Sections ──────────────────────────────────────────────────────────────

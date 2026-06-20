@@ -114,7 +114,7 @@ class ScrambleStatsPage extends StatelessWidget {
           const _StatHeader('RP'),
           const _StatHeader('W'),
           const _StatHeader('D'),
-          if (!portrait) const _StatHeader('L'),
+          const _StatHeader('L'),
           if (!portrait) const _StatHeader('Pts'),
           const _StatHeader('+/-'),
           if (!portrait) const _StatHeader('G'),
@@ -178,7 +178,7 @@ class ScrambleStatsPage extends StatelessWidget {
               isLeader ? AppColors.goldDark : Colors.black87, true),
           _statCell('${s.wins}', AppColors.olive),
           _statCell('${s.draws}'),
-          if (!portrait) _statCell('${s.losses}', Colors.red.shade400),
+          _statCell('${s.losses}', Colors.red.shade400),
           if (!portrait) _statCell('${s.totalPoints}'),
           _statCell(
             '${s.pointDifference >= 0 ? '+' : ''}${s.pointDifference}',

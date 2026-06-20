@@ -20,7 +20,7 @@ enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse }
 extension on TournamentFilter {
   String get label => switch (this) {
         TournamentFilter.all            => 'All',
-        TournamentFilter.scramble       => 'Social Scramble',
+        TournamentFilter.scramble       => 'Social Scrambles',
         TournamentFilter.kingOfTheCourt => 'King of the Court',
         TournamentFilter.doghouse       => 'Doghouse',
       };
@@ -265,7 +265,7 @@ class _HistoryEntry {
 
     return _HistoryEntry(
       name:        t.name,
-      typeLabel:   'Social Scramble',
+      typeLabel:   'Social Scrambles',
       typeColor:   AppColors.gold,
       typeIcon:    Icons.shuffle_rounded,
       dateLabel:   _dateLabel(t.startTime),

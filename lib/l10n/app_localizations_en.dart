@@ -21,7 +21,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navQuickStart => 'Quick Start Game';
 
   @override
-  String get navTournaments => 'Tournaments';
+  String get navTournaments => 'Tournament Hub';
 
   @override
   String get navTeams => 'Teams';
@@ -51,7 +51,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pagePlayers => 'Players';
 
   @override
-  String get pageTournaments => 'Tournaments';
+  String get pageTournaments => 'Tournament Hub';
 
   @override
   String get pageClubs => 'Clubs';

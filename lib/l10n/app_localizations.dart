@@ -127,7 +127,7 @@ abstract class AppLocalizations {
   /// No description provided for @navTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Tournaments'**
+  /// **'Tournament Hub'**
   String get navTournaments;
 
   /// No description provided for @navTeams.
@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @pageTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Tournaments'**
+  /// **'Tournament Hub'**
   String get pageTournaments;
 
   /// No description provided for @pageClubs.

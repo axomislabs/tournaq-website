@@ -5,12 +5,15 @@ import '../models/player.dart';
 import '../services/app_data_service.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
+import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_player_sheet.dart';
 import 'user_detail_page.dart';
+
+enum _SearchMode { name, team, tournament }
 
 class UsersPage extends StatefulWidget {
   final AppState appState;
@@ -23,7 +26,10 @@ class UsersPage extends StatefulWidget {
 class _UsersPageState extends State<UsersPage> {
   late AppState _localState;
   final _searchCtrl = TextEditingController();
+  _SearchMode _searchMode = _SearchMode.name;
   Map<String, int> _tournamentCountByPlayer = {};
+  // tournamentName → set of appUserIds who participated
+  Map<String, Set<String>> _playersByTournamentName = {};
 
   @override
   void initState() {
@@ -34,21 +40,34 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _loadTournamentCounts() {
-    final counts = <String, int>{};
-    void increment(String? id) {
-      if (id == null) return;
-      counts[id] = (counts[id] ?? 0) + 1;
+    final counts  = <String, int>{};
+    final byName  = <String, Set<String>>{};
+
+    void add(String? playerId, String tournamentName) {
+      if (playerId == null) return;
+      counts[playerId] = (counts[playerId] ?? 0) + 1;
+      (byName[tournamentName] ??= {}).add(playerId);
     }
+
     for (final t in ScrambleStorageService.loadAll()) {
-      for (final p in t.players) { increment(p.appUserId); }
+      for (final p in t.players) { add(p.appUserId, t.name); }
     }
     for (final t in KingOfTheCourtStorageService.loadAll()) {
-      for (final p in t.players) { increment(p.appUserId); }
+      for (final p in t.players) { add(p.appUserId, t.name); }
     }
     for (final t in DoghouseStorageService.loadAll()) {
-      for (final p in t.players) { increment(p.appUserId); }
+      for (final p in t.players) { add(p.appUserId, t.name); }
     }
-    _tournamentCountByPlayer = counts;
+    for (final t in KoBracketStorageService.loadAll()) {
+      for (final team in t.teams) {
+        for (final p in team.players) { add(p.appPlayerId.isEmpty ? null : p.appPlayerId, t.name); }
+      }
+    }
+
+    setState(() {
+      _tournamentCountByPlayer   = counts;
+      _playersByTournamentName   = byName;
+    });
   }
 
   @override
@@ -153,12 +172,174 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   List<Player> get _filteredPlayers {
-    final q = _searchCtrl.text.toLowerCase();
+    final q = _searchCtrl.text.toLowerCase().trim();
     if (q.isEmpty) return _localState.players;
-    return _localState.players
-        .where((p) => p.name.toLowerCase().contains(q))
-        .toList();
+
+    switch (_searchMode) {
+      case _SearchMode.name:
+        return _localState.players
+            .where((p) => p.name.toLowerCase().contains(q))
+            .toList();
+
+      case _SearchMode.team:
+        final matchingTeamIds = _localState.teams
+            .where((t) => t.name.toLowerCase().contains(q))
+            .map((t) => t.id)
+            .toSet();
+        return _localState.players
+            .where((p) => p.teamIds.any(matchingTeamIds.contains))
+            .toList();
+
+      case _SearchMode.tournament:
+        final matchingPlayerIds = _playersByTournamentName.entries
+            .where((e) => e.key.toLowerCase().contains(q))
+            .expand((e) => e.value)
+            .toSet();
+        return _localState.players
+            .where((p) => matchingPlayerIds.contains(p.id))
+            .toList();
+    }
   }
+
+  // ── Search bar ────────────────────────────────────────────────────────────
+
+  static const _modeLabels = {
+    _SearchMode.name:       'Name',
+    _SearchMode.team:       'Team',
+    _SearchMode.tournament: 'Tournament',
+  };
+
+  static const _modeHints = {
+    _SearchMode.name:       'Search players…',
+    _SearchMode.team:       'Search by team…',
+    _SearchMode.tournament: 'Search by tournament…',
+  };
+
+  Widget _buildSearchBar(AppLocalizations l10n) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Mode chip
+          GestureDetector(
+            onTapUp: (details) async {
+              final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+              final box = context.findRenderObject() as RenderBox;
+              final offset = box.localToGlobal(Offset.zero, ancestor: overlay);
+              final selected = await showMenu<_SearchMode>(
+                context: context,
+                position: RelativeRect.fromLTRB(
+                  offset.dx + 16,
+                  offset.dy + 48,
+                  offset.dx + 160,
+                  offset.dy + 200,
+                ),
+                items: _SearchMode.values
+                    .map((m) => PopupMenuItem(
+                          value: m,
+                          child: Row(children: [
+                            Icon(
+                              _modeIcon(m),
+                              size: 16,
+                              color: m == _searchMode
+                                  ? AppColors.gold
+                                  : Colors.black54,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _modeLabels[m]!,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: m == _searchMode
+                                    ? FontWeight.w700
+                                    : FontWeight.w400,
+                                color: m == _searchMode
+                                    ? AppColors.gold
+                                    : Colors.black87,
+                              ),
+                            ),
+                            if (m == _searchMode) ...[
+                              const Spacer(),
+                              const Icon(Icons.check_rounded,
+                                  size: 14, color: AppColors.gold),
+                            ],
+                          ]),
+                        ))
+                    .toList(),
+              );
+              if (selected != null && selected != _searchMode) {
+                setState(() {
+                  _searchMode = selected;
+                  _searchCtrl.clear();
+                });
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.goldCream,
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(_modeIcon(_searchMode), size: 14, color: AppColors.goldDark),
+                  const SizedBox(width: 4),
+                  Text(
+                    _modeLabels[_searchMode]!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.goldDark,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.arrow_drop_down_rounded,
+                      size: 16, color: AppColors.goldDark),
+                ],
+              ),
+            ),
+          ),
+          // Divider
+          Container(width: 1, height: 36, color: Colors.grey.shade200),
+          // Search input
+          Expanded(
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: _modeHints[_searchMode],
+                hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
+                prefixIcon: const Icon(Icons.search_rounded,
+                    size: 16, color: Colors.black38),
+                suffixIcon: _searchCtrl.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close_rounded,
+                            size: 16, color: Colors.black38),
+                        onPressed: () => setState(() => _searchCtrl.clear()),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      )
+                    : null,
+                border: InputBorder.none,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                isDense: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _modeIcon(_SearchMode mode) => switch (mode) {
+        _SearchMode.name       => Icons.person_rounded,
+        _SearchMode.team       => Icons.group_rounded,
+        _SearchMode.tournament => Icons.emoji_events_rounded,
+      };
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -211,19 +392,7 @@ class _UsersPageState extends State<UsersPage> {
           // ── Search ─────────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: l10n.hintSearchPlayers,
-                prefixIcon: const Icon(Icons.search_rounded,
-                    size: 18, color: Colors.black45),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
-                isDense: true,
-              ),
-            ),
+            child: _buildSearchBar(l10n),
           ),
           const SizedBox(height: 8),
 

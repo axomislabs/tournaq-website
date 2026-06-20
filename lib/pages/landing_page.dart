@@ -83,7 +83,7 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 12),
           _buildPrimaryCard(
-            title: 'Tournaments',
+            title: 'Tournament Hub',
             subtitle: 'Manage tournaments & scrambles',
             icon: Icons.emoji_events_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],

@@ -1603,7 +1603,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     return Scaffold(
       appBar: TournaQAppBar(
         title: 'King of the Court',
-        subtitle: 'Scoreboard',
+        subtitle: _t.name,
         actions: [
           IconButton(
             icon: const Icon(Icons.bar_chart_rounded,

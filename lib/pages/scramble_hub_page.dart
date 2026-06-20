@@ -11,11 +11,13 @@ import 'scramble_setup_page.dart';
 class ScrambleHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final Player Function(String name) onCreatePlayer;
+  final void Function(String playerId, String newName)? onUpdatePlayer;
 
   const ScrambleHubPage({
     super.key,
     required this.existingPlayers,
     required this.onCreatePlayer,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -65,6 +67,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
         tournament:     t,
         onChanged:      _persist,
         onCreatePlayer: widget.onCreatePlayer,
+        onUpdatePlayer: widget.onUpdatePlayer,
       ),
     ));
   }
@@ -108,7 +111,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
         title: const Text('Delete All Tournaments?',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete all ${_scrambles.length} Social Scramble tournament${_scrambles.length > 1 ? 's' : ''}.',
+          'This will permanently delete all ${_scrambles.length} Social Scrambles tournament${_scrambles.length > 1 ? 's' : ''}.',
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
@@ -157,7 +160,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'Social Scramble'),
+      appBar: const TournaQAppBar(title: 'Social Scrambles'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -226,7 +229,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                       final t = _scrambles[i];
                       return TournamentHistoryCard(
                         name:        t.name,
-                        typeLabel:   'Social Scramble',
+                        typeLabel:   'Social Scrambles',
                         typeColor:   AppColors.gold,
                         typeIcon:    Icons.shuffle_rounded,
                         dateLabel:   _dateLabel(t),
@@ -275,7 +278,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
               Icon(Icons.shuffle_rounded, color: Colors.white, size: 22),
               SizedBox(width: 8),
               Text(
-                'Social Scramble',
+                'Social Scrambles',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
