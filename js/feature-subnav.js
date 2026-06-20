@@ -120,7 +120,7 @@
             <a href="${f}scoring.html">Match Scoring</a>
             <a href="${f}tournament-features.html">Tournament Management</a>
             <a href="${f}device-scalability.html">Device &amp; Screen</a>
-            <a href="${f}live-tournament.html">Live Tournaments</a>
+            <a href="${f}navigation.html">Navigation</a>
             <a href="${f}user-administration.html">User Administration</a>
           </div>
         </div>

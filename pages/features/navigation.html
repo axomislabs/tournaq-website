@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.navigation.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App Navigation – TournaQ Features</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .under-construction-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff8e1;
+      border: 1px solid #f9a825;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
+    .under-construction-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: #7c5a00;
+      line-height: 1.4;
+    }
+    .under-construction-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: #9e7500;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="features.navigation.hero.title">App Navigation</h1>
+      <p class="subtitle" data-i18n="features.navigation.hero.subtitle">A user-friendly navigation experience designed to keep everything within reach.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="completed-status status-badge" data-i18n="features.navigation.status">Available</div>
+      <h2 data-i18n="features.navigation.feature.title">App Navigation</h2>
+      <div class="under-construction-banner">
+        <div class="sign">🚧</div>
+        <div class="sign-text" data-i18n-html="features.navigation.construction">
+          More detail coming soon
+          <span>TournaQ is built around a user-friendly navigation concept. A full explanation will be added here shortly.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="features.navigation.feedback.text">Have a question about app navigation, spotted something missing, or want to suggest an improvement?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>
