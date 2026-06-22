@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/game.dart';
-import '../models/team.dart';
+
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import 'assign_dialog.dart';
@@ -96,14 +96,12 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     var newState = AppDataService.createTeamWithPlayers(
       _state,
       name: name1,
-      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: name2,
-      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
@@ -115,14 +113,12 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     var newState = AppDataService.createTeamWithPlayers(
       _state,
       name: _randomTeam1Name,
-      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: _randomTeam2Name,
-      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
@@ -156,22 +152,14 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     const sectionLabel = TextStyle(
         fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54);
 
-    final styleSelector = InputDecorator(
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      ),
-      child: DropdownButton<int>(
-        value: _playersPerTeam,
-        isExpanded: true,
-        underline: const SizedBox.shrink(),
-        items: List.generate(5, (i) {
-          final n = i + 2;
-          return DropdownMenuItem(value: n, child: Text('${n}v$n'));
-        }),
-        onChanged: (v) => setState(() => _playersPerTeam = v!),
-      ),
+    final styleSelector = DropdownButton<int>(
+      value: _playersPerTeam,
+      underline: const SizedBox.shrink(),
+      items: List.generate(5, (i) {
+        final n = i + 2;
+        return DropdownMenuItem(value: n, child: Text('${n}v$n'));
+      }),
+      onChanged: (v) => setState(() => _playersPerTeam = v!),
     );
 
     final card1 = _buildOptionCard(
@@ -200,26 +188,18 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
               const SizedBox(height: 12),
               Text(l10n.labelStyle, style: sectionLabel),
               const SizedBox(height: 6),
-              InputDecorator(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 0),
-                ),
-                child: DropdownButton<int>(
-                  value: _playersPerTeam,
-                  isExpanded: true,
-                  underline: const SizedBox.shrink(),
-                  items: List.generate(5, (i) {
-                    final n = i + 2;
-                    return DropdownMenuItem(
-                        value: n,
-                        child: Text('${n}v$n',
-                            style: const TextStyle(fontSize: 13)));
-                  }),
-                  onChanged: (v) => setState(() => _playersPerTeam = v!),
-                ),
+              DropdownButton<int>(
+                value: _playersPerTeam,
+                isExpanded: true,
+                underline: const SizedBox.shrink(),
+                items: List.generate(5, (i) {
+                  final n = i + 2;
+                  return DropdownMenuItem(
+                      value: n,
+                      child: Text('${n}v$n',
+                          style: const TextStyle(fontSize: 13)));
+                }),
+                onChanged: (v) => setState(() => _playersPerTeam = v!),
               ),
             ]),
           ),

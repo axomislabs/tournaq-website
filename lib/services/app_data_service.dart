@@ -70,9 +70,8 @@ class AppDataService {
   static AppState createTeam(
     AppState state, {
     required String name,
-    required TeamScope scope,
   }) {
-    final team = Team(id: AppState.generateId(), name: name, scope: scope);
+    final team = Team(id: AppState.generateId(), name: name);
     return state.addTeam(team);
   }
 
@@ -101,7 +100,6 @@ class AppDataService {
   static AppState createTeamWithPlayers(
     AppState state, {
     required String name,
-    required TeamScope scope,
     int playerCount = 2,
   }) {
     final teamId = AppState.generateId();
@@ -112,7 +110,7 @@ class AppDataService {
         Player(id: playerIds[i], name: 'Player ${i + 1} $name', teamIds: [teamId]),
       );
     }
-    final team = Team(id: teamId, name: name, scope: scope, userIds: playerIds);
+    final team = Team(id: teamId, name: name, userIds: playerIds);
     return updatedState.addTeam(team);
   }
 

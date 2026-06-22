@@ -15,7 +15,6 @@ class CreatePlayerSheet extends StatefulWidget {
 
 class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   final _nameCtrl        = TextEditingController();
-  final _emailCtrl       = TextEditingController();
   final _teamSearchCtrl  = TextEditingController();
   final _groupSearchCtrl = TextEditingController();
   final Set<String> _teamIds = {};
@@ -33,7 +32,6 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _emailCtrl.dispose();
     _teamSearchCtrl.dispose();
     _groupSearchCtrl.dispose();
     super.dispose();
@@ -53,7 +51,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
     var state = AppDataService.createUser(
       widget.appState,
       name: name,
-      email: _emailCtrl.text.trim().isEmpty ? null : _emailCtrl.text.trim(),
+      email: null,
       role: null,
     );
     final playerId = state.players.last.id;
@@ -305,24 +303,6 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ),
         const SizedBox(height: 16),
 
-        // Email
-        Text(l10n.labelEmailOptional,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: Colors.black54)),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _emailCtrl,
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            hintText: 'player@email.com',
-          ),
-        ),
-
         // Teams
         _buildSearchPicker(
           label: l10n.labelAssignToTeams,
@@ -418,61 +398,39 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
         ]),
         const SizedBox(height: 12),
 
-        // Name + Email row
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Expanded(
-                child: Text(l10n.labelName,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                        color: Colors.black54)),
-              ),
-              GestureDetector(
-                onTap: _suggestName,
-                child: Row(children: [
-                  const Icon(Icons.shuffle_rounded,
-                      size: 12, color: AppColors.gold),
-                  const SizedBox(width: 3),
-                  Text(l10n.btnSuggest,
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.w600)),
-                ]),
-              ),
-            ]),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _nameCtrl,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                  border: fieldBorder,
-                  contentPadding: fieldPadding,
-                  isDense: true),
-              onChanged: (_) => setState(() {}),
-            ),
-          ])),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(l10n.labelEmailOptional,
+        // Name row
+        Row(children: [
+          Expanded(
+            child: Text(l10n.labelName,
                 style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                     color: Colors.black54)),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _emailCtrl,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                  border: fieldBorder,
-                  contentPadding: fieldPadding,
-                  isDense: true,
-                  hintText: 'player@email.com'),
-            ),
-          ])),
+          ),
+          GestureDetector(
+            onTap: _suggestName,
+            child: Row(children: [
+              const Icon(Icons.shuffle_rounded,
+                  size: 12, color: AppColors.gold),
+              const SizedBox(width: 3),
+              Text(l10n.btnSuggest,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w600)),
+            ]),
+          ),
         ]),
+        const SizedBox(height: 6),
+        TextField(
+          controller: _nameCtrl,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+              border: fieldBorder,
+              contentPadding: fieldPadding,
+              isDense: true),
+          onChanged: (_) => setState(() {}),
+        ),
 
         // Teams + Groups row
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [

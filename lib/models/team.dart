@@ -1,17 +1,11 @@
 import '../services/device_id_service.dart';
 
-enum TeamScope {
-  tournament,
-  group,
-}
-
 class Team {
   static const int schemaVersion = 2;
   final String id;
   final String name;
   final List<String> userIds;
   final List<String> tournamentIds;
-  final TeamScope scope;
   final String deviceId;
   final DateTime createdAt;
 
@@ -20,7 +14,6 @@ class Team {
     required this.name,
     this.userIds = const [],
     this.tournamentIds = const [],
-    this.scope = TeamScope.group,
     String? deviceId,
     DateTime? createdAt,
   })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
@@ -31,14 +24,12 @@ class Team {
     String? name,
     List<String>? userIds,
     List<String>? tournamentIds,
-    TeamScope? scope,
   }) {
     return Team(
       id: id ?? this.id,
       name: name ?? this.name,
       userIds: userIds ?? this.userIds,
       tournamentIds: tournamentIds ?? this.tournamentIds,
-      scope: scope ?? this.scope,
       deviceId: deviceId,
       createdAt: createdAt,
     );
@@ -72,7 +63,6 @@ class Team {
         'name': name,
         'userIds': userIds,
         'tournamentIds': tournamentIds,
-        'scope': scope.name,
         'deviceId': deviceId,
         'createdAt': createdAt.toIso8601String(),
       };
@@ -83,10 +73,6 @@ class Team {
         userIds: List<String>.from(json['userIds'] as List? ?? []),
         tournamentIds:
             List<String>.from(json['tournamentIds'] as List? ?? []),
-        scope: TeamScope.values.firstWhere(
-          (e) => e.name == json['scope'] || (e == TeamScope.group && json['scope'] == 'club'),
-          orElse: () => TeamScope.group,
-        ),
         deviceId: json['deviceId'] as String? ?? '',
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'] as String)

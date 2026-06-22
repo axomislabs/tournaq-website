@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
-import '../models/team.dart';
+
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
 import 'sheet_helpers.dart';
@@ -18,7 +18,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   final _nameCtrl         = TextEditingController();
   final _playerSearchCtrl = TextEditingController();
   final _groupSearchCtrl  = TextEditingController();
-  TeamScope _scope = TeamScope.group;
   final Set<String> _playerIds = {};
   final Set<String> _groupIds  = {};
   bool _playerExpanded = false;
@@ -47,15 +46,10 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
 
   bool get _canCreate => _nameCtrl.text.trim().isNotEmpty;
 
-  String _scopeLabel(AppLocalizations l10n, TeamScope s) => switch (s) {
-    TeamScope.tournament => l10n.scopeTournament,
-    TeamScope.group      => l10n.scopeClub,
-  };
-
   void _create() {
     final name = _nameCtrl.text.trim();
     if (name.isEmpty) return;
-    var state = AppDataService.createTeam(widget.appState, name: name, scope: _scope);
+    var state = AppDataService.createTeam(widget.appState, name: name);
     final teamId = state.teams.last.id;
     for (final id in _playerIds) {
       state = AppDataService.assignUserToTeam(state, userId: id, teamId: teamId);
@@ -300,30 +294,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
         ),
         const SizedBox(height: 16),
 
-        // Scope
-        Text(l10n.labelScope,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-                color: Colors.black54)),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<TeamScope>(
-          initialValue: _scope,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          items: TeamScope.values
-              .map((s) => DropdownMenuItem(
-                  value: s, child: Text(_scopeLabel(l10n, s))))
-              .toList(),
-          onChanged: (v) {
-            if (v != null) setState(() => _scope = v);
-          },
-        ),
-
         // Players
         _buildSearchPicker(
           label: l10n.labelAssignToTeams.replaceFirst('Teams', 'Players'),
@@ -456,35 +426,6 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
                     contentPadding: fieldPadding,
                     isDense: true),
                 onChanged: (_) => setState(() {}),
-              ),
-            ]),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 4,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(l10n.labelScope,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      color: Colors.black54)),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<TeamScope>(
-                initialValue: _scope,
-                isDense: true,
-                decoration: InputDecoration(
-                  border: fieldBorder,
-                  contentPadding: fieldPadding,
-                ),
-                items: TeamScope.values
-                    .map((s) => DropdownMenuItem(
-                        value: s,
-                        child: Text(_scopeLabel(l10n, s),
-                            style: const TextStyle(fontSize: 13))))
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _scope = v);
-                },
               ),
             ]),
           ),

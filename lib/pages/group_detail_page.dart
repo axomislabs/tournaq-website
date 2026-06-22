@@ -205,7 +205,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
                 child: ListTile(
                   leading: const Icon(Icons.group_rounded),
                   title: Text(t.name),
-                  subtitle: Text(t.scope.name),
+                  subtitle: null,
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => TeamDetailPage(appState: _localState, onAppStateChanged: _updateState, teamId: t.id),
                   )),

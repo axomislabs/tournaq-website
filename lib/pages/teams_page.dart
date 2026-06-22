@@ -186,98 +186,74 @@ class _TeamsPageState extends State<TeamsPage> {
       };
 
   Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTapUp: (details) async {
-              final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-              final box = context.findRenderObject() as RenderBox;
-              final offset = box.localToGlobal(Offset.zero, ancestor: overlay);
-              final selected = await showMenu<_TeamSearchMode>(
-                context: context,
-                position: RelativeRect.fromLTRB(
-                  offset.dx + 16,
-                  offset.dy + 48,
-                  offset.dx + 160,
-                  offset.dy + 200,
-                ),
-                items: _TeamSearchMode.values
-                    .map((m) => PopupMenuItem(
-                          value: m,
-                          child: Row(children: [
-                            Icon(_modeIcon(m), size: 16,
-                                color: m == _searchMode ? AppColors.gold : Colors.black54),
-                            const SizedBox(width: 8),
-                            Text(_modeLabels[m]!,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: m == _searchMode ? FontWeight.w700 : FontWeight.w400,
-                                  color: m == _searchMode ? AppColors.gold : Colors.black87,
-                                )),
-                            if (m == _searchMode) ...[
-                              const Spacer(),
-                              const Icon(Icons.check_rounded, size: 14, color: AppColors.gold),
-                            ],
-                          ]),
-                        ))
-                    .toList(),
-              );
-              if (selected != null && selected != _searchMode) {
-                setState(() {
-                  _searchMode = selected;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: TextField(
+            controller: _searchCtrl,
+            decoration: InputDecoration(
+              hintText: _modeHints[_searchMode],
+              hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
+              prefixIcon: const Icon(Icons.search_rounded, size: 16, color: Colors.black38),
+              suffixIcon: _searchCtrl.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 16, color: Colors.black38),
+                      onPressed: () => setState(() => _searchCtrl.clear()),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              isDense: true,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: _TeamSearchMode.values.map((m) {
+            final selected = m == _searchMode;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: GestureDetector(
+                onTap: () => setState(() {
+                  _searchMode = m;
                   _searchCtrl.clear();
-                });
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.goldCream,
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                }),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: selected ? AppColors.goldCream : Colors.transparent,
+                    border: Border.all(
+                      color: selected ? AppColors.gold : Colors.grey.shade300,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(_modeIcon(m), size: 13,
+                          color: selected ? AppColors.goldDark : Colors.black45),
+                      const SizedBox(width: 5),
+                      Text(_modeLabels[m]!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                            color: selected ? AppColors.goldDark : Colors.black54,
+                          )),
+                    ],
+                  ),
+                ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(_modeIcon(_searchMode), size: 14, color: AppColors.goldDark),
-                  const SizedBox(width: 4),
-                  Text(_modeLabels[_searchMode]!,
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.goldDark)),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.arrow_drop_down_rounded, size: 16, color: AppColors.goldDark),
-                ],
-              ),
-            ),
-          ),
-          Container(width: 1, height: 36, color: Colors.grey.shade200),
-          Expanded(
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: _modeHints[_searchMode],
-                hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
-                prefixIcon: const Icon(Icons.search_rounded, size: 16, color: Colors.black38),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.close_rounded, size: 16, color: Colors.black38),
-                        onPressed: () => setState(() => _searchCtrl.clear()),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-                isDense: true,
-              ),
-            ),
-          ),
-        ],
-      ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -511,7 +487,6 @@ class _TeamsPageState extends State<TeamsPage> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _scopeBadge(team.scope),
                       ],
                     ),
                     if (stats.isNotEmpty) ...[
@@ -557,22 +532,4 @@ class _TeamsPageState extends State<TeamsPage> {
     );
   }
 
-  Widget _scopeBadge(TeamScope scope) {
-    final (label, color) = switch (scope) {
-      TeamScope.tournament => ('Tournament', AppColors.olive),
-      TeamScope.group      => ('Group', AppColors.goldDark),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-            fontSize: 10, fontWeight: FontWeight.w600, color: color),
-      ),
-    );
-  }
 }
