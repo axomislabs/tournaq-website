@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import 'sheet_helpers.dart';
 
-/// Bottom sheet for picking a club filter.
+/// Bottom sheet for picking a group filter.
 ///
 /// Returns via [Navigator.pop]:
-///   - `''`      → user cleared the filter (All clubs)
-///   - `club.id` → user selected a specific club
+///   - `''`      → user cleared the filter (All groups)
+///   - `group.id` → user selected a specific group
 ///   - `null`    → user dismissed without making a choice
-class ClubPickerSheet extends StatefulWidget {
-  final List<Club> clubs;
+class GroupPickerSheet extends StatefulWidget {
+  final List<Group> groups;
   final String? selectedId;
 
-  const ClubPickerSheet({
+  const GroupPickerSheet({
     super.key,
-    required this.clubs,
+    required this.groups,
     this.selectedId,
   });
 
   @override
-  State<ClubPickerSheet> createState() => _ClubPickerSheetState();
+  State<GroupPickerSheet> createState() => _GroupPickerSheetState();
 }
 
-class _ClubPickerSheetState extends State<ClubPickerSheet> {
+class _GroupPickerSheetState extends State<GroupPickerSheet> {
   final _searchCtrl = TextEditingController();
 
   @override
@@ -36,8 +36,8 @@ class _ClubPickerSheetState extends State<ClubPickerSheet> {
   Widget build(BuildContext context) {
     final query = _searchCtrl.text.toLowerCase();
     final filtered = query.isEmpty
-        ? widget.clubs
-        : widget.clubs
+        ? widget.groups
+        : widget.groups
             .where((c) => c.name.toLowerCase().contains(query))
             .toList();
 
@@ -51,7 +51,7 @@ class _ClubPickerSheetState extends State<ClubPickerSheet> {
             child: Row(children: [
               const Expanded(
                 child: Text(
-                  'Filter by Club',
+                  'Filter by Group',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -72,11 +72,11 @@ class _ClubPickerSheetState extends State<ClubPickerSheet> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: TextField(
               controller: _searchCtrl,
-              autofocus: widget.clubs.length > 8,
+              autofocus: widget.groups.length > 8,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 isDense: true,
-                hintText: 'Search clubs…',
+                hintText: 'Search groups…',
                 prefixIcon: const Icon(Icons.search_rounded,
                     size: 18, color: Colors.black45),
                 suffixIcon: _searchCtrl.text.isNotEmpty
@@ -100,24 +100,24 @@ class _ClubPickerSheetState extends State<ClubPickerSheet> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
-              itemCount: filtered.length + 1, // +1 for "All clubs"
+              itemCount: filtered.length + 1, // +1 for "All groups"
               itemBuilder: (_, i) {
                 if (i == 0) {
                   final isSelected = widget.selectedId == null;
-                  return _clubTile(
+                  return _groupTile(
                     icon: Icons.public_rounded,
-                    name: 'All clubs',
+                    name: 'All groups',
                     isSelected: isSelected,
                     onTap: () => Navigator.of(context).pop(''),
                   );
                 }
-                final club = filtered[i - 1];
-                final isSelected = club.id == widget.selectedId;
-                return _clubTile(
+                final group = filtered[i - 1];
+                final isSelected = group.id == widget.selectedId;
+                return _groupTile(
                   icon: Icons.home_rounded,
-                  name: club.name,
+                  name: group.name,
                   isSelected: isSelected,
-                  onTap: () => Navigator.of(context).pop(club.id),
+                  onTap: () => Navigator.of(context).pop(group.id),
                 );
               },
             ),
@@ -127,7 +127,7 @@ class _ClubPickerSheetState extends State<ClubPickerSheet> {
     );
   }
 
-  Widget _clubTile({
+  Widget _groupTile({
     required IconData icon,
     required String name,
     required bool isSelected,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/group.dart';
 import '../models/scramble_tournament.dart';
 import '../models/player.dart';
 import '../services/scramble_storage_service.dart';
@@ -10,12 +11,14 @@ import 'scramble_setup_page.dart';
 
 class ScrambleHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final void Function(String playerId, String newName)? onUpdatePlayer;
 
   const ScrambleHubPage({
     super.key,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreatePlayer,
     this.onUpdatePlayer,
   });
@@ -55,6 +58,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ScrambleSetupPage(
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onCreated: _persist,
         onCreatePlayer: widget.onCreatePlayer,
       ),

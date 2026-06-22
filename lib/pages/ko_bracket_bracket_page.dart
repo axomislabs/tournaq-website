@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
 import '../models/team.dart';
@@ -21,6 +22,7 @@ class KoBracketBracketPage extends StatefulWidget {
   final void Function(KoBracketTournament) onChanged;
   final List<Player> existingPlayers;
   final List<Team> existingTeams;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
 
@@ -30,6 +32,7 @@ class KoBracketBracketPage extends StatefulWidget {
     required this.onChanged,
     required this.existingPlayers,
     required this.existingTeams,
+    required this.existingGroups,
     required this.onCreatePlayer,
     required this.onCreateTeam,
   });
@@ -248,6 +251,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
         team: team,
         existingPlayers: widget.existingPlayers,
         existingTeams: widget.existingTeams,
+        existingGroups: widget.existingGroups,
         generationMode: _tournament.generationMode,
         onCreatePlayer: widget.onCreatePlayer,
         onCreateTeam: widget.onCreateTeam,

@@ -109,17 +109,17 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
-  Future<void> _assignClub(String userId) async {
-    final items = _localState.clubs
+  Future<void> _assignGroup(String userId) async {
+    final items = _localState.groups
         .where((c) => !c.playerIds.contains(userId))
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Club', items: items,
-      emptyMessage: 'Player is already in all clubs.',
+      context: context, title: 'Assign to Group', items: items,
+      emptyMessage: 'Player is already in all groups.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToClub(_localState, playerId: userId, clubId: selected));
+      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: userId, groupId: selected));
     }
   }
 
@@ -507,13 +507,13 @@ class _UsersPageState extends State<UsersPage> {
   // ── Player card ────────────────────────────────────────────────────────────
 
   Widget _buildPlayerCard(Player player, AppLocalizations l10n) {
-    final clubCount = _localState.clubs
+    final groupCount = _localState.groups
         .where((c) => c.playerIds.contains(player.id))
         .length;
     final tournamentCount = _tournamentCountByPlayer[player.id] ?? 0;
     final stats = <String>[
       '${player.teamIds.length} team(s)',
-      if (clubCount > 0) '$clubCount club(s)',
+      if (groupCount > 0) '$groupCount group(s)',
       if (tournamentCount > 0) '$tournamentCount tournament(s)',
     ];
     final skill = player.skillRating;
@@ -617,14 +617,14 @@ class _UsersPageState extends State<UsersPage> {
                 onSelected: (value) {
                   switch (value) {
                     case 'assign_team': _assignTeam(player.id);
-                    case 'assign_club': _assignClub(player.id);
+                    case 'assign_group': _assignGroup(player.id);
                     case 'delete': _deletePlayer(player.id);
                   }
                 },
                 itemBuilder: (_) => [
                   actionMenuItem('assign_team', Icons.group_rounded,
                       l10n.menuAssignToTeam),
-                  actionMenuItem('assign_club', Icons.home_rounded,
+                  actionMenuItem('assign_group', Icons.home_rounded,
                       l10n.menuAssignToClub),
                   const PopupMenuDivider(),
                   actionMenuItem('delete', Icons.delete_outline,

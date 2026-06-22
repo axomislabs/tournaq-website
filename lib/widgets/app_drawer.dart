@@ -3,12 +3,9 @@ import '../app/app_assets.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
-import '../pages/administration_page.dart';
 import '../pages/contact_page.dart';
-import '../pages/games_page.dart';
 import '../pages/promo_ads_page.dart';
 import '../pages/settings_page.dart';
-import '../pages/tournaments_page.dart';
 
 class AppDrawer extends StatelessWidget {
   final AppState appState;
@@ -49,51 +46,6 @@ class AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).popUntil((r) => r.isFirst);
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.sports_basketball_rounded,
-                  label: l10n.navQuickStart,
-                  iconBgColor: AppColors.goldCream,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => GamesPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.emoji_events_rounded,
-                  label: l10n.navTournaments,
-                  iconBgColor: AppColors.goldCream,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => TournamentsPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
-                  },
-                ),
-                _buildNavItem(
-                  context,
-                  icon: Icons.manage_accounts_rounded,
-                  label: l10n.navAdmin,
-                  iconBgColor: AppColors.oliveLight,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => AdministrationPage(
-                        appState: appState,
-                        onAppStateChanged: onAppStateChanged,
-                      ),
-                    ));
                   },
                 ),
                 const Padding(

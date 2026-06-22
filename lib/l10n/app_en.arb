@@ -13,13 +13,13 @@
   "navQuickStart": "Quick Start Game",
   "@navQuickStart": {},
 
-  "navTournaments": "Tournament Hub",
+  "navTournaments": "Games & Tournaments",
   "@navTournaments": {},
 
   "navTeams": "Teams",
   "@navTeams": {},
 
-  "navClubs": "Clubs",
+  "navClubs": "Groups",
   "@navClubs": {},
 
   "navPlayers": "Players",
@@ -34,7 +34,7 @@
   "navContact": "Contact & About",
   "@navContact": {},
 
-  "pageGames": "Games",
+  "pageGames": "Quick Games",
   "@pageGames": {},
 
   "pageTeams": "Teams",
@@ -43,10 +43,10 @@
   "pagePlayers": "Players",
   "@pagePlayers": {},
 
-  "pageTournaments": "Tournament Hub",
+  "pageTournaments": "Games & Tournaments",
   "@pageTournaments": {},
 
-  "pageClubs": "Clubs",
+  "pageClubs": "Groups",
   "@pageClubs": {},
 
   "pageGameScorecard": "Scoreboard",
@@ -106,7 +106,7 @@
   "btnCreateTournament": "Create Tournament",
   "@btnCreateTournament": {},
 
-  "btnCreateClub": "Create Club",
+  "btnCreateClub": "Create Group",
   "@btnCreateClub": {},
 
   "btnSavePlayers": "Save Players",
@@ -208,7 +208,7 @@
     }
   },
 
-  "sectionClubsCount": "Clubs ({count})",
+  "sectionClubsCount": "Groups ({count})",
   "@sectionClubsCount": {
     "placeholders": {
       "count": { "type": "int" }
@@ -224,7 +224,7 @@
   "hintSearchTournaments": "Search tournaments...",
   "@hintSearchTournaments": {},
 
-  "hintSearchClubs": "Search clubs...",
+  "hintSearchClubs": "Search groups...",
   "@hintSearchClubs": {},
 
   "filterPlayer": "Player",
@@ -236,7 +236,7 @@
   "filterTournament": "Tournament",
   "@filterTournament": {},
 
-  "filterClub": "Club",
+  "filterClub": "Group",
   "@filterClub": {},
 
   "filterMode": "Mode",
@@ -382,7 +382,7 @@
   "landingAdvancedAdminTitle": "Advanced User Administration",
   "@landingAdvancedAdminTitle": {},
 
-  "landingAdvancedAdminSub": "Manage players, teams, clubs, and organiser roles.",
+  "landingAdvancedAdminSub": "Manage players, teams, groups, and organiser roles.",
   "@landingAdvancedAdminSub": {},
 
   "promoSupportTitle": "Support TournaQ",
@@ -421,7 +421,7 @@
   "promoPartnerSpotlight": "Partner Spotlight",
   "@promoPartnerSpotlight": {},
 
-  "promoPartnerSpotlightSub": "Future partners, clubs and organizations may be featured here.",
+  "promoPartnerSpotlightSub": "Future partners, groups and organizations may be featured here.",
   "@promoPartnerSpotlightSub": {},
 
   "promoTournamentPartnerships": "Tournament Partnerships",
@@ -536,10 +536,10 @@
   "dialogRemoveFromTournamentBody": "Remove this team from the tournament?",
   "@dialogRemoveFromTournamentBody": {},
 
-  "dialogRemoveFromClub": "Remove from Club",
+  "dialogRemoveFromClub": "Remove from Group",
   "@dialogRemoveFromClub": {},
 
-  "dialogRemoveFromClubBody": "Remove this team from the club?",
+  "dialogRemoveFromClubBody": "Remove this team from the group?",
   "@dialogRemoveFromClubBody": {},
 
   "menuEditPlayers": "Edit Players",
@@ -548,7 +548,7 @@
   "menuAssignToTournament": "Assign to Tournament",
   "@menuAssignToTournament": {},
 
-  "menuAssignToClub": "Assign to Club",
+  "menuAssignToClub": "Assign to Group",
   "@menuAssignToClub": {},
 
   "menuAssignToTeam": "Assign to Team",
@@ -569,7 +569,7 @@
   "menuAddToTournament": "Add to Tournament",
   "@menuAddToTournament": {},
 
-  "menuAddToClub": "Add to Club",
+  "menuAddToClub": "Add to Group",
   "@menuAddToClub": {},
 
   "noGamesYet": "No games yet",
@@ -605,10 +605,10 @@
   "noTournamentsFiltered": "No tournaments match the current filters.",
   "@noTournamentsFiltered": {},
 
-  "noClubsYet": "No clubs yet.",
+  "noClubsYet": "No groups yet.",
   "@noClubsYet": {},
 
-  "noClubsFiltered": "No clubs match the current filters.",
+  "noClubsFiltered": "No groups match the current filters.",
   "@noClubsFiltered": {},
 
   "noScoringHistoryYet": "No scoring history yet",
@@ -620,7 +620,7 @@
   "noTournamentsInTeam": "Not in any tournaments yet.",
   "@noTournamentsInTeam": {},
 
-  "noClubsInTeam": "Not in any clubs yet.",
+  "noClubsInTeam": "Not in any groups yet.",
   "@noClubsInTeam": {},
 
   "teamNotFound": "Team not found.",
@@ -757,13 +757,13 @@
   "pagePlayerDetails": "Player Details",
   "@pagePlayerDetails": {},
 
-  "pageClubDetails": "Club Details",
+  "pageClubDetails": "Group Details",
   "@pageClubDetails": {},
 
   "playerNotFound": "Player not found.",
   "@playerNotFound": {},
 
-  "clubNotFound": "Club not found.",
+  "clubNotFound": "Group not found.",
   "@clubNotFound": {},
 
   "dialogRemoveFromTeam": "Remove from Team",
@@ -772,19 +772,19 @@
   "dialogRemoveFromTeamBody": "Remove this player from the team?",
   "@dialogRemoveFromTeamBody": {},
 
-  "dialogRemovePlayerFromClubBody": "Remove this player from the club?",
+  "dialogRemovePlayerFromClubBody": "Remove this player from the group?",
   "@dialogRemovePlayerFromClubBody": {},
 
   "dialogRemoveTournamentFromClub": "Remove Tournament",
   "@dialogRemoveTournamentFromClub": {},
 
-  "dialogRemoveTournamentFromClubBody": "Remove this tournament from the club?",
+  "dialogRemoveTournamentFromClubBody": "Remove this tournament from the group?",
   "@dialogRemoveTournamentFromClubBody": {},
 
   "notAssignedToTeams": "Not assigned to any teams.",
   "@notAssignedToTeams": {},
 
-  "notAssignedToClubs": "Not assigned to any clubs.",
+  "notAssignedToClubs": "Not assigned to any groups.",
   "@notAssignedToClubs": {},
 
   "userEmailLabel": "Email: {email}",
@@ -821,13 +821,13 @@
   "labelScope": "Scope",
   "@labelScope": {},
 
-  "hintClubName": "Club name",
+  "hintClubName": "Group name",
   "@hintClubName": {},
 
   "labelAssignToTeams": "Assign to Teams",
   "@labelAssignToTeams": {},
 
-  "labelAssignToClubs": "Assign to Clubs",
+  "labelAssignToClubs": "Assign to Groups",
   "@labelAssignToClubs": {},
 
   "labelAssignToTournaments": "Assign to Tournaments",
@@ -848,7 +848,7 @@
   "scopeTournament": "Tournament",
   "@scopeTournament": {},
 
-  "scopeClub": "Club",
+  "scopeClub": "Group",
   "@scopeClub": {},
 
   "labelMode": "Mode",
@@ -865,10 +865,10 @@
   "labelAssignExistingTeams": "Assign Existing Teams",
   "@labelAssignExistingTeams": {},
 
-  "filterAllClubs": "All clubs",
+  "filterAllClubs": "All groups",
   "@filterAllClubs": {},
 
-  "noTeamsInClub": "No teams in this club.",
+  "noTeamsInClub": "No teams in this group.",
   "@noTeamsInClub": {},
 
   "noTeamsAvailableYet": "No teams available yet.",
@@ -891,22 +891,22 @@
   "labelNone": "None",
   "@labelNone": {},
 
-  "labelClubForRandomTeams": "Club for random teams",
+  "labelClubForRandomTeams": "Group for random teams",
   "@labelClubForRandomTeams": {},
 
-  "radioNoClub": "No club",
+  "radioNoClub": "No group",
   "@radioNoClub": {},
 
-  "radioAddToExistingClub": "Add to existing club",
+  "radioAddToExistingClub": "Add to existing group",
   "@radioAddToExistingClub": {},
 
-  "hintSelectClub": "Select a club",
+  "hintSelectClub": "Select a group",
   "@hintSelectClub": {},
 
-  "radioCreateNewClub": "Create new club",
+  "radioCreateNewClub": "Create new group",
   "@radioCreateNewClub": {},
 
-  "hintClubNameRandom": "Club name (leave blank for random)",
+  "hintClubNameRandom": "Group name (leave blank for random)",
   "@hintClubNameRandom": {},
 
   "tooltipSuggestName": "Suggest a name",
@@ -1024,7 +1024,7 @@
   "assignAllTeamsInTournament": "All teams are already in this tournament.",
   "@assignAllTeamsInTournament": {},
 
-  "assignTournamentAllClubs": "Tournament is already in all clubs.",
+  "assignTournamentAllClubs": "Tournament is already in all groups.",
   "@assignTournamentAllClubs": {},
 
   "snackbarAddTeamsFirstCreate": "Add at least 2 teams before creating games.",
@@ -1093,7 +1093,7 @@
   "noGamesCreatedYet": "No games created yet.",
   "@noGamesCreatedYet": {},
 
-  "notInAnyClubsYet": "Not in any clubs yet.",
+  "notInAnyClubsYet": "Not in any groups yet.",
   "@notInAnyClubsYet": {},
 
   "clubPlayersAndTeams": "{players} player(s) • {teams} team(s)",

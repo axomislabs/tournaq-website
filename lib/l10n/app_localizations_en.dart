@@ -21,13 +21,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navQuickStart => 'Quick Start Game';
 
   @override
-  String get navTournaments => 'Tournament Hub';
+  String get navTournaments => 'Games & Tournaments';
 
   @override
   String get navTeams => 'Teams';
 
   @override
-  String get navClubs => 'Clubs';
+  String get navClubs => 'Groups';
 
   @override
   String get navPlayers => 'Players';
@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navContact => 'Contact & About';
 
   @override
-  String get pageGames => 'Games';
+  String get pageGames => 'Quick Games';
 
   @override
   String get pageTeams => 'Teams';
@@ -51,10 +51,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pagePlayers => 'Players';
 
   @override
-  String get pageTournaments => 'Tournament Hub';
+  String get pageTournaments => 'Games & Tournaments';
 
   @override
-  String get pageClubs => 'Clubs';
+  String get pageClubs => 'Groups';
 
   @override
   String get pageGameScorecard => 'Scoreboard';
@@ -114,7 +114,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnCreateTournament => 'Create Tournament';
 
   @override
-  String get btnCreateClub => 'Create Club';
+  String get btnCreateClub => 'Create Group';
 
   @override
   String get btnSavePlayers => 'Save Players';
@@ -213,7 +213,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String sectionClubsCount(int count) {
-    return 'Clubs ($count)';
+    return 'Groups ($count)';
   }
 
   @override
@@ -226,7 +226,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hintSearchTournaments => 'Search tournaments...';
 
   @override
-  String get hintSearchClubs => 'Search clubs...';
+  String get hintSearchClubs => 'Search groups...';
 
   @override
   String get filterPlayer => 'Player';
@@ -238,7 +238,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterTournament => 'Tournament';
 
   @override
-  String get filterClub => 'Club';
+  String get filterClub => 'Group';
 
   @override
   String get filterMode => 'Mode';
@@ -385,7 +385,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get landingAdvancedAdminSub =>
-      'Manage players, teams, clubs, and organiser roles.';
+      'Manage players, teams, groups, and organiser roles.';
 
   @override
   String get promoSupportTitle => 'Support TournaQ';
@@ -429,7 +429,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get promoPartnerSpotlightSub =>
-      'Future partners, clubs and organizations may be featured here.';
+      'Future partners, groups and organizations may be featured here.';
 
   @override
   String get promoTournamentPartnerships => 'Tournament Partnerships';
@@ -547,10 +547,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Remove this team from the tournament?';
 
   @override
-  String get dialogRemoveFromClub => 'Remove from Club';
+  String get dialogRemoveFromClub => 'Remove from Group';
 
   @override
-  String get dialogRemoveFromClubBody => 'Remove this team from the club?';
+  String get dialogRemoveFromClubBody => 'Remove this team from the group?';
 
   @override
   String get menuEditPlayers => 'Edit Players';
@@ -559,7 +559,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAssignToTournament => 'Assign to Tournament';
 
   @override
-  String get menuAssignToClub => 'Assign to Club';
+  String get menuAssignToClub => 'Assign to Group';
 
   @override
   String get menuAssignToTeam => 'Assign to Team';
@@ -580,7 +580,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuAddToTournament => 'Add to Tournament';
 
   @override
-  String get menuAddToClub => 'Add to Club';
+  String get menuAddToClub => 'Add to Group';
 
   @override
   String get noGamesYet => 'No games yet';
@@ -617,10 +617,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'No tournaments match the current filters.';
 
   @override
-  String get noClubsYet => 'No clubs yet.';
+  String get noClubsYet => 'No groups yet.';
 
   @override
-  String get noClubsFiltered => 'No clubs match the current filters.';
+  String get noClubsFiltered => 'No groups match the current filters.';
 
   @override
   String get noScoringHistoryYet => 'No scoring history yet';
@@ -632,7 +632,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTournamentsInTeam => 'Not in any tournaments yet.';
 
   @override
-  String get noClubsInTeam => 'Not in any clubs yet.';
+  String get noClubsInTeam => 'Not in any groups yet.';
 
   @override
   String get teamNotFound => 'Team not found.';
@@ -769,13 +769,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pagePlayerDetails => 'Player Details';
 
   @override
-  String get pageClubDetails => 'Club Details';
+  String get pageClubDetails => 'Group Details';
 
   @override
   String get playerNotFound => 'Player not found.';
 
   @override
-  String get clubNotFound => 'Club not found.';
+  String get clubNotFound => 'Group not found.';
 
   @override
   String get dialogRemoveFromTeam => 'Remove from Team';
@@ -785,20 +785,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dialogRemovePlayerFromClubBody =>
-      'Remove this player from the club?';
+      'Remove this player from the group?';
 
   @override
   String get dialogRemoveTournamentFromClub => 'Remove Tournament';
 
   @override
   String get dialogRemoveTournamentFromClubBody =>
-      'Remove this tournament from the club?';
+      'Remove this tournament from the group?';
 
   @override
   String get notAssignedToTeams => 'Not assigned to any teams.';
 
   @override
-  String get notAssignedToClubs => 'Not assigned to any clubs.';
+  String get notAssignedToClubs => 'Not assigned to any groups.';
 
   @override
   String userEmailLabel(String email) {
@@ -835,13 +835,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelScope => 'Scope';
 
   @override
-  String get hintClubName => 'Club name';
+  String get hintClubName => 'Group name';
 
   @override
   String get labelAssignToTeams => 'Assign to Teams';
 
   @override
-  String get labelAssignToClubs => 'Assign to Clubs';
+  String get labelAssignToClubs => 'Assign to Groups';
 
   @override
   String get labelAssignToTournaments => 'Assign to Tournaments';
@@ -862,7 +862,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scopeTournament => 'Tournament';
 
   @override
-  String get scopeClub => 'Club';
+  String get scopeClub => 'Group';
 
   @override
   String get labelMode => 'Mode';
@@ -879,10 +879,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelAssignExistingTeams => 'Assign Existing Teams';
 
   @override
-  String get filterAllClubs => 'All clubs';
+  String get filterAllClubs => 'All groups';
 
   @override
-  String get noTeamsInClub => 'No teams in this club.';
+  String get noTeamsInClub => 'No teams in this group.';
 
   @override
   String get noTeamsAvailableYet => 'No teams available yet.';
@@ -905,22 +905,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelNone => 'None';
 
   @override
-  String get labelClubForRandomTeams => 'Club for random teams';
+  String get labelClubForRandomTeams => 'Group for random teams';
 
   @override
-  String get radioNoClub => 'No club';
+  String get radioNoClub => 'No group';
 
   @override
-  String get radioAddToExistingClub => 'Add to existing club';
+  String get radioAddToExistingClub => 'Add to existing group';
 
   @override
-  String get hintSelectClub => 'Select a club';
+  String get hintSelectClub => 'Select a group';
 
   @override
-  String get radioCreateNewClub => 'Create new club';
+  String get radioCreateNewClub => 'Create new group';
 
   @override
-  String get hintClubNameRandom => 'Club name (leave blank for random)';
+  String get hintClubNameRandom => 'Group name (leave blank for random)';
 
   @override
   String get tooltipSuggestName => 'Suggest a name';
@@ -1043,7 +1043,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'All teams are already in this tournament.';
 
   @override
-  String get assignTournamentAllClubs => 'Tournament is already in all clubs.';
+  String get assignTournamentAllClubs => 'Tournament is already in all groups.';
 
   @override
   String get snackbarAddTeamsFirstCreate =>
@@ -1114,7 +1114,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noGamesCreatedYet => 'No games created yet.';
 
   @override
-  String get notInAnyClubsYet => 'Not in any clubs yet.';
+  String get notInAnyClubsYet => 'Not in any groups yet.';
 
   @override
   String clubPlayersAndTeams(int players, int teams) {

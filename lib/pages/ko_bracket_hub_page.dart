@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
 import '../models/team.dart';
@@ -12,6 +13,7 @@ import 'ko_bracket_setup_page.dart';
 class KoBracketHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final List<Team> existingTeams;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
 
@@ -19,6 +21,7 @@ class KoBracketHubPage extends StatefulWidget {
     super.key,
     required this.existingPlayers,
     required this.existingTeams,
+    required this.existingGroups,
     required this.onCreatePlayer,
     required this.onCreateTeam,
   });
@@ -59,6 +62,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
       builder: (_) => KoBracketSetupPage(
         existingPlayers: widget.existingPlayers,
         existingTeams: widget.existingTeams,
+        existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
         onCreateTeam: widget.onCreateTeam,
         onCreated: _persist,
@@ -73,6 +77,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
         onChanged: _persist,
         existingPlayers: widget.existingPlayers,
         existingTeams: widget.existingTeams,
+        existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
         onCreateTeam: widget.onCreateTeam,
       ),

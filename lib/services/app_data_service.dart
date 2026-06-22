@@ -1,5 +1,5 @@
 import '../models/player.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import '../models/game_set.dart';
 import '../models/game_team_lineup.dart';
 import '../models/team.dart';
@@ -53,10 +53,10 @@ class AppDataService {
 
   static AppState deleteUser(AppState state, String userId) {
     var updatedState = state.removePlayer(userId);
-    // Remove player from all clubs
-    for (final club in state.clubs) {
-      if (club.playerIds.contains(userId)) {
-        updatedState = updatedState.updateClub(club.removePlayerId(userId));
+    // Remove player from all groups
+    for (final group in state.groups) {
+      if (group.playerIds.contains(userId)) {
+        updatedState = updatedState.updateGroup(group.removePlayerId(userId));
       }
     }
     return updatedState;
@@ -84,10 +84,10 @@ class AppDataService {
         updatedState = updatedState.updatePlayer(user.removeTeamId(teamId));
       }
     }
-    // Remove team from all clubs
-    for (final club in state.clubs) {
-      if (club.teamIds.contains(teamId)) {
-        updatedState = updatedState.updateClub(club.removeTeamId(teamId));
+    // Remove team from all groups
+    for (final group in state.groups) {
+      if (group.teamIds.contains(teamId)) {
+        updatedState = updatedState.updateGroup(group.removeTeamId(teamId));
       }
     }
     return updatedState.removeTeam(teamId);
@@ -188,23 +188,74 @@ class AppDataService {
     return updatedState;
   }
 
+  /// Generalised N-player version of [updateTeamPlayers].
+  /// Syncs [names] back to hub player records in the same order as the team's
+  /// userIds list. Pass active + bench concatenated so all positions are covered.
+  static AppState updateTeamPlayersFromList(
+    AppState state, {
+    required String teamId,
+    required List<String> names,
+  }) {
+    final team = state.getTeamById(teamId);
+    if (team == null) return state;
+
+    var updatedState = state;
+    final newUserIds = <String>[];
+
+    for (int i = 0; i < names.length; i++) {
+      if (i < team.userIds.length) {
+        final userId = team.userIds[i];
+        final user = state.getPlayerById(userId);
+        if (user != null) {
+          updatedState = updatedState.updatePlayer(user.copyWith(name: names[i]));
+          newUserIds.add(userId);
+        } else {
+          final newUser = Player(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+          updatedState = updatedState.addPlayer(newUser);
+          newUserIds.add(newUser.id);
+        }
+      } else {
+        final newUser = Player(id: AppState.generateId(), name: names[i], teamIds: [teamId]);
+        updatedState = updatedState.addPlayer(newUser);
+        newUserIds.add(newUser.id);
+      }
+    }
+
+    if (newUserIds.length != team.userIds.length ||
+        !newUserIds.every((id) => team.userIds.contains(id))) {
+      updatedState = updatedState.updateTeam(team.copyWith(userIds: newUserIds));
+    }
+
+    return updatedState;
+  }
+
   // GAME OPERATIONS
 
   static AppState createQuickGame(
     AppState state, {
     required String team1Id,
     required String team2Id,
+    required int playersPerSide,
     MatchFormat matchFormat = MatchFormat.oneSet,
   }) {
     final t1Name = state.getTeamById(team1Id)?.name ?? '';
     final t2Name = state.getTeamById(team2Id)?.name ?? '';
     final t1Players = state.getPlayersForTeam(team1Id);
     final t2Players = state.getPlayersForTeam(team2Id);
+
+    GameTeamLineup buildLineup(String teamId, String teamName, List<dynamic> players) {
+      final names = players.map((p) => p.name as String).toList();
+      final active = List.generate(playersPerSide, (i) {
+        if (i < names.length) return names[i];
+        return 'Player ${i + 1} $teamName';
+      });
+      final bench = names.length > playersPerSide ? names.sublist(playersPerSide) : <String>[];
+      return GameTeamLineup(teamId: teamId, playerNames: active, benchNames: bench);
+    }
+
     final lineups = [
-      if (t1Players.isNotEmpty)
-        GameTeamLineup(teamId: team1Id, playerNames: t1Players.map((p) => p.name).toList()),
-      if (t2Players.isNotEmpty)
-        GameTeamLineup(teamId: team2Id, playerNames: t2Players.map((p) => p.name).toList()),
+      buildLineup(team1Id, t1Name, t1Players),
+      buildLineup(team2Id, t2Name, t2Players),
     ];
     final initialSet = GameSet(
       id: AppState.generateId(),
@@ -595,60 +646,65 @@ class AppDataService {
     return state.removeGame(gameId);
   }
 
-  // CLUB OPERATIONS
-  static AppState createClub(AppState state, {required String name}) {
-    final club = Club(id: AppState.generateId(), name: name);
-    return state.addClub(club);
+  // GROUP OPERATIONS
+  static AppState createGroup(AppState state, {required String name}) {
+    final group = Group(id: AppState.generateId(), name: name);
+    return state.addGroup(group);
   }
 
-  static AppState updateClub(AppState state, Club club) {
-    return state.updateClub(club);
+  static AppState updateGroup(AppState state, Group group) {
+    return state.updateGroup(group);
   }
 
-  static AppState deleteClub(AppState state, String clubId) {
-    return state.removeClub(clubId);
+  static AppState deleteGroup(AppState state, String groupId) {
+    return state.removeGroup(groupId);
   }
 
-  // CLUB-PLAYER ASSIGNMENTS
-  static AppState assignPlayerToClub(
+  // GROUP-PLAYER ASSIGNMENTS
+  static AppState assignPlayerToGroup(
     AppState state, {
     required String playerId,
-    required String clubId,
+    required String groupId,
   }) {
-    final club = state.getClubById(clubId);
-    if (club == null || state.getPlayerById(playerId) == null) return state;
-    return state.updateClub(club.addPlayerId(playerId));
+    final group = state.getGroupById(groupId);
+    if (group == null || state.getPlayerById(playerId) == null) return state;
+    return state.updateGroup(group.addPlayerId(playerId));
   }
 
-  static AppState removePlayerFromClub(
+  static AppState removePlayerFromGroup(
     AppState state, {
     required String playerId,
-    required String clubId,
+    required String groupId,
   }) {
-    final club = state.getClubById(clubId);
-    if (club == null) return state;
-    return state.updateClub(club.removePlayerId(playerId));
+    final group = state.getGroupById(groupId);
+    if (group == null) return state;
+    return state.updateGroup(group.removePlayerId(playerId));
   }
 
-  // CLUB-TEAM ASSIGNMENTS
-  static AppState assignTeamToClub(
+  // GROUP-TEAM ASSIGNMENTS
+  static AppState assignTeamToGroup(
     AppState state, {
     required String teamId,
-    required String clubId,
+    required String groupId,
   }) {
-    final club = state.getClubById(clubId);
-    if (club == null || state.getTeamById(teamId) == null) return state;
-    return state.updateClub(club.addTeamId(teamId));
+    final group = state.getGroupById(groupId);
+    final team = state.getTeamById(teamId);
+    if (group == null || team == null) return state;
+    var updatedGroup = group.addTeamId(teamId);
+    for (final playerId in team.userIds) {
+      updatedGroup = updatedGroup.addPlayerId(playerId);
+    }
+    return state.updateGroup(updatedGroup);
   }
 
-  static AppState removeTeamFromClub(
+  static AppState removeTeamFromGroup(
     AppState state, {
     required String teamId,
-    required String clubId,
+    required String groupId,
   }) {
-    final club = state.getClubById(clubId);
-    if (club == null) return state;
-    return state.updateClub(club.removeTeamId(teamId));
+    final group = state.getGroupById(groupId);
+    if (group == null) return state;
+    return state.updateGroup(group.removeTeamId(teamId));
   }
 
   // PRIVATE HELPERS

@@ -44,9 +44,9 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   bool _isSwapped = false;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
-  late int _remainingSeconds;
   Timer? _timer;
-  bool _timerRunning = false;
+  DateTime _now = DateTime.now();
+  int _fallbackSeconds = 0; // used only when no scheduledEndTime
 
   // ── Time-cap state ────────────────────────────────────────────────────────
   bool _timeUp = false;
@@ -61,8 +61,9 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     _tournament = widget.tournament;
     _match = _tournament.matches.firstWhere((m) => m.id == widget.matchId);
     _fmt = _tournament.formatForRound(_match.round);
-    _remainingSeconds = _computeRemainingSeconds();
     _initScores();
+    _now = DateTime.now();
+    _initTimerState();
     if (!_isMatchComplete) {
       _startTimer();
       // Mark as started on first open if not already
@@ -77,13 +78,10 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         KoBracketStorageService.save(t);
         _tournament = t;
         _match = started;
-        // Defer parent notification — initState runs during build
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) widget.onChanged(t);
         });
       }
-      // If the scheduled window already expired, show time-up immediately
-      if (_remainingSeconds == 0) _timeUp = true;
     }
   }
 
@@ -123,61 +121,46 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   // ── Timer ─────────────────────────────────────────────────────────────────
 
-  int _computeRemainingSeconds() {
-    // Prefer actual start time so the timer shows real game duration,
-    // not how far away the pre-scheduled slot is.
-    final started = _match.startedAt;
-    if (started != null) {
-      final diff = started
-          .add(Duration(minutes: _tournament.minutesForRound(_match.round)))
-          .difference(DateTime.now())
-          .inSeconds;
-      return diff > 0 ? diff : 0;
-    }
-    // Not yet started — fall back to the pre-scheduled slot end
+  void _initTimerState() {
     final end = _match.scheduledEndTime;
     if (end != null) {
-      final diff = end.difference(DateTime.now()).inSeconds;
-      return diff > 0 ? diff : 0;
+      if (DateTime.now().isAfter(end)) _timeUp = true;
+    } else {
+      final started = _match.startedAt;
+      final totalSecs = _tournament.minutesForRound(_match.round) * 60;
+      if (started != null) {
+        final elapsed = DateTime.now().difference(started).inSeconds;
+        _fallbackSeconds = (totalSecs - elapsed).clamp(0, totalSecs);
+      } else {
+        _fallbackSeconds = totalSecs;
+      }
+      if (_fallbackSeconds == 0) _timeUp = true;
     }
-    return _tournament.minutesForRound(_match.round) * 60;
   }
 
-  bool get _hasScheduledEnd =>
-      _match.startedAt != null || _match.scheduledEndTime != null;
-
   void _startTimer() {
-    _timerRunning = true;
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) return;
-      setState(() {
-        if (_hasScheduledEnd) {
-          _remainingSeconds = _computeRemainingSeconds();
-        } else {
-          if (_remainingSeconds > 0) _remainingSeconds--;
-        }
-        if (_remainingSeconds == 0 &&
-            _timerRunning &&
-            !_isMatchComplete &&
-            !_timeUp) {
+    final end = _match.scheduledEndTime;
+    if (end != null) {
+      _timer = Timer.periodic(const Duration(seconds: 30), (_) {
+        if (!mounted) return;
+        setState(() => _now = DateTime.now());
+        if (!_isMatchComplete && !_timeUp && _now.isAfter(end)) {
           _timer?.cancel();
-          _timerRunning = false;
           _onTimeUp();
         }
       });
-    });
-  }
-
-  void _toggleTimer() {
-    if (_hasScheduledEnd) return; // absolute countdown — no manual pause
-    setState(() {
-      if (_timerRunning) {
-        _timer?.cancel();
-        _timerRunning = false;
-      } else {
-        _startTimer();
-      }
-    });
+    } else {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        setState(() {
+          if (_fallbackSeconds > 0) _fallbackSeconds--;
+          if (_fallbackSeconds == 0 && !_isMatchComplete && !_timeUp) {
+            _timer?.cancel();
+            _onTimeUp();
+          }
+        });
+      });
+    }
   }
 
   // ── Time-cap logic ────────────────────────────────────────────────────────
@@ -247,17 +230,6 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     _persist(resolved, isComplete: true);
   }
 
-  Color get _timerColor {
-    if (_remainingSeconds <= 30) return Colors.red;
-    if (_remainingSeconds <= 120) return Colors.orange;
-    return _kGoldDark;
-  }
-
-  String get _timerLabel {
-    final m = _remainingSeconds ~/ 60;
-    final s = _remainingSeconds % 60;
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
 
   // ── Scoring ───────────────────────────────────────────────────────────────
 
@@ -449,10 +421,18 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ── Match title ───────────────────────────────────────────────
+            Text(
+              '${_team1?.name ?? 'TBD'} vs ${_team2?.name ?? 'TBD'}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black87),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 14),
+
             // ── Gameplay Controls ─────────────────────────────────────────
             _sectionHeader('Gameplay Controls', Icons.sports_volleyball_rounded),
             const SizedBox(height: 10),
-            _buildTimerCard(),
+            _buildScheduleCard(),
             const SizedBox(height: 10),
             _buildSetOverview(),
 
@@ -597,16 +577,60 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         onTap: enabled ? onTap : null,
       );
 
-  // ── Timer card ────────────────────────────────────────────────────────────
+  // ── Schedule card ─────────────────────────────────────────────────────────
 
-  Widget _buildTimerCard() {
-    final isAbsolute = _hasScheduledEnd;
-    final expired = _timeUp || _remainingSeconds == 0;
-    final timerColor = expired ? Colors.red : _timerColor;
-    final bgColor =
-        expired ? Colors.red.withValues(alpha: 0.06) : Colors.grey.shade50;
-    final borderColor =
-        expired ? Colors.red.withValues(alpha: 0.3) : Colors.grey.shade200;
+  Widget _buildScheduleCard() {
+    final start = _match.scheduledStartTime;
+    final end = _match.scheduledEndTime;
+    final now = _now;
+
+    if (start == null || end == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(children: [
+          const Icon(Icons.schedule_rounded, size: 14, color: Colors.black38),
+          const SizedBox(width: 6),
+          const Text('MATCH SLOT',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.black38, letterSpacing: 0.6)),
+          const Spacer(),
+          Text('${_tournament.minutesForRound(_match.round)} min',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.black54)),
+        ]),
+      );
+    }
+
+    final beforeStart = now.isBefore(start);
+    final afterEnd = !now.isBefore(end);
+
+    String driftLabel;
+    Color driftFg;
+    Color driftBg;
+
+    if (beforeStart) {
+      final mins = start.difference(now).inMinutes;
+      driftLabel = mins == 0 ? 'Now' : 'In ${mins}m';
+      driftFg = _kOlive;
+      driftBg = _kOliveLight;
+    } else if (!afterEnd) {
+      final left = end.difference(now).inMinutes;
+      driftLabel = '${left}m left';
+      driftFg = left <= 5 ? Colors.orange.shade700 : _kOlive;
+      driftBg = left <= 5 ? Colors.orange.withValues(alpha: 0.1) : _kOliveLight;
+    } else {
+      final over = now.difference(end).inMinutes;
+      driftLabel = over == 0 ? "Time's up" : '${over}m over';
+      driftFg = Colors.red;
+      driftBg = Colors.red.withValues(alpha: 0.08);
+    }
+
+    final bgColor = afterEnd ? Colors.red.withValues(alpha: 0.06) : Colors.grey.shade50;
+    final borderColor = afterEnd ? Colors.red.withValues(alpha: 0.3) : Colors.grey.shade200;
+    final labelColor = afterEnd ? Colors.red : Colors.black45;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -615,90 +639,31 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: borderColor),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(
-                expired ? Icons.timer_off_rounded : Icons.timer_rounded,
-                size: 14,
-                color: timerColor,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'MATCH TIMER',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: timerColor,
-                  letterSpacing: 0.6,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _timerLabel,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: timerColor,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
+      child: Row(children: [
+        Icon(Icons.schedule_rounded, size: 14, color: labelColor),
+        const SizedBox(width: 6),
+        Text('SCHEDULE',
+            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: labelColor, letterSpacing: 0.6)),
+        const SizedBox(width: 10),
+        Text(
+          '${_fmtTime(start)} – ${_fmtTime(end)}',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: afterEnd ? Colors.red.shade700 : Colors.black87,
+            fontFeatures: const [FontFeature.tabularFigures()],
           ),
-          if (expired || isAbsolute)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                expired ? "Time's up!" : 'Scheduled end',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: expired
-                      ? Colors.red.withValues(alpha: 0.7)
-                      : Colors.black38,
-                ),
-              ),
-            ),
-          if (!isAbsolute && !_isMatchComplete && !expired) ...[
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 6,
-              alignment: WrapAlignment.center,
-              children: [
-                _refBtn(
-                  _timerRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  _timerRunning ? 'Pause' : 'Resume',
-                  _toggleTimer,
-                  primary: _timerRunning,
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+        ),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(color: driftBg, borderRadius: BorderRadius.circular(20)),
+          child: Text(driftLabel,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: driftFg)),
+        ),
+      ]),
     );
   }
-
-  Widget _refBtn(IconData icon, String label, VoidCallback onTap,
-          {bool primary = false}) =>
-      OutlinedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon, size: 14),
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primary ? Colors.white : _kOlive,
-          backgroundColor: primary ? _kOlive : null,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          side: BorderSide(
-              color: primary ? _kOlive : Colors.grey.shade300),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      );
 
   // ── Set overview ──────────────────────────────────────────────────────────
 

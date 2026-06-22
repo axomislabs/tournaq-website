@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
+import '../models/group.dart';
 import '../models/doghouse_drill.dart';
 import '../services/scramble_service.dart';
 import '../models/player.dart';
+import '../widgets/group_picker_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -16,12 +18,14 @@ const _kGoldLight = AppColors.goldCream;
 
 class DoghouseSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final void Function(DoghouseTournament) onCreated;
   final Player Function(String name) onCreatePlayer;
 
   const DoghouseSetupPage({
     super.key,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreated,
     required this.onCreatePlayer,
   });
@@ -213,6 +217,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     var createExpanded  = false;
     var existingExpanded = false;
     var addedExpanded   = false;
+    String? selectedGroupId;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -223,11 +228,14 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
           final allExisting = widget.existingPlayers
               .where((u) => !_players.any((p) => p.appUserId == u.id))
               .toList();
-          final filteredExisting = query.isEmpty
-              ? allExisting
-              : allExisting
-                  .where((u) => u.name.toLowerCase().contains(query))
-                  .toList();
+          final relevantGroups = widget.existingGroups
+              .where((c) => widget.existingPlayers.any((u) => c.playerIds.contains(u.id)))
+              .toList();
+          final filteredExisting = allExisting.where((u) {
+            final matchesGroup = selectedGroupId == null || widget.existingGroups.any((c) => c.id == selectedGroupId && c.playerIds.contains(u.id));
+            final matchesQuery = query.isEmpty || u.name.toLowerCase().contains(query);
+            return matchesGroup && matchesQuery;
+          }).toList();
 
           void rebuild() {
             setSheetState(() {});
@@ -454,20 +462,62 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                         () => existingExpanded = !existingExpanded),
                   ),
                   if (existingExpanded) ...[
-                    TextField(
-                      controller: _playerSearchCtrl,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!
-                            .hintSearchPlayers,
-                        isDense: true,
-                        prefixIcon: const Icon(Icons.search_rounded,
-                            size: 18, color: Colors.black45),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onChanged: (_) => setSheetState(() {}),
+                      child: Row(children: [
+                        if (relevantGroups.isNotEmpty)
+                          GestureDetector(
+                            onTap: () async {
+                              final picked = await showModalBottomSheet<String>(
+                                context: ctx,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => GroupPickerSheet(
+                                  groups: relevantGroups,
+                                  selectedId: selectedGroupId,
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheetState(() => selectedGroupId = picked.isEmpty ? null : picked);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: selectedGroupId != null ? AppColors.goldCream : Colors.grey.shade50,
+                                borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                              ),
+                              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                Icon(Icons.home_rounded, size: 14, color: selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                                const SizedBox(width: 4),
+                                Text(
+                                  selectedGroupId == null ? 'Group' : relevantGroups.firstWhere((c) => c.id == selectedGroupId).name,
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                                ),
+                                const SizedBox(width: 2),
+                                Icon(Icons.arrow_drop_down_rounded, size: 16, color: selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                              ]),
+                            ),
+                          ),
+                        if (relevantGroups.isNotEmpty)
+                          Container(width: 1, height: 36, color: Colors.grey.shade200),
+                        Expanded(
+                          child: TextField(
+                            controller: _playerSearchCtrl,
+                            decoration: const InputDecoration(
+                              hintText: 'Search players…',
+                              isDense: true,
+                              prefixIcon: Icon(Icons.search_rounded, size: 18, color: Colors.black45),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                            ),
+                            onChanged: (_) => setSheetState(() {}),
+                          ),
+                        ),
+                      ]),
                     ),
                     const SizedBox(height: 6),
                     if (filteredExisting.isEmpty)

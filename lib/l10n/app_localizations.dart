@@ -127,7 +127,7 @@ abstract class AppLocalizations {
   /// No description provided for @navTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Tournament Hub'**
+  /// **'Games & Tournaments'**
   String get navTournaments;
 
   /// No description provided for @navTeams.
@@ -139,7 +139,7 @@ abstract class AppLocalizations {
   /// No description provided for @navClubs.
   ///
   /// In en, this message translates to:
-  /// **'Clubs'**
+  /// **'Groups'**
   String get navClubs;
 
   /// No description provided for @navPlayers.
@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @pageGames.
   ///
   /// In en, this message translates to:
-  /// **'Games'**
+  /// **'Quick Games'**
   String get pageGames;
 
   /// No description provided for @pageTeams.
@@ -187,13 +187,13 @@ abstract class AppLocalizations {
   /// No description provided for @pageTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Tournament Hub'**
+  /// **'Games & Tournaments'**
   String get pageTournaments;
 
   /// No description provided for @pageClubs.
   ///
   /// In en, this message translates to:
-  /// **'Clubs'**
+  /// **'Groups'**
   String get pageClubs;
 
   /// No description provided for @pageGameScorecard.
@@ -313,7 +313,7 @@ abstract class AppLocalizations {
   /// No description provided for @btnCreateClub.
   ///
   /// In en, this message translates to:
-  /// **'Create Club'**
+  /// **'Create Group'**
   String get btnCreateClub;
 
   /// No description provided for @btnSavePlayers.
@@ -493,7 +493,7 @@ abstract class AppLocalizations {
   /// No description provided for @sectionClubsCount.
   ///
   /// In en, this message translates to:
-  /// **'Clubs ({count})'**
+  /// **'Groups ({count})'**
   String sectionClubsCount(int count);
 
   /// No description provided for @hintSearchTeams.
@@ -517,7 +517,7 @@ abstract class AppLocalizations {
   /// No description provided for @hintSearchClubs.
   ///
   /// In en, this message translates to:
-  /// **'Search clubs...'**
+  /// **'Search groups...'**
   String get hintSearchClubs;
 
   /// No description provided for @filterPlayer.
@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @filterClub.
   ///
   /// In en, this message translates to:
-  /// **'Club'**
+  /// **'Group'**
   String get filterClub;
 
   /// No description provided for @filterMode.
@@ -805,7 +805,7 @@ abstract class AppLocalizations {
   /// No description provided for @landingAdvancedAdminSub.
   ///
   /// In en, this message translates to:
-  /// **'Manage players, teams, clubs, and organiser roles.'**
+  /// **'Manage players, teams, groups, and organiser roles.'**
   String get landingAdvancedAdminSub;
 
   /// No description provided for @promoSupportTitle.
@@ -883,7 +883,7 @@ abstract class AppLocalizations {
   /// No description provided for @promoPartnerSpotlightSub.
   ///
   /// In en, this message translates to:
-  /// **'Future partners, clubs and organizations may be featured here.'**
+  /// **'Future partners, groups and organizations may be featured here.'**
   String get promoPartnerSpotlightSub;
 
   /// No description provided for @promoTournamentPartnerships.
@@ -1105,13 +1105,13 @@ abstract class AppLocalizations {
   /// No description provided for @dialogRemoveFromClub.
   ///
   /// In en, this message translates to:
-  /// **'Remove from Club'**
+  /// **'Remove from Group'**
   String get dialogRemoveFromClub;
 
   /// No description provided for @dialogRemoveFromClubBody.
   ///
   /// In en, this message translates to:
-  /// **'Remove this team from the club?'**
+  /// **'Remove this team from the group?'**
   String get dialogRemoveFromClubBody;
 
   /// No description provided for @menuEditPlayers.
@@ -1129,7 +1129,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuAssignToClub.
   ///
   /// In en, this message translates to:
-  /// **'Assign to Club'**
+  /// **'Assign to Group'**
   String get menuAssignToClub;
 
   /// No description provided for @menuAssignToTeam.
@@ -1171,7 +1171,7 @@ abstract class AppLocalizations {
   /// No description provided for @menuAddToClub.
   ///
   /// In en, this message translates to:
-  /// **'Add to Club'**
+  /// **'Add to Group'**
   String get menuAddToClub;
 
   /// No description provided for @noGamesYet.
@@ -1243,13 +1243,13 @@ abstract class AppLocalizations {
   /// No description provided for @noClubsYet.
   ///
   /// In en, this message translates to:
-  /// **'No clubs yet.'**
+  /// **'No groups yet.'**
   String get noClubsYet;
 
   /// No description provided for @noClubsFiltered.
   ///
   /// In en, this message translates to:
-  /// **'No clubs match the current filters.'**
+  /// **'No groups match the current filters.'**
   String get noClubsFiltered;
 
   /// No description provided for @noScoringHistoryYet.
@@ -1273,7 +1273,7 @@ abstract class AppLocalizations {
   /// No description provided for @noClubsInTeam.
   ///
   /// In en, this message translates to:
-  /// **'Not in any clubs yet.'**
+  /// **'Not in any groups yet.'**
   String get noClubsInTeam;
 
   /// No description provided for @teamNotFound.
@@ -1519,7 +1519,7 @@ abstract class AppLocalizations {
   /// No description provided for @pageClubDetails.
   ///
   /// In en, this message translates to:
-  /// **'Club Details'**
+  /// **'Group Details'**
   String get pageClubDetails;
 
   /// No description provided for @playerNotFound.
@@ -1531,7 +1531,7 @@ abstract class AppLocalizations {
   /// No description provided for @clubNotFound.
   ///
   /// In en, this message translates to:
-  /// **'Club not found.'**
+  /// **'Group not found.'**
   String get clubNotFound;
 
   /// No description provided for @dialogRemoveFromTeam.
@@ -1549,7 +1549,7 @@ abstract class AppLocalizations {
   /// No description provided for @dialogRemovePlayerFromClubBody.
   ///
   /// In en, this message translates to:
-  /// **'Remove this player from the club?'**
+  /// **'Remove this player from the group?'**
   String get dialogRemovePlayerFromClubBody;
 
   /// No description provided for @dialogRemoveTournamentFromClub.
@@ -1561,7 +1561,7 @@ abstract class AppLocalizations {
   /// No description provided for @dialogRemoveTournamentFromClubBody.
   ///
   /// In en, this message translates to:
-  /// **'Remove this tournament from the club?'**
+  /// **'Remove this tournament from the group?'**
   String get dialogRemoveTournamentFromClubBody;
 
   /// No description provided for @notAssignedToTeams.
@@ -1573,7 +1573,7 @@ abstract class AppLocalizations {
   /// No description provided for @notAssignedToClubs.
   ///
   /// In en, this message translates to:
-  /// **'Not assigned to any clubs.'**
+  /// **'Not assigned to any groups.'**
   String get notAssignedToClubs;
 
   /// No description provided for @userEmailLabel.
@@ -1639,7 +1639,7 @@ abstract class AppLocalizations {
   /// No description provided for @hintClubName.
   ///
   /// In en, this message translates to:
-  /// **'Club name'**
+  /// **'Group name'**
   String get hintClubName;
 
   /// No description provided for @labelAssignToTeams.
@@ -1651,7 +1651,7 @@ abstract class AppLocalizations {
   /// No description provided for @labelAssignToClubs.
   ///
   /// In en, this message translates to:
-  /// **'Assign to Clubs'**
+  /// **'Assign to Groups'**
   String get labelAssignToClubs;
 
   /// No description provided for @labelAssignToTournaments.
@@ -1693,7 +1693,7 @@ abstract class AppLocalizations {
   /// No description provided for @scopeClub.
   ///
   /// In en, this message translates to:
-  /// **'Club'**
+  /// **'Group'**
   String get scopeClub;
 
   /// No description provided for @labelMode.
@@ -1723,13 +1723,13 @@ abstract class AppLocalizations {
   /// No description provided for @filterAllClubs.
   ///
   /// In en, this message translates to:
-  /// **'All clubs'**
+  /// **'All groups'**
   String get filterAllClubs;
 
   /// No description provided for @noTeamsInClub.
   ///
   /// In en, this message translates to:
-  /// **'No teams in this club.'**
+  /// **'No teams in this group.'**
   String get noTeamsInClub;
 
   /// No description provided for @noTeamsAvailableYet.
@@ -1771,37 +1771,37 @@ abstract class AppLocalizations {
   /// No description provided for @labelClubForRandomTeams.
   ///
   /// In en, this message translates to:
-  /// **'Club for random teams'**
+  /// **'Group for random teams'**
   String get labelClubForRandomTeams;
 
   /// No description provided for @radioNoClub.
   ///
   /// In en, this message translates to:
-  /// **'No club'**
+  /// **'No group'**
   String get radioNoClub;
 
   /// No description provided for @radioAddToExistingClub.
   ///
   /// In en, this message translates to:
-  /// **'Add to existing club'**
+  /// **'Add to existing group'**
   String get radioAddToExistingClub;
 
   /// No description provided for @hintSelectClub.
   ///
   /// In en, this message translates to:
-  /// **'Select a club'**
+  /// **'Select a group'**
   String get hintSelectClub;
 
   /// No description provided for @radioCreateNewClub.
   ///
   /// In en, this message translates to:
-  /// **'Create new club'**
+  /// **'Create new group'**
   String get radioCreateNewClub;
 
   /// No description provided for @hintClubNameRandom.
   ///
   /// In en, this message translates to:
-  /// **'Club name (leave blank for random)'**
+  /// **'Group name (leave blank for random)'**
   String get hintClubNameRandom;
 
   /// No description provided for @tooltipSuggestName.
@@ -2029,7 +2029,7 @@ abstract class AppLocalizations {
   /// No description provided for @assignTournamentAllClubs.
   ///
   /// In en, this message translates to:
-  /// **'Tournament is already in all clubs.'**
+  /// **'Tournament is already in all groups.'**
   String get assignTournamentAllClubs;
 
   /// No description provided for @snackbarAddTeamsFirstCreate.
@@ -2143,7 +2143,7 @@ abstract class AppLocalizations {
   /// No description provided for @notInAnyClubsYet.
   ///
   /// In en, this message translates to:
-  /// **'Not in any clubs yet.'**
+  /// **'Not in any groups yet.'**
   String get notInAnyClubsYet;
 
   /// No description provided for @clubPlayersAndTeams.

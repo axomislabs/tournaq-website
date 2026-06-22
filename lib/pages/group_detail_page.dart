@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
 import 'team_detail_page.dart';
 import 'user_detail_page.dart';
 
-class ClubDetailPage extends StatefulWidget {
+class GroupDetailPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  final String clubId;
+  final String groupId;
 
-  const ClubDetailPage({
+  const GroupDetailPage({
     super.key,
     required this.appState,
     required this.onAppStateChanged,
-    required this.clubId,
+    required this.groupId,
   });
 
   @override
-  State<ClubDetailPage> createState() => _ClubDetailPageState();
+  State<GroupDetailPage> createState() => _GroupDetailPageState();
 }
 
-class _ClubDetailPageState extends State<ClubDetailPage> {
+class _GroupDetailPageState extends State<GroupDetailPage> {
   late AppState _localState;
 
   @override
@@ -40,24 +39,24 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
     widget.onAppStateChanged(newState);
   }
 
-  Club? get _club => _localState.getClubById(widget.clubId);
+  Group? get _group => _localState.getGroupById(widget.groupId);
 
   // ── Players ──────────────────────────────────────────────────────────────
 
   Future<void> _assignPlayer() async {
     final l10n = AppLocalizations.of(context)!;
-    final club = _club;
-    if (club == null) return;
+    final group = _group;
+    if (group == null) return;
     final items = _localState.players
-        .where((u) => !club.playerIds.contains(u.id))
+        .where((u) => !group.playerIds.contains(u.id))
         .map((u) => (id: u.id, name: u.name))
         .toList();
     final selected = await showAssignDialog(
       context: context, title: l10n.menuAddPlayer, items: items,
-      emptyMessage: 'All players are already in this club.',
+      emptyMessage: 'All players are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToClub(_localState, playerId: selected, clubId: widget.clubId));
+      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: selected, groupId: widget.groupId));
     }
   }
 
@@ -75,7 +74,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
       ),
     );
     if (confirmed == true && mounted) {
-      _updateState(AppDataService.removePlayerFromClub(_localState, playerId: playerId, clubId: widget.clubId));
+      _updateState(AppDataService.removePlayerFromGroup(_localState, playerId: playerId, groupId: widget.groupId));
     }
   }
 
@@ -83,18 +82,18 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
 
   Future<void> _assignTeam() async {
     final l10n = AppLocalizations.of(context)!;
-    final club = _club;
-    if (club == null) return;
+    final group = _group;
+    if (group == null) return;
     final items = _localState.teams
-        .where((t) => !club.teamIds.contains(t.id))
+        .where((t) => !group.teamIds.contains(t.id))
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
       context: context, title: l10n.menuAddTeam, items: items,
-      emptyMessage: 'All teams are already in this club.',
+      emptyMessage: 'All teams are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToClub(_localState, teamId: selected, clubId: widget.clubId));
+      _updateState(AppDataService.assignTeamToGroup(_localState, teamId: selected, groupId: widget.groupId));
     }
   }
 
@@ -112,7 +111,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
       ),
     );
     if (confirmed == true && mounted) {
-      _updateState(AppDataService.removeTeamFromClub(_localState, teamId: teamId, clubId: widget.clubId));
+      _updateState(AppDataService.removeTeamFromGroup(_localState, teamId: teamId, groupId: widget.groupId));
     }
   }
 
@@ -121,19 +120,18 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final club = _club;
-    if (club == null) {
+    final group = _group;
+    if (group == null) {
       return Scaffold(
         appBar: TournaQAppBar(title: l10n.pageClubDetails),
         body: Center(child: Text(l10n.clubNotFound)),
       );
     }
 
-    final players = _localState.players.where((u) => club.playerIds.contains(u.id)).toList();
-    final teams = _localState.teams.where((t) => club.teamIds.contains(t.id)).toList();
+    final players = _localState.players.where((u) => group.playerIds.contains(u.id)).toList();
+    final teams = _localState.teams.where((t) => group.teamIds.contains(t.id)).toList();
 
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(title: l10n.pageClubDetails),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
@@ -147,7 +145,7 @@ class _ClubDetailPageState extends State<ClubDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(club.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(group.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     Wrap(spacing: 12, runSpacing: 8, children: [
                       ElevatedButton.icon(

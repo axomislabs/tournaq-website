@@ -17,11 +17,11 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   final _nameCtrl        = TextEditingController();
   final _emailCtrl       = TextEditingController();
   final _teamSearchCtrl  = TextEditingController();
-  final _clubSearchCtrl  = TextEditingController();
+  final _groupSearchCtrl = TextEditingController();
   final Set<String> _teamIds = {};
-  final Set<String> _clubIds = {};
+  final Set<String> _groupIds = {};
   bool _teamExpanded = false;
-  bool _clubExpanded = false;
+  bool _groupExpanded = false;
   final _rng = Random();
 
   static const _firstNames = ['Alex','Charlie','Jordan','Taylor','Morgan','Casey','Jamie','Avery','Riley','Rowan','Skyler','Quinn','Parker','Drew','Reese'];
@@ -35,7 +35,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
     _nameCtrl.dispose();
     _emailCtrl.dispose();
     _teamSearchCtrl.dispose();
-    _clubSearchCtrl.dispose();
+    _groupSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -60,8 +60,8 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
     for (final id in _teamIds) {
       state = AppDataService.assignUserToTeam(state, userId: playerId, teamId: id);
     }
-    for (final id in _clubIds) {
-      state = AppDataService.assignPlayerToClub(state, playerId: playerId, clubId: id);
+    for (final id in _groupIds) {
+      state = AppDataService.assignPlayerToGroup(state, playerId: playerId, groupId: id);
     }
     Navigator.pop(context, state);
   }
@@ -252,7 +252,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   Widget _buildPortrait(
     AppLocalizations l10n,
     List<({String id, String name})> teams,
-    List<({String id, String name})> clubs,
+    List<({String id, String name})> groups,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -332,20 +332,20 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
           expanded: _teamExpanded,
           onToggleExpand: () {
             _teamExpanded = !_teamExpanded;
-            if (_teamExpanded) _clubExpanded = false;
+            if (_teamExpanded) _groupExpanded = false;
           },
         ),
 
-        // Clubs
+        // Groups
         _buildSearchPicker(
           label: l10n.labelAssignToClubs,
-          items: clubs,
-          selected: _clubIds,
-          searchCtrl: _clubSearchCtrl,
-          expanded: _clubExpanded,
+          items: groups,
+          selected: _groupIds,
+          searchCtrl: _groupSearchCtrl,
+          expanded: _groupExpanded,
           onToggleExpand: () {
-            _clubExpanded = !_clubExpanded;
-            if (_clubExpanded) _teamExpanded = false;
+            _groupExpanded = !_groupExpanded;
+            if (_groupExpanded) _teamExpanded = false;
           },
         ),
 
@@ -377,7 +377,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   Widget _buildLandscape(
     AppLocalizations l10n,
     List<({String id, String name})> teams,
-    List<({String id, String name})> clubs,
+    List<({String id, String name})> groups,
   ) {
     final fieldBorder   = OutlineInputBorder(borderRadius: BorderRadius.circular(10));
     const fieldPadding  = EdgeInsets.symmetric(horizontal: 12, vertical: 10);
@@ -474,7 +474,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
           ])),
         ]),
 
-        // Teams + Clubs row
+        // Teams + Groups row
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
             child: _buildSearchPicker(
@@ -485,7 +485,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
               expanded: _teamExpanded,
               onToggleExpand: () {
                 _teamExpanded = !_teamExpanded;
-                if (_teamExpanded) _clubExpanded = false;
+                if (_teamExpanded) _groupExpanded = false;
               },
             ),
           ),
@@ -493,13 +493,13 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
           Expanded(
             child: _buildSearchPicker(
               label: l10n.pageClubs,
-              items: clubs,
-              selected: _clubIds,
-              searchCtrl: _clubSearchCtrl,
-              expanded: _clubExpanded,
+              items: groups,
+              selected: _groupIds,
+              searchCtrl: _groupSearchCtrl,
+              expanded: _groupExpanded,
               onToggleExpand: () {
-                _clubExpanded = !_clubExpanded;
-                if (_clubExpanded) _teamExpanded = false;
+                _groupExpanded = !_groupExpanded;
+                if (_groupExpanded) _teamExpanded = false;
               },
             ),
           ),
@@ -512,13 +512,13 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   Widget build(BuildContext context) {
     final l10n  = AppLocalizations.of(context)!;
     final teams = widget.appState.teams.map((t) => (id: t.id, name: t.name)).toList();
-    final clubs = widget.appState.clubs.map((c) => (id: c.id, name: c.name)).toList();
+    final groups = widget.appState.groups.map((c) => (id: c.id, name: c.name)).toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(l10n, teams, clubs)
-            : _buildPortrait(l10n, teams, clubs),
+            ? _buildLandscape(l10n, teams, groups)
+            : _buildPortrait(l10n, teams, groups),
       ),
     );
   }

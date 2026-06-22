@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
-import '../widgets/create_club_sheet.dart';
-import 'club_detail_page.dart';
+import '../widgets/create_group_sheet.dart';
+import 'group_detail_page.dart';
 
-enum _ClubSearchMode { name, player, team }
+enum _GroupSearchMode { name, player, team }
 
-class ClubsPage extends StatefulWidget {
+class GroupsPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  const ClubsPage({super.key, required this.appState, required this.onAppStateChanged});
+  const GroupsPage({super.key, required this.appState, required this.onAppStateChanged});
   @override
-  State<ClubsPage> createState() => _ClubsPageState();
+  State<GroupsPage> createState() => _GroupsPageState();
 }
 
-class _ClubsPageState extends State<ClubsPage> {
+class _GroupsPageState extends State<GroupsPage> {
   late AppState _localState;
   final _searchCtrl = TextEditingController();
-  _ClubSearchMode _searchMode = _ClubSearchMode.name;
+  _GroupSearchMode _searchMode = _GroupSearchMode.name;
 
   @override
   void initState() {
@@ -48,79 +47,79 @@ class _ClubsPageState extends State<ClubsPage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => CreateClubSheet(appState: _localState),
+      builder: (_) => CreateGroupSheet(appState: _localState),
     );
     if (result != null && mounted) _updateState(result);
   }
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  Future<void> _assignPlayer(String clubId) async {
-    final club = _localState.getClubById(clubId);
-    if (club == null) return;
+  Future<void> _assignPlayer(String groupId) async {
+    final group = _localState.getGroupById(groupId);
+    if (group == null) return;
     final items = _localState.players
-        .where((u) => !club.playerIds.contains(u.id))
+        .where((u) => !group.playerIds.contains(u.id))
         .map((u) => (id: u.id, name: u.name))
         .toList();
     final selected = await showAssignDialog(
       context: context, title: 'Assign Player', items: items,
-      emptyMessage: 'All players are already in this club.',
+      emptyMessage: 'All players are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToClub(_localState, playerId: selected, clubId: clubId));
+      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: selected, groupId: groupId));
     }
   }
 
-  Future<void> _assignTeam(String clubId) async {
-    final club = _localState.getClubById(clubId);
-    if (club == null) return;
+  Future<void> _assignTeam(String groupId) async {
+    final group = _localState.getGroupById(groupId);
+    if (group == null) return;
     final items = _localState.teams
-        .where((t) => !club.teamIds.contains(t.id))
+        .where((t) => !group.teamIds.contains(t.id))
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
       context: context, title: 'Assign Team', items: items,
-      emptyMessage: 'All teams are already in this club.',
+      emptyMessage: 'All teams are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToClub(_localState, teamId: selected, clubId: clubId));
+      _updateState(AppDataService.assignTeamToGroup(_localState, teamId: selected, groupId: groupId));
     }
   }
 
-  Future<void> _deleteClub(String clubId) async {
-    final club = _localState.getClubById(clubId);
-    if (club == null) return;
-    final ok = await showConfirmDeleteDialog(context, club.name);
-    if (ok && mounted) _updateState(AppDataService.deleteClub(_localState, clubId));
+  Future<void> _deleteGroup(String groupId) async {
+    final group = _localState.getGroupById(groupId);
+    if (group == null) return;
+    final ok = await showConfirmDeleteDialog(context, group.name);
+    if (ok && mounted) _updateState(AppDataService.deleteGroup(_localState, groupId));
   }
 
   // ── Filter ─────────────────────────────────────────────────────────────────
 
-  List<Club> get _filteredClubs {
+  List<Group> get _filteredGroups {
     final q = _searchCtrl.text.toLowerCase().trim();
-    if (q.isEmpty) return _localState.clubs;
+    if (q.isEmpty) return _localState.groups;
 
     switch (_searchMode) {
-      case _ClubSearchMode.name:
-        return _localState.clubs
+      case _GroupSearchMode.name:
+        return _localState.groups
             .where((c) => c.name.toLowerCase().contains(q))
             .toList();
 
-      case _ClubSearchMode.player:
+      case _GroupSearchMode.player:
         final matchingIds = _localState.players
             .where((p) => p.name.toLowerCase().contains(q))
             .map((p) => p.id)
             .toSet();
-        return _localState.clubs
+        return _localState.groups
             .where((c) => c.playerIds.any(matchingIds.contains))
             .toList();
 
-      case _ClubSearchMode.team:
+      case _GroupSearchMode.team:
         final matchingIds = _localState.teams
             .where((t) => t.name.toLowerCase().contains(q))
             .map((t) => t.id)
             .toSet();
-        return _localState.clubs
+        return _localState.groups
             .where((c) => c.teamIds.any(matchingIds.contains))
             .toList();
     }
@@ -129,21 +128,21 @@ class _ClubsPageState extends State<ClubsPage> {
   // ── Search bar ─────────────────────────────────────────────────────────────
 
   static const _modeLabels = {
-    _ClubSearchMode.name:   'Name',
-    _ClubSearchMode.player: 'Player',
-    _ClubSearchMode.team:   'Team',
+    _GroupSearchMode.name:   'Name',
+    _GroupSearchMode.player: 'Player',
+    _GroupSearchMode.team:   'Team',
   };
 
   static const _modeHints = {
-    _ClubSearchMode.name:   'Search clubs…',
-    _ClubSearchMode.player: 'Search by player…',
-    _ClubSearchMode.team:   'Search by team…',
+    _GroupSearchMode.name:   'Search groups…',
+    _GroupSearchMode.player: 'Search by player…',
+    _GroupSearchMode.team:   'Search by team…',
   };
 
-  IconData _modeIcon(_ClubSearchMode mode) => switch (mode) {
-        _ClubSearchMode.name   => Icons.home_rounded,
-        _ClubSearchMode.player => Icons.person_rounded,
-        _ClubSearchMode.team   => Icons.group_rounded,
+  IconData _modeIcon(_GroupSearchMode mode) => switch (mode) {
+        _GroupSearchMode.name   => Icons.home_rounded,
+        _GroupSearchMode.player => Icons.person_rounded,
+        _GroupSearchMode.team   => Icons.group_rounded,
       };
 
   Widget _buildSearchBar() {
@@ -159,7 +158,7 @@ class _ClubsPageState extends State<ClubsPage> {
               final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
               final box = context.findRenderObject() as RenderBox;
               final offset = box.localToGlobal(Offset.zero, ancestor: overlay);
-              final selected = await showMenu<_ClubSearchMode>(
+              final selected = await showMenu<_GroupSearchMode>(
                 context: context,
                 position: RelativeRect.fromLTRB(
                   offset.dx + 16,
@@ -167,7 +166,7 @@ class _ClubsPageState extends State<ClubsPage> {
                   offset.dx + 160,
                   offset.dy + 200,
                 ),
-                items: _ClubSearchMode.values
+                items: _GroupSearchMode.values
                     .map((m) => PopupMenuItem(
                           value: m,
                           child: Row(children: [
@@ -270,7 +269,7 @@ class _ClubsPageState extends State<ClubsPage> {
               Icon(Icons.home_rounded, color: Colors.white, size: 22),
               SizedBox(width: 8),
               Text(
-                'Clubs',
+                'Groups',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -280,7 +279,7 @@ class _ClubsPageState extends State<ClubsPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Manage your global club pool',
+            'Manage your global group pool',
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,
@@ -310,11 +309,10 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final filtered = _filteredClubs;
-    final total = _localState.clubs.length;
+    final filtered = _filteredGroups;
+    final total = _localState.groups.length;
 
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(title: l10n.pageClubs),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -350,7 +348,7 @@ class _ClubsPageState extends State<ClubsPage> {
           ),
           const SizedBox(height: 8),
 
-          // ── Club list ──────────────────────────────────────────────────
+          // ── Group list ─────────────────────────────────────────────────
           Expanded(
             child: total == 0
                 ? Center(
@@ -365,7 +363,7 @@ class _ClubsPageState extends State<ClubsPage> {
                                 fontSize: 16,
                                 color: Colors.black45)),
                         const SizedBox(height: 4),
-                        const Text('Tap Create Club to get started.',
+                        const Text('Tap Create Group to get started.',
                             style: TextStyle(color: Colors.black38, fontSize: 13)),
                       ],
                     ),
@@ -378,7 +376,7 @@ class _ClubsPageState extends State<ClubsPage> {
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
                         itemCount: filtered.length,
-                        itemBuilder: (_, i) => _buildClubCard(filtered[i], l10n),
+                        itemBuilder: (_, i) => _buildGroupCard(filtered[i], l10n),
                       ),
           ),
         ],
@@ -386,11 +384,11 @@ class _ClubsPageState extends State<ClubsPage> {
     );
   }
 
-  // ── Club card ──────────────────────────────────────────────────────────────
+  // ── Group card ─────────────────────────────────────────────────────────────
 
-  Widget _buildClubCard(Club club, AppLocalizations l10n) {
-    final playerCount = club.playerIds.length;
-    final teamCount   = club.teamIds.length;
+  Widget _buildGroupCard(Group group, AppLocalizations l10n) {
+    final playerCount = group.playerIds.length;
+    final teamCount   = group.teamIds.length;
     final stats = <String>[
       '$playerCount player${playerCount == 1 ? '' : 's'}',
       if (teamCount > 0) '$teamCount team${teamCount == 1 ? '' : 's'}',
@@ -406,8 +404,8 @@ class _ClubsPageState extends State<ClubsPage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => ClubDetailPage(
-              appState: _localState, onAppStateChanged: _updateState, clubId: club.id),
+          builder: (_) => GroupDetailPage(
+              appState: _localState, onAppStateChanged: _updateState, groupId: group.id),
         )),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -427,7 +425,7 @@ class _ClubsPageState extends State<ClubsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(club.name,
+                    Text(group.name,
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 15)),
                     const SizedBox(height: 2),
@@ -440,9 +438,9 @@ class _ClubsPageState extends State<ClubsPage> {
                 icon: const Icon(Icons.more_vert, size: 20, color: Colors.black38),
                 onSelected: (value) {
                   switch (value) {
-                    case 'assign_player': _assignPlayer(club.id);
-                    case 'assign_team':   _assignTeam(club.id);
-                    case 'delete':        _deleteClub(club.id);
+                    case 'assign_player': _assignPlayer(group.id);
+                    case 'assign_team':   _assignTeam(group.id);
+                    case 'delete':        _deleteGroup(group.id);
                   }
                 },
                 itemBuilder: (_) => [

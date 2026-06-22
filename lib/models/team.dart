@@ -1,9 +1,8 @@
 import '../services/device_id_service.dart';
 
 enum TeamScope {
-  temporary,
   tournament,
-  club,
+  group,
 }
 
 class Team {
@@ -21,7 +20,7 @@ class Team {
     required this.name,
     this.userIds = const [],
     this.tournamentIds = const [],
-    this.scope = TeamScope.temporary,
+    this.scope = TeamScope.group,
     String? deviceId,
     DateTime? createdAt,
   })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
@@ -85,8 +84,8 @@ class Team {
         tournamentIds:
             List<String>.from(json['tournamentIds'] as List? ?? []),
         scope: TeamScope.values.firstWhere(
-          (e) => e.name == json['scope'],
-          orElse: () => TeamScope.temporary,
+          (e) => e.name == json['scope'] || (e == TeamScope.group && json['scope'] == 'club'),
+          orElse: () => TeamScope.group,
         ),
         deviceId: json['deviceId'] as String? ?? '',
         createdAt: json['createdAt'] != null

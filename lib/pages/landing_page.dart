@@ -5,8 +5,8 @@ import '../state/app_state.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
+import 'administration_page.dart';
 import 'coming_soon_page.dart';
-import 'games_page.dart';
 import 'tournaments_page.dart';
 
 class LandingPage extends StatefulWidget {
@@ -63,19 +63,18 @@ class _LandingPageState extends State<LandingPage> {
   // ── Action Cards ──────────────────────────────────────────────────────────
 
   Widget _buildActionCards(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         children: [
           _buildPrimaryCard(
-            title: 'Games',
-            subtitle: l10n.landingMatchHistorySubtitle,
-            icon: Icons.sports_score_rounded,
+            title: 'Games & Tournaments',
+            subtitle: 'Manage tournaments & scrambles',
+            icon: Icons.emoji_events_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => GamesPage(
+              builder: (_) => TournamentsPage(
                 appState: _localState,
                 onAppStateChanged: _updateState,
               ),
@@ -83,13 +82,13 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 12),
           _buildPrimaryCard(
-            title: 'Tournament Hub',
-            subtitle: 'Manage tournaments & scrambles',
-            icon: Icons.emoji_events_rounded,
+            title: 'Administration',
+            subtitle: 'Manage players, teams & groups',
+            icon: Icons.admin_panel_settings_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => TournamentsPage(
+              builder: (_) => AdministrationPage(
                 appState: _localState,
                 onAppStateChanged: _updateState,
               ),

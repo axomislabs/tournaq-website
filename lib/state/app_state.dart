@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
 import '../models/player.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import '../models/team.dart';
 import '../models/game.dart';
 
@@ -16,7 +16,7 @@ import '../models/game.dart';
 ///
 /// Storage model (v1):
 ///   - [games], [teams], [players] are persisted to Hive on every state change.
-///   - [tournaments] and [clubs] are in-memory only in v1. They are rebuilt
+///   - [tournaments] and [groups] are in-memory only in v1. They are rebuilt
 ///     from the app's navigation flow on each session.
 ///
 /// Design decision — normalized IDs, not embedded objects:
@@ -28,26 +28,26 @@ class AppState {
   final List<Player> players;
   final List<Team> teams;
   final List<Game> games;
-  final List<Club> clubs;
+  final List<Group> groups;
 
   const AppState({
     this.players = const [],
     this.teams = const [],
     this.games = const [],
-    this.clubs = const [],
+    this.groups = const [],
   });
 
   AppState copyWith({
     List<Player>? players,
     List<Team>? teams,
     List<Game>? games,
-    List<Club>? clubs,
+    List<Group>? groups,
   }) {
     return AppState(
       players: players ?? this.players,
       teams: teams ?? this.teams,
       games: games ?? this.games,
-      clubs: clubs ?? this.clubs,
+      groups: groups ?? this.groups,
     );
   }
 
@@ -100,25 +100,25 @@ class AppState {
     return games.where((g) => g.isTeamInvolved(teamId)).toList();
   }
 
-  // Club lookups
-  Club? getClubById(String clubId) {
+  // Group lookups
+  Group? getGroupById(String groupId) {
     try {
-      return clubs.firstWhere((c) => c.id == clubId);
+      return groups.firstWhere((c) => c.id == groupId);
     } catch (e) {
       return null;
     }
   }
 
-  List<Club> getClubsByIds(List<String> clubIds) {
-    return clubs.where((c) => clubIds.contains(c.id)).toList();
+  List<Group> getGroupsByIds(List<String> groupIds) {
+    return groups.where((c) => groupIds.contains(c.id)).toList();
   }
 
-  List<Club> getPlayerClubs(String playerId) {
-    return clubs.where((c) => c.playerIds.contains(playerId)).toList();
+  List<Group> getPlayerGroups(String playerId) {
+    return groups.where((c) => c.playerIds.contains(playerId)).toList();
   }
 
-  List<Club> getTeamClubs(String teamId) {
-    return clubs.where((c) => c.teamIds.contains(teamId)).toList();
+  List<Group> getTeamGroups(String teamId) {
+    return groups.where((c) => c.teamIds.contains(teamId)).toList();
   }
 
   // State mutation helpers — players
@@ -166,19 +166,19 @@ class AppState {
     return copyWith(games: games.where((g) => g.id != gameId).toList());
   }
 
-  // State mutation helpers — clubs
-  AppState addClub(Club club) {
-    return copyWith(clubs: [...clubs, club]);
+  // State mutation helpers — groups
+  AppState addGroup(Group group) {
+    return copyWith(groups: [...groups, group]);
   }
 
-  AppState updateClub(Club club) {
+  AppState updateGroup(Group group) {
     return copyWith(
-      clubs: clubs.map((c) => c.id == club.id ? club : c).toList(),
+      groups: groups.map((c) => c.id == group.id ? group : c).toList(),
     );
   }
 
-  AppState removeClub(String clubId) {
-    return copyWith(clubs: clubs.where((c) => c.id != clubId).toList());
+  AppState removeGroup(String groupId) {
+    return copyWith(groups: groups.where((c) => c.id != groupId).toList());
   }
 
   static String generateId() {

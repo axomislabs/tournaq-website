@@ -11,7 +11,7 @@ import '../state/app_state.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/scrollable_page.dart';
-import 'club_detail_page.dart';
+import 'group_detail_page.dart';
 import 'doghouse_scoreboard_page.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'scramble_overview_page.dart';
@@ -41,13 +41,22 @@ typedef _TournamentEntry = ({
 
 class _UserDetailPageState extends State<UserDetailPage> {
   late AppState _localState;
+  late TextEditingController _nameCtrl;
   List<_TournamentEntry> _playerTournaments = [];
 
   @override
   void initState() {
     super.initState();
     _localState = widget.appState;
+    final player = _localState.getPlayerById(widget.userId);
+    _nameCtrl = TextEditingController(text: player?.name ?? '');
     _loadTournaments();
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
   }
 
   void _loadTournaments() {
@@ -127,68 +136,34 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
   }
 
-  // ── Club ──────────────────────────────────────────────────────────────────
+  // ── Group ───────────────────────────────────────────────────────────────────
 
-  Future<void> _assignClub() async {
+  Future<void> _assignGroup() async {
     final l10n = AppLocalizations.of(context)!;
-    final items = _localState.clubs
+    final items = _localState.groups
         .where((c) => !c.playerIds.contains(widget.userId))
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
       context: context, title: l10n.menuAssignToClub, items: items,
-      emptyMessage: 'Player is already in all clubs.',
+      emptyMessage: 'Player is already in all groups.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToClub(_localState, playerId: widget.userId, clubId: selected));
+      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: widget.userId, groupId: selected));
     }
   }
 
-  Future<void> _editName() async {
+  Future<void> _saveName() async {
     final user = _user;
     if (user == null) return;
-    final ctrl = TextEditingController(text: user.name);
-    final l10n = AppLocalizations.of(context)!;
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Edit Name',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        content: TextField(
-          controller: ctrl,
-          textCapitalization: TextCapitalization.words,
-          autofocus: true,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Player name',
-          ),
-          onSubmitted: (v) {
-            if (v.trim().isNotEmpty) Navigator.of(ctx).pop(v.trim());
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(l10n.btnCancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final v = ctrl.text.trim();
-              if (v.isNotEmpty) Navigator.of(ctx).pop(v);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    if (newName == null || !mounted) return;
+    final newName = _nameCtrl.text.trim();
+    if (newName.isEmpty || newName == user.name) return;
     final updated = user.copyWith(name: newName);
     await LocalStorageService.savePlayer(updated);
-    _updateState(_localState.updatePlayer(updated));
+    if (mounted) _updateState(_localState.updatePlayer(updated));
   }
 
-  Future<void> _removeFromClub(String clubId) async {
+  Future<void> _removeFromGroup(String groupId) async {
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -202,7 +177,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
       ),
     );
     if (confirmed == true && mounted) {
-      _updateState(AppDataService.removePlayerFromClub(_localState, playerId: widget.userId, clubId: clubId));
+      _updateState(AppDataService.removePlayerFromGroup(_localState, playerId: widget.userId, groupId: groupId));
     }
   }
 
@@ -258,19 +233,10 @@ class _UserDetailPageState extends State<UserDetailPage> {
     }
 
     final userTeams = _localState.getTeamsByIds(user.teamIds);
-    final userClubs = _localState.getPlayerClubs(user.id);
+    final userGroups = _localState.getPlayerGroups(user.id);
 
     return Scaffold(
-      appBar: TournaQAppBar(
-        title: l10n.pagePlayerDetails,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_rounded),
-            tooltip: 'Edit name',
-            onPressed: _editName,
-          ),
-        ],
-      ),
+      appBar: TournaQAppBar(title: l10n.pagePlayerDetails),
       body: ScrollablePage(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -283,7 +249,21 @@ class _UserDetailPageState extends State<UserDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    TextField(
+                      controller: _nameCtrl,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onEditingComplete: _saveName,
+                      onTapOutside: (_) {
+                        FocusScope.of(context).unfocus();
+                        _saveName();
+                      },
+                    ),
                     if (user.email != null) ...[
                       const SizedBox(height: 6),
                       Text(l10n.userEmailLabel(user.email!), style: const TextStyle(color: Colors.black54)),
@@ -300,7 +280,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                         label: Text(l10n.menuAssignToTeam),
                       ),
                       ElevatedButton.icon(
-                        onPressed: _assignClub,
+                        onPressed: _assignGroup,
                         icon: const Icon(Icons.home_rounded, size: 16),
                         label: Text(l10n.menuAssignToClub),
                       ),
@@ -361,26 +341,26 @@ class _UserDetailPageState extends State<UserDetailPage> {
 
             const SizedBox(height: 20),
 
-            Text(l10n.sectionClubsCount(userClubs.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.sectionClubsCount(userGroups.length), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            if (userClubs.isEmpty)
+            if (userGroups.isEmpty)
               Center(child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(l10n.notAssignedToClubs, style: const TextStyle(color: Colors.black45)),
               ))
             else
-              ...userClubs.map((club) => Card(
+              ...userGroups.map((group) => Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   leading: const Icon(Icons.home_rounded),
-                  title: Text(club.name),
-                  subtitle: Text('${club.playerIds.length} player(s) • ${club.teamIds.length} team(s)'),
+                  title: Text(group.name),
+                  subtitle: Text('${group.playerIds.length} player(s) • ${group.teamIds.length} team(s)'),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => ClubDetailPage(appState: _localState, onAppStateChanged: _updateState, clubId: club.id),
+                    builder: (_) => GroupDetailPage(appState: _localState, onAppStateChanged: _updateState, groupId: group.id),
                   )),
                   trailing: IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: () => _removeFromClub(club.id),
+                    onPressed: () => _removeFromGroup(group.id),
                   ),
                 ),
               )),

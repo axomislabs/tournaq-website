@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
-import 'clubs_page.dart';
+import 'groups_page.dart';
 import 'teams_page.dart';
 import 'users_page.dart';
 
@@ -22,7 +21,6 @@ class AdministrationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      drawer: AppDrawer(appState: appState, onAppStateChanged: onAppStateChanged),
       appBar: TournaQAppBar(title: l10n.navAdmin),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -60,9 +58,9 @@ class AdministrationPage extends StatelessWidget {
               color: AppColors.gold,
               gradientEnd: AppColors.goldGradientEnd,
               name: l10n.navClubs,
-              description: 'Manage clubs and affiliations',
+              description: 'Manage groups and affiliations',
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => ClubsPage(
+                builder: (_) => GroupsPage(
                   appState: appState,
                   onAppStateChanged: onAppStateChanged,
                 ),

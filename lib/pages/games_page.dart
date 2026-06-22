@@ -5,7 +5,6 @@ import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
@@ -33,7 +32,7 @@ class _GamesPageState extends State<GamesPage> {
   final _playerFilter = <String>{};
   final _teamFilter = <String>{};
   final _tournamentFilter = <String>{};
-  final _clubFilter = <String>{};
+  final _groupFilter = <String>{};
   final _statusFilter = <String>{};   // GameStatus.name
   final _sourceFilter = <String>{};   // GameSource.name
 
@@ -75,14 +74,14 @@ class _GamesPageState extends State<GamesPage> {
       if (_tournamentFilter.isNotEmpty) {
         if (game.tournamentId == null || !_tournamentFilter.contains(game.tournamentId)) return false;
       }
-      if (_clubFilter.isNotEmpty) {
-        final inClub = _localState.clubs
-            .where((c) => _clubFilter.contains(c.id))
+      if (_groupFilter.isNotEmpty) {
+        final inGroup = _localState.groups
+            .where((c) => _groupFilter.contains(c.id))
             .any((c) =>
                 c.teamIds.contains(game.team1Id) ||
                 c.teamIds.contains(game.team2Id) ||
                 (game.tournamentId != null && c.tournamentIds.contains(game.tournamentId)));
-        if (!inClub) return false;
+        if (!inGroup) return false;
       }
       if (_statusFilter.isNotEmpty && !_statusFilter.contains(game.status.name)) return false;
       if (_sourceFilter.isNotEmpty && !_sourceFilter.contains(game.source.name)) return false;
@@ -154,7 +153,6 @@ class _GamesPageState extends State<GamesPage> {
 
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(title: l10n.pageGames),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

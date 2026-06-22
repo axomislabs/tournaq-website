@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/player.dart';
 import 'device_id_service.dart';
-import '../models/club.dart';
+import '../models/group.dart';
 import '../models/game.dart';
 import '../models/team.dart';
 import '../state/app_state.dart';
@@ -22,7 +22,7 @@ import 'ko_bracket_storage_service.dart';
 ///   games_v1        — [Game] objects, keyed by [Game.id]
 ///   teams_v1        — [Team] objects, keyed by [Team.id]
 ///   players_v1      — [Player] objects, keyed by [Player.id]
-///   clubs_v1        — [Club] objects, keyed by [Club.id]
+///   clubs_v1        — [Group] objects, keyed by [Group.id]
 ///   tournaments_v1  — [Tournament] objects, keyed by [Tournament.id]
 ///   prefs_v1        — Arbitrary string key→value preferences (e.g. rating counts)
 ///
@@ -82,16 +82,16 @@ class LocalStorageService {
         .map((s) => _tryDecode(s, Player.fromJson))
         .whereType<Player>()
         .toList();
-    final clubs = _clubs.values
-        .map((s) => _tryDecode(s, Club.fromJson))
-        .whereType<Club>()
+    final groups = _clubs.values
+        .map((s) => _tryDecode(s, Group.fromJson))
+        .whereType<Group>()
         .toList();
 
     return AppState(
       games: games,
       teams: teams,
       players: players,
-      clubs: clubs,
+      groups: groups,
     );
   }
 
@@ -111,7 +111,7 @@ class LocalStorageService {
       await _players.put(u.id, jsonEncode(u.toJson()));
     }
     await _clubs.clear();
-    for (final c in state.clubs) {
+    for (final c in state.groups) {
       await _clubs.put(c.id, jsonEncode(c.toJson()));
     }
   }
@@ -140,8 +140,8 @@ class LocalStorageService {
       save: (p) => _players.put(p.id, jsonEncode(p.toJson())),
       delete: (id) => _players.delete(id),
     );
-    await _syncList<Club>(
-      prev: prev.clubs, next: next.clubs,
+    await _syncList<Group>(
+      prev: prev.groups, next: next.groups,
       getId: (c) => c.id,
       save: (c) => _clubs.put(c.id, jsonEncode(c.toJson())),
       delete: (id) => _clubs.delete(id),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/king_of_the_court_tournament.dart';
+import '../models/group.dart';
 import '../models/player.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
@@ -10,11 +11,13 @@ import 'king_of_the_court_setup_page.dart';
 
 class KingOfTheCourtHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
 
   const KingOfTheCourtHubPage({
     super.key,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreatePlayer,
   });
 
@@ -51,6 +54,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => KingOfTheCourtSetupPage(
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onCreated: _persist,
         onCreatePlayer: widget.onCreatePlayer,
       ),

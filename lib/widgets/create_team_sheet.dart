@@ -17,12 +17,12 @@ class CreateTeamSheet extends StatefulWidget {
 class _CreateTeamSheetState extends State<CreateTeamSheet> {
   final _nameCtrl         = TextEditingController();
   final _playerSearchCtrl = TextEditingController();
-  final _clubSearchCtrl   = TextEditingController();
-  TeamScope _scope = TeamScope.temporary;
+  final _groupSearchCtrl  = TextEditingController();
+  TeamScope _scope = TeamScope.group;
   final Set<String> _playerIds = {};
-  final Set<String> _clubIds   = {};
+  final Set<String> _groupIds  = {};
   bool _playerExpanded = false;
-  bool _clubExpanded   = false;
+  bool _groupExpanded  = false;
   final _rng = Random();
 
   static const _prefixes = ['Falcon','Phoenix','Lion','Tiger','Eagle','Storm','Dragon','Viper','Thunder','Raven','Comet','Shadow','Blaze','Orbit','Nova'];
@@ -35,7 +35,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   void dispose() {
     _nameCtrl.dispose();
     _playerSearchCtrl.dispose();
-    _clubSearchCtrl.dispose();
+    _groupSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -48,9 +48,8 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   bool get _canCreate => _nameCtrl.text.trim().isNotEmpty;
 
   String _scopeLabel(AppLocalizations l10n, TeamScope s) => switch (s) {
-    TeamScope.temporary  => l10n.scopeTemporary,
     TeamScope.tournament => l10n.scopeTournament,
-    TeamScope.club       => l10n.scopeClub,
+    TeamScope.group      => l10n.scopeClub,
   };
 
   void _create() {
@@ -61,8 +60,8 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     for (final id in _playerIds) {
       state = AppDataService.assignUserToTeam(state, userId: id, teamId: teamId);
     }
-    for (final id in _clubIds) {
-      state = AppDataService.assignTeamToClub(state, teamId: teamId, clubId: id);
+    for (final id in _groupIds) {
+      state = AppDataService.assignTeamToGroup(state, teamId: teamId, groupId: id);
     }
     Navigator.pop(context, state);
   }
@@ -244,7 +243,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   Widget _buildPortrait(
     AppLocalizations l10n,
     List<({String id, String name})> players,
-    List<({String id, String name})> clubs,
+    List<({String id, String name})> groups,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -334,20 +333,20 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           expanded: _playerExpanded,
           onToggleExpand: () {
             _playerExpanded = !_playerExpanded;
-            if (_playerExpanded) _clubExpanded = false;
+            if (_playerExpanded) _groupExpanded = false;
           },
         ),
 
-        // Clubs
+        // Groups
         _buildSearchPicker(
           label: l10n.labelAssignToClubs,
-          items: clubs,
-          selected: _clubIds,
-          searchCtrl: _clubSearchCtrl,
-          expanded: _clubExpanded,
+          items: groups,
+          selected: _groupIds,
+          searchCtrl: _groupSearchCtrl,
+          expanded: _groupExpanded,
           onToggleExpand: () {
-            _clubExpanded = !_clubExpanded;
-            if (_clubExpanded) _playerExpanded = false;
+            _groupExpanded = !_groupExpanded;
+            if (_groupExpanded) _playerExpanded = false;
           },
         ),
 
@@ -379,7 +378,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
   Widget _buildLandscape(
     AppLocalizations l10n,
     List<({String id, String name})> players,
-    List<({String id, String name})> clubs,
+    List<({String id, String name})> groups,
   ) {
     final fieldBorder  = OutlineInputBorder(borderRadius: BorderRadius.circular(10));
     const fieldPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 10);
@@ -491,7 +490,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           ),
         ]),
 
-        // Players + Clubs row
+        // Players + Groups row
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(
             child: _buildSearchPicker(
@@ -502,7 +501,7 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
               expanded: _playerExpanded,
               onToggleExpand: () {
                 _playerExpanded = !_playerExpanded;
-                if (_playerExpanded) _clubExpanded = false;
+                if (_playerExpanded) _groupExpanded = false;
               },
             ),
           ),
@@ -510,13 +509,13 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
           Expanded(
             child: _buildSearchPicker(
               label: l10n.pageClubs,
-              items: clubs,
-              selected: _clubIds,
-              searchCtrl: _clubSearchCtrl,
-              expanded: _clubExpanded,
+              items: groups,
+              selected: _groupIds,
+              searchCtrl: _groupSearchCtrl,
+              expanded: _groupExpanded,
               onToggleExpand: () {
-                _clubExpanded = !_clubExpanded;
-                if (_clubExpanded) _playerExpanded = false;
+                _groupExpanded = !_groupExpanded;
+                if (_groupExpanded) _playerExpanded = false;
               },
             ),
           ),
@@ -531,15 +530,15 @@ class _CreateTeamSheetState extends State<CreateTeamSheet> {
     final players = widget.appState.players
         .map((p) => (id: p.id, name: p.name))
         .toList();
-    final clubs   = widget.appState.clubs
+    final groups  = widget.appState.groups
         .map((c) => (id: c.id, name: c.name))
         .toList();
 
     return OrientationBuilder(
       builder: (context, orientation) => TournaQSheet(
         body: orientation == Orientation.landscape
-            ? _buildLandscape(l10n, players, clubs)
-            : _buildPortrait(l10n, players, clubs),
+            ? _buildLandscape(l10n, players, groups)
+            : _buildPortrait(l10n, players, groups),
       ),
     );
   }

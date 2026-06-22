@@ -2,9 +2,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
+import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
 import '../models/team.dart';
+import '../widgets/group_picker_sheet.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -56,6 +58,7 @@ const _nameTemplates = [
 class KoBracketSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final List<Team>   existingTeams;
+  final List<Group>   existingGroups;
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
   final void Function(KoBracketTournament) onCreated;
@@ -64,6 +67,7 @@ class KoBracketSetupPage extends StatefulWidget {
     super.key,
     required this.existingPlayers,
     required this.existingTeams,
+    required this.existingGroups,
     required this.onCreatePlayer,
     required this.onCreateTeam,
     required this.onCreated,
@@ -93,14 +97,15 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   // ── Schedule ──────────────────────────────────────────────────────────────
   DateTime _estimatedStart = DateTime.now().add(const Duration(hours: 1));
 
-  // ── Teams — null = slot not yet set ───────────────────────────────────────
-  late List<KoTeam?> _teams;
-  bool _teamsExpanded = false;
+  // ── Teams ─────────────────────────────────────────────────────────────────
+  List<KoTeam> _teams = [];
 
   // ── Name ──────────────────────────────────────────────────────────────────
   late final TextEditingController _nameCtrl;
   late final TextEditingController _teamCountCtrl;
   late final TextEditingController _courtCtrl;
+  final _newTeamNameCtrl = TextEditingController();
+  final _teamSearchCtrl  = TextEditingController();
 
   @override
   void initState() {
@@ -108,7 +113,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     _nameCtrl      = TextEditingController(text: _randomName());
     _teamCountCtrl = TextEditingController(text: '$_teamCount');
     _courtCtrl     = TextEditingController(text: '$_courtCount');
-    _teams         = List.filled(_teamCount, null);
   }
 
   @override
@@ -116,6 +120,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     _nameCtrl.dispose();
     _teamCountCtrl.dispose();
     _courtCtrl.dispose();
+    _newTeamNameCtrl.dispose();
+    _teamSearchCtrl.dispose();
     super.dispose();
   }
 
@@ -130,9 +136,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   void _onTeamCountChanged(int count) {
     setState(() {
       _teamCount = count.clamp(2, 64);
-      if (_teamCount > _teams.length) {
-        _teams = [..._teams, ...List.filled(_teamCount - _teams.length, null)];
-      } else {
+      if (_teams.length > _teamCount) {
         _teams = _teams.sublist(0, _teamCount);
       }
     });
@@ -142,7 +146,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     setState(() {
       _playersPerSide = pps;
       _teams = _teams.map((t) {
-        if (t == null) return null;
         final players = List.generate(pps, (i) {
           if (i < t.players.length) return t.players[i];
           return KoPlayerSnapshot(appPlayerId: '', name: 'Player ${i + 1}');
@@ -155,66 +158,62 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   bool get _canCreate =>
       _nameCtrl.text.trim().isNotEmpty &&
       _teamCount >= 2 &&
-      _teams.every((t) => t != null);
+      _teams.length == _teamCount;
 
-  int get _filledCount => _teams.where((t) => t != null).length;
 
   // ── Team actions ──────────────────────────────────────────────────────────
 
-  void _addTeam(int index) {
-    final usedNames = _teams.whereType<KoTeam>().map((t) => t.name).toSet();
-    showModalBottomSheet<KoTeam>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _KoSlotPickerSheet(
-        slotIndex: index,
-        playersPerSide: _playersPerSide,
-        existingTeams: widget.existingTeams,
-        existingPlayers: widget.existingPlayers,
-        onCreateTeam: widget.onCreateTeam,
-        usedNames: usedNames,
-      ),
-    ).then((team) {
-      if (team != null && mounted) setState(() => _teams[index] = team);
+  void _addExistingTeam(Team hubTeam) {
+    final players = List.generate(_playersPerSide, (j) {
+      if (j < hubTeam.userIds.length) {
+        final p = widget.existingPlayers
+            .where((p) => p.id == hubTeam.userIds[j])
+            .firstOrNull;
+        return p != null
+            ? KoPlayerSnapshot(appPlayerId: p.id, name: p.name, skillRating: p.skillRating)
+            : KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}');
+      }
+      return KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}');
+    });
+    setState(() => _teams.add(KoTeam(
+      id: KoTeam.generateId(),
+      name: hubTeam.name,
+      hubTeamId: hubTeam.id,
+      players: players,
+    )));
+  }
+
+  void _createNewTeam() {
+    final name = _newTeamNameCtrl.text.trim();
+    if (name.isEmpty || _teams.length >= _teamCount) return;
+    setState(() {
+      _teams.add(KoTeam(
+        id: KoTeam.generateId(),
+        name: name,
+        players: List.generate(
+            _playersPerSide,
+            (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}')),
+      ));
+      _newTeamNameCtrl.clear();
     });
   }
 
-  void _editTeam(int index) {
-    final team = _teams[index];
-    if (team == null) { _addTeam(index); return; }
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => KoTeamEditorSheet(
-        team: team,
-        existingPlayers: widget.existingPlayers,
-        existingTeams: widget.existingTeams,
-        generationMode: _generationMode,
-        onCreatePlayer: widget.onCreatePlayer,
-        onCreateTeam: widget.onCreateTeam,
-        onSave: (updated) => setState(() => _teams[index] = updated),
-      ),
-    );
-  }
-
-  void _removeTeam(int index) => setState(() => _teams[index] = null);
+  void _removeTeam(int index) => setState(() => _teams.removeAt(index));
 
   void _fillRemaining() {
+    if (_teams.length >= _teamCount) return;
     setState(() {
-      final used = _teams.whereType<KoTeam>().map((t) => t.name).toSet();
-      for (var i = 0; i < _teams.length; i++) {
-        if (_teams[i] == null) {
-          _teams[i] = KoTeam(
-            id: KoTeam.generateId(),
-            name: _pickFunName(used),
-            players: List.generate(
-              _playersPerSide,
-              (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}'),
-            ),
-          );
-        }
+      final used = _teams.map((t) => t.name).toSet();
+      final needed = _teamCount - _teams.length;
+      for (var i = 0; i < needed; i++) {
+        _teams.add(KoTeam(
+          id: KoTeam.generateId(),
+          name: _pickFunName(used),
+          players: List.generate(
+            _playersPerSide,
+            (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}'),
+          ),
+        ));
       }
     });
   }
@@ -224,15 +223,16 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   KoBracketTournament get _previewTournament {
     final teams = List.generate(
       _teamCount,
-      (i) => _teams[i] ??
-          KoTeam(
-            id: 'preview_$i',
-            name: 'Team ${String.fromCharCode(65 + (i % 26))}',
-            players: List.generate(
-              _playersPerSide,
-              (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}'),
+      (i) => i < _teams.length
+          ? _teams[i]
+          : KoTeam(
+              id: 'preview_$i',
+              name: 'Team ${String.fromCharCode(65 + (i % 26))}',
+              players: List.generate(
+                _playersPerSide,
+                (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}'),
+              ),
             ),
-          ),
     );
     final base = KoBracketTournament(
       id: '', name: '',
@@ -295,6 +295,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
         onChanged: widget.onCreated,
         existingPlayers: widget.existingPlayers,
         existingTeams: widget.existingTeams,
+        existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
         onCreateTeam: widget.onCreateTeam,
       ),
@@ -326,8 +327,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final preview     = _previewTournament;
-    final anyEmpty    = _teams.any((t) => t == null);
+    final preview  = _previewTournament;
+    final anyEmpty = _teams.length < _teamCount;
 
     return Scaffold(
       appBar: const TournaQAppBar(
@@ -478,56 +479,10 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             const SizedBox(height: 28),
 
             // ══ SECTION 2: Teams ══════════════════════════════════════════
-            GestureDetector(
-              onTap: () => setState(() => _teamsExpanded = !_teamsExpanded),
-              behavior: HitTestBehavior.opaque,
-              child: Row(children: [
-                const Icon(Icons.groups_rounded,
-                    size: 14, color: AppColors.oliveMedium),
-                const SizedBox(width: 6),
-                const Text(
-                  'TEAMS',
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.oliveMedium,
-                      letterSpacing: 0.6),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '$_filledCount / $_teamCount',
-                  style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.oliveMedium),
-                ),
-                const SizedBox(width: 8),
-                const Expanded(child: Divider(height: 1)),
-                if (_teamsExpanded && anyEmpty) ...[
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: _fillRemaining,
-                    icon: const Icon(Icons.casino_rounded, size: 14),
-                    label: const Text('Fill Random',
-                        style: TextStyle(fontSize: 12)),
-                    style: TextButton.styleFrom(
-                        foregroundColor: _kOlive,
-                        visualDensity: VisualDensity.compact),
-                  ),
-                ],
-                const SizedBox(width: 4),
-                AnimatedRotation(
-                  turns: _teamsExpanded ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: const Icon(Icons.expand_more_rounded,
-                      size: 18, color: AppColors.oliveMedium),
-                ),
-              ]),
-            ),
-            if (_teamsExpanded) ...[
-              const SizedBox(height: 10),
-              _buildTeamList(),
-            ],
-            const SizedBox(height: 32),
+            _sectionDivider('Teams', Icons.groups_rounded),
+            const SizedBox(height: 10),
+            _buildTeamsCard(),
+            const SizedBox(height: 28),
 
             // ══ Create ════════════════════════════════════════════════════
             Padding(
@@ -574,123 +529,516 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     );
   }
 
-  // ── Team list ─────────────────────────────────────────────────────────────
+  // ── Teams card (tappable, opens sheet) ───────────────────────────────────
 
-  Widget _buildTeamList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _teams.length,
-      itemBuilder: (_, i) {
-        final team = _teams[i];
-        if (team == null) return _buildEmptySlot(i);
-        return _buildFilledSlot(i, team);
-      },
-    );
-  }
+  Widget _buildTeamsCard() {
+    final exact      = _teams.length == _teamCount;
+    final hasAny     = _teams.isNotEmpty;
+    final borderColor = exact
+        ? _kOlive
+        : hasAny
+            ? Colors.red.shade300
+            : Colors.grey.shade300;
+    final bgColor = exact
+        ? AppColors.oliveLight
+        : hasAny
+            ? Colors.red.shade50
+            : Colors.grey.shade50;
+    final iconColor = exact ? _kOlive : hasAny ? Colors.red.shade600 : Colors.black38;
+    final textColor = exact ? _kOlive : hasAny ? Colors.red.shade700 : Colors.black38;
 
-  Widget _buildEmptySlot(int i) {
-    return GestureDetector(
-      key: ValueKey('empty_$i'),
-      onTap: () => _addTeam(i),
+    return InkWell(
+      onTap: _showTeamsSheet,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: _kGold.withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(10),
-          color: _kGoldCream.withValues(alpha: 0.4),
+          border: Border.all(color: borderColor, width: exact ? 1.5 : 1.0),
+          borderRadius: BorderRadius.circular(12),
+          color: bgColor,
         ),
         child: Row(children: [
-          Container(
-            width: 28, height: 28,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Center(
-              child: Text(
-                '${i + 1}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: Colors.black38),
-              ),
-            ),
-          ),
+          Icon(Icons.groups_rounded, color: iconColor, size: 20),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Tap to add team',
+              hasAny
+                  ? '${_teams.length} / $_teamCount teams added'
+                  : 'Tap to add teams',
               style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.black38,
-                  fontStyle: FontStyle.italic),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: textColor),
             ),
           ),
-          const Icon(Icons.add_circle_outline_rounded,
-              color: _kGold, size: 18),
+          Icon(Icons.chevron_right_rounded, color: iconColor, size: 20),
         ]),
       ),
     );
   }
 
-  Widget _buildFilledSlot(int i, KoTeam team) {
-    return Container(
-      key: ValueKey(team.id),
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        dense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        onTap: () => _editTeam(i),
-        leading: Container(
-          width: 28, height: 28,
-          decoration: BoxDecoration(
-            color: _kGoldCream,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Center(
-            child: Text('${i + 1}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: _kGoldDark)),
-          ),
-        ),
-        title: Text(team.name,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600, fontSize: 13)),
-        subtitle: Text(
-          team.players.map((p) => p.name).join(' · '),
-          style: const TextStyle(fontSize: 11, color: Colors.black45),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit_rounded,
-                  size: 16, color: Colors.black38),
-              onPressed: () => _editTeam(i),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+  // ── Teams sheet ───────────────────────────────────────────────────────────
+
+  void _showTeamsSheet() {
+    _teamSearchCtrl.clear();
+    var createExpanded   = false;
+    var existingExpanded = false;
+    var addedExpanded    = false;
+    String? selectedGroupId;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final isFull       = _teams.length >= _teamCount;
+          final addedHubIds  = _teams.map((t) => t.hubTeamId).whereType<String>().toSet();
+          final allAvailable = widget.existingTeams
+              .where((t) => !addedHubIds.contains(t.id))
+              .toList();
+          final query         = _teamSearchCtrl.text.toLowerCase();
+          final relevantGroups = widget.existingGroups
+              .where((c) => widget.existingTeams.any((t) => c.teamIds.contains(t.id)))
+              .toList();
+          final filteredAvailable = allAvailable.where((t) {
+            final matchesGroup  = selectedGroupId == null ||
+                widget.existingGroups
+                    .any((c) => c.id == selectedGroupId && c.teamIds.contains(t.id));
+            final matchesQuery = query.isEmpty || t.name.toLowerCase().contains(query);
+            return matchesGroup && matchesQuery;
+          }).toList();
+
+          void rebuild() {
+            setSheetState(() {});
+            setState(() {});
+          }
+
+          Widget sectionHeader(
+            String title,
+            bool expanded,
+            VoidCallback onToggle, {
+            Widget? trailing,
+          }) =>
+              InkWell(
+                onTap: onToggle,
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700)),
+                    const Spacer(),
+                    ?trailing,
+                    Icon(
+                      expanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      size: 20,
+                      color: Colors.black45,
+                    ),
+                  ]),
+                ),
+              );
+
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Header ────────────────────────────────────────────
+                  Row(children: [
+                    const Text('Teams',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800)),
+                    const Spacer(),
+                    if (_teams.isNotEmpty)
+                      TextButton(
+                        onPressed: () async {
+                          final ok = await showDialog<bool>(
+                            context: ctx,
+                            builder: (dCtx) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16)),
+                              title: const Text('Remove all teams?',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700)),
+                              content: const Text(
+                                  'This will clear all added teams.',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black54)),
+                              actions: [
+                                TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(dCtx).pop(false),
+                                    child: const Text('Cancel')),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(dCtx).pop(true),
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: Colors.red),
+                                  child: const Text('Remove all'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (ok == true) {
+                            _teams.clear();
+                            rebuild();
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 8)),
+                        child: const Text('Clear all',
+                            style: TextStyle(fontSize: 13)),
+                      ),
+                    Text('${_teams.length} / $_teamCount',
+                        style: const TextStyle(
+                            color: Colors.black45, fontSize: 13)),
+                  ]),
+                  const Divider(height: 16),
+
+                  // ── Create Team ───────────────────────────────────────
+                  sectionHeader(
+                    'Create Team',
+                    createExpanded,
+                    () => setSheetState(() => createExpanded = !createExpanded),
+                  ),
+                  if (createExpanded) ...[
+                    Row(children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _newTeamNameCtrl,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: 'Team name…',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                          ),
+                          onChanged: (_) => setSheetState(() {}),
+                          onSubmitted: (_) {
+                            if (!isFull &&
+                                _newTeamNameCtrl.text.trim().isNotEmpty) {
+                              _createNewTeam();
+                              rebuild();
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: !isFull &&
+                                _newTeamNameCtrl.text.trim().isNotEmpty
+                            ? () {
+                                _createNewTeam();
+                                rebuild();
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _kOlive,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Add'),
+                      ),
+                    ]),
+                    const SizedBox(height: 8),
+                  ],
+                  const Divider(height: 8),
+
+                  // ── Add Existing Teams ────────────────────────────────
+                  sectionHeader(
+                    'Add Existing Teams (${allAvailable.length})',
+                    existingExpanded,
+                    () => setSheetState(
+                        () => existingExpanded = !existingExpanded),
+                  ),
+                  if (existingExpanded) ...[
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(children: [
+                        GestureDetector(
+                          onTap: () async {
+                            final picked = await showModalBottomSheet<String>(
+                              context: ctx,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => GroupPickerSheet(
+                                groups: relevantGroups,
+                                selectedId: selectedGroupId,
+                              ),
+                            );
+                            if (picked != null) {
+                              setSheetState(() => selectedGroupId =
+                                  picked.isEmpty ? null : picked);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: selectedGroupId != null
+                                  ? _kGoldCream
+                                  : Colors.grey.shade50,
+                              borderRadius: const BorderRadius.horizontal(
+                                  left: Radius.circular(11)),
+                            ),
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              Icon(Icons.home_rounded,
+                                  size: 14,
+                                  color: selectedGroupId != null
+                                      ? _kGoldDark
+                                      : Colors.black45),
+                              const SizedBox(width: 4),
+                              Text(
+                                selectedGroupId == null
+                                    ? 'Group'
+                                    : relevantGroups
+                                        .firstWhere(
+                                            (c) => c.id == selectedGroupId)
+                                        .name,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: selectedGroupId != null
+                                        ? _kGoldDark
+                                        : Colors.black45),
+                              ),
+                              const SizedBox(width: 2),
+                              Icon(Icons.arrow_drop_down_rounded,
+                                  size: 16,
+                                  color: selectedGroupId != null
+                                      ? _kGoldDark
+                                      : Colors.black45),
+                            ]),
+                          ),
+                        ),
+                        Container(
+                            width: 1,
+                            height: 36,
+                            color: Colors.grey.shade200),
+                        Expanded(
+                          child: TextField(
+                            controller: _teamSearchCtrl,
+                            decoration: const InputDecoration(
+                              hintText: 'Search teams…',
+                              isDense: true,
+                              prefixIcon: Icon(Icons.search_rounded,
+                                  size: 18, color: Colors.black45),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 10),
+                            ),
+                            onChanged: (_) => setSheetState(() {}),
+                          ),
+                        ),
+                      ]),
+                    ),
+                    const SizedBox(height: 6),
+                    if (filteredAvailable.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text('No teams match.',
+                            style: TextStyle(
+                                color: Colors.black38, fontSize: 13)),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredAvailable.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (_, i) {
+                          final team = filteredAvailable[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 4),
+                            leading: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: isFull
+                                  ? Colors.grey.shade100
+                                  : _kGoldCream,
+                              child: Text(
+                                team.name.isNotEmpty
+                                    ? team.name[0].toUpperCase()
+                                    : '?',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: isFull
+                                        ? Colors.black26
+                                        : _kGoldDark),
+                              ),
+                            ),
+                            title: Text(team.name,
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: isFull
+                                        ? Colors.black38
+                                        : Colors.black87)),
+                            subtitle: team.userIds.isNotEmpty
+                                ? Text(
+                                    '${team.userIds.length} player${team.userIds.length == 1 ? '' : 's'}',
+                                    style: const TextStyle(fontSize: 11))
+                                : null,
+                            trailing: IconButton(
+                              icon: Icon(Icons.add_circle_outline_rounded,
+                                  size: 20,
+                                  color: isFull
+                                      ? Colors.grey.shade300
+                                      : _kOlive),
+                              onPressed: isFull
+                                  ? null
+                                  : () {
+                                      _addExistingTeam(team);
+                                      rebuild();
+                                    },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 8),
+                  ],
+                  const Divider(height: 8),
+
+                  // ── Added Teams ───────────────────────────────────────
+                  sectionHeader(
+                    'Added (${_teams.length} / $_teamCount)',
+                    addedExpanded,
+                    () => setSheetState(() => addedExpanded = !addedExpanded),
+                    trailing: _teams.length < _teamCount
+                        ? TextButton.icon(
+                            onPressed: () {
+                              _fillRemaining();
+                              rebuild();
+                            },
+                            icon: const Icon(Icons.shuffle_rounded, size: 14),
+                            label: Text(
+                              'Fill ${_teamCount - _teams.length} random',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: _kOlive,
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                            ),
+                          )
+                        : null,
+                  ),
+                  if (addedExpanded) ...[
+                    if (_teams.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text('No teams added yet.',
+                            style: TextStyle(
+                                color: Colors.black38, fontSize: 13)),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _teams.length,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(height: 4),
+                        itemBuilder: (_, i) {
+                          final team = _teams[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Colors.grey.shade200),
+                            ),
+                            leading: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: _kGoldCream,
+                              child: Text(
+                                team.name.isNotEmpty
+                                    ? team.name[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: _kGoldDark,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            title: Text(team.name,
+                                style: const TextStyle(fontSize: 13)),
+                            subtitle: Text(
+                              team.players.map((p) => p.name).join(' · '),
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.black38),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit_rounded,
+                                      size: 16, color: Colors.black38),
+                                  onPressed: () {
+                                    showModalBottomSheet<void>(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (_) => KoTeamEditorSheet(
+                                        team: team,
+                                        existingPlayers: widget.existingPlayers,
+                                        existingTeams: widget.existingTeams,
+                                        existingGroups: widget.existingGroups,
+                                        generationMode: _generationMode,
+                                        onCreatePlayer: widget.onCreatePlayer,
+                                        onCreateTeam: widget.onCreateTeam,
+                                        onSave: (updated) {
+                                          _teams[i] = updated;
+                                          rebuild();
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.close_rounded,
+                                      size: 16,
+                                      color: Colors.red.shade300),
+                                  onPressed: () {
+                                    _removeTeam(i);
+                                    rebuild();
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                ],
+              ),
             ),
-            const SizedBox(width: 6),
-            IconButton(
-              icon: Icon(Icons.close_rounded,
-                  size: 16, color: Colors.red.shade300),
-              onPressed: () => _removeTeam(i),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -1252,6 +1600,7 @@ class _KoSlotPickerSheet extends StatefulWidget {
   final int playersPerSide;
   final List<Team> existingTeams;
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
   final Set<String> usedNames;
 
@@ -1260,6 +1609,7 @@ class _KoSlotPickerSheet extends StatefulWidget {
     required this.playersPerSide,
     required this.existingTeams,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreateTeam,
     required this.usedNames,
   });
@@ -1272,6 +1622,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
   _KoSlotMethod? _method;
   final _nameCtrl   = TextEditingController();
   final _searchCtrl = TextEditingController();
+  String? _selectedGroupId;
 
   @override
   void dispose() {
@@ -1430,12 +1781,15 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
   // ── From Hub ──────────────────────────────────────────────────────────────
 
   Widget _buildFromHub() {
-    final query    = _searchCtrl.text.toLowerCase();
-    final filtered = query.isEmpty
-        ? widget.existingTeams
-        : widget.existingTeams
-            .where((t) => t.name.toLowerCase().contains(query))
-            .toList();
+    final query = _searchCtrl.text.toLowerCase();
+    final relevantGroups = widget.existingGroups
+        .where((c) => widget.existingTeams.any((t) => c.teamIds.contains(t.id)))
+        .toList();
+    final filtered = widget.existingTeams.where((t) {
+      final matchesGroup = _selectedGroupId == null || relevantGroups.any((c) => c.id == _selectedGroupId && c.teamIds.contains(t.id));
+      final matchesQuery = query.isEmpty || t.name.toLowerCase().contains(query);
+      return matchesGroup && matchesQuery;
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1465,19 +1819,63 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: TextField(
-            controller: _searchCtrl,
-            autofocus: true,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'Search teams…',
-              prefixIcon: const Icon(Icons.search_rounded,
-                  size: 18, color: Colors.black45),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Row(children: [
+              if (relevantGroups.isNotEmpty)
+                GestureDetector(
+                  onTap: () async {
+                    final picked = await showModalBottomSheet<String>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => GroupPickerSheet(
+                        groups: relevantGroups,
+                        selectedId: _selectedGroupId,
+                      ),
+                    );
+                    if (picked != null) {
+                      setState(() => _selectedGroupId = picked.isEmpty ? null : picked);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _selectedGroupId != null ? AppColors.goldCream : Colors.grey.shade50,
+                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.home_rounded, size: 14, color: _selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                      const SizedBox(width: 4),
+                      Text(
+                        _selectedGroupId == null ? 'Group' : relevantGroups.firstWhere((c) => c.id == _selectedGroupId).name,
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.arrow_drop_down_rounded, size: 16, color: _selectedGroupId != null ? AppColors.goldDark : Colors.black45),
+                    ]),
+                  ),
+                ),
+              if (relevantGroups.isNotEmpty)
+                Container(width: 1, height: 36, color: Colors.grey.shade200),
+              Expanded(
+                child: TextField(
+                  controller: _searchCtrl,
+                  autofocus: true,
+                  onChanged: (_) => setState(() {}),
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    hintText: 'Search teams…',
+                    prefixIcon: Icon(Icons.search_rounded, size: 18, color: Colors.black45),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                  ),
+                ),
+              ),
+            ]),
           ),
         ),
         const SizedBox(height: 8),
@@ -1654,6 +2052,7 @@ class KoTeamEditorSheet extends StatefulWidget {
   final KoTeam team;
   final List<Player> existingPlayers;
   final List<Team> existingTeams;
+  final List<Group> existingGroups;
   final KoBracketGenerationMode generationMode;
   final Player Function(String name) onCreatePlayer;
   final void Function(KoTeam) onSave;
@@ -1664,6 +2063,7 @@ class KoTeamEditorSheet extends StatefulWidget {
     required this.team,
     required this.existingPlayers,
     required this.existingTeams,
+    required this.existingGroups,
     required this.generationMode,
     required this.onCreatePlayer,
     required this.onSave,
@@ -1678,6 +2078,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
   _EditorMode _mode = _EditorMode.choice;
   bool _fromImport  = false;
   String? _hubTeamId;
+  String? _importGroupId;
   late final TextEditingController _nameCtrl;
   late List<KoPlayerSnapshot> _players;
   final _teamSearchCtrl = TextEditingController();
@@ -1754,6 +2155,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         slotIndex: slotIndex,
         currentPlayer: _players[slotIndex],
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
         onPick: (s) => setState(() => _players[slotIndex] = s),
         onClear: () => setState(() => _players[slotIndex] = KoPlayerSnapshot(
@@ -1993,12 +2395,16 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
   }
 
   Widget _buildImport() {
-    final query    = _teamSearchCtrl.text.toLowerCase();
-    final filtered = query.isEmpty
-        ? widget.existingTeams
-        : widget.existingTeams
-            .where((t) => t.name.toLowerCase().contains(query))
-            .toList();
+    final query         = _teamSearchCtrl.text.toLowerCase();
+    final relevantGroups = widget.existingGroups
+        .where((c) => widget.existingTeams.any((t) => c.teamIds.contains(t.id)))
+        .toList();
+    final filtered = widget.existingTeams.where((t) {
+      final matchesGroup  = _importGroupId == null ||
+          widget.existingGroups.any((c) => c.id == _importGroupId && c.teamIds.contains(t.id));
+      final matchesQuery = query.isEmpty || t.name.toLowerCase().contains(query);
+      return matchesGroup && matchesQuery;
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2024,19 +2430,70 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: TextField(
-            controller: _teamSearchCtrl,
-            autofocus: true,
-            onChanged: (_) => setState(() {}),
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'Search teams…',
-              prefixIcon: const Icon(Icons.search_rounded,
-                  size: 18, color: Colors.black45),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: Row(children: [
+              if (relevantGroups.isNotEmpty)
+                GestureDetector(
+                  onTap: () async {
+                    final picked = await showModalBottomSheet<String>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => GroupPickerSheet(
+                        groups: relevantGroups,
+                        selectedId: _importGroupId,
+                      ),
+                    );
+                    if (picked != null) {
+                      setState(() => _importGroupId = picked.isEmpty ? null : picked);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _importGroupId != null ? _kGoldCream : Colors.grey.shade50,
+                      borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.home_rounded, size: 14,
+                          color: _importGroupId != null ? _kGoldDark : Colors.black45),
+                      const SizedBox(width: 4),
+                      Text(
+                        _importGroupId == null
+                            ? 'Group'
+                            : relevantGroups.firstWhere((c) => c.id == _importGroupId).name,
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                            color: _importGroupId != null ? _kGoldDark : Colors.black45),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.arrow_drop_down_rounded, size: 16,
+                          color: _importGroupId != null ? _kGoldDark : Colors.black45),
+                    ]),
+                  ),
+                ),
+              if (relevantGroups.isNotEmpty)
+                Container(width: 1, height: 36, color: Colors.grey.shade200),
+              Expanded(
+                child: TextField(
+                  controller: _teamSearchCtrl,
+                  autofocus: true,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: 'Search teams…',
+                    prefixIcon: const Icon(Icons.search_rounded,
+                        size: 18, color: Colors.black45),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 4, vertical: 10),
+                  ),
+                ),
+              ),
+            ]),
           ),
         ),
         const SizedBox(height: 8),
@@ -2097,6 +2554,7 @@ class _SlotPickerSheet extends StatefulWidget {
   final int slotIndex;
   final KoPlayerSnapshot currentPlayer;
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final void Function(KoPlayerSnapshot) onPick;
   final VoidCallback onClear;
@@ -2105,6 +2563,7 @@ class _SlotPickerSheet extends StatefulWidget {
     required this.slotIndex,
     required this.currentPlayer,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreatePlayer,
     required this.onPick,
     required this.onClear,
@@ -2117,6 +2576,7 @@ class _SlotPickerSheet extends StatefulWidget {
 class _SlotPickerSheetState extends State<_SlotPickerSheet> {
   final _newNameCtrl = TextEditingController();
   final _searchCtrl  = TextEditingController();
+  String? _playerGroupId;
 
   @override
   void dispose() {
@@ -2139,13 +2599,17 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final isLinked = widget.currentPlayer.appPlayerId.isNotEmpty;
-    final query    = _searchCtrl.text.toLowerCase();
-    final filtered = query.isEmpty
-        ? widget.existingPlayers
-        : widget.existingPlayers
-            .where((p) => p.name.toLowerCase().contains(query))
-            .toList();
+    final isLinked      = widget.currentPlayer.appPlayerId.isNotEmpty;
+    final query         = _searchCtrl.text.toLowerCase();
+    final relevantGroups = widget.existingGroups
+        .where((c) => widget.existingPlayers.any((p) => c.playerIds.contains(p.id)))
+        .toList();
+    final filtered = widget.existingPlayers.where((p) {
+      final matchesGroup  = _playerGroupId == null ||
+          widget.existingGroups.any((c) => c.id == _playerGroupId && c.playerIds.contains(p.id));
+      final matchesQuery = query.isEmpty || p.name.toLowerCase().contains(query);
+      return matchesGroup && matchesQuery;
+    }).toList();
 
     return TournaQSheet(
       body: SingleChildScrollView(
@@ -2211,18 +2675,69 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
             const SizedBox(height: 20),
             _sectionLabel('B — From Players Hub', _kGold),
             const SizedBox(height: 8),
-            TextField(
-              controller: _searchCtrl,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                isDense: true,
-                hintText: 'Search players…',
-                prefixIcon: const Icon(Icons.search_rounded,
-                    size: 18, color: Colors.black45),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(12),
               ),
+              child: Row(children: [
+                if (relevantGroups.isNotEmpty)
+                  GestureDetector(
+                    onTap: () async {
+                      final picked = await showModalBottomSheet<String>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => GroupPickerSheet(
+                          groups: relevantGroups,
+                          selectedId: _playerGroupId,
+                        ),
+                      );
+                      if (picked != null) {
+                        setState(() => _playerGroupId = picked.isEmpty ? null : picked);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _playerGroupId != null ? _kGoldCream : Colors.grey.shade50,
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(11)),
+                      ),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.home_rounded, size: 14,
+                            color: _playerGroupId != null ? _kGoldDark : Colors.black45),
+                        const SizedBox(width: 4),
+                        Text(
+                          _playerGroupId == null
+                              ? 'Group'
+                              : relevantGroups.firstWhere((c) => c.id == _playerGroupId).name,
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
+                              color: _playerGroupId != null ? _kGoldDark : Colors.black45),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(Icons.arrow_drop_down_rounded, size: 16,
+                            color: _playerGroupId != null ? _kGoldDark : Colors.black45),
+                      ]),
+                    ),
+                  ),
+                if (relevantGroups.isNotEmpty)
+                  Container(width: 1, height: 36, color: Colors.grey.shade200),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: 'Search players…',
+                      prefixIcon: const Icon(Icons.search_rounded,
+                          size: 18, color: Colors.black45),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 10),
+                    ),
+                  ),
+                ),
+              ]),
             ),
             const SizedBox(height: 6),
             if (widget.existingPlayers.isEmpty)

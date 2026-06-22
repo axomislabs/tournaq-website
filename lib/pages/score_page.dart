@@ -16,7 +16,7 @@
 ///     [LocalStorageService].
 ///   - Implement tournament bracket logic — that lives in
 ///     [TournamentLogicService].
-///   - Know about clubs, user accounts, or Firebase.
+///   - Know about groups, user accounts, or Firebase.
 ///
 /// State management:
 ///   [_ScoreEvent] records each point for undo. The undo stack replays events
@@ -54,6 +54,7 @@ import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/player_pill.dart';
+import '../widgets/team_lineup_editor_sheet.dart';
 
 // File-local color constants — mirror values from AppColors.
 // These are kept local to avoid importing app/ in a frequently-rebuilt widget.
@@ -429,37 +430,44 @@ class _ScorePageState extends State<ScorePage> {
   }
 
   Future<void> _showLineupEditor(String teamId, String teamName) async {
-    final current = _game.lineups.firstWhere(
+    final current  = _game.lineups.firstWhere(
       (l) => l.teamId == teamId,
       orElse: () => GameTeamLineup(teamId: teamId),
     );
+    final n        = _playersPerTeam;
     final assigned = _localState.getPlayersForTeam(teamId);
 
-    final initialP1 =
-        current.playerNames.isNotEmpty && current.playerNames[0].isNotEmpty
-            ? current.playerNames[0]
-            : (assigned.isNotEmpty ? assigned[0].name : '');
-    final initialP2 =
-        current.playerNames.length > 1 && current.playerNames[1].isNotEmpty
-            ? current.playerNames[1]
-            : (assigned.length > 1 ? assigned[1].name : '');
+    // Build active list: prefer stored names, fall back to hub player names,
+    // then placeholder.
+    final activeNames = List.generate(n, (i) {
+      if (i < current.playerNames.length && current.playerNames[i].isNotEmpty) {
+        return current.playerNames[i];
+      }
+      if (i < assigned.length) return assigned[i].name;
+      return 'Player ${i + 1} $teamName';
+    });
+    final benchNames = List<String>.from(current.benchNames);
 
+    if (!mounted) return;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _LineupEditorSheet(
+      builder: (_) => TeamLineupEditorSheet(
         teamName: teamName,
-        initialP1: initialP1,
-        initialP2: initialP2,
-        onSave: (p1, p2) {
-          var ns = AppDataService.updateTeamPlayers(
+        activeNames: activeNames,
+        benchNames: benchNames,
+        onSave: (active, bench) {
+          var ns = AppDataService.updateTeamPlayersFromList(
             _localState,
             teamId: teamId,
-            player1Name: p1,
-            player2Name: p2,
+            names: [...active, ...bench],
           );
-          final lineup = GameTeamLineup(teamId: teamId, playerNames: [p1, p2]);
+          final lineup = GameTeamLineup(
+            teamId: teamId,
+            playerNames: active,
+            benchNames: bench,
+          );
           ns = AppDataService.updateGameLineup(ns, _game.id, lineup);
           _updateState(ns);
         },
@@ -773,31 +781,35 @@ class _ScorePageState extends State<ScorePage> {
           }
 
           // ── Portrait: full layout ───────────────────────────────────
-          final portraitScoreCards = Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _buildScoreCard(
-                  teamId: leftTeamId,
-                  teamName: leftName,
-                  score: _leftScore,
-                  isLeading: _isLeftLeading,
-                  onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
-                  onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+          final portraitScoreCards = IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _buildScoreCard(
+                    teamId: leftTeamId,
+                    teamName: leftName,
+                    score: _leftScore,
+                    isLeading: _isLeftLeading,
+                    fillHeight: true,
+                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildScoreCard(
-                  teamId: rightTeamId,
-                  teamName: rightName,
-                  score: _rightScore,
-                  isLeading: _isRightLeading,
-                  onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
-                  onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildScoreCard(
+                    teamId: rightTeamId,
+                    teamName: rightName,
+                    score: _rightScore,
+                    isLeading: _isRightLeading,
+                    fillHeight: true,
+                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
 
           return ScrollablePage(
@@ -1121,7 +1133,6 @@ class _ScorePageState extends State<ScorePage> {
         isServing: _isPlayerActive(teamId, e.key),
         activeColor: activeColor,
         compact: compact || landscape,
-        onTap: () => _showLineupEditor(teamId, teamName),
       )).toList(),
     );
 
@@ -1213,6 +1224,7 @@ class _ScorePageState extends State<ScorePage> {
           teamNameWidget,
           const SizedBox(height: 4),
           chipsRow,
+          if (fillHeight) const Spacer(),
           Text(
             '$score',
             style: TextStyle(
@@ -1352,258 +1364,6 @@ class _ScorePageState extends State<ScorePage> {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ── Lineup editor sheet ───────────────────────────────────────────────────────
-// Owns its own TextEditingControllers so they are disposed by the sheet's
-// lifecycle — after the pop animation completes — avoiding the
-// ChangeNotifier._dependents assertion that fires when controllers are
-// disposed while TextField widgets still hold listeners.
-
-class _LineupEditorSheet extends StatefulWidget {
-  final String teamName;
-  final String initialP1;
-  final String initialP2;
-  final void Function(String p1, String p2) onSave;
-
-  const _LineupEditorSheet({
-    required this.teamName,
-    required this.initialP1,
-    required this.initialP2,
-    required this.onSave,
-  });
-
-  @override
-  State<_LineupEditorSheet> createState() => _LineupEditorSheetState();
-}
-
-class _LineupEditorSheetState extends State<_LineupEditorSheet> {
-  late final TextEditingController _p1;
-  late final TextEditingController _p2;
-
-  @override
-  void initState() {
-    super.initState();
-    _p1 = TextEditingController(text: widget.initialP1);
-    _p2 = TextEditingController(text: widget.initialP2);
-  }
-
-  @override
-  void dispose() {
-    _p1.dispose();
-    _p2.dispose();
-    super.dispose();
-  }
-
-  void _swapPlayers() {
-    setState(() {
-      final tmp = _p1.text;
-      _p1.text = _p2.text;
-      _p2.text = tmp;
-    });
-  }
-
-  void _saveAndClose() {
-    final name1 = _p1.text.trim().isEmpty ? 'Player 1' : _p1.text.trim();
-    final name2 = _p2.text.trim().isEmpty ? 'Player 2' : _p2.text.trim();
-    widget.onSave(name1, name2);
-    Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final keyboardH = mq.viewInsets.bottom;
-    final screenH = mq.size.height;
-    final isLandscape = mq.size.width > mq.size.height;
-
-    if (isLandscape) {
-      // Landscape: side-by-side fields + header save button.
-      // Total height ≈ 130px, well within the ~160px available above keyboard.
-      return Padding(
-        padding: EdgeInsets.only(bottom: keyboardH),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header: team name on left, Save button on right.
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.teamName,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: _saveAndClose,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _kGold,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.btnSavePlayers,
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Player 1 | swap icon | Player 2 — all on one row.
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: _compactField(AppLocalizations.of(context)!.playerOne, _p1, 'e.g. Alex')),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20, left: 8, right: 8),
-                    child: GestureDetector(
-                      onTap: _swapPlayers,
-                      child: const Icon(Icons.swap_horiz_rounded, size: 22, color: _kOlive),
-                    ),
-                  ),
-                  Expanded(child: _compactField(AppLocalizations.of(context)!.playerTwo, _p2, 'e.g. Jordan')),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Portrait: existing stacked layout.
-    // Cap the sheet at the space above the keyboard so it never overflows.
-    final maxSheetH = ((screenH - keyboardH) * 0.97).clamp(120.0, screenH * 0.9);
-    return Padding(
-      padding: EdgeInsets.only(bottom: keyboardH),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxSheetH),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(widget.teamName,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                const SizedBox(height: 4),
-                Text(AppLocalizations.of(context)!.editPlayerNamesSubtitle,
-                    style: const TextStyle(color: Colors.black45, fontSize: 13)),
-                const SizedBox(height: 20),
-                _field(AppLocalizations.of(context)!.playerOne, _p1, 'e.g. Alex'),
-                const SizedBox(height: 8),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: _swapPlayers,
-                    icon: const Icon(Icons.swap_vert_rounded, size: 18, color: _kOlive),
-                    label: Text(
-                      AppLocalizations.of(context)!.swapPlayers,
-                      style: const TextStyle(color: _kOlive, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _field(AppLocalizations.of(context)!.playerTwo, _p2, 'e.g. Jordan'),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _saveAndClose,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _kGold,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: Text(AppLocalizations.of(context)!.btnSavePlayers,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Full-height field used in portrait layout.
-  Widget _field(String label, TextEditingController ctrl, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Colors.black54)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: ctrl,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          ),
-          textCapitalization: TextCapitalization.words,
-        ),
-      ],
-    );
-  }
-
-  // Compact field used in landscape layout — smaller label + dense TextField.
-  Widget _compactField(String label, TextEditingController ctrl, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
-                color: Colors.black54)),
-        const SizedBox(height: 4),
-        TextField(
-          controller: ctrl,
-          decoration: InputDecoration(
-            hintText: hint,
-            isDense: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          ),
-          textCapitalization: TextCapitalization.words,
-        ),
-      ],
     );
   }
 }

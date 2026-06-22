@@ -7,10 +7,10 @@ import '../services/scramble_storage_service.dart';
 import '../models/player.dart';
 import '../models/team.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
 import 'doghouse_hub_page.dart';
+import 'games_page.dart';
 import 'king_of_the_court_hub_page.dart';
 import 'ko_bracket_hub_page.dart';
 import 'scramble_hub_page.dart';
@@ -79,11 +79,21 @@ class _TournamentsPageState extends State<TournamentsPage> {
     });
   }
 
+  void _openQuickGames() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => GamesPage(
+        appState: _localState,
+        onAppStateChanged: _updateState,
+      ),
+    ));
+  }
+
   void _openScrambleHub() {
     Navigator.of(context)
         .push(MaterialPageRoute(
           builder: (_) => ScrambleHubPage(
             existingPlayers: _localState.players,
+            existingGroups: _localState.groups,
             onCreatePlayer: _createPlayer,
             onUpdatePlayer: _updatePlayer,
           ),
@@ -96,6 +106,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => KingOfTheCourtHubPage(
             existingPlayers: _localState.players,
+            existingGroups: _localState.groups,
             onCreatePlayer: _createPlayer,
           ),
         ))
@@ -107,6 +118,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
         .push(MaterialPageRoute(
           builder: (_) => DoghouseHubPage(
             existingPlayers: _localState.players,
+            existingGroups: _localState.groups,
             onCreatePlayer: _createPlayer,
           ),
         ))
@@ -129,6 +141,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
           builder: (_) => KoBracketHubPage(
             existingPlayers: _localState.players,
             existingTeams: _localState.teams,
+            existingGroups: _localState.groups,
             onCreatePlayer: _createPlayer,
             onCreateTeam: _createTeam,
           ),
@@ -219,10 +232,8 @@ class _TournamentsPageState extends State<TournamentsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(
-          appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(
-        title: 'Tournament Hub',
+        title: 'Games & Tournaments',
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
@@ -236,6 +247,27 @@ class _TournamentsPageState extends State<TournamentsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ── Quick Games ────────────────────────────────────────────
+            _sectionHeader('Quick Games', Icons.flash_on_rounded),
+            const SizedBox(height: 12),
+            Column(children: [
+              _TypeTile(
+                icon:        Icons.flash_on_rounded,
+                color:       AppColors.gold,
+                gradientEnd: AppColors.goldGradientEnd,
+                name:        'Quick Games',
+                description: 'Ad-hoc scored matches',
+                onTap:       _openQuickGames,
+                helpText:
+                    'Quick Games lets you start a scored match on the spot — '
+                    'no tournament setup required. Pick two teams, set the '
+                    'format, and start tracking the score immediately.\n\n'
+                    'Ideal for casual play, training sessions, or any time '
+                    'you just want to run a game without a bracket.',
+              ),
+            ]),
+            const SizedBox(height: 24),
+
             // ── Single Competitions & Socials ──────────────────────────
             _sectionHeader('Single Competitions & Socials', Icons.people_rounded),
             const SizedBox(height: 12),

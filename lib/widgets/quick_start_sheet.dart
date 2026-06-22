@@ -7,6 +7,7 @@ import '../models/game.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
+import 'assign_dialog.dart';
 import 'sheet_helpers.dart';
 
 enum _TeamMethod { existing, createNew, random }
@@ -80,6 +81,7 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       _state,
       team1Id: team1Id,
       team2Id: team2Id,
+      playersPerSide: _playersPerTeam,
       matchFormat: _format!,
     );
     final gameId = newState.games.last.id;
@@ -94,14 +96,14 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     var newState = AppDataService.createTeamWithPlayers(
       _state,
       name: name1,
-      scope: TeamScope.temporary,
+      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: name2,
-      scope: TeamScope.temporary,
+      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
@@ -113,14 +115,14 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     var newState = AppDataService.createTeamWithPlayers(
       _state,
       name: _randomTeam1Name,
-      scope: TeamScope.temporary,
+      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team1Id = newState.teams.last.id;
     newState = AppDataService.createTeamWithPlayers(
       newState,
       name: _randomTeam2Name,
-      scope: TeamScope.temporary,
+      scope: TeamScope.group,
       playerCount: _playersPerTeam,
     );
     final team2Id = newState.teams.last.id;
@@ -151,6 +153,27 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
   }
 
   Widget _buildFormatPicker(AppLocalizations l10n, bool isLandscape) {
+    const sectionLabel = TextStyle(
+        fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54);
+
+    final styleSelector = InputDecorator(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      ),
+      child: DropdownButton<int>(
+        value: _playersPerTeam,
+        isExpanded: true,
+        underline: const SizedBox.shrink(),
+        items: List.generate(5, (i) {
+          final n = i + 2;
+          return DropdownMenuItem(value: n, child: Text('${n}v$n'));
+        }),
+        onChanged: (v) => setState(() => _playersPerTeam = v!),
+      ),
+    );
+
     final card1 = _buildOptionCard(
       icon: Icons.filter_1_rounded,
       label: l10n.formatOneSet,
@@ -173,20 +196,46 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           Expanded(
             flex: 4,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              _compactHeader(Icons.flash_on_rounded, l10n.quickStartShort),
+              _compactHeader(Icons.flash_on_rounded, 'Game Setup'),
+              const SizedBox(height: 12),
+              Text(l10n.labelStyle, style: sectionLabel),
               const SizedBox(height: 6),
-              Text(l10n.quickStartFormatQuestion,
-                  style: const TextStyle(color: Colors.black54, fontSize: 14)),
+              InputDecorator(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 0),
+                ),
+                child: DropdownButton<int>(
+                  value: _playersPerTeam,
+                  isExpanded: true,
+                  underline: const SizedBox.shrink(),
+                  items: List.generate(5, (i) {
+                    final n = i + 2;
+                    return DropdownMenuItem(
+                        value: n,
+                        child: Text('${n}v$n',
+                            style: const TextStyle(fontSize: 13)));
+                  }),
+                  onChanged: (v) => setState(() => _playersPerTeam = v!),
+                ),
+              ),
             ]),
           ),
           const SizedBox(width: 16),
           Expanded(
             flex: 6,
-            child: Column(children: [
-              card1,
-              const SizedBox(height: 8),
-              card2,
-            ]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Format', style: sectionLabel),
+                const SizedBox(height: 8),
+                card1,
+                const SizedBox(height: 8),
+                card2,
+              ],
+            ),
           ),
         ],
       );
@@ -195,46 +244,17 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fullHeader(Icons.flash_on_rounded, l10n.quickStartTitle),
+        _fullHeader(Icons.flash_on_rounded, 'Game Setup'),
+        const SizedBox(height: 20),
+        Text(l10n.labelStyle, style: sectionLabel),
         const SizedBox(height: 8),
-        Text(l10n.quickStartFormatQuestion,
-            style: const TextStyle(color: Colors.black54, fontSize: 15)),
-        const SizedBox(height: 24),
+        styleSelector,
+        const SizedBox(height: 20),
+        const Text('Format', style: sectionLabel),
+        const SizedBox(height: 12),
         card1,
         const SizedBox(height: 12),
         card2,
-      ],
-    );
-  }
-
-  Widget _buildPlayerCountSelector() {
-    final l10n = AppLocalizations.of(context)!;
-    return Row(
-      children: [
-        Text(
-          l10n.labelStyle,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            color: Colors.black54,
-          ),
-        ),
-        const SizedBox(width: 12),
-        DropdownButton<int>(
-          value: _playersPerTeam,
-          items: List.generate(5, (i) {
-            final n = i + 2;
-            return DropdownMenuItem(value: n, child: Text('${n}vs$n'));
-          }),
-          onChanged: (v) => setState(() => _playersPerTeam = v!),
-          underline: const SizedBox.shrink(),
-          borderRadius: BorderRadius.circular(10),
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Colors.black87,
-          ),
-        ),
       ],
     );
   }
@@ -455,6 +475,105 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
     );
   }
 
+  Future<void> _pickTeam({
+    required String title,
+    required String? excludeId,
+    required void Function(String) onPicked,
+  }) async {
+    final teams = _state.teams
+        .where((t) => t.id != excludeId)
+        .map((t) {
+          final count = _state.getPlayersForTeam(t.id).length;
+          return (id: t.id, name: '${t.name} · ${count}p');
+        })
+        .toList();
+    final teamIds = teams.map((t) => t.id).toSet();
+    final groups = _state.groups
+        .where((g) => g.teamIds.any((id) => teamIds.contains(id)))
+        .toList();
+    final selected = await showTeamPickerSheet(
+      context: context,
+      title: title,
+      teams: teams,
+      groups: groups,
+    );
+    if (selected != null) setState(() => onPicked(selected));
+  }
+
+  Widget _buildTeamField({
+    required String? selectedId,
+    required String hint,
+    required String pickerTitle,
+    required String? excludeId,
+    required void Function(String) onPicked,
+    bool compact = false,
+  }) {
+    String? displayText;
+    if (selectedId != null) {
+      final team = _state.getTeamById(selectedId);
+      if (team != null) {
+        final count = _state.getPlayersForTeam(selectedId).length;
+        displayText = '${team.name} · ${count}p';
+      }
+    }
+    return GestureDetector(
+      onTap: () => _pickTeam(
+        title: pickerTitle,
+        excludeId: excludeId,
+        onPicked: onPicked,
+      ),
+      child: Container(
+        padding: compact
+            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(compact ? 10 : 12),
+        ),
+        child: Row(children: [
+          Expanded(
+            child: Text(
+              displayText ?? hint,
+              style: TextStyle(
+                fontSize: compact ? 13 : 14,
+                color: displayText != null ? Colors.black87 : Colors.grey.shade500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Icon(Icons.search_rounded, size: 18, color: Colors.grey.shade400),
+        ]),
+      ),
+    );
+  }
+
+  Widget _teamSizeWarning(String? teamId) {
+    if (teamId == null) return const SizedBox.shrink();
+    final count = _state.getPlayersForTeam(teamId).length;
+    if (count == _playersPerTeam) return const SizedBox.shrink();
+
+    final String message;
+    if (count < _playersPerTeam) {
+      final missing = _playersPerTeam - count;
+      message = '$count of $_playersPerTeam players — $missing placeholder${missing == 1 ? '' : 's'} will be added';
+    } else {
+      final benched = count - _playersPerTeam;
+      message = '$count of $_playersPerTeam players — $benched player${benched == 1 ? '' : 's'} will be benched';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(children: [
+        const Icon(Icons.info_outline_rounded, size: 13, color: Colors.amber),
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(message,
+              style: const TextStyle(fontSize: 11, color: Colors.black54)),
+        ),
+      ]),
+    );
+  }
+
   Widget _buildExistingTeams(AppLocalizations l10n, bool isLandscape) {
     final teams = _state.teams;
     final backHeader = isLandscape
@@ -486,8 +605,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
       );
     }
 
-    final fieldBorder = OutlineInputBorder(borderRadius: BorderRadius.circular(12));
-    final fieldPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 14);
     final canStart = _team1Id != null && _team2Id != null && _team1Id != _team2Id;
 
     if (isLandscape) {
@@ -502,27 +619,29 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(l10n.teamOne, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 6),
-            DropdownButtonFormField<String>(
-              initialValue: _team1Id,
-              isDense: true,
-              decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-              hint: Text(l10n.quickStartChooseTeam1, style: const TextStyle(fontSize: 13)),
-              items: teams.where((t) => t.id != _team2Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name, style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: (v) => setState(() => _team1Id = v),
+            _buildTeamField(
+              selectedId: _team1Id,
+              hint: l10n.quickStartChooseTeam1,
+              pickerTitle: l10n.teamOne,
+              excludeId: _team2Id,
+              onPicked: (id) => _team1Id = id,
+              compact: true,
             ),
+            _teamSizeWarning(_team1Id),
           ])),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(l10n.teamTwo, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black54)),
             const SizedBox(height: 6),
-            DropdownButtonFormField<String>(
-              initialValue: _team2Id,
-              isDense: true,
-              decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-              hint: Text(l10n.quickStartChooseTeam2, style: const TextStyle(fontSize: 13)),
-              items: teams.where((t) => t.id != _team1Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name, style: const TextStyle(fontSize: 13)))).toList(),
-              onChanged: (v) => setState(() => _team2Id = v),
+            _buildTeamField(
+              selectedId: _team2Id,
+              hint: l10n.quickStartChooseTeam2,
+              pickerTitle: l10n.teamTwo,
+              excludeId: _team1Id,
+              onPicked: (id) => _team2Id = id,
+              compact: true,
             ),
+            _teamSizeWarning(_team2Id),
           ])),
         ]),
       ]);
@@ -535,23 +654,25 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
         const SizedBox(height: 24),
         Text(l10n.teamOne, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: _team1Id,
-          decoration: InputDecoration(border: fieldBorder, contentPadding: fieldPadding),
-          hint: Text(l10n.quickStartChooseTeam1),
-          items: teams.where((t) => t.id != _team2Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))).toList(),
-          onChanged: (v) => setState(() => _team1Id = v),
+        _buildTeamField(
+          selectedId: _team1Id,
+          hint: l10n.quickStartChooseTeam1,
+          pickerTitle: l10n.teamOne,
+          excludeId: _team2Id,
+          onPicked: (id) => _team1Id = id,
         ),
+        _teamSizeWarning(_team1Id),
         const SizedBox(height: 20),
         Text(l10n.teamTwo, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: _team2Id,
-          decoration: InputDecoration(border: fieldBorder, contentPadding: fieldPadding),
-          hint: Text(l10n.quickStartChooseTeam2),
-          items: teams.where((t) => t.id != _team1Id).map((t) => DropdownMenuItem(value: t.id, child: Text(t.name))).toList(),
-          onChanged: (v) => setState(() => _team2Id = v),
+        _buildTeamField(
+          selectedId: _team2Id,
+          hint: l10n.quickStartChooseTeam2,
+          pickerTitle: l10n.teamTwo,
+          excludeId: _team1Id,
+          onPicked: (id) => _team2Id = id,
         ),
+        _teamSizeWarning(_team2Id),
         const SizedBox(height: 28),
         _buildStartButton(l10n, onPressed: canStart ? () => _startGame(_team1Id!, _team2Id!) : null),
       ],
@@ -594,8 +715,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             ),
           ])),
         ]),
-        const SizedBox(height: 10),
-        _buildPlayerCountSelector(),
       ]);
     }
 
@@ -621,8 +740,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           textCapitalization: TextCapitalization.words,
           onChanged: (_) => setState(() {}),
         ),
-        const SizedBox(height: 20),
-        _buildPlayerCountSelector(),
         const SizedBox(height: 20),
         _buildStartButton(l10n, onPressed: canStart ? _startWithNewTeams : null),
       ],
@@ -668,8 +785,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
           ),
           Expanded(child: _buildRandomTeamBadge(_randomTeam2Name, compact: true)),
         ]),
-        const SizedBox(height: 10),
-        _buildPlayerCountSelector(),
       ]);
     }
 
@@ -700,8 +815,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
-        const SizedBox(height: 12),
-        _buildPlayerCountSelector(),
         const SizedBox(height: 12),
         _buildStartButton(l10n, onPressed: _startWithRandomTeams),
       ],

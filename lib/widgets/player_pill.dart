@@ -56,14 +56,6 @@ class PlayerPill extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (onTap != null) ...[
-              const SizedBox(width: 3),
-              Icon(
-                Icons.edit_rounded,
-                size: 8,
-                color: isServing ? Colors.white70 : Colors.black38,
-              ),
-            ],
           ],
         ),
       ),

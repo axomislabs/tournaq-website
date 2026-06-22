@@ -1,6 +1,6 @@
 import '../services/device_id_service.dart';
 
-class Club {
+class Group {
   static const int schemaVersion = 2;
 
   final String id;
@@ -11,7 +11,7 @@ class Club {
   final String deviceId;
   final DateTime createdAt;
 
-  Club({
+  Group({
     required this.id,
     required this.name,
     this.playerIds = const [],
@@ -22,14 +22,14 @@ class Club {
   })  : deviceId = deviceId ?? DeviceIdService.currentDeviceId,
         createdAt = createdAt ?? DateTime.now();
 
-  Club copyWith({
+  Group copyWith({
     String? id,
     String? name,
     List<String>? playerIds,
     List<String>? teamIds,
     List<String>? tournamentIds,
   }) {
-    return Club(
+    return Group(
       id: id ?? this.id,
       name: name ?? this.name,
       playerIds: playerIds ?? this.playerIds,
@@ -40,32 +40,32 @@ class Club {
     );
   }
 
-  Club addPlayerId(String playerId) {
+  Group addPlayerId(String playerId) {
     if (playerIds.contains(playerId)) return this;
     return copyWith(playerIds: [...playerIds, playerId]);
   }
 
-  Club removePlayerId(String playerId) {
+  Group removePlayerId(String playerId) {
     return copyWith(
         playerIds: playerIds.where((id) => id != playerId).toList());
   }
 
-  Club addTeamId(String teamId) {
+  Group addTeamId(String teamId) {
     if (teamIds.contains(teamId)) return this;
     return copyWith(teamIds: [...teamIds, teamId]);
   }
 
-  Club removeTeamId(String teamId) {
+  Group removeTeamId(String teamId) {
     return copyWith(
         teamIds: teamIds.where((id) => id != teamId).toList());
   }
 
-  Club addTournamentId(String tournamentId) {
+  Group addTournamentId(String tournamentId) {
     if (tournamentIds.contains(tournamentId)) return this;
     return copyWith(tournamentIds: [...tournamentIds, tournamentId]);
   }
 
-  Club removeTournamentId(String tournamentId) {
+  Group removeTournamentId(String tournamentId) {
     return copyWith(
       tournamentIds:
           tournamentIds.where((id) => id != tournamentId).toList(),
@@ -83,7 +83,7 @@ class Club {
         'createdAt': createdAt.toIso8601String(),
       };
 
-  factory Club.fromJson(Map<String, dynamic> json) => Club(
+  factory Group.fromJson(Map<String, dynamic> json) => Group(
         id: json['id'] as String,
         name: json['name'] as String,
         playerIds:

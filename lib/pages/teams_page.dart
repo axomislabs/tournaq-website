@@ -5,7 +5,6 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_team_sheet.dart';
@@ -71,17 +70,17 @@ class _TeamsPageState extends State<TeamsPage> {
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  Future<void> _assignClub(String teamId) async {
-    final items = _localState.clubs
+  Future<void> _assignGroup(String teamId) async {
+    final items = _localState.groups
         .where((c) => !c.teamIds.contains(teamId))
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Club', items: items,
-      emptyMessage: 'Team is already in all clubs.',
+      context: context, title: 'Assign to Group', items: items,
+      emptyMessage: 'Team is already in all groups.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToClub(_localState, teamId: teamId, clubId: selected));
+      _updateState(AppDataService.assignTeamToGroup(_localState, teamId: teamId, groupId: selected));
     }
   }
 
@@ -103,7 +102,7 @@ class _TeamsPageState extends State<TeamsPage> {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
           'This removes all $count teams from your team pool.\n\n'
-          'Players will lose their team memberships and clubs will '
+          'Players will lose their team memberships and groups will '
           'lose their team references.\n\n'
           'Any games that were played with these teams will show a '
           'generic name ("Team 1 / Team 2") instead of the team name.',
@@ -291,7 +290,6 @@ class _TeamsPageState extends State<TeamsPage> {
     final total    = _localState.teams.length;
 
     return Scaffold(
-      drawer: AppDrawer(appState: _localState, onAppStateChanged: _updateState),
       appBar: TournaQAppBar(title: l10n.pageTeams),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -447,12 +445,12 @@ class _TeamsPageState extends State<TeamsPage> {
 
   Widget _buildTeamCard(Team team, AppLocalizations l10n) {
     final memberCount = _localState.getPlayersForTeam(team.id).length;
-    final clubCount   = _localState.clubs
+    final groupCount  = _localState.groups
         .where((c) => c.teamIds.contains(team.id))
         .length;
     final stats = <String>[
       '$memberCount player${memberCount == 1 ? '' : 's'}',
-      if (clubCount > 0) '$clubCount club${clubCount == 1 ? '' : 's'}',
+      if (groupCount > 0) '$groupCount group${groupCount == 1 ? '' : 's'}',
     ];
 
     return Card(
@@ -541,13 +539,13 @@ class _TeamsPageState extends State<TeamsPage> {
                             onAppStateChanged: _updateState,
                             teamId: team.id),
                       ));
-                    case 'assign_club': _assignClub(team.id);
+                    case 'assign_group': _assignGroup(team.id);
                     case 'delete': _deleteTeam(team.id);
                   }
                 },
                 itemBuilder: (_) => [
                   actionMenuItem('edit', Icons.edit_rounded, l10n.menuEditPlayers),
-                  actionMenuItem('assign_club', Icons.home_rounded, l10n.menuAssignToClub),
+                  actionMenuItem('assign_group', Icons.home_rounded, l10n.menuAssignToClub),
                   const PopupMenuDivider(),
                   actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
                 ],
@@ -561,9 +559,8 @@ class _TeamsPageState extends State<TeamsPage> {
 
   Widget _scopeBadge(TeamScope scope) {
     final (label, color) = switch (scope) {
-      TeamScope.temporary  => ('Temp', Colors.grey.shade500),
       TeamScope.tournament => ('Tournament', AppColors.olive),
-      TeamScope.club       => ('Club', AppColors.goldDark),
+      TeamScope.group      => ('Group', AppColors.goldDark),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),

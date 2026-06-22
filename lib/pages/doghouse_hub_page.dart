@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
+import '../models/group.dart';
 import '../models/player.dart';
 import '../services/doghouse_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
@@ -11,11 +12,13 @@ import 'doghouse_setup_page.dart';
 
 class DoghouseHubPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
 
   const DoghouseHubPage({
     super.key,
     required this.existingPlayers,
+    required this.existingGroups,
     required this.onCreatePlayer,
   });
 
@@ -52,6 +55,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => DoghouseSetupPage(
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onCreated: _persist,
         onCreatePlayer: widget.onCreatePlayer,
       ),
