@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/scramble_tournament.dart';
-import '../services/scramble_service.dart';
 
 /// Compact card showing one [ScrambleGame] in the overview list.
 class ScrambleGameTile extends StatelessWidget {
@@ -88,11 +87,6 @@ class ScrambleGameTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     _teamRow(teamB, game.sideBScore, game.winningSide == 'B'),
                     const SizedBox(height: 4),
-                    Text(
-                      ScrambleService.formatTime(round.scheduledStartTime),
-                      style: const TextStyle(fontSize: 11, color: Colors.black38),
-                    ),
-                    const SizedBox(height: 2),
                     Row(
                       children: [
                         const Icon(Icons.gavel_rounded,

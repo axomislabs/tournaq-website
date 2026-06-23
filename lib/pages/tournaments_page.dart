@@ -1,3 +1,4 @@
+import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../services/doghouse_storage_service.dart';
@@ -380,8 +381,9 @@ class _TournamentsPageState extends State<TournamentsPage> {
               ),
               _TypeTile(
                 icon:        Icons.account_tree_rounded,
-                color:       const Color(0xFF5C6BC0),
-                gradientEnd: const Color(0xFF3949AB),
+                iconAngle:   pi,
+                color:       AppColors.gold,
+                gradientEnd: AppColors.goldGradientEnd,
                 name:        'Single Elimination',
                 description: 'Classic knockout bracket',
                 count:       _koBracketCount,
@@ -525,6 +527,7 @@ class _TypeTile extends StatelessWidget {
   final bool comingSoon;
   final VoidCallback onTap;
   final String? helpText;
+  final double iconAngle;
 
   const _TypeTile({
     required this.icon,
@@ -536,6 +539,7 @@ class _TypeTile extends StatelessWidget {
     this.count = 0,
     this.comingSoon = false,
     this.helpText,
+    this.iconAngle = 0,
   });
 
   void _showHelp(BuildContext context) {
@@ -613,7 +617,10 @@ class _TypeTile extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.18),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(icon, color: Colors.white, size: 26),
+                      child: Transform.rotate(
+                        angle: iconAngle,
+                        child: Icon(icon, color: Colors.white, size: 26),
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(

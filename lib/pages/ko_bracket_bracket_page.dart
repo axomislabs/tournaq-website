@@ -43,7 +43,8 @@ class KoBracketBracketPage extends StatefulWidget {
 
 class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   late KoBracketTournament _tournament;
-  bool _teamsExpanded = false;
+  bool _teamsExpanded    = false;
+  bool _scheduleExpanded = true;
 
   @override
   void initState() {
@@ -277,6 +278,20 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             _buildOverviewCard(),
             const SizedBox(height: 20),
 
+            // ── Time overview ─────────────────────────────────────────────
+            _sectionDivider(
+              'Time',
+              Icons.schedule_rounded,
+              collapsible: true,
+              expanded: _scheduleExpanded,
+              onToggle: () => setState(() => _scheduleExpanded = !_scheduleExpanded),
+            ),
+            if (_scheduleExpanded) ...[
+              const SizedBox(height: 10),
+              _buildTimeOverviewCard(),
+              const SizedBox(height: 20),
+            ],
+
             // ── Teams ────────────────────────────────────────────────────
             _buildTeamsSection(),
             const SizedBox(height: 20),
@@ -299,6 +314,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     bool collapsible = false,
     bool expanded = false,
     VoidCallback? onToggle,
+    Widget? trailing,
   }) {
     return InkWell(
       onTap: onToggle,
@@ -329,6 +345,10 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                 size: 16,
                 color: Colors.black38,
               ),
+            ],
+            if (trailing != null) ...[
+              const SizedBox(width: 4),
+              trailing,
             ],
           ],
         ),
@@ -378,7 +398,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                             _chip(Icons.groups_rounded,
                                 '${_tournament.teamCount} teams',
                                 _kOliveLight, _kOlive),
-                            _chip(Icons.sports_tennis_rounded,
+                            _chip(Icons.crop_square_rounded,
                                 '${_tournament.courtCount} court${_tournament.courtCount > 1 ? 's' : ''}',
                                 _kOliveLight, _kOlive),
                             _chip(Icons.timer_rounded,
@@ -418,6 +438,387 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           _buildWinnerBanner(),
         ],
       ],
+    );
+  }
+
+  // ── Time overview ─────────────────────────────────────────────────────────
+
+  static String _formatStartLabel(DateTime dt) {
+    final weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dt.weekday - 1];
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$weekday ${dt.day}/${dt.month} $h:$m';
+  }
+
+  static String _formatDuration(Duration d) {
+    final h = d.inHours;
+    final m = d.inMinutes % 60;
+    if (h == 0) return '${m}min';
+    if (m == 0) return '${h}h';
+    return '${h}h ${m}min';
+  }
+
+  void _pickRoundFormat(int round) {
+    final isFinal = round >= _tournament.mainRoundCount - _tournament.finalRoundsCount + 1;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final fmt = isFinal ? _tournament.finalRoundFormat : _tournament.earlyRoundFormat;
+
+          void pick(KoRoundFormat updated) {
+            var t = _tournament.copyWith(
+              earlyRoundFormat: isFinal ? null : updated,
+              finalRoundFormat: isFinal ? updated : null,
+            );
+            t = KoBracketScheduler.assignTimes(t);
+            _persist(t);
+            setSheetState(() {});
+          }
+
+          Widget chipRow(List<int> options, int selected, void Function(int) onPick) {
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map((v) {
+                final sel = v == selected;
+                return GestureDetector(
+                  onTap: () => onPick(v),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: sel ? _kGold : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: sel ? _kGoldDark : Colors.grey.shade300,
+                        width: sel ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Text('$v',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: sel ? Colors.white : Colors.black54)),
+                  ),
+                );
+              }).toList(),
+            );
+          }
+
+          return TournaQSheet(
+            body: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isFinal ? 'Final Rounds Format' : 'Early Rounds Format',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isFinal
+                        ? 'Applies to the last ${_tournament.finalRoundsCount} round(s)'
+                        : 'Applies to all early rounds',
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Sets per game',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  const SizedBox(height: 8),
+                  chipRow([1, 3, 5], fmt.setsPerGame,
+                      (v) => pick(fmt.copyWith(setsPerGame: v))),
+                  const SizedBox(height: 16),
+                  const Text('Points per set',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  const SizedBox(height: 8),
+                  chipRow([11, 15, 21], fmt.pointsPerSet,
+                      (v) => pick(fmt.copyWith(pointsPerSet: v))),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _pickBreak(int round) {
+    final isFinal = round >= _tournament.mainRoundCount - _tournament.finalRoundsCount + 1;
+    final current = isFinal ? _tournament.finalBreakMinutes : _tournament.earlyBreakMinutes;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => TournaQSheet(
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Break — ${isFinal ? 'Final' : 'Early'} Rounds',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [0, 5, 10, 15, 20, 30, 45, 60].map((v) {
+                  final selected = v == current;
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      var updated = _tournament.copyWith(
+                        earlyBreakMinutes: isFinal ? null : v,
+                        finalBreakMinutes: isFinal ? v : null,
+                      );
+                      updated = KoBracketScheduler.assignTimes(updated);
+                      _persist(updated);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected ? _kGold : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: selected ? _kGoldDark : Colors.grey.shade300,
+                          width: selected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Text(
+                        v == 0 ? 'No break' : '$v min',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: selected ? Colors.white : Colors.black54,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editStartTime() async {
+    final current = _tournament.estimatedStart ?? DateTime.now();
+
+    final date = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date == null || !mounted) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(current),
+    );
+    if (time == null || !mounted) return;
+
+    final newStart = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    var updated = _tournament.copyWith(estimatedStart: newStart);
+    updated = KoBracketScheduler.assignTimes(updated);
+    _persist(updated);
+  }
+
+  Widget _buildTimeOverviewCard() {
+    final start = _tournament.estimatedStart;
+
+    if (start == null) {
+      return GestureDetector(
+        onTap: _editStartTime,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: _kGoldCream,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.goldBadgeBorder),
+          ),
+          child: Row(children: [
+            const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
+            const SizedBox(width: 6),
+            const Expanded(
+              child: Text('No start time set',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
+          ]),
+        ),
+      );
+    }
+
+    final roundList = _tournament.allRounds
+        .where((r) => _tournament.matchesForRound(r).isNotEmpty)
+        .toList();
+    final rows = <Widget>[];
+
+    for (var i = 0; i < roundList.length; i++) {
+      final round   = roundList[i];
+      final matches = _tournament.matchesForRound(round);
+      final isLast  = i == roundList.length - 1;
+
+      DateTime? earliest, latest;
+      for (final m in matches) {
+        if (m.scheduledStartTime != null &&
+            (earliest == null || m.scheduledStartTime!.isBefore(earliest))) {
+          earliest = m.scheduledStartTime;
+        }
+        if (m.scheduledEndTime != null &&
+            (latest == null || m.scheduledEndTime!.isAfter(latest))) {
+          latest = m.scheduledEndTime;
+        }
+      }
+
+      final fmt      = _tournament.formatForRound(round);
+      final fmtLabel = '${fmt.setsPerGame}×${fmt.pointsPerSet}';
+      final breakMins = isLast ? 0 : _tournament.breakAfterRound(round);
+
+      rows.add(Padding(
+        padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Col 1: round name + format chip ──────────────────
+            GestureDetector(
+              onTap: () => _pickRoundFormat(round),
+              child: SizedBox(
+                width: 96,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_roundLabel(round),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87)),
+                    const SizedBox(height: 3),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.goldBadgeBorder),
+                      ),
+                      child: Text(fmtLabel,
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: _kGoldDark)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // ── Col 2: match count + break ────────────────────────
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${matches.length} match${matches.length == 1 ? '' : 'es'}',
+                    style: const TextStyle(fontSize: 11, color: Colors.black45),
+                  ),
+                  if (!isLast) ...[
+                    const SizedBox(height: 3),
+                    GestureDetector(
+                      onTap: () => _pickBreak(round),
+                      child: Row(children: [
+                        Icon(
+                          breakMins > 0
+                              ? Icons.coffee_rounded
+                              : Icons.add_circle_outline_rounded,
+                          size: 11,
+                          color: breakMins > 0 ? _kOlive : Colors.black26,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          breakMins > 0 ? '$breakMins min break' : 'Add break',
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: breakMins > 0 ? _kOlive : Colors.black38),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.edit_rounded,
+                            size: 9, color: Colors.black26),
+                      ]),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            // ── Col 3: time range ─────────────────────────────────
+            if (earliest != null && latest != null)
+              Text('${_fmtT(earliest)} – ${_fmtT(latest)}',
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: _kGoldDark)),
+          ],
+        ),
+      ));
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _kGoldCream,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.goldBadgeBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
+            const SizedBox(width: 6),
+            const Text('Schedule',
+                style: TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
+            const Spacer(),
+            Text(_formatDuration(_tournament.estimatedDuration),
+                style: const TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
+          ]),
+          const SizedBox(height: 6),
+          GestureDetector(
+            onTap: _editStartTime,
+            child: Row(children: [
+              const Icon(Icons.play_circle_outline_rounded, size: 12, color: _kGoldDark),
+              const SizedBox(width: 4),
+              Text('Starts: ${_formatStartLabel(start)}',
+                  style: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
+              const SizedBox(width: 4),
+              const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
+            ]),
+          ),
+          if (rows.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: AppColors.goldBadgeBorder),
+            const SizedBox(height: 8),
+            ...rows,
+          ],
+        ],
+      ),
     );
   }
 
@@ -798,7 +1199,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
     final statusIcon = switch (match.status) {
       KoMatchStatus.completed  => Icons.check_circle_rounded,
-      KoMatchStatus.inProgress => Icons.sports_tennis_rounded,
+      KoMatchStatus.inProgress => Icons.sports_volleyball_rounded,
       KoMatchStatus.walkover   => Icons.person_off_rounded,
       KoMatchStatus.bye        => Icons.do_not_disturb_alt_rounded,
       _                        => Icons.schedule_rounded,

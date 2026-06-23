@@ -1291,12 +1291,15 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Row(children: [
-            Expanded(
+          child: Row(children: [
+            const Expanded(
               child: Text('Single Elimination',
                   style: TextStyle(fontSize: 14, color: Colors.black87)),
             ),
-            Icon(Icons.account_tree_rounded, size: 16, color: Colors.black38),
+            Transform.rotate(
+              angle: pi,
+              child: const Icon(Icons.account_tree_rounded, size: 16, color: Colors.black38),
+            ),
           ]),
         ),
       ],

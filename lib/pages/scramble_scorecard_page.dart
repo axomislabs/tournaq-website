@@ -760,6 +760,17 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_game.teamNameA != null && _game.teamNameB != null) ...[
+                    Center(
+                      child: Text(
+                        '${_game.teamNameA} vs ${_game.teamNameB}',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   // 1. GAMEPLAY CONTROLS
                   _sectionHeader(
                     'Gameplay Controls',
@@ -1211,6 +1222,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     bool landscape = false,
     bool stackedPills = false,
   }) {
+    final teamName = isA
+        ? (_game.teamNameA ?? 'Side A')
+        : (_game.teamNameB ?? 'Side B');
     final teamColor = isA ? _kGold : _kOlive;
     final cardBg = isA
         ? (isLeading ? _kGoldCardLeading : _kGoldCardBg)
@@ -1235,7 +1249,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 SizedBox(
                   height: nameH,
                   child: Text(
-                    isA ? 'Side A' : 'Side B',
+                    teamName,
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: nameFontSize,
@@ -1310,7 +1324,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            isA ? 'Side A' : 'Side B',
+            teamName,
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 13,

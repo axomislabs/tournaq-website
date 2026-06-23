@@ -1,5 +1,6 @@
 import 'dart:math';
 import '../models/scramble_tournament.dart';
+import 'scramble_team_names.dart';
 
 /// Core business logic for Timed Scramble tournaments.
 ///
@@ -156,17 +157,22 @@ class ScrambleService {
           arbCount[arbIdx]++;
         }
 
+        final sideAIds = sideA.map((p) => p.id).toList();
+        final sideBIds = sideB.map((p) => p.id).toList();
+        final (nameA, nameB) = ScrambleTeamNames.generate(sideAIds, sideBIds);
         games.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: roundId,
           courtNumber: c + 1,
-          sideAPlayerIds: sideA.map((p) => p.id).toList(),
-          sideBPlayerIds: sideB.map((p) => p.id).toList(),
+          sideAPlayerIds: sideAIds,
+          sideBPlayerIds: sideBIds,
           // Sit-outs are attached to the first court's game for display;
           // all games in the round share the same sitting-out list.
           sittingOutPlayerIds: c == 0 ? sittingOutIds : const [],
           firstServerId: server.id,
           arbitratorId: arbitratorId,
+          teamNameA: nameA,
+          teamNameB: nameB,
         ));
 
         _updatePairMatrices(
@@ -755,15 +761,20 @@ class ScrambleService {
           arbCount[arbIdx]++;
         }
 
+        final sideAIds2 = sideA.map((p) => p.id).toList();
+        final sideBIds2 = sideB.map((p) => p.id).toList();
+        final (nameA2, nameB2) = ScrambleTeamNames.generate(sideAIds2, sideBIds2);
         newGames.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: round.id,
           courtNumber: c + 1,
-          sideAPlayerIds: sideA.map((p) => p.id).toList(),
-          sideBPlayerIds: sideB.map((p) => p.id).toList(),
+          sideAPlayerIds: sideAIds2,
+          sideBPlayerIds: sideBIds2,
           sittingOutPlayerIds: c == 0 ? sittingOutIds : const [],
           firstServerId: server.id,
           arbitratorId: arbitratorId,
+          teamNameA: nameA2,
+          teamNameB: nameB2,
         ));
 
         _updatePairMatrices(

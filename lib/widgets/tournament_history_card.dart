@@ -8,6 +8,7 @@ class TournamentHistoryCard extends StatelessWidget {
   final String typeLabel;
   final Color typeColor;
   final IconData typeIcon;
+  final double iconAngle;
   final String dateLabel;
   final String statusLabel;
   final bool isActive;
@@ -27,6 +28,7 @@ class TournamentHistoryCard extends StatelessWidget {
     required this.stats,
     required this.onTap,
     this.onDeleteTap,
+    this.iconAngle = 0,
   });
 
   @override
@@ -57,7 +59,10 @@ class TournamentHistoryCard extends StatelessWidget {
                   color: typeColor.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(typeIcon, color: typeColor, size: 20),
+                child: Transform.rotate(
+                  angle: iconAngle,
+                  child: Icon(typeIcon, color: typeColor, size: 20),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

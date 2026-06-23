@@ -1,3 +1,4 @@
+import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../models/group.dart';
@@ -222,8 +223,11 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.account_tree_rounded,
-                            size: 48, color: Colors.grey.shade300),
+                        Transform.rotate(
+                          angle: pi,
+                          child: Icon(Icons.account_tree_rounded,
+                              size: 48, color: Colors.grey.shade300),
+                        ),
                         const SizedBox(height: 12),
                         const Text('No tournaments yet.',
                             style: TextStyle(
@@ -265,6 +269,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                         typeLabel:   'Single Elimination',
                         typeColor:   AppColors.gold,
                         typeIcon:    Icons.account_tree_rounded,
+                        iconAngle:   pi,
                         dateLabel:   _dateLabel(t),
                         statusLabel: _statusLabel(t),
                         isActive:
@@ -307,11 +312,14 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.account_tree_rounded,
-                  color: Colors.white, size: 22),
-              SizedBox(width: 8),
+              Transform.rotate(
+                angle: pi,
+                child: const Icon(Icons.account_tree_rounded,
+                    color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 8),
               Text(
                 'Single Elimination',
                 style: TextStyle(
