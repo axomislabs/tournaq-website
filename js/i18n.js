@@ -6,6 +6,8 @@
   var LOCALES = {
     en: {
   "nav.home": "Home",
+  "nav.features": "Features",
+  "nav.games": "Games",
   "nav.detail": "TournaQ Detail",
   "nav.guide": "User Guide",
   "nav.downloads": "Downloads",
@@ -855,6 +857,8 @@
 },
     de: {
   "nav.home": "Start",
+  "nav.features": "Features",
+  "nav.games": "Spiele",
   "nav.detail": "TournaQ Details",
   "nav.guide": "User Guide",
   "nav.downloads": "Downloads",
@@ -1704,6 +1708,8 @@
 },
     es: {
   "nav.home": "Inicio",
+  "nav.features": "Features",
+  "nav.games": "Juegos",
   "nav.detail": "TournaQ Detalle",
   "nav.guide": "Guía de usuario",
   "nav.downloads": "Descargas",
