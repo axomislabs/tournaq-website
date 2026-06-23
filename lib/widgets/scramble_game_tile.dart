@@ -32,6 +32,25 @@ class ScrambleGameTile extends StatelessWidget {
       ScrambleGameStatus.scheduled => Colors.black38,
     };
 
+    final isComplete = game.status == ScrambleGameStatus.completed;
+    final schedStart = round.scheduledStartTime;
+    final schedEnd = round.scheduledMatchEndTime;
+    Color? schedDotColor;
+    String? schedLabel;
+    if (!isComplete) {
+      final now = DateTime.now();
+      if (now.isAfter(schedEnd)) {
+        schedDotColor = Colors.red.shade600;
+        schedLabel = 'overdue';
+      } else if (now.isAfter(schedStart)) {
+        schedDotColor = Colors.amber.shade700;
+        schedLabel = 'due';
+      } else {
+        schedDotColor = Colors.green.shade600;
+        schedLabel = 'upcoming';
+      }
+    }
+
     final statusIcon = switch (game.status) {
       ScrambleGameStatus.completed => Icons.check_circle_rounded,
       ScrambleGameStatus.inProgress => Icons.sports_volleyball_rounded,
@@ -86,7 +105,48 @@ class ScrambleGameTile extends StatelessWidget {
                     _teamRow(teamA, game.sideAScore, game.winningSide == 'A'),
                     const SizedBox(height: 2),
                     _teamRow(teamB, game.sideBScore, game.winningSide == 'B'),
+                    if (game.teamNameA != null && game.teamNameB != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${game.teamNameA} vs ${game.teamNameB}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black45,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                     const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        if (schedDotColor != null) ...[
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: schedDotColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        Text(
+                          '${_fmtT(schedStart)} – ${_fmtT(schedEnd)}',
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.black38),
+                        ),
+                        if (schedLabel != null) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            schedLabel,
+                            style: TextStyle(
+                                fontSize: 10, color: schedDotColor),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 3),
                     Row(
                       children: [
                         const Icon(Icons.gavel_rounded,
@@ -114,6 +174,12 @@ class ScrambleGameTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static String _fmtT(DateTime dt) {
+    final h = dt.hour.toString().padLeft(2, '0');
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
 
   Widget _teamRow(String name, int score, bool isWinner) {

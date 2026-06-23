@@ -215,6 +215,8 @@ class KoMatch {
   final DateTime? scheduledEndTime;
   final DateTime? startedAt;
   final DateTime? completedAt;
+  final String? suggestedServingPlayerId;
+  final String? refereeTeamId;
 
   const KoMatch({
     required this.id,
@@ -231,6 +233,8 @@ class KoMatch {
     this.scheduledEndTime,
     this.startedAt,
     this.completedAt,
+    this.suggestedServingPlayerId,
+    this.refereeTeamId,
   });
 
   bool get isComplete =>
@@ -259,6 +263,8 @@ class KoMatch {
     DateTime? scheduledEndTime,
     DateTime? startedAt,
     DateTime? completedAt,
+    String? suggestedServingPlayerId,
+    String? refereeTeamId,
   }) =>
       KoMatch(
         id: id,
@@ -275,6 +281,9 @@ class KoMatch {
         scheduledEndTime: scheduledEndTime ?? this.scheduledEndTime,
         startedAt: startedAt ?? this.startedAt,
         completedAt: completedAt ?? this.completedAt,
+        suggestedServingPlayerId:
+            suggestedServingPlayerId ?? this.suggestedServingPlayerId,
+        refereeTeamId: refereeTeamId ?? this.refereeTeamId,
       );
 
   Map<String, dynamic> toJson() => {
@@ -292,6 +301,8 @@ class KoMatch {
         'scheduledEndTime': scheduledEndTime?.toIso8601String(),
         'startedAt': startedAt?.toIso8601String(),
         'completedAt': completedAt?.toIso8601String(),
+        'suggestedServingPlayerId': suggestedServingPlayerId,
+        'refereeTeamId': refereeTeamId,
       };
 
   factory KoMatch.fromJson(Map<String, dynamic> j) => KoMatch(
@@ -317,6 +328,8 @@ class KoMatch {
         startedAt: j['startedAt'] != null ? DateTime.parse(j['startedAt'] as String) : null,
         completedAt:
             j['completedAt'] != null ? DateTime.parse(j['completedAt'] as String) : null,
+        suggestedServingPlayerId: j['suggestedServingPlayerId'] as String?,
+        refereeTeamId: j['refereeTeamId'] as String?,
       );
 
   static String generateId() => _uuid.v4();

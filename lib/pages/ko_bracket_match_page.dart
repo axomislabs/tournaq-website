@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' show pi;
+import 'dart:math' show Random, pi;
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
@@ -54,6 +54,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   late KoBracketTournament _tournament;
   late KoMatch _match;
   late KoRoundFormat _fmt;
+  bool _scheduleExpanded = false;
 
   // ── Live scores for the active set ───────────────────────────────────────
   int _score1 = 0;
@@ -77,6 +78,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     _initScores();
     _now = DateTime.now();
     _startTimer();
+    _assignSuggestionsIfNeeded();
   }
 
   @override
@@ -111,6 +113,57 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   void _initScores() {
     _score1 = 0;
     _score2 = 0;
+  }
+
+  // ── Suggestions (serve + referee) ────────────────────────────────────────
+
+  void _assignSuggestionsIfNeeded() {
+    if (_match.startedAt != null || _isMatchComplete) return;
+    var match = _match;
+    var tournament = _tournament;
+    bool changed = false;
+
+    // Suggested server: random player from either team's roster.
+    if (match.suggestedServingPlayerId == null &&
+        _team1 != null && _team2 != null) {
+      final allPlayers = [..._team1!.players, ..._team2!.players];
+      if (allPlayers.isNotEmpty) {
+        final player = allPlayers[Random().nextInt(allPlayers.length)];
+        match = match.copyWith(suggestedServingPlayerId: player.appPlayerId);
+        changed = true;
+      }
+    }
+
+    // Suggested referee: a team eliminated in a previous round (loser of a
+    // completed earlier match). All teams in the same round play simultaneously
+    // so they cannot serve as referees.
+    if (match.refereeTeamId == null) {
+      final myTeamIds = {match.team1Id, match.team2Id};
+      final teamsInCurrentRound = _tournament.matches
+          .where((m) => m.round == match.round)
+          .expand((m) => [m.team1Id, m.team2Id])
+          .whereType<String>()
+          .toSet();
+      final refTeamId = _tournament.matches
+          .where((m) => m.round < match.round && m.isComplete && m.winnerId != null)
+          .map((m) => m.team1Id == m.winnerId ? m.team2Id : m.team1Id)
+          .whereType<String>()
+          .where((id) => !myTeamIds.contains(id) && !teamsInCurrentRound.contains(id))
+          .firstOrNull;
+      if (refTeamId != null) {
+        match = match.copyWith(refereeTeamId: refTeamId);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      tournament = tournament.updateMatch(match);
+      KoBracketStorageService.save(tournament);
+      setState(() {
+        _tournament = tournament;
+        _match = match;
+      });
+    }
   }
 
   // ── Timer ─────────────────────────────────────────────────────────────────
@@ -483,6 +536,9 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                     ] else if (_currentSetDone) ...[
                       const SizedBox(height: 4),
                       _buildLockBanner('Set complete — confirm before next set'),
+                    ] else if (_match.startedAt == null) ...[
+                      const SizedBox(height: 4),
+                      _buildServesFirstBanner(),
                     ],
                     const SizedBox(height: 4),
                     // Schedule + score cards
@@ -557,6 +613,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
                   // ── Banners ─────────────────────────────────────────────
                   const SizedBox(height: 10),
+                  if (_match.startedAt == null && !_isMatchComplete)
+                    _buildServesFirstBanner(),
                   if (_isMatchComplete)
                     _buildLockBanner(
                       'Match complete',
@@ -927,9 +985,10 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       );
     }
 
-    // ── Portrait card ─────────────────────────────────────────────────────────
+    // ── Portrait card (collapsible) ───────────────────────────────────────────
+    final collapsedChip = (inProgress || _isMatchComplete) ? endChip : startChip;
+
     return Container(
-      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
@@ -939,68 +998,98 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(children: [
-            Icon(Icons.schedule_rounded, size: 14, color: labelColor),
-            const SizedBox(width: 6),
-            Text('SCHEDULE',
-                style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: labelColor,
-                    letterSpacing: 0.6)),
-          ]),
-          const SizedBox(height: 8),
-          Row(children: [
-            const Icon(Icons.play_circle_outline_rounded,
-                size: 13, color: Colors.black38),
-            const SizedBox(width: 6),
-            const SizedBox(
-                width: 36,
-                child: Text('Start',
-                    style: TextStyle(fontSize: 11, color: Colors.black45))),
-            Text(_fmtTime(start),
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: timeColor,
-                    fontFeatures: const [FontFeature.tabularFigures()])),
-            const Spacer(),
-            startChip,
-          ]),
-          const SizedBox(height: 6),
-          Row(children: [
-            Icon(Icons.stop_circle_outlined,
-                size: 13,
-                color: isOverEnd ? Colors.red.shade300 : Colors.black38),
-            const SizedBox(width: 6),
-            const SizedBox(
-                width: 36,
-                child: Text('End',
-                    style: TextStyle(fontSize: 11, color: Colors.black45))),
-            Text(_fmtTime(end),
-                style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: timeColor,
-                    fontFeatures: const [FontFeature.tabularFigures()])),
-            const Spacer(),
-            endChip,
-          ]),
-          if (isOverEnd) ...[
-            const SizedBox(height: 8),
-            Row(children: [
-              const Icon(Icons.warning_amber_rounded,
-                  size: 13, color: Colors.red),
-              const SizedBox(width: 6),
-              const Flexible(
-                child: Text('Over schedule · Hurry up!',
+          // Header — always visible, taps to toggle
+          GestureDetector(
+            onTap: () => setState(() => _scheduleExpanded = !_scheduleExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              child: Row(children: [
+                Icon(Icons.schedule_rounded, size: 14, color: labelColor),
+                const SizedBox(width: 6),
+                Text('SCHEDULE',
                     style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        color: Colors.red)),
+                        color: labelColor,
+                        letterSpacing: 0.6)),
+                const Spacer(),
+                if (!_scheduleExpanded) ...[
+                  collapsedChip,
+                  const SizedBox(width: 6),
+                ],
+                Icon(
+                  _scheduleExpanded
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  size: 18,
+                  color: Colors.black38,
+                ),
+              ]),
+            ),
+          ),
+          // Expanded content
+          if (_scheduleExpanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [
+                    const Icon(Icons.play_circle_outline_rounded,
+                        size: 13, color: Colors.black38),
+                    const SizedBox(width: 6),
+                    const SizedBox(
+                        width: 36,
+                        child: Text('Start',
+                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                    Text(_fmtTime(start),
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: timeColor,
+                            fontFeatures: const [FontFeature.tabularFigures()])),
+                    const Spacer(),
+                    startChip,
+                  ]),
+                  const SizedBox(height: 6),
+                  Row(children: [
+                    Icon(Icons.stop_circle_outlined,
+                        size: 13,
+                        color: isOverEnd ? Colors.red.shade300 : Colors.black38),
+                    const SizedBox(width: 6),
+                    const SizedBox(
+                        width: 36,
+                        child: Text('End',
+                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                    Text(_fmtTime(end),
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: timeColor,
+                            fontFeatures: const [FontFeature.tabularFigures()])),
+                    const Spacer(),
+                    endChip,
+                  ]),
+                  if (isOverEnd) ...[
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 13, color: Colors.red),
+                      const SizedBox(width: 6),
+                      const Flexible(
+                        child: Text('Over schedule · Hurry up!',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.red)),
+                      ),
+                    ]),
+                  ],
+                ],
               ),
-            ]),
-          ],
+            ),
         ],
       ),
     );
@@ -1072,6 +1161,69 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   }
 
   // ── Lock banner ───────────────────────────────────────────────────────────
+
+  // ── Serve suggestion banner ───────────────────────────────────────────────
+
+  Widget _buildServesFirstBanner() {
+    final pid = _match.suggestedServingPlayerId;
+    if (pid == null) return const SizedBox.shrink();
+    final name = [
+      ..._team1?.players ?? [],
+      ..._team2?.players ?? [],
+    ].where((p) => p.appPlayerId == pid).firstOrNull?.name ?? '';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: _kOliveLight,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: _kOlive.withValues(alpha: 0.3)),
+      ),
+      child: Row(children: [
+        const Icon(Icons.sports_volleyball_rounded, size: 14, color: _kOlive),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            '$name suggested to start serving',
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w600, color: _kOlive),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  // ── Referee suggestion banner ─────────────────────────────────────────────
+
+  Widget _buildRefereeBanner() {
+    final refName = _match.refereeTeamId != null
+        ? _tournament.teamById(_match.refereeTeamId!)?.name
+        : null;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.blueGrey.shade200),
+      ),
+      child: Row(children: [
+        Icon(Icons.gavel_rounded, size: 14, color: Colors.blueGrey.shade600),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            refName != null
+                ? '$refName suggested as referee'
+                : 'Assign a referee manually',
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey.shade700),
+          ),
+        ),
+      ]),
+    );
+  }
 
   Widget _buildLockBanner(String message, {String? winnerName}) {
     return Container(
@@ -1249,6 +1401,135 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     );
   }
 
+  // ── Manual score entry ────────────────────────────────────────────────────
+
+  Widget _scoreInputRow(String label, TextEditingController ctrl, Color color) =>
+      Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 64,
+            child: TextField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              autofocus: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                isDense: true,
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Future<void> _showManualScoreDialog() async {
+    final setNum = _match.sets.where((s) => s.isCompleted).length + 1;
+    final ctrl1 = TextEditingController(text: '$_score1');
+    final ctrl2 = TextEditingController(text: '$_score2');
+    try {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                    color: _kOliveLight, borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.edit_rounded, color: _kOlive, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                _fmt.setsPerGame > 1 ? 'Set $setNum Score' : 'Set Score',
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16),
+                _scoreInputRow(_team1?.name ?? 'Team 1', ctrl1, _kGold),
+                const SizedBox(height: 10),
+                _scoreInputRow(_team2?.name ?? 'Team 2', ctrl2, _kOlive),
+              ],
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kOlive,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      final s1 = int.tryParse(ctrl1.text) ?? _score1;
+                      final s2 = int.tryParse(ctrl2.text) ?? _score2;
+                      Navigator.of(ctx).pop();
+                      setState(() {
+                        _score1 = s1;
+                        _score2 = s2;
+                      });
+                    },
+                    child: const Text('Apply',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } finally {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        ctrl1.dispose();
+        ctrl2.dispose();
+      });
+    }
+  }
+
   // ── Match actions ─────────────────────────────────────────────────────────
 
   void _startMatch() {
@@ -1294,6 +1575,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _buildRefereeBanner(),
+        const SizedBox(height: 10),
         // Info chips
         Wrap(
           spacing: 8,
@@ -1390,6 +1673,19 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           const SizedBox(height: 8),
         ],
 
+        if (!notStarted && !_isMatchComplete && !_currentSetDone) ...[
+          OutlinedButton.icon(
+            onPressed: _showManualScoreDialog,
+            icon: const Icon(Icons.edit_rounded, size: 18),
+            label: const Text('Set Score Manually'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         OutlinedButton.icon(
           onPressed: () => Navigator.of(context).pop(),
           icon: const Icon(Icons.arrow_back_rounded, size: 18),

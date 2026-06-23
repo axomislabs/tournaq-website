@@ -936,18 +936,6 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                 tournament: _t,
                 onTap:      () => _openScorecard(g),
               )),
-          if (games.isNotEmpty &&
-              games.first.sittingOutPlayerIds.isNotEmpty) ...[
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 4),
-              child: Text(
-                'Sitting out: ${games.first.sittingOutPlayerIds.map((id) => _t.getPlayer(id)?.name ?? id).join(', ')}',
-                style: const TextStyle(
-                    fontSize: 11, color: Colors.black38),
-              ),
-            ),
-          ],
           const SizedBox(height: 16),
         ],
       );

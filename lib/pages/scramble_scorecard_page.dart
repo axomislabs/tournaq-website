@@ -85,6 +85,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Match state ───────────────────────────────────────────────────────────
   bool _matchCompleted = false;
   bool _adjusting = false;
+  bool _scheduleExpanded = false;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   final _matchTimerKey = GlobalKey<ScrambleTimerWidgetState>();
@@ -710,12 +711,18 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       _buildLockBanner(),
                     ],
                     const SizedBox(height: 4),
-                    // Score cards with pills inside — side by side
+                    // Schedule + score cards — compact schedule on the left
                     Expanded(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
+                            flex: 2,
+                            child: _buildScheduleCard(compact: true),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 5,
                             child: _buildScoreCard(
                               players: leftPlayers,
                               score: _leftScore,
@@ -730,8 +737,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                               landscape: true,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Expanded(
+                            flex: 5,
                             child: _buildScoreCard(
                               players: rightPlayers,
                               score: _rightScore,
@@ -777,6 +785,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     Icons.sports_volleyball_rounded,
                     trailing: optionsButton,
                   ),
+                  const SizedBox(height: 10),
+                  _buildScheduleCard(),
                   const SizedBox(height: 10),
                   _buildGameplayTimerRow(
                     timerState: timerState,
@@ -1036,6 +1046,283 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     ),
     child: Text(label, style: const TextStyle(fontSize: 12)),
   );
+
+  // ── Schedule card ─────────────────────────────────────────────────────────
+
+  Widget _scheduleChip(String label, Color fg, Color bg) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+        child: Text(label,
+            style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w700, color: fg)),
+      );
+
+  Widget _buildScheduleCard({bool compact = false}) {
+    final start = _round.scheduledStartTime;
+    final end   = _round.scheduledMatchEndTime;
+    final now   = DateTime.now();
+
+    final inProgress = _game.actualStartTime != null && !_matchCompleted;
+    final isOverEnd  = now.isAfter(end) && !_matchCompleted;
+
+    String delta(int deltaMin) {
+      if (deltaMin.abs() <= 1) return 'on time';
+      return deltaMin > 0 ? '+${deltaMin}m' : '${deltaMin}m';
+    }
+
+    // ── Start chip ────────────────────────────────────────────────────────
+    Widget startChip;
+    if ((inProgress || _matchCompleted) && _game.actualStartTime != null) {
+      final actualStart = _game.actualStartTime!;
+      final deltaMin    = actualStart.difference(start).inMinutes;
+      final isLate      = deltaMin > 1;
+      startChip = _scheduleChip(
+        '${ScrambleService.formatTime(actualStart)} (${delta(deltaMin)})',
+        isLate ? Colors.orange.shade700 : _kOlive,
+        isLate ? Colors.orange.withValues(alpha: 0.12) : _kOliveLight,
+      );
+    } else {
+      final minsToStart = start.difference(now).inMinutes;
+      if (minsToStart > 0) {
+        startChip = _scheduleChip('In ${minsToStart}m', _kOlive, _kOliveLight);
+      } else if (minsToStart == 0) {
+        startChip = _scheduleChip('Now', _kOlive, _kOliveLight);
+      } else {
+        startChip = _scheduleChip(
+          '${-minsToStart}m late',
+          Colors.orange.shade700,
+          Colors.orange.withValues(alpha: 0.12),
+        );
+      }
+    }
+
+    // ── End chip ──────────────────────────────────────────────────────────
+    Widget endChip;
+    if (_matchCompleted && _game.actualEndTime != null) {
+      final actualEnd = _game.actualEndTime!;
+      final deltaMin  = actualEnd.difference(end).inMinutes;
+      final isOver    = deltaMin > 1;
+      endChip = _scheduleChip(
+        '✓ ${ScrambleService.formatTime(actualEnd)} (${delta(deltaMin)})',
+        isOver ? Colors.orange.shade700 : _kOlive,
+        isOver ? Colors.orange.withValues(alpha: 0.12) : _kOliveLight,
+      );
+    } else {
+      final minsToEnd = end.difference(now).inMinutes;
+      if (minsToEnd > 0) {
+        endChip = minsToEnd <= 5
+            ? _scheduleChip('${minsToEnd}m left',
+                Colors.orange.shade700, Colors.orange.withValues(alpha: 0.12))
+            : _scheduleChip(
+                '${minsToEnd}m left', Colors.black54, Colors.grey.shade100);
+      } else {
+        final over = now.difference(end).inMinutes.clamp(0, 9999);
+        endChip = _scheduleChip(
+          '${over}m over', Colors.red.shade700, Colors.red.withValues(alpha: 0.1));
+      }
+    }
+
+    final bgColor     = isOverEnd ? Colors.red.withValues(alpha: 0.06) : Colors.grey.shade50;
+    final borderColor = isOverEnd ? Colors.red.withValues(alpha: 0.3)  : Colors.grey.shade200;
+    final labelColor  = isOverEnd ? Colors.red        : Colors.black45;
+    final timeColor   = isOverEnd ? Colors.red.shade700 : Colors.black87;
+
+    // ── Compact (landscape left column) ──────────────────────────────────
+    if (compact) {
+      return Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: borderColor),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(children: [
+              Icon(Icons.schedule_rounded, size: 12, color: labelColor),
+              const SizedBox(width: 4),
+              Text('SCHEDULE',
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: labelColor,
+                      letterSpacing: 0.5)),
+            ]),
+            const SizedBox(height: 6),
+            Row(children: [
+              const Icon(Icons.play_circle_outline_rounded,
+                  size: 11, color: Colors.black38),
+              const SizedBox(width: 4),
+              const Text('Planned start',
+                  style: TextStyle(fontSize: 10, color: Colors.black45)),
+            ]),
+            const SizedBox(height: 2),
+            Text(ScrambleService.formatTime(start),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: timeColor,
+                    fontFeatures: const [FontFeature.tabularFigures()])),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: startChip,
+            ),
+            const SizedBox(height: 6),
+            Row(children: [
+              Icon(Icons.stop_circle_outlined,
+                  size: 11,
+                  color: isOverEnd ? Colors.red.shade300 : Colors.black38),
+              const SizedBox(width: 4),
+              const Text('Planned end',
+                  style: TextStyle(fontSize: 10, color: Colors.black45)),
+            ]),
+            const SizedBox(height: 2),
+            Text(ScrambleService.formatTime(end),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: timeColor,
+                    fontFeatures: const [FontFeature.tabularFigures()])),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: endChip,
+            ),
+            if (isOverEnd) ...[
+              const SizedBox(height: 6),
+              Row(children: [
+                const Icon(Icons.warning_amber_rounded,
+                    size: 12, color: Colors.red),
+                const SizedBox(width: 4),
+                const Flexible(
+                  child: Text('Over schedule!',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.red)),
+                ),
+              ]),
+            ],
+          ],
+        ),
+      );
+    }
+
+    // ── Portrait card (collapsible) ───────────────────────────────────────
+    final collapsedChip = (inProgress || _matchCompleted) ? endChip : startChip;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header — always visible, taps to toggle
+          GestureDetector(
+            onTap: () => setState(() => _scheduleExpanded = !_scheduleExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              child: Row(children: [
+                Icon(Icons.schedule_rounded, size: 14, color: labelColor),
+                const SizedBox(width: 6),
+                Text('SCHEDULE',
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: labelColor,
+                        letterSpacing: 0.6)),
+                const Spacer(),
+                if (!_scheduleExpanded) ...[
+                  collapsedChip,
+                  const SizedBox(width: 6),
+                ],
+                Icon(
+                  _scheduleExpanded
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                  size: 18,
+                  color: Colors.black38,
+                ),
+              ]),
+            ),
+          ),
+          // Expanded content
+          if (_scheduleExpanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [
+                    const Icon(Icons.play_circle_outline_rounded,
+                        size: 13, color: Colors.black38),
+                    const SizedBox(width: 6),
+                    const SizedBox(
+                        width: 36,
+                        child: Text('Start',
+                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                    Text(ScrambleService.formatTime(start),
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: timeColor,
+                            fontFeatures: const [FontFeature.tabularFigures()])),
+                    const Spacer(),
+                    startChip,
+                  ]),
+                  const SizedBox(height: 6),
+                  Row(children: [
+                    Icon(Icons.stop_circle_outlined,
+                        size: 13,
+                        color: isOverEnd ? Colors.red.shade300 : Colors.black38),
+                    const SizedBox(width: 6),
+                    const SizedBox(
+                        width: 36,
+                        child: Text('End',
+                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                    Text(ScrambleService.formatTime(end),
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: timeColor,
+                            fontFeatures: const [FontFeature.tabularFigures()])),
+                    const Spacer(),
+                    endChip,
+                  ]),
+                  if (isOverEnd) ...[
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 13, color: Colors.red),
+                      const SizedBox(width: 6),
+                      const Flexible(
+                        child: Text('Over schedule · Hurry up!',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.red)),
+                      ),
+                    ]),
+                  ],
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 
   // ── Round info chips (used only outside landscape now) ────────────────────
 

@@ -1320,7 +1320,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          items: [1, 2, 3, 4]
+          items: [1, 2, 3, 4, 5, 6]
               .map((n) => DropdownMenuItem(value: n, child: Text('${n}vs$n')))
               .toList(),
           onChanged: (v) { if (v != null) _onPlayersPerSideChanged(v); },

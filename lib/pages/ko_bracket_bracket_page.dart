@@ -1197,6 +1197,37 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
       _                        => Colors.black38,
     };
 
+    Color? schedDotColor;
+    String? schedLabel;
+    if (match.scheduledStartTime != null) {
+      if (isComplete) {
+        if (match.completedAt != null && match.scheduledEndTime != null) {
+          final overMins = match.completedAt!
+              .difference(match.scheduledEndTime!)
+              .inMinutes;
+          if (overMins > 0) {
+            schedDotColor = Colors.orange.shade700;
+            schedLabel = '+${overMins}m over';
+          } else {
+            schedDotColor = _kOlive;
+            schedLabel = 'on time';
+          }
+        }
+      } else if (!isBye && !isWalkover) {
+        final now = DateTime.now();
+        if (match.scheduledEndTime != null && now.isAfter(match.scheduledEndTime!)) {
+          schedDotColor = Colors.red.shade600;
+          schedLabel = 'overdue';
+        } else if (now.isAfter(match.scheduledStartTime!)) {
+          schedDotColor = Colors.amber.shade700;
+          schedLabel = 'due';
+        } else {
+          schedDotColor = Colors.green.shade600;
+          schedLabel = 'upcoming';
+        }
+      }
+    }
+
     final statusIcon = switch (match.status) {
       KoMatchStatus.completed  => Icons.check_circle_rounded,
       KoMatchStatus.inProgress => Icons.sports_volleyball_rounded,
@@ -1287,10 +1318,55 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                     ),
                     if (match.scheduledStartTime != null) ...[
                       const SizedBox(height: 4),
-                      Text(
-                        _fmtT(match.scheduledStartTime!),
-                        style: const TextStyle(
-                            fontSize: 11, color: Colors.black38),
+                      Row(
+                        children: [
+                          if (schedDotColor != null) ...[
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: schedDotColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(
+                            match.scheduledEndTime != null
+                                ? '${_fmtT(match.scheduledStartTime!)} – ${_fmtT(match.scheduledEndTime!)}'
+                                : _fmtT(match.scheduledStartTime!),
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.black38),
+                          ),
+                          if (schedLabel != null) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              schedLabel,
+                              style: TextStyle(
+                                  fontSize: 10, color: schedDotColor),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                    if (!isComplete && !isBye && !isWalkover) ...[
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          const Icon(Icons.gavel_rounded,
+                              size: 9, color: Colors.blueGrey),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              match.refereeTeamId != null
+                                  ? '${_tournament.teamById(match.refereeTeamId!)?.name ?? ''} refs'
+                                  : 'Assign ref manually',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.blueGrey),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
