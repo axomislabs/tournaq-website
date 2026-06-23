@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games &amp; Tournaments Hub – TournaQ</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .hub-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-top: 24px;
+    }
+
+    .hub-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.12s;
+    }
+
+    .hub-item:last-child { border-bottom: none; }
+
+    .hub-item:hover { background: var(--olive-light); }
+
+    .hub-item .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hub-item .item-title {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .hub-item .item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .hub-item .item-arrow {
+      color: var(--olive);
+      font-size: 16px;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .pill {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-top: 2px;
+      min-width: 76px;
+      text-align: center;
+    }
+
+    .pill-available { background: #2e7d32; color: white; }
+    .pill-progress  { background: var(--gold); color: var(--gold-dark); }
+    .pill-planned   { background: rgba(85,107,47,0.12); color: var(--olive); }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="modes.hub.hero.title">Games &amp; Tournaments Hub</h1>
+      <p class="subtitle" data-i18n="modes.hub.hero.subtitle">All play formats TournaQ supports — from a quick casual match to a full multi-round tournament.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section>
+      <h2 class="section-title" data-i18n="modes.hub.section.title">Supported Formats</h2>
+      <p class="section-text" data-i18n="modes.hub.section.text">Each format below has its own dedicated page with a full description, setup guide, and feature status. Click any mode to read more.</p>
+
+      <div class="hub-panel">
+
+        <a href="quick-game.html" class="hub-item">
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.quick-game.title">Quick Game</span>
+            <span class="item-desc" data-i18n="features.hub.item.quick-game.desc">Standard two-team match. No tournament setup required.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="social-scramble.html" class="hub-item">
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.social-scramble.title">Social Scramble</span>
+            <span class="item-desc" data-i18n="features.hub.item.social-scramble.desc">Randomised partner rotation across rounds. Social and inclusive.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="doghouse.html" class="hub-item">
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.doghouse.title">Doghouse</span>
+            <span class="item-desc" data-i18n="features.hub.item.doghouse.desc">Handle the pressure. Try to get out of the doghouse. Continuous play, no downtime.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="king-of-the-court.html" class="hub-item">
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.king-of-the-court.title">King of the Court</span>
+            <span class="item-desc" data-i18n="features.hub.item.king-of-the-court.desc">Score and hold the court — until you don't. Most cumulative wins takes the crown.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="ko-system.html" class="hub-item">
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.ko-system.title">KO System</span>
+            <span class="item-desc" data-i18n="features.hub.item.ko-system.desc">Classic single-elimination knockout bracket with configurable settings.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="league.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.league.title">League</span>
+            <span class="item-desc" data-i18n="features.hub.item.league.desc">Round-robin schedule — every team plays every other team. Rankings decide the winner.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="double-elimination.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.double-elimination.title">Double Elimination</span>
+            <span class="item-desc" data-i18n="features.hub.item.double-elimination.desc">Get a second chance. Winner and loser brackets run in parallel.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="group-single-elimination.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.group-single-elimination.title">Group &amp; Single Elimination</span>
+            <span class="item-desc" data-i18n="features.hub.item.group-single-elimination.desc">Pool play to seed the draw, then a single-elimination knockout bracket.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="group-double-elimination.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.group-double-elimination.title">Group &amp; Double Elimination</span>
+            <span class="item-desc" data-i18n="features.hub.item.group-double-elimination.desc">Pool play followed by a double-elimination bracket — two chances at every stage.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="swiss-system.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.swiss-system.title">Swiss System</span>
+            <span class="item-desc" data-i18n="features.hub.item.swiss-system.desc">Fixed rounds, no elimination. Teams paired by similar records each round.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+        <a href="other-tournament-modes.html" class="hub-item">
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="item-info">
+            <span class="item-title" data-i18n="features.hub.item.other-modes.title">Other Tournament Modes</span>
+            <span class="item-desc" data-i18n="features.hub.item.other-modes.desc">Further formats under development — descriptions added as each mode progresses.</span>
+          </div>
+          <span class="item-arrow">→</span>
+        </a>
+
+      </div>
+    </section>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="modes.hub.feedback.text">Missing a mode, spotted something wrong, or want to suggest a format we should support?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+</html>

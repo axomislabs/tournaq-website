@@ -12,7 +12,7 @@
   } else if (inModes) {
     f = '../features/';
     m = '';
-    overview = '../modes.html';
+    overview = 'games-and-tournaments.html';
     overviewLabel = 'Overview – All Modes';
   } else {
     f = 'features/';
