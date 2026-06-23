@@ -3,22 +3,19 @@
   var inFeaturesDir = path.indexOf('/features/') !== -1;
   var inModes = path.indexOf('/modes/') !== -1;
 
-  var f, m, overview, overviewLabel;
+  var f, m, overview;
   if (inFeaturesDir) {
     f = '';
     m = '../modes/';
     overview = '../features.html';
-    overviewLabel = 'Overview – All Features';
   } else if (inModes) {
     f = '../features/';
     m = '';
-    overview = 'games-and-tournaments.html';
-    overviewLabel = 'Overview – All Modes';
+    overview = '../features.html';
   } else {
     f = 'features/';
     m = 'modes/';
     overview = 'features.html';
-    overviewLabel = 'Overview – All Features';
   }
 
   var style = document.createElement('style');
@@ -98,12 +95,13 @@
   placeholder.outerHTML = `
     <nav class="features-subnav" aria-label="Feature areas">
       <div class="subnav-overview">
-        <a href="${overview}">${overviewLabel}</a>
+        <a href="${overview}">Feature Overview</a>
       </div>
       <div class="subnav-groups">
         <div class="subnav-group">
           <div class="subnav-group-label">Game &amp; Tournament Modes</div>
           <div class="subnav-group-links">
+            <a href="${m}games-and-tournaments.html">Games &amp; Tournaments Hub</a>
             <a href="${m}quick-game.html">Quick Game</a>
             <a href="${m}social-scramble.html">Social Scramble</a>
             <a href="${m}doghouse.html">Doghouse</a>
