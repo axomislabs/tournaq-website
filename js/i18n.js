@@ -782,6 +782,12 @@
   "features.hub.item.navigation.title": "App Navigation",
   "features.hub.item.navigation.desc": "User-friendly navigation designed to keep everything accessible from anywhere in the app.",
   "features.hub.feedback.text": "Missing a feature, spotted something wrong, or want to suggest an improvement? Let us know.",
+  "page.modes.title": "Game & Tournament Modes – TournaQ",
+  "modes.hub.hero.title": "Game & Tournament Modes",
+  "modes.hub.hero.subtitle": "All play formats TournaQ supports — from a quick casual match to a full multi-round tournament.",
+  "modes.hub.section.title": "Supported Formats",
+  "modes.hub.section.text": "Each format below has its own dedicated page with a full description, setup guide, and feature status. Click any mode to read more.",
+  "modes.hub.feedback.text": "Missing a mode, spotted something wrong, or want to suggest a format we should support?",
   "modes.ko-system.bestfor.title": "Best for",
   "modes.ko-system.bestfor.li1": "Competitive events where a clear winner is the goal",
   "modes.ko-system.bestfor.li2": "Tournaments following a pool phase — KO rounds from the top teams",
@@ -1686,7 +1692,13 @@
   "features.hub.item.user-administration.desc": "Veranstalter-Konten, Rollen, Berechtigungen und Selbstregistrierung.",
   "features.hub.item.navigation.title": "App-Navigation",
   "features.hub.item.navigation.desc": "Benutzerfreundliche Navigation, damit alles von überall in der App erreichbar bleibt.",
-  "features.hub.feedback.text": "Fehlt eine Funktion, hast du etwas Falsches entdeckt oder möchtest du eine Verbesserung vorschlagen? Schreib uns."
+  "features.hub.feedback.text": "Fehlt eine Funktion, hast du etwas Falsches entdeckt oder möchtest du eine Verbesserung vorschlagen? Schreib uns.",
+  "page.modes.title": "Spiel- & Turniermodi – TournaQ",
+  "modes.hub.hero.title": "Spiel- & Turniermodi",
+  "modes.hub.hero.subtitle": "Alle Spielformate, die TournaQ unterstützt — vom schnellen Casual-Match bis zum vollständigen Mehrrunden-Turnier.",
+  "modes.hub.section.title": "Unterstützte Formate",
+  "modes.hub.section.text": "Jedes Format unten hat eine eigene Seite mit vollständiger Beschreibung, Einrichtungsanleitung und Funktionsstatus. Klicke auf einen Modus, um mehr zu erfahren.",
+  "modes.hub.feedback.text": "Fehlt ein Modus, hast du etwas Falsches entdeckt oder möchtest du ein Format vorschlagen, das wir unterstützen sollen?"
 },
     es: {
   "nav.home": "Inicio",
@@ -2528,7 +2540,13 @@
   "features.hub.item.user-administration.desc": "Cuentas de organizador, roles, permisos y autoregistro.",
   "features.hub.item.navigation.title": "Navegación de la app",
   "features.hub.item.navigation.desc": "Navegación intuitiva para tener todo accesible desde cualquier parte de la app.",
-  "features.hub.feedback.text": "¿Falta alguna función, has detectado algo incorrecto o quieres sugerir una mejora? Dínoslo."
+  "features.hub.feedback.text": "¿Falta alguna función, has detectado algo incorrecto o quieres sugerir una mejora? Dínoslo.",
+  "page.modes.title": "Modos de juego y torneo – TournaQ",
+  "modes.hub.hero.title": "Modos de juego y torneo",
+  "modes.hub.hero.subtitle": "Todos los formatos de juego compatibles con TournaQ — desde un partido informal rápido hasta un torneo completo de múltiples rondas.",
+  "modes.hub.section.title": "Formatos disponibles",
+  "modes.hub.section.text": "Cada formato tiene su propia página con una descripción completa, guía de configuración y estado de las funciones. Haz clic en cualquier modo para leer más.",
+  "modes.hub.feedback.text": "¿Falta algún modo, has detectado algo incorrecto o quieres sugerir un formato que deberíamos incluir?"
 }
   };
 

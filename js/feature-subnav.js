@@ -3,19 +3,22 @@
   var inFeaturesDir = path.indexOf('/features/') !== -1;
   var inModes = path.indexOf('/modes/') !== -1;
 
-  var f, m, overview;
+  var f, m, overview, overviewLabel;
   if (inFeaturesDir) {
     f = '';
     m = '../modes/';
     overview = '../features.html';
+    overviewLabel = 'Overview – All Features';
   } else if (inModes) {
     f = '../features/';
     m = '';
-    overview = '../features.html';
+    overview = '../modes.html';
+    overviewLabel = 'Overview – All Modes';
   } else {
     f = 'features/';
     m = 'modes/';
     overview = 'features.html';
+    overviewLabel = 'Overview – All Features';
   }
 
   var style = document.createElement('style');
@@ -95,7 +98,7 @@
   placeholder.outerHTML = `
     <nav class="features-subnav" aria-label="Feature areas">
       <div class="subnav-overview">
-        <a href="${overview}">Overview – All Features</a>
+        <a href="${overview}">${overviewLabel}</a>
       </div>
       <div class="subnav-groups">
         <div class="subnav-group">
