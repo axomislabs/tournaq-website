@@ -1709,7 +1709,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               onTap: canUndo ? _removeGameLost : null,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
-                child: Row(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -1728,6 +1730,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                               .withValues(alpha: canUndo ? 0.9 : 0.3)),
                     ),
                   ],
+                  ),
                 ),
               ),
             ),

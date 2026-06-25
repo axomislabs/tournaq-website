@@ -87,6 +87,21 @@ class ComingSoonPage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
+                onPressed: () => openExternalUrl(context, AppLinks.featuresPage),
+                icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                label: Text(l10n.comingSoonLearnMore),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.gold,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
                 onPressed: () => openExternalUrl(context, AppLinks.feedbackForm),
                 icon: const Icon(Icons.feedback_rounded, size: 18),
                 label: Text(l10n.btnGiveFeedback),

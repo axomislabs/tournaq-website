@@ -127,7 +127,7 @@ abstract class AppLocalizations {
   /// No description provided for @navTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Games & Tournaments'**
+  /// **'TournaQ Arena'**
   String get navTournaments;
 
   /// No description provided for @navTeams.
@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @pageTournaments.
   ///
   /// In en, this message translates to:
-  /// **'Games & Tournaments'**
+  /// **'TournaQ Arena'**
   String get pageTournaments;
 
   /// No description provided for @pageClubs.
@@ -730,6 +730,180 @@ abstract class AppLocalizations {
   /// **'Your feedback can help shape this feature before it launches.'**
   String get comingSoonBody;
 
+  /// No description provided for @comingSoonLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more on website'**
+  String get comingSoonLearnMore;
+
+  /// No description provided for @landingTournamentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage tournaments & scrambles'**
+  String get landingTournamentsSubtitle;
+
+  /// No description provided for @landingAdminSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage players, teams & groups'**
+  String get landingAdminSubtitle;
+
+  /// No description provided for @btnGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get btnGotIt;
+
+  /// No description provided for @btnLearnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get btnLearnMore;
+
+  /// No description provided for @tournamentsSectionQuickGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Games'**
+  String get tournamentsSectionQuickGames;
+
+  /// No description provided for @tournamentsSectionSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Competitions & Socials'**
+  String get tournamentsSectionSingle;
+
+  /// No description provided for @tournamentsSectionTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team Competitions'**
+  String get tournamentsSectionTeam;
+
+  /// No description provided for @tournamentsSectionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament History'**
+  String get tournamentsSectionHistory;
+
+  /// No description provided for @modeQuickGamesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad-hoc scored matches'**
+  String get modeQuickGamesDesc;
+
+  /// No description provided for @modeSocialScramblesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed round-robin mixer'**
+  String get modeSocialScramblesDesc;
+
+  /// No description provided for @modeKotcDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Winners stay, challengers rotate'**
+  String get modeKotcDesc;
+
+  /// No description provided for @modeDoghouseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get out of the Doghouse'**
+  String get modeDoghouseDesc;
+
+  /// No description provided for @modeLeagueDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Points-based standings'**
+  String get modeLeagueDesc;
+
+  /// No description provided for @modeSingleElimDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic knockout bracket'**
+  String get modeSingleElimDesc;
+
+  /// No description provided for @modeDoubleElimDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-chance bracket'**
+  String get modeDoubleElimDesc;
+
+  /// No description provided for @modeGroupSeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Group stage · Single Elimination'**
+  String get modeGroupSeDesc;
+
+  /// No description provided for @modeGroupDeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Group stage · Double Elimination'**
+  String get modeGroupDeDesc;
+
+  /// No description provided for @modeSwissDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Paired rounds by score'**
+  String get modeSwissDesc;
+
+  /// No description provided for @modeLeagueShortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track standings across a full round-robin season with points, wins, and goal difference.'**
+  String get modeLeagueShortDesc;
+
+  /// No description provided for @modeDoubleElimShortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Winners and losers brackets — you need two losses to be eliminated.'**
+  String get modeDoubleElimShortDesc;
+
+  /// No description provided for @modeGroupSeShortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams advance from a group stage into a single-elimination knockout bracket.'**
+  String get modeGroupSeShortDesc;
+
+  /// No description provided for @modeGroupDeShortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams advance from a group stage into a double-elimination bracket.'**
+  String get modeGroupDeShortDesc;
+
+  /// No description provided for @modeSwissShortDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Players are paired each round based on their current score — no eliminations, full schedule.'**
+  String get modeSwissShortDesc;
+
+  /// No description provided for @tournamentsDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all history?'**
+  String get tournamentsDeleteTitle;
+
+  /// No description provided for @tournamentsDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete all {count} tournaments. This cannot be undone.'**
+  String tournamentsDeleteBody(int count);
+
+  /// No description provided for @tournamentsDeleteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all'**
+  String get tournamentsDeleteAll;
+
+  /// No description provided for @tournamentsAllLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All Tournaments'**
+  String get tournamentsAllLabel;
+
+  /// No description provided for @tournamentsInfoContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a match or run a full tournament — all from one place.\n\nQuick Games — Scored matches on the spot. Minimal setup, just pick two teams and go.\n\nSingle Competitions & Socials — Individual formats where players compete and rank as themselves, rotating across the session.\n\nTeam Competitions — Team-based formats where pre-formed teams face off in a bracket or standings table.\n\nTap Info on any tile to learn more before you begin.'**
+  String get tournamentsInfoContent;
+
   /// No description provided for @landingQuickStartSubtitle.
   ///
   /// In en, this message translates to:
@@ -1027,13 +1201,13 @@ abstract class AppLocalizations {
   /// No description provided for @contactUserGuide.
   ///
   /// In en, this message translates to:
-  /// **'User Guide'**
+  /// **'Feature Overview'**
   String get contactUserGuide;
 
   /// No description provided for @contactUserGuideSub.
   ///
   /// In en, this message translates to:
-  /// **'Tutorials and how-to guides'**
+  /// **'Explore all modes and features on the website'**
   String get contactUserGuideSub;
 
   /// No description provided for @contactLegalHub.
@@ -2811,6 +2985,1284 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added ({added}/{total})'**
   String doghouseAddedCount(int added, int total);
+
+  /// No description provided for @statsRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} rounds'**
+  String statsRounds(int count);
+
+  /// No description provided for @statsPtsScored.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} pts scored'**
+  String statsPtsScored(int total);
+
+  /// No description provided for @statsTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} teams'**
+  String statsTeams(int count);
+
+  /// No description provided for @statsCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} courts'**
+  String statsCourts(int count);
+
+  /// No description provided for @statsMatchesOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} / {total} matches'**
+  String statsMatchesOf(int completed, int total);
+
+  /// No description provided for @statsGamesOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed}/{total} games'**
+  String statsGamesOf(int completed, int total);
+
+  /// No description provided for @setupDuplicateNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate Name'**
+  String get setupDuplicateNameTitle;
+
+  /// No description provided for @setupDuplicateNameBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" is already added to this tournament. Add anyway?'**
+  String setupDuplicateNameBody(String name);
+
+  /// No description provided for @btnAddAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Anyway'**
+  String get btnAddAnyway;
+
+  /// No description provided for @setupSectionPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get setupSectionPlayers;
+
+  /// No description provided for @setupSectionCreatePlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Player'**
+  String get setupSectionCreatePlayer;
+
+  /// No description provided for @setupAddExistingPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Existing Players ({count})'**
+  String setupAddExistingPlayers(int count);
+
+  /// No description provided for @setupSearchPlayersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search players…'**
+  String get setupSearchPlayersHint;
+
+  /// No description provided for @setupPlayerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Player name'**
+  String get setupPlayerNameHint;
+
+  /// No description provided for @setupPlayersOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{target} players added'**
+  String setupPlayersOf(int count, int target);
+
+  /// No description provided for @setupTargetPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Players'**
+  String get setupTargetPlayers;
+
+  /// No description provided for @setupAvailableTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Time'**
+  String get setupAvailableTime;
+
+  /// No description provided for @setupMatchDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Duration'**
+  String get setupMatchDuration;
+
+  /// No description provided for @setupCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts'**
+  String get setupCourts;
+
+  /// No description provided for @setupBreakBetweenRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Break Between Rounds'**
+  String get setupBreakBetweenRounds;
+
+  /// No description provided for @setupFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get setupFormat;
+
+  /// No description provided for @setupPlannedStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned Start Time'**
+  String get setupPlannedStartTime;
+
+  /// No description provided for @setupPlannedEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned End Time'**
+  String get setupPlannedEndTime;
+
+  /// No description provided for @setupSchedulePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule Preview'**
+  String get setupSchedulePreview;
+
+  /// No description provided for @setupRoundDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Round duration'**
+  String get setupRoundDuration;
+
+  /// No description provided for @setupRoundsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds'**
+  String get setupRoundsLabel;
+
+  /// No description provided for @setupScheduledDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled duration'**
+  String get setupScheduledDuration;
+
+  /// No description provided for @setupScheduledEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled end time'**
+  String get setupScheduledEndTime;
+
+  /// No description provided for @setupSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get setupSuggestions;
+
+  /// No description provided for @setupFormatAutoAllplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Allplay'**
+  String get setupFormatAutoAllplay;
+
+  /// No description provided for @setupCourtsInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently fixed at 1 court.\n\nMulti-court support — assign and track multiple simultaneous courts with optimal rotation — is planned for a future release.'**
+  String get setupCourtsInfoBody;
+
+  /// No description provided for @setupSeedingRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Random'**
+  String get setupSeedingRandom;
+
+  /// No description provided for @setupSeedingSeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeded'**
+  String get setupSeedingSeeded;
+
+  /// No description provided for @setupOddTeamsByes.
+  ///
+  /// In en, this message translates to:
+  /// **'Byes'**
+  String get setupOddTeamsByes;
+
+  /// No description provided for @setupOddTeamsPlayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Play-in'**
+  String get setupOddTeamsPlayIn;
+
+  /// No description provided for @setupSectionTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get setupSectionTeams;
+
+  /// No description provided for @setupRemoveAllTeamsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all teams?'**
+  String get setupRemoveAllTeamsTitle;
+
+  /// No description provided for @setupRemoveAllTeamsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove all added teams from the list.'**
+  String get setupRemoveAllTeamsBody;
+
+  /// No description provided for @setupNoTeamsMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams match.'**
+  String get setupNoTeamsMatch;
+
+  /// No description provided for @setupNoTeamsAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams added yet.'**
+  String get setupNoTeamsAddedYet;
+
+  /// No description provided for @setupTeamNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Team name'**
+  String get setupTeamNameHint;
+
+  /// No description provided for @setupAddExistingTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Existing Teams ({count})'**
+  String setupAddExistingTeams(int count);
+
+  /// No description provided for @setupSearchTeamsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search teams…'**
+  String get setupSearchTeamsHint;
+
+  /// No description provided for @setupCreateTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Team'**
+  String get setupCreateTeam;
+
+  /// No description provided for @setupGeneration.
+  ///
+  /// In en, this message translates to:
+  /// **'Generation'**
+  String get setupGeneration;
+
+  /// No description provided for @setupOddTeamsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd Teams'**
+  String get setupOddTeamsLabel;
+
+  /// No description provided for @setupEarlyRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Early Rounds'**
+  String get setupEarlyRounds;
+
+  /// No description provided for @setupFinalRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Rounds'**
+  String get setupFinalRounds;
+
+  /// No description provided for @setupReadyToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to start!'**
+  String get setupReadyToStart;
+
+  /// No description provided for @setupAddAllTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Add all {count} teams to continue'**
+  String setupAddAllTeams(int count);
+
+  /// No description provided for @setupTapToAddTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add teams'**
+  String get setupTapToAddTeams;
+
+  /// No description provided for @setupTeamsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/{target} teams added'**
+  String setupTeamsOf(int count, int target);
+
+  /// No description provided for @overviewSectionOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overviewSectionOverview;
+
+  /// No description provided for @overviewSectionSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get overviewSectionSchedule;
+
+  /// No description provided for @overviewGamesCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} / {total} games completed'**
+  String overviewGamesCompleted(int completed, int total);
+
+  /// No description provided for @overviewStatsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{rounds} rounds  ·  {courts} courts  ·  {players} players'**
+  String overviewStatsSummary(int rounds, int courts, int players);
+
+  /// No description provided for @overviewFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished: {time}'**
+  String overviewFinished(String time);
+
+  /// No description provided for @overviewEstFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. finish: {time}'**
+  String overviewEstFinish(String time);
+
+  /// No description provided for @overviewSectionPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Players ({count})'**
+  String overviewSectionPlayers(int count);
+
+  /// No description provided for @overviewAddPlayerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Added players join as a late entry.'**
+  String get overviewAddPlayerSubtitle;
+
+  /// No description provided for @overviewAddConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {name}?'**
+  String overviewAddConfirm(String name);
+
+  /// No description provided for @overviewAddLateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will join as a late entry. Remaining pairings will be reshuffled — some players may end up with an unequal number of games.'**
+  String overviewAddLateBody(String name);
+
+  /// No description provided for @overviewSwapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap out {name}'**
+  String overviewSwapTitle(String name);
+
+  /// No description provided for @overviewSwapSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will be removed from upcoming rounds.'**
+  String overviewSwapSubtitle(String name);
+
+  /// No description provided for @overviewEjectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject {name}?'**
+  String overviewEjectTitle(String name);
+
+  /// No description provided for @overviewEjectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will be removed from all upcoming rounds. Remaining pairings will be reshuffled — some players may end up with an unequal number of games. Completed games remain in the stats.'**
+  String overviewEjectBody(String name);
+
+  /// No description provided for @overviewEjectBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject'**
+  String get overviewEjectBtn;
+
+  /// No description provided for @overviewEditPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Player'**
+  String get overviewEditPlayer;
+
+  /// No description provided for @overviewAllPlayersAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'All existing players are already in this tournament.'**
+  String get overviewAllPlayersAlready;
+
+  /// No description provided for @overviewRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {number}'**
+  String overviewRound(int number);
+
+  /// No description provided for @overviewActual.
+  ///
+  /// In en, this message translates to:
+  /// **'actual'**
+  String get overviewActual;
+
+  /// No description provided for @overviewBreakUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'· Break until {time}'**
+  String overviewBreakUntil(String time);
+
+  /// No description provided for @scrambleStatusSwappedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'swapped out'**
+  String get scrambleStatusSwappedOut;
+
+  /// No description provided for @scrambleStatusSwappedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'sub in'**
+  String get scrambleStatusSwappedIn;
+
+  /// No description provided for @scrambleStatusLate.
+  ///
+  /// In en, this message translates to:
+  /// **'late'**
+  String get scrambleStatusLate;
+
+  /// No description provided for @tooltipEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get tooltipEdit;
+
+  /// No description provided for @tooltipEject.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject'**
+  String get tooltipEject;
+
+  /// No description provided for @tooltipSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get tooltipSwap;
+
+  /// No description provided for @tooltipRankings.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Rankings'**
+  String get tooltipRankings;
+
+  /// No description provided for @scorecardSwapSides.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap Sides'**
+  String get scorecardSwapSides;
+
+  /// No description provided for @scorecardSwapSidesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch left and right display'**
+  String get scorecardSwapSidesSubtitle;
+
+  /// No description provided for @scorecardMatchHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Match History'**
+  String get scorecardMatchHistory;
+
+  /// No description provided for @scorecardMatchHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Point-by-point scoring timeline'**
+  String get scorecardMatchHistorySubtitle;
+
+  /// No description provided for @scorecardPlannedStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned start'**
+  String get scorecardPlannedStart;
+
+  /// No description provided for @scorecardPlannedEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned end'**
+  String get scorecardPlannedEnd;
+
+  /// No description provided for @scorecardEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get scorecardEnd;
+
+  /// No description provided for @scorecardOverSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Over schedule!'**
+  String get scorecardOverSchedule;
+
+  /// No description provided for @scorecardOverScheduleHurry.
+  ///
+  /// In en, this message translates to:
+  /// **'Over schedule · Hurry up!'**
+  String get scorecardOverScheduleHurry;
+
+  /// No description provided for @scorecardStartsServing.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} starts serving'**
+  String scorecardStartsServing(String name);
+
+  /// No description provided for @scorecardUndoCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Completion'**
+  String get scorecardUndoCompletion;
+
+  /// No description provided for @scorecardStartMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Match'**
+  String get scorecardStartMatch;
+
+  /// No description provided for @scorecardCompleteGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Game'**
+  String get scorecardCompleteGame;
+
+  /// No description provided for @scorecardManualScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually Set Score'**
+  String get scorecardManualScore;
+
+  /// No description provided for @scorecardBackToSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Schedule'**
+  String get scorecardBackToSchedule;
+
+  /// No description provided for @scorecardManualScoreBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual Score Not Available'**
+  String get scorecardManualScoreBlockedTitle;
+
+  /// No description provided for @scorecardManualScoreBlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual score entry is only available before live scoring has started. This prevents accidentally overwriting points that were already tracked.'**
+  String get scorecardManualScoreBlockedBody;
+
+  /// No description provided for @scorecardManualScoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.'**
+  String get scorecardManualScoreDescription;
+
+  /// No description provided for @btnOK.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get btnOK;
+
+  /// No description provided for @btnAdjustFinalScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust Final Score'**
+  String get btnAdjustFinalScore;
+
+  /// No description provided for @btnRestart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get btnRestart;
+
+  /// No description provided for @btnResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get btnResume;
+
+  /// No description provided for @btnApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get btnApply;
+
+  /// No description provided for @labelMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min'**
+  String labelMinutes(int n);
+
+  /// No description provided for @matchScorecard.
+  ///
+  /// In en, this message translates to:
+  /// **'Scorecard'**
+  String get matchScorecard;
+
+  /// No description provided for @matchOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Options'**
+  String get matchOptions;
+
+  /// No description provided for @matchViewHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View point-by-point history'**
+  String get matchViewHistory;
+
+  /// No description provided for @matchComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Match complete'**
+  String get matchComplete;
+
+  /// No description provided for @matchSetCompleteBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Set complete — confirm before next set'**
+  String get matchSetCompleteBanner;
+
+  /// No description provided for @matchSuggestedToServe.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} suggested to start serving'**
+  String matchSuggestedToServe(String name);
+
+  /// No description provided for @matchSuggestedReferee.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} suggested as referee'**
+  String matchSuggestedReferee(String name);
+
+  /// No description provided for @matchAssignRefereeManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a referee manually'**
+  String get matchAssignRefereeManually;
+
+  /// No description provided for @matchScoresTiedSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores are tied — a set cannot end in a draw.'**
+  String get matchScoresTiedSet;
+
+  /// No description provided for @matchScoresTiedMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Scores are tied — a winner must be determined before completing.'**
+  String get matchScoresTiedMatch;
+
+  /// No description provided for @matchSetsTied.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets are tied — a winner must be determined before completing.'**
+  String get matchSetsTied;
+
+  /// No description provided for @matchUndoSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Set'**
+  String get matchUndoSet;
+
+  /// No description provided for @matchCompleteSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Set'**
+  String get matchCompleteSet;
+
+  /// No description provided for @matchUndoMatchCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Match Completion'**
+  String get matchUndoMatchCompletion;
+
+  /// No description provided for @matchCompleteMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Match'**
+  String get matchCompleteMatch;
+
+  /// No description provided for @matchSetScoreManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Score Manually'**
+  String get matchSetScoreManually;
+
+  /// No description provided for @matchBackToBracket.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Bracket'**
+  String get matchBackToBracket;
+
+  /// No description provided for @matchCourtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Court {court}'**
+  String matchCourtLabel(int court);
+
+  /// No description provided for @matchStartsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {time}'**
+  String matchStartsAt(String time);
+
+  /// No description provided for @matchSetNScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {n} Score'**
+  String matchSetNScore(int n);
+
+  /// No description provided for @matchSetScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Score'**
+  String get matchSetScore;
+
+  /// No description provided for @bracketWithdrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw Team?'**
+  String get bracketWithdrawTitle;
+
+  /// No description provided for @bracketWithdrawBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw \"{name}\"? Their pending matches will be resolved as walkovers.'**
+  String bracketWithdrawBody(String name);
+
+  /// No description provided for @bracketWithdrawBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get bracketWithdrawBtn;
+
+  /// No description provided for @bracketFinalRoundsFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Rounds Format'**
+  String get bracketFinalRoundsFormat;
+
+  /// No description provided for @bracketEarlyRoundsFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Early Rounds Format'**
+  String get bracketEarlyRoundsFormat;
+
+  /// No description provided for @bracketFinalRoundsAppliesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to the last {n} round(s)'**
+  String bracketFinalRoundsAppliesTo(int n);
+
+  /// No description provided for @bracketEarlyRoundsAppliesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to all early rounds'**
+  String get bracketEarlyRoundsAppliesTo;
+
+  /// No description provided for @setupSetsPerGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets per game'**
+  String get setupSetsPerGame;
+
+  /// No description provided for @setupPointsPerSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Points per set'**
+  String get setupPointsPerSet;
+
+  /// No description provided for @bracketBreakFinalRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Break — Final Rounds'**
+  String get bracketBreakFinalRounds;
+
+  /// No description provided for @bracketBreakEarlyRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Break — Early Rounds'**
+  String get bracketBreakEarlyRounds;
+
+  /// No description provided for @bracketNoBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'No break'**
+  String get bracketNoBreak;
+
+  /// No description provided for @bracketNoStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'No start time set'**
+  String get bracketNoStartTime;
+
+  /// No description provided for @bracketStartsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts: {label}'**
+  String bracketStartsLabel(String label);
+
+  /// No description provided for @bracketTournamentWinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Winner'**
+  String get bracketTournamentWinner;
+
+  /// No description provided for @bracketSectionTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams ({count})'**
+  String bracketSectionTeams(int count);
+
+  /// No description provided for @bracketSwapTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap Team'**
+  String get bracketSwapTeamTitle;
+
+  /// No description provided for @bracketSwapTeamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacing \"{name}\" in all pending matches.'**
+  String bracketSwapTeamSubtitle(String name);
+
+  /// No description provided for @bracketSearchTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Search teams…'**
+  String get bracketSearchTeams;
+
+  /// No description provided for @bracketNoTeamsInHub.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams in Teams Hub yet.'**
+  String get bracketNoTeamsInHub;
+
+  /// No description provided for @bracketAllTeamsInTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'All hub teams are already in this tournament.'**
+  String get bracketAllTeamsInTournament;
+
+  /// No description provided for @scorecardMatchTimerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Match Timer'**
+  String get scorecardMatchTimerLabel;
+
+  /// No description provided for @scorecardUpcomingGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Games'**
+  String get scorecardUpcomingGames;
+
+  /// No description provided for @scorecardPlayerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} players'**
+  String scorecardPlayerCount(int n);
+
+  /// No description provided for @scorecardGameCompletedLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Game completed — undo to edit scores'**
+  String get scorecardGameCompletedLock;
+
+  /// No description provided for @kotcTimeIsUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is up'**
+  String get kotcTimeIsUp;
+
+  /// No description provided for @kotcSessionEndedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The session timer has ended. Complete the tournament now?'**
+  String get kotcSessionEndedBody;
+
+  /// No description provided for @kotcSubstituteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Substitute {name}'**
+  String kotcSubstituteTitle(String name);
+
+  /// No description provided for @kotcSubstituteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will return to the queue.'**
+  String kotcSubstituteBody(String name);
+
+  /// No description provided for @kotcAddLateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Late Player?'**
+  String get kotcAddLateTitle;
+
+  /// No description provided for @kotcAddLateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This player is joining late and won\'t have had the same opportunities as players who started at the beginning. Their stats will be tagged as \"Late\".'**
+  String get kotcAddLateBody;
+
+  /// No description provided for @btnContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get btnContinue;
+
+  /// No description provided for @kotcLateTag.
+  ///
+  /// In en, this message translates to:
+  /// **'LATE'**
+  String get kotcLateTag;
+
+  /// No description provided for @kotcAdminTag.
+  ///
+  /// In en, this message translates to:
+  /// **'ADMIN'**
+  String get kotcAdminTag;
+
+  /// No description provided for @kotcChangeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Admin'**
+  String get kotcChangeAdmin;
+
+  /// No description provided for @kotcChangeAdminSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select who keeps score. The current admin returns to the queue.'**
+  String get kotcChangeAdminSubtitle;
+
+  /// No description provided for @kotcNextAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT ADMIN'**
+  String get kotcNextAdmin;
+
+  /// No description provided for @kotcNextAdminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested from the current court team.'**
+  String get kotcNextAdminNote;
+
+  /// No description provided for @kotcGameWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Won!'**
+  String get kotcGameWon;
+
+  /// No description provided for @kotcReachedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} reached {points} points!'**
+  String kotcReachedPoints(String names, int points);
+
+  /// No description provided for @kotcEjectReturn.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be ejected and return to the queue.'**
+  String get kotcEjectReturn;
+
+  /// No description provided for @kotcEjectTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject Team?'**
+  String get kotcEjectTeamTitle;
+
+  /// No description provided for @kotcEjectTeamBodyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Current team will be ejected. Their {pts} pts will be recorded.'**
+  String kotcEjectTeamBodyPoints(int pts);
+
+  /// No description provided for @kotcEjectTeamBodyNoPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Current team will be ejected and return to the queue.'**
+  String get kotcEjectTeamBodyNoPoints;
+
+  /// No description provided for @kotcLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without ejecting?'**
+  String get kotcLeaveTitle;
+
+  /// No description provided for @kotcLeaveBodyPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'The current team has {pts} unrecorded points. Leaving now will discard them. Eject the team first to save their score.'**
+  String kotcLeaveBodyPoints(int pts);
+
+  /// No description provided for @kotcTournamentComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament complete'**
+  String get kotcTournamentComplete;
+
+  /// No description provided for @kotcGamesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{games} games · {pts} pts total'**
+  String kotcGamesSummary(int games, int pts);
+
+  /// No description provided for @kotcStatGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get kotcStatGames;
+
+  /// No description provided for @kotcStatWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Wins'**
+  String get kotcStatWins;
+
+  /// No description provided for @kotcStatPts.
+  ///
+  /// In en, this message translates to:
+  /// **'Pts'**
+  String get kotcStatPts;
+
+  /// No description provided for @kotcOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get kotcOptions;
+
+  /// No description provided for @kotcHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View all completed games'**
+  String get kotcHistorySubtitle;
+
+  /// No description provided for @kotcTeamEjected.
+  ///
+  /// In en, this message translates to:
+  /// **'Team\nEjected'**
+  String get kotcTeamEjected;
+
+  /// No description provided for @kotcUndoEject.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo\nEject'**
+  String get kotcUndoEject;
+
+  /// No description provided for @kotcUndoLastEjection.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Last Ejection'**
+  String get kotcUndoLastEjection;
+
+  /// No description provided for @kotcUpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up Next'**
+  String get kotcUpNext;
+
+  /// No description provided for @kotcChallengers.
+  ///
+  /// In en, this message translates to:
+  /// **'Challengers'**
+  String get kotcChallengers;
+
+  /// No description provided for @kotcWaitingForPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for players...'**
+  String get kotcWaitingForPlayers;
+
+  /// No description provided for @kotcStrikePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} pt strike'**
+  String kotcStrikePoints(int n);
+
+  /// No description provided for @kotcAdd4Random.
+  ///
+  /// In en, this message translates to:
+  /// **'Add 4 random'**
+  String get kotcAdd4Random;
+
+  /// No description provided for @kotcExistingPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing Players ({n})'**
+  String kotcExistingPlayers(int n);
+
+  /// No description provided for @kotcPlayerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Player name'**
+  String get kotcPlayerNameHint;
+
+  /// No description provided for @labelEject.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject'**
+  String get labelEject;
+
+  /// No description provided for @kotcSetupStyleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Style'**
+  String get kotcSetupStyleLabel;
+
+  /// No description provided for @kotcSetupStyleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The format of each game — 2vs2, 3vs3, and so on. Sets how many players make up each team on court.'**
+  String get kotcSetupStyleHelp;
+
+  /// No description provided for @kotcSetupAssignmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get kotcSetupAssignmentLabel;
+
+  /// No description provided for @kotcSetupAssignmentHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How the next court team is chosen.\n\nManual — the coach selects players from the queue by tapping them.\n\nAutomated — TournaQ suggests the best team, prioritising players who have waited longest and haven\'t been paired together recently. The coach can re-roll before confirming.\n\nAutomated — All Play — like Automated but no dedicated coach. A rotating admin keeps score while everyone else plays. TournaQ picks a random starting admin and suggests the next handoff from the ejected team after each game.'**
+  String get kotcSetupAssignmentHelp;
+
+  /// No description provided for @kotcSetupPlayersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Target number of players for the session. Used when auto-filling random players. Actual participants are added in the Players section below.'**
+  String get kotcSetupPlayersHelp;
+
+  /// No description provided for @kotcSetupTimeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Total session duration. The timer counts down from this value. When time runs out you will be prompted to complete the tournament or keep scoring.'**
+  String get kotcSetupTimeHelp;
+
+  /// No description provided for @kotcSetupStrikeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike Points (0 = off)'**
+  String get kotcSetupStrikeLabel;
+
+  /// No description provided for @kotcSetupStrikeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Points a team must score to win the game and be ejected as winners. Set to 0 to disable — teams stay on court until the coach manually ejects them.'**
+  String get kotcSetupStrikeHelp;
+
+  /// No description provided for @kotcHistoryWon.
+  ///
+  /// In en, this message translates to:
+  /// **'Won'**
+  String get kotcHistoryWon;
+
+  /// No description provided for @kotcHistoryNoGames.
+  ///
+  /// In en, this message translates to:
+  /// **'No games yet.'**
+  String get kotcHistoryNoGames;
+
+  /// No description provided for @kotcHistoryNoGamesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Games will appear here once a team is ejected.'**
+  String get kotcHistoryNoGamesSubtitle;
+
+  /// No description provided for @setupPlayersPerSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Players per side'**
+  String get setupPlayersPerSide;
+
+  /// No description provided for @setupAppliesToLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to last'**
+  String get setupAppliesToLast;
+
+  /// No description provided for @setupScheduleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get setupScheduleLabel;
+
+  /// No description provided for @setupScheduleSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft Schedule'**
+  String get setupScheduleSoft;
+
+  /// No description provided for @setupScheduleForced.
+  ///
+  /// In en, this message translates to:
+  /// **'Forced Schedule'**
+  String get setupScheduleForced;
+
+  /// No description provided for @setupAddBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Add break'**
+  String get setupAddBreak;
+
+  /// No description provided for @setupBreakMins.
+  ///
+  /// In en, this message translates to:
+  /// **'{mins} min break'**
+  String setupBreakMins(int mins);
+
+  /// No description provided for @setupStartsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts: {date}'**
+  String setupStartsAt(String date);
+
+  /// No description provided for @setupMatchCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 match} other{{count} matches}}'**
+  String setupMatchCount(int count);
+
+  /// No description provided for @setupRoundPlayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Play-in'**
+  String get setupRoundPlayIn;
+
+  /// No description provided for @setupRoundFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final'**
+  String get setupRoundFinal;
+
+  /// No description provided for @setupRoundSemiFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Semi-final'**
+  String get setupRoundSemiFinal;
+
+  /// No description provided for @setupRoundQuarterFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter-final'**
+  String get setupRoundQuarterFinal;
+
+  /// No description provided for @setupRoundN.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {n}'**
+  String setupRoundN(int n);
 }
 
 class _AppLocalizationsDelegate

@@ -63,13 +63,14 @@ class _LandingPageState extends State<LandingPage> {
   // ── Action Cards ──────────────────────────────────────────────────────────
 
   Widget _buildActionCards(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         children: [
           _buildPrimaryCard(
-            title: 'Games & Tournaments',
-            subtitle: 'Manage tournaments & scrambles',
+            title: l10n.navTournaments,
+            subtitle: l10n.landingTournamentsSubtitle,
             icon: Icons.emoji_events_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
@@ -82,8 +83,8 @@ class _LandingPageState extends State<LandingPage> {
           ),
           const SizedBox(height: 12),
           _buildPrimaryCard(
-            title: 'Administration',
-            subtitle: 'Manage players, teams & groups',
+            title: l10n.navAdmin,
+            subtitle: l10n.landingAdminSubtitle,
             icon: Icons.admin_panel_settings_rounded,
             gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
             shadowColor: AppColors.gold,
@@ -110,7 +111,7 @@ class _LandingPageState extends State<LandingPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 26),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: gradientColors,
@@ -129,13 +130,13 @@ class _LandingPageState extends State<LandingPage> {
         child: Row(
           children: [
             Container(
-              width: 62,
-              height: 62,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.18),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: 32),
+              child: Icon(icon, color: Colors.white, size: 26),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -146,7 +147,7 @@ class _LandingPageState extends State<LandingPage> {
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 22,
+                      fontSize: 19,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0.1,
                     ),
@@ -240,12 +241,11 @@ class _LandingPageState extends State<LandingPage> {
     required String subtitle,
     required IconData icon,
     required String description,
-    String? pageTitle,
   }) {
     return GestureDetector(
       onTap: () => Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => ComingSoonPage(
-          title: pageTitle ?? title,
+          title: title,
           shortDescription: description,
         ),
       )),

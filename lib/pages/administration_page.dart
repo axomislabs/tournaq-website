@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../app/app_links.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
+import '../utils/url_utils.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'groups_page.dart';
 import 'teams_page.dart';
@@ -17,11 +19,51 @@ class AdministrationPage extends StatelessWidget {
     required this.onAppStateChanged,
   });
 
+  void _showInfo(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        title: const Text('Administration',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Manage players, teams, and groups to efficiently set up your games and tournaments.',
+            style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => openExternalUrl(ctx, AppLinks.featureUserAdministration),
+            child: const Text('Learn more'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Got it',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: TournaQAppBar(title: l10n.navAdmin),
+      appBar: TournaQAppBar(
+        title: l10n.navAdmin,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            tooltip: 'About Administration',
+            onPressed: () => _showInfo(context),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(

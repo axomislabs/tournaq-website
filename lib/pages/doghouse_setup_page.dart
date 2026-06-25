@@ -12,6 +12,7 @@ import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
+import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
 const _kGold      = AppColors.goldDark;
 const _kGoldLight = AppColors.goldCream;
@@ -129,11 +130,13 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     );
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => DoghouseScoreboardPage(
-        tournament:      tournament,
-        existingPlayers: widget.existingPlayers,
-        onChanged:       widget.onCreated,
-        onCreatePlayer:  widget.onCreatePlayer,
+      builder: (_) => TournaqSplashPage(
+        destination: DoghouseScoreboardPage(
+          tournament:      tournament,
+          existingPlayers: widget.existingPlayers,
+          onChanged:       widget.onCreated,
+          onCreatePlayer:  widget.onCreatePlayer,
+        ),
       ),
     ));
   }

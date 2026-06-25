@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/scramble_service.dart';
@@ -152,13 +153,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 color: _kGold, size: 20),
           ),
           const SizedBox(width: 12),
-          const Text('Time is up',
-              style: TextStyle(
+          Text(AppLocalizations.of(context)!.kotcTimeIsUp,
+              style: const TextStyle(
                   fontSize: 17, fontWeight: FontWeight.w700)),
         ]),
-        content: const Text(
-          'The session timer has ended. Complete the tournament now?',
-          style: TextStyle(fontSize: 14, height: 1.5),
+        content: Text(
+          AppLocalizations.of(context)!.kotcSessionEndedBody,
+          style: const TextStyle(fontSize: 14, height: 1.5),
         ),
         actions: [
           SizedBox(
@@ -172,8 +173,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Complete Tournament',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(AppLocalizations.of(context)!.doghouseCompleteTournament,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
           const SizedBox(height: 6),
@@ -186,8 +187,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Continue scoring',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text(AppLocalizations.of(context)!.doghouseContinueScoring,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -513,12 +514,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Substitute ${outgoing.name}',
+                  Text(AppLocalizations.of(context)!.kotcSubstituteTitle(outgoing.name),
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 4),
                   Text(
-                    '${outgoing.name} will return to the queue.',
+                    AppLocalizations.of(context)!.kotcSubstituteBody(outgoing.name),
                     style: const TextStyle(
                         fontSize: 13, color: Colors.black54),
                   ),
@@ -590,20 +591,18 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
-        title: const Text('Add Late Player?',
-            style: TextStyle(
+        title: Text(AppLocalizations.of(context)!.kotcAddLateTitle,
+            style: const TextStyle(
                 fontSize: 16, fontWeight: FontWeight.w700)),
-        content: const Text(
-          'This player is joining late and won\'t have had the same '
-          'opportunities as players who started at the beginning. '
-          'Their stats will be tagged as "Late".',
-          style: TextStyle(
+        content: Text(
+          AppLocalizations.of(context)!.kotcAddLateBody,
+          style: const TextStyle(
               fontSize: 14, color: Colors.black54, height: 1.4),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.of(context)!.btnCancel)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
@@ -612,7 +611,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Continue'),
+            child: Text(AppLocalizations.of(context)!.btnContinue),
           ),
         ],
       ),
@@ -708,19 +707,19 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(children: [
-                    const Text('Add Players to Queue',
-                        style: TextStyle(
+                    Text(AppLocalizations.of(context)!.doghouseAddPlayersToQueue,
+                        style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800)),
                     const Spacer(),
-                    Text('${latePlayers.length} added',
+                    Text(AppLocalizations.of(context)!.doghouseNAdded(latePlayers.length),
                         style: const TextStyle(
                             color: Colors.black45, fontSize: 13)),
                   ]),
                   const SizedBox(height: 4),
-                  const Text(
-                    'All players added here will be tagged "Late" in stats.',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.doghouseLateTagInfo,
+                    style: const TextStyle(
                         fontSize: 12, color: Colors.black45),
                   ),
                   const SizedBox(height: 16),
@@ -732,7 +731,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                         controller: nameCtrl,
                         textCapitalization: TextCapitalization.words,
                         decoration: InputDecoration(
-                          hintText: 'Player name',
+                          hintText: AppLocalizations.of(context)!.kotcPlayerNameHint,
                           isDense: true,
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10)),
@@ -753,14 +752,14 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Add'),
+                      child: Text(AppLocalizations.of(context)!.btnAdd),
                     ),
                   ]),
 
                   // Search existing app players
                   if (allExisting.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text('Existing Players (${allExisting.length})',
+                    Text(AppLocalizations.of(context)!.kotcExistingPlayers(allExisting.length),
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -786,10 +785,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                     if (searchActive) ...[
                       const SizedBox(height: 6),
                       if (filtered.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No players match.',
-                              style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(AppLocalizations.of(context)!.doghouseNoPlayersMatch,
+                              style: const TextStyle(
                                   color: Colors.black38,
                                   fontSize: 13)),
                         )
@@ -832,7 +831,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                          '${latePlayers.length} player${latePlayers.length == 1 ? '' : 's'} added',
+                          AppLocalizations.of(context)!.scorecardPlayerCount(latePlayers.length),
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -841,7 +840,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                         onPressed: fillRandom,
                         icon: const Icon(Icons.shuffle_rounded,
                             size: 16),
-                        label: const Text('Add 4 random'),
+                        label: Text(AppLocalizations.of(context)!.kotcAdd4Random),
                         style: TextButton.styleFrom(
                             foregroundColor: _kOlive),
                       ),
@@ -850,7 +849,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                   const SizedBox(height: 6),
 
                   if (latePlayers.isEmpty)
-                    const Text('No late players added yet.',
+                    Text(AppLocalizations.of(context)!.doghouseNoLatePlayersYet,
                         style: TextStyle(
                             color: Colors.black38, fontSize: 13))
                   else
@@ -927,7 +926,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           borderRadius: BorderRadius.circular(4),
         ),
         child: Text(
-          'LATE',
+          AppLocalizations.of(context)!.kotcLateTag,
           style: TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.w800,
@@ -956,9 +955,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           const Icon(Icons.manage_accounts_rounded,
               size: 15, color: Colors.black45),
           const SizedBox(width: 6),
-          const Text(
-            'ADMIN',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.kotcAdminTag,
+            style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: Colors.black45,
@@ -1007,13 +1006,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Change Admin',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.kotcChangeAdmin,
+                  style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
-              const Text(
-                'Select who keeps score. The current admin returns to the queue.',
-                style: TextStyle(fontSize: 12, color: Colors.black45),
+              Text(
+                AppLocalizations.of(context)!.kotcChangeAdminSubtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
               ),
               const SizedBox(height: 16),
               // Current admin + pool players
@@ -1060,18 +1059,18 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               }),
               if (_hasTeam && _nextAdminPlayerId != null) ...[
                 const Divider(height: 24),
-                const Text(
-                  'NEXT ADMIN',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.kotcNextAdmin,
+                  style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: Colors.black45,
                       letterSpacing: 0.5),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Suggested from the current court team.',
-                  style: TextStyle(fontSize: 12, color: Colors.black45),
+                Text(
+                  AppLocalizations.of(context)!.kotcNextAdminNote,
+                  style: const TextStyle(fontSize: 12, color: Colors.black45),
                 ),
                 const SizedBox(height: 8),
                 ..._teamPlayers.map((p) {
@@ -1142,9 +1141,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 color: _kGold, size: 24),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: Text('Game Won!',
-                style: TextStyle(
+          Expanded(
+            child: Text(AppLocalizations.of(context)!.kotcGameWon,
+                style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.w800)),
           ),
         ]),
@@ -1152,13 +1151,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('$names reached ${_t.strikePoints} points!',
+            Text(AppLocalizations.of(context)!.kotcReachedPoints(names, _t.strikePoints),
                 style: const TextStyle(
                     fontSize: 15, fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            const Text(
-              'They will be ejected and return to the queue.',
-              style: TextStyle(fontSize: 13, color: Colors.black54),
+            Text(
+              AppLocalizations.of(context)!.kotcEjectReturn,
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
           ],
         ),
@@ -1167,8 +1166,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             width: double.infinity,
             child: ElevatedButton.icon(
               icon: const Icon(Icons.logout_rounded, size: 18),
-              label: const Text('Eject Team',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.doghouseEjectTeam,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -1195,20 +1194,20 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
-        title: const Text('Eject Team?',
+        title: Text(AppLocalizations.of(context)!.kotcEjectTeamTitle,
             style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
           pts > 0
-              ? 'Current team will be ejected. Their $pts point${pts == 1 ? '' : 's'} will be recorded.'
-              : 'Current team will be ejected and return to the queue.',
+              ? AppLocalizations.of(context)!.kotcEjectTeamBodyPoints(pts)
+              : AppLocalizations.of(context)!.kotcEjectTeamBodyNoPoints,
           style:
               const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.of(context)!.btnCancel)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
@@ -1217,7 +1216,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Eject'),
+            child: Text(AppLocalizations.of(context)!.labelEject),
           ),
         ],
       ),
@@ -1257,25 +1256,25 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16)),
-          title: const Text('Leave without ejecting?',
-              style: TextStyle(
+          title: Text(AppLocalizations.of(context)!.kotcLeaveTitle,
+              style: const TextStyle(
                   fontSize: 16, fontWeight: FontWeight.w700)),
           content: Text(
             pts > 0
-                ? 'The current team has $pts unrecorded point${pts == 1 ? '' : 's'}. Leaving now will discard them. Eject the team first to save their score.'
-                : 'The current team\'s unrecorded data will be lost.',
+                ? AppLocalizations.of(context)!.kotcLeaveBodyPoints(pts)
+                : AppLocalizations.of(context)!.doghouseLeaveBodyEmpty,
             style: const TextStyle(
                 fontSize: 14, color: Colors.black54, height: 1.4),
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.of(ctx).pop(false),
-                child: const Text('Cancel')),
+                child: Text(AppLocalizations.of(context)!.btnCancel)),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: TextButton.styleFrom(
                   foregroundColor: Colors.red),
-              child: const Text('Leave anyway'),
+              child: Text(AppLocalizations.of(context)!.doghouseLeaveAnyway),
             ),
           ],
         ),
@@ -1309,8 +1308,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           Icon(Icons.workspace_premium_rounded,
               color: _kGold, size: 24),
           const SizedBox(width: 8),
-          const Text('Tournament Complete',
-              style: TextStyle(
+          Text(AppLocalizations.of(context)!.kotcTournamentComplete,
+              style: const TextStyle(
                   fontSize: 18, fontWeight: FontWeight.w800)),
         ]),
         content: SizedBox(
@@ -1320,12 +1319,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${_t.gameCount} game${_t.gameCount == 1 ? '' : 's'} · ${_t.totalPoints} pts total',
+                AppLocalizations.of(context)!.kotcGamesSummary(_t.gameCount, _t.totalPoints),
                 style: const TextStyle(
                     fontSize: 13, color: Colors.black45),
               ),
               const SizedBox(height: 12),
-              const Text('Final Standings',
+              Text(AppLocalizations.of(context)!.doghouseFinalStandings,
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -1364,8 +1363,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Done',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            child: Text(AppLocalizations.of(context)!.btnDone,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -1396,12 +1395,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Player Stats',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.doghousePlayerStats,
+                  style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w800)),
               const SizedBox(height: 4),
               Text(
-                '${_t.gameCount} game${_t.gameCount == 1 ? '' : 's'} · ${_t.totalPoints} pts total',
+                AppLocalizations.of(context)!.kotcGamesSummary(_t.gameCount, _t.totalPoints),
                 style: const TextStyle(
                     fontSize: 13, color: Colors.black45),
               ),
@@ -1409,49 +1408,52 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 4),
-                child: Row(children: const [
-                  SizedBox(width: 28),
-                  Expanded(
-                      child: Text('Player',
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black45))),
-                  SizedBox(
-                    width: 44,
-                    child: Text('Games',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black45)),
-                  ),
-                  SizedBox(
-                    width: 52,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.emoji_events_rounded,
-                            size: 11, color: Colors.black45),
-                        SizedBox(width: 2),
-                        Text('Wins',
-                            style: TextStyle(
+                child: Builder(builder: (context) {
+                  final l10n = AppLocalizations.of(context)!;
+                  return Row(children: [
+                    const SizedBox(width: 28),
+                    Expanded(
+                        child: Text(l10n.filterPlayer,
+                            style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black45)),
-                      ],
+                                color: Colors.black45))),
+                    SizedBox(
+                      width: 44,
+                      child: Text(l10n.kotcStatGames,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black45)),
                     ),
-                  ),
-                  SizedBox(
-                    width: 44,
-                    child: Text('Pts',
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black45)),
-                  ),
-                ]),
+                    SizedBox(
+                      width: 52,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.emoji_events_rounded,
+                              size: 11, color: Colors.black45),
+                          const SizedBox(width: 2),
+                          Text(l10n.kotcStatWins,
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black45)),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 44,
+                      child: Text(l10n.kotcStatPts,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black45)),
+                    ),
+                  ]);
+                }),
               ),
               ...ranked.asMap().entries.map((entry) {
                 final i      = entry.key;
@@ -1551,8 +1553,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Options',
-                    style: TextStyle(
+                Text(AppLocalizations.of(sheetCtx)!.kotcOptions,
+                    style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
                 ListTile(
@@ -1565,11 +1567,11 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                     child: const Icon(Icons.history_rounded,
                         color: _kGold, size: 20),
                   ),
-                  title: const Text('Game History',
+                  title: Text(AppLocalizations.of(sheetCtx)!.doghouseGameHistory,
                       style:
-                          TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text('View all completed games',
-                      style: TextStyle(
+                          const TextStyle(fontWeight: FontWeight.w600)),
+                  subtitle: Text(AppLocalizations.of(sheetCtx)!.kotcHistorySubtitle,
+                      style: const TextStyle(
                           fontSize: 12, color: Colors.black45)),
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
@@ -1591,9 +1593,10 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final optionsButton = IconButton(
       icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
-      tooltip: 'Options',
+      tooltip: l10n.kotcOptions,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
       visualDensity: VisualDensity.compact,
@@ -1608,7 +1611,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           IconButton(
             icon: const Icon(Icons.bar_chart_rounded,
                 color: AppColors.goldLight),
-            tooltip: 'Player Stats',
+            tooltip: l10n.doghousePlayerStats,
             onPressed: _openStats,
           ),
         ],
@@ -1633,7 +1636,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _sectionHeader(
-            'Gameplay Controls',
+            AppLocalizations.of(context)!.doghouseGameplayControls,
             Icons.sports_volleyball_rounded,
             trailing: optionsButton,
           ),
@@ -1686,7 +1689,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             _buildUndoEjectionButton(),
           ],
           const SizedBox(height: 24),
-          _sectionHeader('Match Controls', Icons.emoji_events_rounded),
+          _sectionHeader(AppLocalizations.of(context)!.doghouseMatchControls, Icons.emoji_events_rounded),
           const SizedBox(height: 10),
           _buildMatchControls(),
           const SizedBox(height: 8),
@@ -1718,9 +1721,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 onFinished: _onSessionFinished,
               ),
               const SizedBox(width: 8),
-              _refBtn(Icons.pause_rounded, 'Stop', _pauseTimer),
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
               const SizedBox(width: 4),
-              _refBtn(Icons.replay_rounded, 'Start / Restart',
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
                   _startOrRestart,
                   primary: true),
               const SizedBox(width: 4),
@@ -1827,16 +1830,16 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.logout_rounded, size: 22),
-            SizedBox(height: 6),
+            const Icon(Icons.logout_rounded, size: 22),
+            const SizedBox(height: 6),
             Text(
-              'Team\nEjected',
+              AppLocalizations.of(context)!.kotcTeamEjected,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
             ),
           ],
         ),
@@ -1856,16 +1859,16 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.undo_rounded, size: 16),
-            SizedBox(height: 4),
+            const Icon(Icons.undo_rounded, size: 16),
+            const SizedBox(height: 4),
             Text(
-              'Undo\nEject',
+              AppLocalizations.of(context)!.kotcUndoEject,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
             ),
           ],
         ),
@@ -1877,8 +1880,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     return OutlinedButton.icon(
       onPressed: _undoEjection,
       icon: const Icon(Icons.undo_rounded, size: 18),
-      label: const Text('Undo Last Ejection',
-          style: TextStyle(fontWeight: FontWeight.w600)),
+      label: Text(AppLocalizations.of(context)!.kotcUndoLastEjection,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
       style: OutlinedButton.styleFrom(
         foregroundColor: _kGold,
         side: BorderSide(color: _kGold.withValues(alpha: 0.6)),
@@ -1906,9 +1909,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             const Icon(Icons.timer_rounded,
                 size: 14, color: _kOlive),
             const SizedBox(width: 6),
-            const Text(
-              'SESSION TIMER',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.doghouseSessionTimer,
+              style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: _kOlive,
@@ -1934,8 +1937,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
-              _refBtn(Icons.pause_rounded, 'Stop', _pauseTimer),
-              _refBtn(Icons.replay_rounded, 'Start / Restart',
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
                   _startOrRestart,
                   primary: true),
               _refTextBtn('+30s',
@@ -1979,9 +1982,9 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         const Icon(Icons.lock_rounded,
             size: 16, color: Colors.black54),
         const SizedBox(width: 8),
-        const Expanded(
-            child: Text('Tournament completed',
-                style: TextStyle(
+        Expanded(
+            child: Text(AppLocalizations.of(context)!.kotcTournamentComplete,
+                style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                     fontWeight: FontWeight.w500))),
@@ -2022,7 +2025,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               Icon(Icons.schedule_rounded,
                   size: 15, color: Colors.grey.shade500),
               const SizedBox(width: 6),
-              Text('Up Next',
+              Text(AppLocalizations.of(context)!.kotcUpNext,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -2033,8 +2036,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               TextButton.icon(
                 onPressed: canReroll ? _reroll : null,
                 icon: const Icon(Icons.refresh_rounded, size: 13),
-                label: const Text('Re-roll',
-                    style: TextStyle(fontSize: 11)),
+                label: Text(AppLocalizations.of(context)!.quickStartReRoll,
+                    style: const TextStyle(fontSize: 11)),
                 style: TextButton.styleFrom(
                   foregroundColor: _kOlive,
                   disabledForegroundColor: Colors.black26,
@@ -2047,7 +2050,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ]),
             const SizedBox(height: 8),
             if (!hasTeam)
-              Text('Not enough players in queue.',
+              Text(AppLocalizations.of(context)!.doghouseNotEnoughInQueue,
                   style: TextStyle(
                       color: Colors.grey.shade400, fontSize: 12))
             else
@@ -2098,8 +2101,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             Row(children: [
               const Icon(Icons.groups_rounded, size: 15, color: _kOlive),
               const SizedBox(width: 6),
-              const Text('Challengers',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.kotcChallengers,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _kOlive,
@@ -2108,8 +2111,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ]),
             const SizedBox(height: 8),
             if (!hasChallengers)
-              const Text('Waiting for players...',
-                  style: TextStyle(color: _kOlive, fontSize: 12))
+              Text(AppLocalizations.of(context)!.kotcWaitingForPlayers,
+                  style: const TextStyle(color: _kOlive, fontSize: 12))
             else
               Wrap(
                 spacing: 6,
@@ -2168,7 +2171,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                   color: canStart ? _kGold : Colors.black45),
               const SizedBox(width: 8),
               Text(
-                'Suggested Team',
+                AppLocalizations.of(context)!.doghouseSuggestedTeam,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -2179,8 +2182,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
               TextButton.icon(
                 onPressed: canReroll ? _reroll : null,
                 icon: const Icon(Icons.refresh_rounded, size: 14),
-                label: const Text('Re-roll',
-                    style: TextStyle(fontSize: 12)),
+                label: Text(AppLocalizations.of(context)!.quickStartReRoll,
+                    style: const TextStyle(fontSize: 12)),
                 style: TextButton.styleFrom(
                   foregroundColor: _kOlive,
                   disabledForegroundColor: Colors.black26,
@@ -2193,8 +2196,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ]),
             if (suggested.isEmpty) ...[
               SizedBox(height: compact ? 8 : 12),
-              const Text('Not enough players in queue.',
-                  style: TextStyle(color: Colors.black38, fontSize: 13)),
+              Text(AppLocalizations.of(context)!.doghouseNotEnoughInQueue,
+                  style: const TextStyle(color: Colors.black38, fontSize: 13)),
             ] else ...[
               SizedBox(height: compact ? 8 : 12),
               Wrap(
@@ -2222,8 +2225,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ElevatedButton.icon(
               onPressed: canStart ? _confirmSuggestedTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Start Game',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.btnStartGame,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -2270,7 +2273,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                   color: canStart ? _kGold : Colors.black45),
               const SizedBox(width: 8),
               Text(
-                'Select $needed players ($selected / $needed)',
+                AppLocalizations.of(context)!.doghouseSelectPlayers(needed, selected),
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -2320,7 +2323,7 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
 
             if (_pool.isNotEmpty) ...[
               SizedBox(height: compact ? 6 : 10),
-              Text('Queue — tap to add',
+              Text(AppLocalizations.of(context)!.doghouseQueueTapToAdd,
                   style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -2369,9 +2372,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             ElevatedButton.icon(
               onPressed: canStart ? _confirmTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Start Game',
-                  style:
-                      TextStyle(fontWeight: FontWeight.w700)),
+              label: Text(AppLocalizations.of(context)!.btnStartGame,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _kGold,
                 foregroundColor: Colors.white,
@@ -2596,11 +2598,11 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 '${_t.playersPerTeam}v${_t.playersPerTeam}',
                 Colors.grey.shade100, Colors.black45),
             _chip(Icons.people_rounded,
-                '${_t.playerCount} players',
+                AppLocalizations.of(context)!.scorecardPlayerCount(_t.playerCount),
                 Colors.grey.shade100, Colors.black45),
             if (_strikeEnabled)
               _chip(Icons.bolt_rounded,
-                  '${_t.strikePoints} pt strike',
+                  AppLocalizations.of(context)!.kotcStrikePoints(_t.strikePoints),
                   _kGoldLight, _kGold),
           ],
         ),
@@ -2610,8 +2612,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         OutlinedButton.icon(
           onPressed: _isCompleted ? null : _showAddPlayerToQueue,
           icon: const Icon(Icons.person_add_rounded, size: 18),
-          label: const Text('Add Player to Queue',
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          label: Text(AppLocalizations.of(context)!.doghouseAddPlayerToQueue,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
             foregroundColor: _kOlive,
             side: BorderSide(color: Colors.grey.shade300),
@@ -2629,8 +2631,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
           OutlinedButton.icon(
             onPressed: _undoCompletion,
             icon: const Icon(Icons.undo_rounded, size: 18),
-            label: const Text('Undo Completion',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text(AppLocalizations.of(context)!.doghouseUndoCompletion,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black54,
               side: BorderSide(color: Colors.grey.shade300),
@@ -2645,8 +2647,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             onPressed: _completeTournament,
             icon: const Icon(Icons.emoji_events_rounded,
                 size: 18),
-            label: const Text('Complete Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(AppLocalizations.of(context)!.doghouseCompleteTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
               foregroundColor: Colors.white,
@@ -2662,8 +2664,8 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
         OutlinedButton.icon(
           onPressed: _saveAndReturn,
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: const Text('Save and Return',
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          label: Text(AppLocalizations.of(context)!.doghouseSaveAndReturn,
+              style: const TextStyle(fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.black54,
             padding: const EdgeInsets.symmetric(vertical: 12),

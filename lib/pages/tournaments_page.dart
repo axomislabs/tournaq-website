@@ -1,6 +1,9 @@
 import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../app/app_links.dart';
+import '../l10n/app_localizations.dart';
+import '../utils/url_utils.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
@@ -152,25 +155,26 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
   Future<void> _deleteAllHistory() async {
     final total = _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount;
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete all history?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.tournamentsDeleteTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete all $total tournaments. This cannot be undone.',
+          l10n.tournamentsDeleteBody(total),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete all'),
+            child: Text(l10n.tournamentsDeleteAll),
           ),
         ],
       ),
@@ -199,6 +203,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
   }
 
   void _showPageInfo() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -206,24 +211,23 @@ class _TournamentsPageState extends State<TournamentsPage> {
         titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
         actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        title: const Text('Tournament Hub',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-        content: const SingleChildScrollView(
+        title: Text(l10n.navTournaments,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: SingleChildScrollView(
           child: Text(
-            'Choose a format below to start a new session. Each format is designed for a different style of play — tap the Info panel on any tile to learn more before you begin.\n\n'
-            'Single Competitions & Socials are formats where every player competes as an individual. '
-            'Players rotate in and out, and the final standings reflect personal performance across the session.\n\n'
-            'Team Competitions are bracket or standings-based formats where pre-formed teams play head to head. '
-            'Results feed into a bracket or league table to determine the winner.\n\n'
-            'Past sessions are saved automatically and accessible via the History section at the bottom of this page.',
-            style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
+            l10n.tournamentsInfoContent,
+            style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
           ),
         ),
         actions: [
           TextButton(
+            onPressed: () => openExternalUrl(ctx, AppLinks.modeGamesAndTournaments),
+            child: Text(l10n.btnLearnMore),
+          ),
+          TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got it',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(l10n.btnGotIt,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -232,9 +236,10 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: TournaQAppBar(
-        title: 'Games & Tournaments',
+        title: l10n.navTournaments,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
@@ -249,16 +254,17 @@ class _TournamentsPageState extends State<TournamentsPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Quick Games ────────────────────────────────────────────
-            _sectionHeader('Quick Games', Icons.flash_on_rounded),
+            _sectionHeader(l10n.tournamentsSectionQuickGames, Icons.flash_on_rounded),
             const SizedBox(height: 12),
             Column(children: [
               _TypeTile(
-                icon:        Icons.flash_on_rounded,
-                color:       AppColors.gold,
-                gradientEnd: AppColors.goldGradientEnd,
-                name:        'Quick Games',
-                description: 'Ad-hoc scored matches',
-                onTap:       _openQuickGames,
+                icon:         Icons.flash_on_rounded,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         'Quick Games',
+                description:  l10n.modeQuickGamesDesc,
+                onTap:        _openQuickGames,
+                learnMoreUrl: AppLinks.modeQuickGame,
                 helpText:
                     'Quick Games lets you start a scored match on the spot — '
                     'no tournament setup required. Pick two teams, set the '
@@ -270,17 +276,18 @@ class _TournamentsPageState extends State<TournamentsPage> {
             const SizedBox(height: 24),
 
             // ── Single Competitions & Socials ──────────────────────────
-            _sectionHeader('Single Competitions & Socials', Icons.people_rounded),
+            _sectionHeader(l10n.tournamentsSectionSingle, Icons.people_rounded),
             const SizedBox(height: 12),
             Column(children: [
               _TypeTile(
-                icon:        Icons.shuffle_rounded,
-                color:       AppColors.gold,
-                gradientEnd: AppColors.goldGradientEnd,
-                name:        'Social Scrambles',
-                description: 'Timed round-robin mixer',
-                count:       _scrambleCount,
-                onTap:       _openScrambleHub,
+                icon:         Icons.shuffle_rounded,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         'Social Scrambles',
+                description:  l10n.modeSocialScramblesDesc,
+                count:        _scrambleCount,
+                onTap:        _openScrambleHub,
+                learnMoreUrl: AppLinks.modeSocialScramble,
                 helpText:
                     'Social Scrambles is a timed, rotating mixer where teams are randomly '
                     'reshuffled every round. No one stays partnered for long — the whole '
@@ -300,13 +307,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Add your players, set a session timer, and go.',
               ),
               _TypeTile(
-                icon:        Icons.workspace_premium_rounded,
-                color:       AppColors.gold,
-                gradientEnd: AppColors.goldGradientEnd,
-                name:        'King of the Court',
-                description: 'Winners stay, challengers rotate',
-                count:       _kotcCount,
-                onTap:       _openKotcHub,
+                icon:         Icons.workspace_premium_rounded,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         'King of the Court',
+                description:  l10n.modeKotcDesc,
+                count:        _kotcCount,
+                onTap:        _openKotcHub,
+                learnMoreUrl: AppLinks.modeKingOfTheCourt,
                 helpText:
                     'King of the Court is a fast, individual competition where every '
                     'player fights for the crown. Players rotate on and off court in '
@@ -333,13 +341,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
                     'Add your players, set a session timer, and go.',
               ),
               _TypeTile(
-                icon:        Icons.pets_rounded,
-                color:       AppColors.gold,
-                gradientEnd: AppColors.goldGradientEnd,
-                name:        'Doghouse',
-                description: 'Get out of the Doghouse',
-                count:       _doghouseCount,
-                onTap:       _openDoghouseHub,
+                icon:         Icons.pets_rounded,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         'Doghouse',
+                description:  l10n.modeDoghouseDesc,
+                count:        _doghouseCount,
+                onTap:        _openDoghouseHub,
+                learnMoreUrl: AppLinks.modeDoghouse,
                 helpText:
                     'Doghouse is a fast, competitive tournament where the action never stops. '
                     'One team battles from the doghouse — score enough points to escape and make '
@@ -363,84 +372,85 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
             // ── Team Competitions ──────────────────────────────────────
             const SizedBox(height: 24),
-            _sectionHeader('Team Competitions', Icons.groups_rounded),
+            _sectionHeader(l10n.tournamentsSectionTeam, Icons.groups_rounded),
             const SizedBox(height: 12),
             Column(children: [
               _TypeTile(
-                icon:        Icons.table_chart_rounded,
-                color:       AppColors.olive,
-                gradientEnd: AppColors.oliveMedium,
-                name:        'League',
-                description: 'Points-based standings',
-                comingSoon:  true,
+                icon:         Icons.table_chart_rounded,
+                color:        AppColors.olive,
+                gradientEnd:  AppColors.oliveMedium,
+                name:         'League',
+                description:  l10n.modeLeagueDesc,
+                comingSoon:   true,
                 onTap: () => _openComingSoon(
                     'League / Round Robin',
-                    'Track standings across a full round-robin '
-                    'season with points, wins, and goal difference.'),
-                helpText:    'Detailed description coming soon.',
+                    l10n.modeLeagueShortDesc),
+                learnMoreUrl: AppLinks.featuresPage,
+                helpText:     'Detailed description coming soon.',
               ),
               _TypeTile(
-                icon:        Icons.account_tree_rounded,
-                iconAngle:   pi,
-                color:       AppColors.gold,
-                gradientEnd: AppColors.goldGradientEnd,
-                name:        'Single Elimination',
-                description: 'Classic knockout bracket',
-                count:       _koBracketCount,
-                onTap:       _openKoBracketHub,
-                helpText:    'Detailed description coming soon.',
+                icon:         Icons.account_tree_rounded,
+                iconAngle:    pi,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         'Single Elimination',
+                description:  l10n.modeSingleElimDesc,
+                count:        _koBracketCount,
+                onTap:        _openKoBracketHub,
+                learnMoreUrl: AppLinks.modeKoSystem,
+                helpText:     'Detailed description coming soon.',
               ),
               _TypeTile(
-                icon:        Icons.device_hub_rounded,
-                color:       AppColors.tertiary,
-                gradientEnd: const Color(0xFF6D4C2E),
-                name:        'Double Elimination',
-                description: 'Two-chance bracket',
-                comingSoon:  true,
+                icon:         Icons.device_hub_rounded,
+                color:        AppColors.tertiary,
+                gradientEnd:  const Color(0xFF6D4C2E),
+                name:         'Double Elimination',
+                description:  l10n.modeDoubleElimDesc,
+                comingSoon:   true,
                 onTap: () => _openComingSoon(
                     'Double Elimination',
-                    'Winners and losers brackets — you need two '
-                    'losses to be eliminated.'),
-                helpText:    'Detailed description coming soon.',
+                    l10n.modeDoubleElimShortDesc),
+                learnMoreUrl: AppLinks.featuresPage,
+                helpText:     'Detailed description coming soon.',
               ),
               _TypeTile(
-                icon:        Icons.stacked_bar_chart_rounded,
-                color:       const Color(0xFF00897B),
-                gradientEnd: const Color(0xFF00695C),
-                name:        'Group + SE',
-                description: 'Group stage · Single Elimination',
-                comingSoon:  true,
+                icon:         Icons.stacked_bar_chart_rounded,
+                color:        const Color(0xFF00897B),
+                gradientEnd:  const Color(0xFF00695C),
+                name:         'Group + SE',
+                description:  l10n.modeGroupSeDesc,
+                comingSoon:   true,
                 onTap: () => _openComingSoon(
                     'Group + Single Elimination',
-                    'Teams advance from a group stage into a '
-                    'single-elimination knockout bracket.'),
-                helpText:    'Detailed description coming soon.',
+                    l10n.modeGroupSeShortDesc),
+                learnMoreUrl: AppLinks.featuresPage,
+                helpText:     'Detailed description coming soon.',
               ),
               _TypeTile(
-                icon:        Icons.stacked_line_chart_rounded,
-                color:       const Color(0xFF6D4C41),
-                gradientEnd: const Color(0xFF4E342E),
-                name:        'Group + DE',
-                description: 'Group stage · Double Elimination',
-                comingSoon:  true,
+                icon:         Icons.stacked_line_chart_rounded,
+                color:        const Color(0xFF6D4C41),
+                gradientEnd:  const Color(0xFF4E342E),
+                name:         'Group + DE',
+                description:  l10n.modeGroupDeDesc,
+                comingSoon:   true,
                 onTap: () => _openComingSoon(
                     'Group + Double Elimination',
-                    'Teams advance from a group stage into a '
-                    'double-elimination bracket.'),
-                helpText:    'Detailed description coming soon.',
+                    l10n.modeGroupDeShortDesc),
+                learnMoreUrl: AppLinks.featuresPage,
+                helpText:     'Detailed description coming soon.',
               ),
               _TypeTile(
-                icon:        Icons.swap_vert_rounded,
-                color:       const Color(0xFF00897B),
-                gradientEnd: const Color(0xFF00695C),
-                name:        'Swiss System',
-                description: 'Paired rounds by score',
-                comingSoon:  true,
+                icon:         Icons.swap_vert_rounded,
+                color:        const Color(0xFF00897B),
+                gradientEnd:  const Color(0xFF00695C),
+                name:         'Swiss System',
+                description:  l10n.modeSwissDesc,
+                comingSoon:   true,
                 onTap: () => _openComingSoon(
                     'Swiss System',
-                    'Players are paired each round based on their '
-                    'current score — no eliminations, full schedule.'),
-                helpText:    'Detailed description coming soon.',
+                    l10n.modeSwissShortDesc),
+                learnMoreUrl: AppLinks.featuresPage,
+                helpText:     'Detailed description coming soon.',
               ),
             ]),
 
@@ -449,7 +459,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _sectionHeader('Tournament History', Icons.history_rounded),
+                _sectionHeader(l10n.tournamentsSectionHistory, Icons.history_rounded),
                 const Spacer(),
                 if (_scrambleCount + _kotcCount + _doghouseCount + _koBracketCount > 0)
                   TextButton(
@@ -458,13 +468,13 @@ class _TournamentsPageState extends State<TournamentsPage> {
                       foregroundColor: Colors.red,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                     ),
-                    child: const Text('Delete all', style: TextStyle(fontSize: 13)),
+                    child: Text(l10n.tournamentsDeleteAll, style: const TextStyle(fontSize: 13)),
                   ),
               ],
             ),
             const SizedBox(height: 12),
             _HistoryShortcutTile(
-              label: 'All Tournaments',
+              label: l10n.tournamentsAllLabel,
               count: _scrambleCount + _kotcCount + _doghouseCount,
               onTap: _openHistory,
             ),
@@ -527,6 +537,7 @@ class _TypeTile extends StatelessWidget {
   final bool comingSoon;
   final VoidCallback onTap;
   final String? helpText;
+  final String? learnMoreUrl;
   final double iconAngle;
 
   const _TypeTile({
@@ -539,6 +550,7 @@ class _TypeTile extends StatelessWidget {
     this.count = 0,
     this.comingSoon = false,
     this.helpText,
+    this.learnMoreUrl,
     this.iconAngle = 0,
   });
 
@@ -562,6 +574,11 @@ class _TypeTile extends StatelessWidget {
           ),
         ),
         actions: [
+          if (learnMoreUrl != null)
+            TextButton(
+              onPressed: () => openExternalUrl(ctx, learnMoreUrl!),
+              child: const Text('Learn more'),
+            ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Got it',
@@ -579,56 +596,53 @@ class _TypeTile extends StatelessWidget {
         : [color, gradientEnd];
     final shadowColor = comingSoon ? Colors.grey : color;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      height: 96,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradientColors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor.withValues(alpha: 0.28),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Main tile (4/5) ──────────────────────────────────────
-          Expanded(
-            flex: 5,
-            child: GestureDetector(
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 22, 16, 22),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Transform.rotate(
-                        angle: iconAngle,
-                        child: Icon(icon, color: Colors.white, size: 26),
-                      ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor.withValues(alpha: 0.28),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
+                    child: Transform.rotate(
+                      angle: iconAngle,
+                      child: Icon(icon, color: Colors.white, size: 26),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 70),
+                          child: Text(
                             name,
                             style: const TextStyle(
                               color: Colors.white,
@@ -639,90 +653,76 @@ class _TypeTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.80),
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (comingSoon)
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.20),
-                          borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
-                          'Soon',
+                        const SizedBox(height: 3),
+                        Text(
+                          description,
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: Colors.white.withValues(alpha: 0.80),
+                            fontSize: 13,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      )
-                    else if (count > 0)
-                      Container(
-                        margin: const EdgeInsets.only(left: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.20),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$count',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          // ── Separator ────────────────────────────────────────────
-          Container(width: 1, color: Colors.white.withValues(alpha: 0.15)),
-          // ── Info column (1/5) ────────────────────────────────────
-          Expanded(
-            flex: 1,
-            child: GestureDetector(
-              onTap: () => _showHelp(context),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
+            Positioned(
+              top: 12,
+              right: 12,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (comingSoon)
+                    Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.20),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Soon',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  else if (count > 0)
+                    Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.20),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '$count',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  GestureDetector(
+                    onTap: () => _showHelp(context),
+                    child: Icon(
                       Icons.info_outline_rounded,
-                      size: 22,
-                      color: Colors.white.withValues(alpha: 0.90),
+                      size: 20,
+                      color: Colors.white.withValues(alpha: 0.85),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Info',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.80),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

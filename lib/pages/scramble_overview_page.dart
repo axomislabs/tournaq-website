@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/player.dart';
 import '../models/scramble_tournament.dart';
 import '../services/local_storage_service.dart';
@@ -70,6 +71,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n      = AppLocalizations.of(context)!;
     final completed = _t.completedGames;
     final total     = _t.totalGames;
     final progress  = _t.progressFraction;
@@ -82,7 +84,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           IconButton(
             icon: const Icon(Icons.leaderboard_rounded,
                 color: AppColors.goldLight),
-            tooltip: 'Player Rankings',
+            tooltip: l10n.tooltipRankings,
             onPressed: _openStats,
           ),
         ],
@@ -92,15 +94,15 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _sectionDivider('Overview', Icons.bar_chart_rounded),
+            _sectionDivider(l10n.overviewSectionOverview, Icons.bar_chart_rounded),
             const SizedBox(height: 10),
-            _buildHeader(completed, total, progress),
+            _buildHeader(l10n, completed, total, progress),
             const SizedBox(height: 20),
-            _buildPlayersSection(),
+            _buildPlayersSection(l10n),
             const SizedBox(height: 20),
-            _sectionDivider('Schedule', Icons.event_note_rounded),
+            _sectionDivider(l10n.overviewSectionSchedule, Icons.event_note_rounded),
             const SizedBox(height: 10),
-            ..._buildRoundSections(),
+            ..._buildRoundSections(l10n),
           ],
         ),
       ),
@@ -150,7 +152,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Overview header ───────────────────────────────────────────────────────
 
-  Widget _buildHeader(int completed, int total, double progress) {
+  Widget _buildHeader(AppLocalizations l10n, int completed, int total, double progress) {
     final lastRound = _t.rounds.isNotEmpty ? _t.rounds.last : null;
     final estFinish =
         lastRound?.actualEndTime ?? lastRound?.scheduledBreakEndTime;
@@ -174,23 +176,25 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$completed / $total games completed',
+                      l10n.overviewGamesCompleted(completed, total),
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 15),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${_t.roundCount} rounds  ·  '
-                      '${_t.courtCount} court${_t.courtCount > 1 ? 's' : ''}  ·  '
-                      '${_t.playerCount} players',
+                      l10n.overviewStatsSummary(
+                          _t.roundCount, _t.courtCount, _t.playerCount),
                       style: const TextStyle(
                           fontSize: 12, color: Colors.black54),
                     ),
                     if (estFinish != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        '${finished ? 'Finished' : 'Est. finish'}: '
-                        '${ScrambleService.formatTime(estFinish)}',
+                        finished
+                            ? l10n.overviewFinished(
+                                ScrambleService.formatTime(estFinish))
+                            : l10n.overviewEstFinish(
+                                ScrambleService.formatTime(estFinish)),
                         style: const TextStyle(
                             fontSize: 12, color: Colors.black54),
                       ),
@@ -243,7 +247,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Players section ───────────────────────────────────────────────────────
 
-  Widget _buildPlayersSection() {
+  Widget _buildPlayersSection(AppLocalizations l10n) {
     final isLive = _t.rounds.isNotEmpty &&
         _t.status != ScrambleTournamentStatus.completed;
 
@@ -251,7 +255,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _sectionDivider(
-          'Players (${_t.players.length})',
+          l10n.overviewSectionPlayers(_t.players.length),
           Icons.group_rounded,
           collapsible: true,
           expanded: _playersExpanded,
@@ -261,21 +265,21 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         if (_playersExpanded) ...[
           const SizedBox(height: 10),
           if (isLive) ...[
-            _buildAddPlayerButton(),
+            _buildAddPlayerButton(l10n),
             const SizedBox(height: 8),
           ],
-          _buildPlayerTable(isLive),
+          _buildPlayerTable(l10n, isLive),
         ],
       ],
     );
   }
 
-  Widget _buildAddPlayerButton() {
+  Widget _buildAddPlayerButton(AppLocalizations l10n) {
     return OutlinedButton.icon(
       onPressed: _showAddPlayerSheet,
       icon: const Icon(Icons.person_add_rounded, size: 16),
-      label: const Text('Add Player',
-          style: TextStyle(fontWeight: FontWeight.w600)),
+      label: Text(l10n.menuAddPlayer,
+          style: const TextStyle(fontWeight: FontWeight.w600)),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.olive,
         side: BorderSide(color: AppColors.olive.withValues(alpha: 0.4)),
@@ -290,15 +294,15 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   // ── Add Player sheet ──────────────────────────────────────────────────────
 
   void _showAddPlayerSheet() {
+    final l10n = AppLocalizations.of(context)!;
     _showPlayerPickerSheet(
-      title: 'Add Player',
-      subtitle: 'Added players join as a late entry.',
+      title: l10n.menuAddPlayer,
+      subtitle: l10n.overviewAddPlayerSubtitle,
       onPickName: (name) async {
         final ok = await _confirmReshuffle(
-          'Add $name?',
-          '$name will join as a late entry. Remaining pairings will be '
-          'reshuffled — some players may end up with an unequal number of games.',
-          confirmLabel: 'Add Player',
+          l10n.overviewAddConfirm(name),
+          l10n.overviewAddLateBody(name),
+          confirmLabel: l10n.menuAddPlayer,
         );
         if (ok != true) return false;
         final globalPlayer = widget.onCreatePlayer?.call(name);
@@ -317,10 +321,9 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       },
       onPickExisting: (appUserId, name) async {
         final ok = await _confirmReshuffle(
-          'Add $name?',
-          '$name will join as a late entry. Remaining pairings will be '
-          'reshuffled — some players may end up with an unequal number of games.',
-          confirmLabel: 'Add Player',
+          l10n.overviewAddConfirm(name),
+          l10n.overviewAddLateBody(name),
+          confirmLabel: l10n.menuAddPlayer,
         );
         if (ok != true) return false;
         final newPlayer = ScramblePlayer(
@@ -340,9 +343,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   // ── Swap sheet ────────────────────────────────────────────────────────────
 
   void _showSwapSheet(ScramblePlayer outgoing) {
+    final l10n = AppLocalizations.of(context)!;
     _showPlayerPickerSheet(
-      title: 'Swap out ${outgoing.name}',
-      subtitle: '${outgoing.name} will be removed from upcoming rounds.',
+      title: l10n.overviewSwapTitle(outgoing.name),
+      subtitle: l10n.overviewSwapSubtitle(outgoing.name),
       onPickName: (name) async {
         _applySwap(outgoing: outgoing, name: name);
         return true;
@@ -397,9 +401,9 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(children: [
-                const Expanded(
-                  child: Text('Edit Player',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                Expanded(
+                  child: Text(AppLocalizations.of(context)!.overviewEditPlayer,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 ),
                 TextButton(
                   onPressed: () {
@@ -416,12 +420,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     Navigator.of(ctx).pop();
                   },
                   style: TextButton.styleFrom(foregroundColor: AppColors.gold),
-                  child: const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text(AppLocalizations.of(context)!.btnSave,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ]),
               const SizedBox(height: 16),
-              const Text('Name',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+              Text(AppLocalizations.of(context)!.labelName,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
               const SizedBox(height: 6),
               TextField(
                 controller: nameCtrl,
@@ -534,7 +539,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
                   // ── Create Player ────────────────────────────────────
                   sectionHeader(
-                    'Create Player',
+                    AppLocalizations.of(ctx)!.setupSectionCreatePlayer,
                     createOpen,
                     () => setSheet(() => createOpen = !createOpen),
                   ),
@@ -547,7 +552,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                           autofocus: true,
                           textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(
-                            hintText: 'Player name',
+                            hintText: AppLocalizations.of(ctx)!.setupPlayerNameHint,
                             isDense: true,
                             border: OutlineInputBorder(
                                 borderRadius:
@@ -583,7 +588,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 14),
                         ),
-                        child: const Text('Add'),
+                        child: Text(AppLocalizations.of(ctx)!.btnAdd),
                       ),
                     ]),
                     const SizedBox(height: 12),
@@ -594,7 +599,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
                   // ── Existing Players ─────────────────────────────────
                   sectionHeader(
-                    'Add Existing Players (${allExisting.length})',
+                    AppLocalizations.of(ctx)!.setupAddExistingPlayers(allExisting.length),
                     existingOpen,
                     () =>
                         setSheet(() => existingOpen = !existingOpen),
@@ -602,11 +607,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   if (existingOpen) ...[
                     const SizedBox(height: 6),
                     if (allExisting.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(
-                          'All existing players are already in this tournament.',
-                          style: TextStyle(
+                          AppLocalizations.of(ctx)!.overviewAllPlayersAlready,
+                          style: const TextStyle(
                               fontSize: 13, color: Colors.black38),
                         ),
                       )
@@ -615,7 +620,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                         controller: searchCtrl,
                         onChanged: (_) => setSheet(() {}),
                         decoration: InputDecoration(
-                          hintText: 'Search players…',
+                          hintText: AppLocalizations.of(ctx)!.setupSearchPlayersHint,
                           isDense: true,
                           prefixIcon: const Icon(Icons.search_rounded,
                               size: 18, color: Colors.black45),
@@ -629,10 +634,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                       ),
                       const SizedBox(height: 6),
                       if (filtered.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No players match.',
-                              style: TextStyle(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(AppLocalizations.of(ctx)!.doghouseNoPlayersMatch,
+                              style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black38)),
                         )
@@ -700,24 +705,24 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Player table ──────────────────────────────────────────────────────────
 
-  Widget _buildPlayerTable(bool isLive) {
+  Widget _buildPlayerTable(AppLocalizations l10n, bool isLive) {
     final stats     = ScrambleService.computeStats(_t);
     final statsById = {for (final s in stats) s.playerId: s};
     if (_t.players.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Text('No players added yet.',
-            style: TextStyle(fontSize: 13, color: Colors.black38)),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(l10n.doghouseSetupNoPlayers,
+            style: const TextStyle(fontSize: 13, color: Colors.black38)),
       );
     }
     return Column(
       children: _t.players
-          .map((p) => _buildPlayerRow(p, statsById[p.id], isLive))
+          .map((p) => _buildPlayerRow(l10n, p, statsById[p.id], isLive))
           .toList(),
     );
   }
 
-  Widget _buildPlayerRow(ScramblePlayer p, dynamic s, bool isLive) {
+  Widget _buildPlayerRow(AppLocalizations l10n, ScramblePlayer p, dynamic s, bool isLive) {
     final inactive = !p.isActive;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -764,7 +769,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     ),
                     if (p.status != ScramblePlayerStatus.active) ...[
                       const SizedBox(width: 6),
-                      _statusChip(p.status),
+                      _statusChip(l10n, p.status),
                     ],
                   ],
                 ),
@@ -781,20 +786,20 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             _actionBtn(
               icon: Icons.edit_rounded,
               color: Colors.black38,
-              tooltip: 'Edit',
+              tooltip: l10n.tooltipEdit,
               onTap: () => _showEditPlayerSheet(p),
             ),
             if (isLive) ...[
               _actionBtn(
                 icon: Icons.person_off_rounded,
                 color: Colors.red.shade400,
-                tooltip: 'Eject',
+                tooltip: l10n.tooltipEject,
                 onTap: () => _confirmEject(p),
               ),
               _actionBtn(
                 icon: Icons.swap_horiz_rounded,
                 color: Colors.orange.shade700,
-                tooltip: 'Swap',
+                tooltip: l10n.tooltipSwap,
                 onTap: () => _showSwapSheet(p),
               ),
             ],
@@ -823,8 +828,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
-  Widget _statusChip(ScramblePlayerStatus status) {
-    final label = _playerStatusLabel(status);
+  Widget _statusChip(AppLocalizations l10n, ScramblePlayerStatus status) {
+    final label = _playerStatusLabel(l10n, status);
     final color = _playerStatusColor(status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -844,11 +849,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
-  String _playerStatusLabel(ScramblePlayerStatus s) => switch (s) {
-        ScramblePlayerStatus.ejected    => 'ejected',
-        ScramblePlayerStatus.swappedOut => 'swapped out',
-        ScramblePlayerStatus.swappedIn  => 'sub in',
-        ScramblePlayerStatus.late       => 'late',
+  String _playerStatusLabel(AppLocalizations l10n, ScramblePlayerStatus s) => switch (s) {
+        ScramblePlayerStatus.ejected    => l10n.doghouseEjected.toLowerCase(),
+        ScramblePlayerStatus.swappedOut => l10n.scrambleStatusSwappedOut,
+        ScramblePlayerStatus.swappedIn  => l10n.scrambleStatusSwappedIn,
+        ScramblePlayerStatus.late       => l10n.scrambleStatusLate,
         ScramblePlayerStatus.active     => '',
       };
 
@@ -882,7 +887,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(AppLocalizations.of(context)!.btnCancel)),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
@@ -900,13 +905,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   }
 
   void _confirmEject(ScramblePlayer player) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await _confirmReshuffle(
-      'Eject ${player.name}?',
-      '${player.name} will be removed from all upcoming rounds. '
-      'Remaining pairings will be reshuffled — some players may end up '
-      'with an unequal number of games. '
-      'Completed games remain in the stats.',
-      confirmLabel: 'Eject',
+      l10n.overviewEjectTitle(player.name),
+      l10n.overviewEjectBody(player.name),
+      confirmLabel: l10n.overviewEjectBtn,
       confirmColor: Colors.red,
     );
     if (ok != true || !mounted) return;
@@ -920,7 +923,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Rounds / Schedule ─────────────────────────────────────────────────────
 
-  List<Widget> _buildRoundSections() {
+  List<Widget> _buildRoundSections(AppLocalizations l10n) {
     return _t.rounds.map((round) {
       final games  = _t.getGamesForRound(round.id);
       final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
@@ -928,7 +931,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _roundHeader(round, allDone, games),
+          _roundHeader(l10n, round, allDone, games),
           const SizedBox(height: 6),
           ...games.map((g) => ScrambleGameTile(
                 game:       g,
@@ -943,7 +946,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   }
 
   Widget _roundHeader(
-      ScrambleRound round, bool allDone, List<ScrambleGame> games) {
+      AppLocalizations l10n, ScrambleRound round, bool allDone, List<ScrambleGame> games) {
     final DateTime? actualStart = allDone
         ? games
             .where((g) => g.actualStartTime != null)
@@ -964,7 +967,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            'Round ${round.roundNumber}',
+            l10n.overviewRound(round.roundNumber),
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
@@ -984,9 +987,9 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                 fontSize: 12, color: Colors.black45),
           ),
           const SizedBox(width: 4),
-          const Text(
-            'actual',
-            style: TextStyle(fontSize: 10, color: Colors.black38),
+          Text(
+            l10n.overviewActual,
+            style: const TextStyle(fontSize: 10, color: Colors.black38),
           ),
         ] else ...[
           Text(
@@ -998,8 +1001,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           if (round.breakDuration > Duration.zero) ...[
             const SizedBox(width: 4),
             Text(
-              '· Break until '
-              '${ScrambleService.formatTime(round.scheduledBreakEndTime)}',
+              l10n.overviewBreakUntil(
+                  ScrambleService.formatTime(round.scheduledBreakEndTime)),
               style: const TextStyle(
                   fontSize: 11, color: Colors.black38),
             ),

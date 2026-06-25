@@ -13,7 +13,7 @@
   "navQuickStart": "Quick Start Game",
   "@navQuickStart": {},
 
-  "navTournaments": "Games & Tournaments",
+  "navTournaments": "TournaQ Arena",
   "@navTournaments": {},
 
   "navTeams": "Teams",
@@ -43,7 +43,7 @@
   "pagePlayers": "Players",
   "@pagePlayers": {},
 
-  "pageTournaments": "Games & Tournaments",
+  "pageTournaments": "TournaQ Arena",
   "@pageTournaments": {},
 
   "pageClubs": "Groups",
@@ -346,6 +346,97 @@
   "comingSoonBody": "Your feedback can help shape this feature before it launches.",
   "@comingSoonBody": {},
 
+  "comingSoonLearnMore": "Learn more on website",
+  "@comingSoonLearnMore": {},
+
+  "landingTournamentsSubtitle": "Manage tournaments & scrambles",
+  "@landingTournamentsSubtitle": {},
+
+  "landingAdminSubtitle": "Manage players, teams & groups",
+  "@landingAdminSubtitle": {},
+
+  "btnGotIt": "Got it",
+  "@btnGotIt": {},
+
+  "btnLearnMore": "Learn more",
+  "@btnLearnMore": {},
+
+  "tournamentsSectionQuickGames": "Quick Games",
+  "@tournamentsSectionQuickGames": {},
+
+  "tournamentsSectionSingle": "Single Competitions & Socials",
+  "@tournamentsSectionSingle": {},
+
+  "tournamentsSectionTeam": "Team Competitions",
+  "@tournamentsSectionTeam": {},
+
+  "tournamentsSectionHistory": "Tournament History",
+  "@tournamentsSectionHistory": {},
+
+  "modeQuickGamesDesc": "Ad-hoc scored matches",
+  "@modeQuickGamesDesc": {},
+
+  "modeSocialScramblesDesc": "Timed round-robin mixer",
+  "@modeSocialScramblesDesc": {},
+
+  "modeKotcDesc": "Winners stay, challengers rotate",
+  "@modeKotcDesc": {},
+
+  "modeDoghouseDesc": "Get out of the Doghouse",
+  "@modeDoghouseDesc": {},
+
+  "modeLeagueDesc": "Points-based standings",
+  "@modeLeagueDesc": {},
+
+  "modeSingleElimDesc": "Classic knockout bracket",
+  "@modeSingleElimDesc": {},
+
+  "modeDoubleElimDesc": "Two-chance bracket",
+  "@modeDoubleElimDesc": {},
+
+  "modeGroupSeDesc": "Group stage · Single Elimination",
+  "@modeGroupSeDesc": {},
+
+  "modeGroupDeDesc": "Group stage · Double Elimination",
+  "@modeGroupDeDesc": {},
+
+  "modeSwissDesc": "Paired rounds by score",
+  "@modeSwissDesc": {},
+
+  "modeLeagueShortDesc": "Track standings across a full round-robin season with points, wins, and goal difference.",
+  "@modeLeagueShortDesc": {},
+
+  "modeDoubleElimShortDesc": "Winners and losers brackets — you need two losses to be eliminated.",
+  "@modeDoubleElimShortDesc": {},
+
+  "modeGroupSeShortDesc": "Teams advance from a group stage into a single-elimination knockout bracket.",
+  "@modeGroupSeShortDesc": {},
+
+  "modeGroupDeShortDesc": "Teams advance from a group stage into a double-elimination bracket.",
+  "@modeGroupDeShortDesc": {},
+
+  "modeSwissShortDesc": "Players are paired each round based on their current score — no eliminations, full schedule.",
+  "@modeSwissShortDesc": {},
+
+  "tournamentsDeleteTitle": "Delete all history?",
+  "@tournamentsDeleteTitle": {},
+
+  "tournamentsDeleteBody": "This will permanently delete all {count} tournaments. This cannot be undone.",
+  "@tournamentsDeleteBody": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "tournamentsDeleteAll": "Delete all",
+  "@tournamentsDeleteAll": {},
+
+  "tournamentsAllLabel": "All Tournaments",
+  "@tournamentsAllLabel": {},
+
+  "tournamentsInfoContent": "Start a match or run a full tournament — all from one place.\n\nQuick Games — Scored matches on the spot. Minimal setup, just pick two teams and go.\n\nSingle Competitions & Socials — Individual formats where players compete and rank as themselves, rotating across the session.\n\nTeam Competitions — Team-based formats where pre-formed teams face off in a bracket or standings table.\n\nTap Info on any tile to learn more before you begin.",
+  "@tournamentsInfoContent": {},
+
   "landingQuickStartSubtitle": "Beach Volleyball Match",
   "@landingQuickStartSubtitle": {},
 
@@ -493,10 +584,10 @@
   "contactSectionResources": "Resources",
   "@contactSectionResources": {},
 
-  "contactUserGuide": "User Guide",
+  "contactUserGuide": "Feature Overview",
   "@contactUserGuide": {},
 
-  "contactUserGuideSub": "Tutorials and how-to guides",
+  "contactUserGuideSub": "Explore all modes and features on the website",
   "@contactUserGuideSub": {},
 
   "contactLegalHub": "Legal Documentation",
@@ -1498,6 +1589,768 @@
     "placeholders": {
       "added": { "type": "int" },
       "total": { "type": "int" }
+    }
+  },
+
+  "statsRounds": "{count} rounds",
+  "@statsRounds": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "statsPtsScored": "{total} pts scored",
+  "@statsPtsScored": {
+    "placeholders": { "total": { "type": "int" } }
+  },
+
+  "statsTeams": "{count} teams",
+  "@statsTeams": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "statsCourts": "{count} courts",
+  "@statsCourts": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "statsMatchesOf": "{completed} / {total} matches",
+  "@statsMatchesOf": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "statsGamesOf": "{completed}/{total} games",
+  "@statsGamesOf": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "setupDuplicateNameTitle": "Duplicate Name",
+  "@setupDuplicateNameTitle": {},
+
+  "setupDuplicateNameBody": "\"{name}\" is already added to this tournament. Add anyway?",
+  "@setupDuplicateNameBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "btnAddAnyway": "Add Anyway",
+  "@btnAddAnyway": {},
+
+  "setupSectionPlayers": "Players",
+  "@setupSectionPlayers": {},
+
+  "setupSectionCreatePlayer": "Create Player",
+  "@setupSectionCreatePlayer": {},
+
+  "setupAddExistingPlayers": "Add Existing Players ({count})",
+  "@setupAddExistingPlayers": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "setupSearchPlayersHint": "Search players…",
+  "@setupSearchPlayersHint": {},
+
+  "setupPlayerNameHint": "Player name",
+  "@setupPlayerNameHint": {},
+
+  "setupPlayersOf": "{count}/{target} players added",
+  "@setupPlayersOf": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "target": { "type": "int" }
+    }
+  },
+
+  "setupTargetPlayers": "Target Players",
+  "@setupTargetPlayers": {},
+
+  "setupAvailableTime": "Available Time",
+  "@setupAvailableTime": {},
+
+  "setupMatchDuration": "Match Duration",
+  "@setupMatchDuration": {},
+
+  "setupCourts": "Courts",
+  "@setupCourts": {},
+
+  "setupBreakBetweenRounds": "Break Between Rounds",
+  "@setupBreakBetweenRounds": {},
+
+  "setupFormat": "Format",
+  "@setupFormat": {},
+
+  "setupPlannedStartTime": "Planned Start Time",
+  "@setupPlannedStartTime": {},
+
+  "setupPlannedEndTime": "Planned End Time",
+  "@setupPlannedEndTime": {},
+
+  "setupSchedulePreview": "Schedule Preview",
+  "@setupSchedulePreview": {},
+
+  "setupRoundDuration": "Round duration",
+  "@setupRoundDuration": {},
+
+  "setupRoundsLabel": "Rounds",
+  "@setupRoundsLabel": {},
+
+  "setupScheduledDuration": "Scheduled duration",
+  "@setupScheduledDuration": {},
+
+  "setupScheduledEndTime": "Scheduled end time",
+  "@setupScheduledEndTime": {},
+
+  "setupSuggestions": "Suggestions",
+  "@setupSuggestions": {},
+
+  "setupFormatAutoAllplay": "Auto-Allplay",
+  "@setupFormatAutoAllplay": {},
+
+  "setupCourtsInfoBody": "Currently fixed at 1 court.\n\nMulti-court support — assign and track multiple simultaneous courts with optimal rotation — is planned for a future release.",
+  "@setupCourtsInfoBody": {},
+
+  "setupSeedingRandom": "Random",
+  "@setupSeedingRandom": {},
+
+  "setupSeedingSeeded": "Seeded",
+  "@setupSeedingSeeded": {},
+
+  "setupOddTeamsByes": "Byes",
+  "@setupOddTeamsByes": {},
+
+  "setupOddTeamsPlayIn": "Play-in",
+  "@setupOddTeamsPlayIn": {},
+
+  "setupSectionTeams": "Teams",
+  "@setupSectionTeams": {},
+
+  "setupRemoveAllTeamsTitle": "Remove all teams?",
+  "@setupRemoveAllTeamsTitle": {},
+
+  "setupRemoveAllTeamsBody": "This will remove all added teams from the list.",
+  "@setupRemoveAllTeamsBody": {},
+
+  "setupNoTeamsMatch": "No teams match.",
+  "@setupNoTeamsMatch": {},
+
+  "setupNoTeamsAddedYet": "No teams added yet.",
+  "@setupNoTeamsAddedYet": {},
+
+  "setupTeamNameHint": "Team name",
+  "@setupTeamNameHint": {},
+
+  "setupAddExistingTeams": "Add Existing Teams ({count})",
+  "@setupAddExistingTeams": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "setupSearchTeamsHint": "Search teams…",
+  "@setupSearchTeamsHint": {},
+
+  "setupCreateTeam": "Create Team",
+  "@setupCreateTeam": {},
+
+  "setupGeneration": "Generation",
+  "@setupGeneration": {},
+
+  "setupOddTeamsLabel": "Odd Teams",
+  "@setupOddTeamsLabel": {},
+
+  "setupEarlyRounds": "Early Rounds",
+  "@setupEarlyRounds": {},
+
+  "setupFinalRounds": "Final Rounds",
+  "@setupFinalRounds": {},
+
+  "setupReadyToStart": "Ready to start!",
+  "@setupReadyToStart": {},
+
+  "setupAddAllTeams": "Add all {count} teams to continue",
+  "@setupAddAllTeams": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "setupTapToAddTeams": "Tap to add teams",
+  "@setupTapToAddTeams": {},
+
+  "setupTeamsOf": "{count}/{target} teams added",
+  "@setupTeamsOf": {
+    "placeholders": { "count": { "type": "int" }, "target": { "type": "int" } }
+  },
+
+  "overviewSectionOverview": "Overview",
+  "@overviewSectionOverview": {},
+
+  "overviewSectionSchedule": "Schedule",
+  "@overviewSectionSchedule": {},
+
+  "overviewGamesCompleted": "{completed} / {total} games completed",
+  "@overviewGamesCompleted": {
+    "placeholders": { "completed": { "type": "int" }, "total": { "type": "int" } }
+  },
+
+  "overviewStatsSummary": "{rounds} rounds  ·  {courts} courts  ·  {players} players",
+  "@overviewStatsSummary": {
+    "placeholders": { "rounds": { "type": "int" }, "courts": { "type": "int" }, "players": { "type": "int" } }
+  },
+
+  "overviewFinished": "Finished: {time}",
+  "@overviewFinished": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "overviewEstFinish": "Est. finish: {time}",
+  "@overviewEstFinish": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "overviewSectionPlayers": "Players ({count})",
+  "@overviewSectionPlayers": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewAddPlayerSubtitle": "Added players join as a late entry.",
+  "@overviewAddPlayerSubtitle": {},
+
+  "overviewAddConfirm": "Add {name}?",
+  "@overviewAddConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewAddLateBody": "{name} will join as a late entry. Remaining pairings will be reshuffled — some players may end up with an unequal number of games.",
+  "@overviewAddLateBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewSwapTitle": "Swap out {name}",
+  "@overviewSwapTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewSwapSubtitle": "{name} will be removed from upcoming rounds.",
+  "@overviewSwapSubtitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectTitle": "Eject {name}?",
+  "@overviewEjectTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectBody": "{name} will be removed from all upcoming rounds. Remaining pairings will be reshuffled — some players may end up with an unequal number of games. Completed games remain in the stats.",
+  "@overviewEjectBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectBtn": "Eject",
+  "@overviewEjectBtn": {},
+
+  "overviewEditPlayer": "Edit Player",
+  "@overviewEditPlayer": {},
+
+  "overviewAllPlayersAlready": "All existing players are already in this tournament.",
+  "@overviewAllPlayersAlready": {},
+
+  "overviewRound": "Round {number}",
+  "@overviewRound": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "overviewActual": "actual",
+  "@overviewActual": {},
+
+  "overviewBreakUntil": "· Break until {time}",
+  "@overviewBreakUntil": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "scrambleStatusSwappedOut": "swapped out",
+  "@scrambleStatusSwappedOut": {},
+
+  "scrambleStatusSwappedIn": "sub in",
+  "@scrambleStatusSwappedIn": {},
+
+  "scrambleStatusLate": "late",
+  "@scrambleStatusLate": {},
+
+  "tooltipEdit": "Edit",
+  "@tooltipEdit": {},
+
+  "tooltipEject": "Eject",
+  "@tooltipEject": {},
+
+  "tooltipSwap": "Swap",
+  "@tooltipSwap": {},
+
+  "tooltipRankings": "Player Rankings",
+  "@tooltipRankings": {},
+
+  "scorecardSwapSides": "Swap Sides",
+  "@scorecardSwapSides": {},
+
+  "scorecardSwapSidesSubtitle": "Switch left and right display",
+  "@scorecardSwapSidesSubtitle": {},
+
+  "scorecardMatchHistory": "Match History",
+  "@scorecardMatchHistory": {},
+
+  "scorecardMatchHistorySubtitle": "Point-by-point scoring timeline",
+  "@scorecardMatchHistorySubtitle": {},
+
+  "scorecardPlannedStart": "Planned start",
+  "@scorecardPlannedStart": {},
+
+  "scorecardPlannedEnd": "Planned end",
+  "@scorecardPlannedEnd": {},
+
+  "scorecardEnd": "End",
+  "@scorecardEnd": {},
+
+  "scorecardOverSchedule": "Over schedule!",
+  "@scorecardOverSchedule": {},
+
+  "scorecardOverScheduleHurry": "Over schedule · Hurry up!",
+  "@scorecardOverScheduleHurry": {},
+
+  "scorecardStartsServing": "{name} starts serving",
+  "@scorecardStartsServing": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "scorecardUndoCompletion": "Undo Completion",
+  "@scorecardUndoCompletion": {},
+
+  "scorecardStartMatch": "Start Match",
+  "@scorecardStartMatch": {},
+
+  "scorecardCompleteGame": "Complete Game",
+  "@scorecardCompleteGame": {},
+
+  "scorecardManualScore": "Manually Set Score",
+  "@scorecardManualScore": {},
+
+  "scorecardBackToSchedule": "Back to Schedule",
+  "@scorecardBackToSchedule": {},
+
+  "scorecardManualScoreBlockedTitle": "Manual Score Not Available",
+  "@scorecardManualScoreBlockedTitle": {},
+
+  "scorecardManualScoreBlockedBody": "Manual score entry is only available before live scoring has started. This prevents accidentally overwriting points that were already tracked.",
+  "@scorecardManualScoreBlockedBody": {},
+
+  "scorecardManualScoreDescription": "Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.",
+  "@scorecardManualScoreDescription": {},
+
+  "btnOK": "OK",
+  "@btnOK": {},
+
+  "btnAdjustFinalScore": "Adjust Final Score",
+  "@btnAdjustFinalScore": {},
+
+  "btnRestart": "Restart",
+  "@btnRestart": {},
+
+  "btnResume": "Resume",
+  "@btnResume": {},
+
+  "btnApply": "Apply",
+  "@btnApply": {},
+
+  "labelMinutes": "{n} min",
+  "@labelMinutes": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "matchScorecard": "Scorecard",
+  "@matchScorecard": {},
+
+  "matchOptions": "Match Options",
+  "@matchOptions": {},
+
+  "matchViewHistory": "View point-by-point history",
+  "@matchViewHistory": {},
+
+  "matchComplete": "Match complete",
+  "@matchComplete": {},
+
+  "matchSetCompleteBanner": "Set complete — confirm before next set",
+  "@matchSetCompleteBanner": {},
+
+  "matchSuggestedToServe": "{name} suggested to start serving",
+  "@matchSuggestedToServe": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "matchSuggestedReferee": "{name} suggested as referee",
+  "@matchSuggestedReferee": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "matchAssignRefereeManually": "Assign a referee manually",
+  "@matchAssignRefereeManually": {},
+
+  "matchScoresTiedSet": "Scores are tied — a set cannot end in a draw.",
+  "@matchScoresTiedSet": {},
+
+  "matchScoresTiedMatch": "Scores are tied — a winner must be determined before completing.",
+  "@matchScoresTiedMatch": {},
+
+  "matchSetsTied": "Sets are tied — a winner must be determined before completing.",
+  "@matchSetsTied": {},
+
+  "matchUndoSet": "Undo Set",
+  "@matchUndoSet": {},
+
+  "matchCompleteSet": "Complete Set",
+  "@matchCompleteSet": {},
+
+  "matchUndoMatchCompletion": "Undo Match Completion",
+  "@matchUndoMatchCompletion": {},
+
+  "matchCompleteMatch": "Complete Match",
+  "@matchCompleteMatch": {},
+
+  "matchSetScoreManually": "Set Score Manually",
+  "@matchSetScoreManually": {},
+
+  "matchBackToBracket": "Back to Bracket",
+  "@matchBackToBracket": {},
+
+  "matchCourtLabel": "Court {court}",
+  "@matchCourtLabel": {
+    "placeholders": { "court": { "type": "int" } }
+  },
+
+  "matchStartsAt": "Starts {time}",
+  "@matchStartsAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "matchSetNScore": "Set {n} Score",
+  "@matchSetNScore": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "matchSetScore": "Set Score",
+  "@matchSetScore": {},
+
+  "bracketWithdrawTitle": "Withdraw Team?",
+  "@bracketWithdrawTitle": {},
+
+  "bracketWithdrawBody": "Withdraw \"{name}\"? Their pending matches will be resolved as walkovers.",
+  "@bracketWithdrawBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "bracketWithdrawBtn": "Withdraw",
+  "@bracketWithdrawBtn": {},
+
+  "bracketFinalRoundsFormat": "Final Rounds Format",
+  "@bracketFinalRoundsFormat": {},
+
+  "bracketEarlyRoundsFormat": "Early Rounds Format",
+  "@bracketEarlyRoundsFormat": {},
+
+  "bracketFinalRoundsAppliesTo": "Applies to the last {n} round(s)",
+  "@bracketFinalRoundsAppliesTo": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "bracketEarlyRoundsAppliesTo": "Applies to all early rounds",
+  "@bracketEarlyRoundsAppliesTo": {},
+
+  "setupSetsPerGame": "Sets per game",
+  "@setupSetsPerGame": {},
+
+  "setupPointsPerSet": "Points per set",
+  "@setupPointsPerSet": {},
+
+  "bracketBreakFinalRounds": "Break — Final Rounds",
+  "@bracketBreakFinalRounds": {},
+
+  "bracketBreakEarlyRounds": "Break — Early Rounds",
+  "@bracketBreakEarlyRounds": {},
+
+  "bracketNoBreak": "No break",
+  "@bracketNoBreak": {},
+
+  "bracketNoStartTime": "No start time set",
+  "@bracketNoStartTime": {},
+
+  "bracketStartsLabel": "Starts: {label}",
+  "@bracketStartsLabel": {
+    "placeholders": { "label": { "type": "String" } }
+  },
+
+  "bracketTournamentWinner": "Tournament Winner",
+  "@bracketTournamentWinner": {},
+
+  "bracketSectionTeams": "Teams ({count})",
+  "@bracketSectionTeams": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "bracketSwapTeamTitle": "Swap Team",
+  "@bracketSwapTeamTitle": {},
+
+  "bracketSwapTeamSubtitle": "Replacing \"{name}\" in all pending matches.",
+  "@bracketSwapTeamSubtitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "bracketSearchTeams": "Search teams…",
+  "@bracketSearchTeams": {},
+
+  "bracketNoTeamsInHub": "No teams in Teams Hub yet.",
+  "@bracketNoTeamsInHub": {},
+
+  "bracketAllTeamsInTournament": "All hub teams are already in this tournament.",
+  "@bracketAllTeamsInTournament": {},
+
+  "scorecardMatchTimerLabel": "Match Timer",
+  "@scorecardMatchTimerLabel": {},
+
+  "scorecardUpcomingGames": "Upcoming Games",
+  "@scorecardUpcomingGames": {},
+
+  "scorecardPlayerCount": "{n} players",
+  "@scorecardPlayerCount": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "scorecardGameCompletedLock": "Game completed — undo to edit scores",
+  "@scorecardGameCompletedLock": {},
+
+  "kotcTimeIsUp": "Time is up",
+  "@kotcTimeIsUp": {},
+
+  "kotcSessionEndedBody": "The session timer has ended. Complete the tournament now?",
+  "@kotcSessionEndedBody": {},
+
+  "kotcSubstituteTitle": "Substitute {name}",
+  "@kotcSubstituteTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "kotcSubstituteBody": "{name} will return to the queue.",
+  "@kotcSubstituteBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "kotcAddLateTitle": "Add Late Player?",
+  "@kotcAddLateTitle": {},
+
+  "kotcAddLateBody": "This player is joining late and won't have had the same opportunities as players who started at the beginning. Their stats will be tagged as \"Late\".",
+  "@kotcAddLateBody": {},
+
+  "btnContinue": "Continue",
+  "@btnContinue": {},
+
+  "kotcLateTag": "LATE",
+  "@kotcLateTag": {},
+
+  "kotcAdminTag": "ADMIN",
+  "@kotcAdminTag": {},
+
+  "kotcChangeAdmin": "Change Admin",
+  "@kotcChangeAdmin": {},
+
+  "kotcChangeAdminSubtitle": "Select who keeps score. The current admin returns to the queue.",
+  "@kotcChangeAdminSubtitle": {},
+
+  "kotcNextAdmin": "NEXT ADMIN",
+  "@kotcNextAdmin": {},
+
+  "kotcNextAdminNote": "Suggested from the current court team.",
+  "@kotcNextAdminNote": {},
+
+  "kotcGameWon": "Game Won!",
+  "@kotcGameWon": {},
+
+  "kotcReachedPoints": "{names} reached {points} points!",
+  "@kotcReachedPoints": {
+    "placeholders": {
+      "names": { "type": "String" },
+      "points": { "type": "int" }
+    }
+  },
+
+  "kotcEjectReturn": "They will be ejected and return to the queue.",
+  "@kotcEjectReturn": {},
+
+  "kotcEjectTeamTitle": "Eject Team?",
+  "@kotcEjectTeamTitle": {},
+
+  "kotcEjectTeamBodyPoints": "Current team will be ejected. Their {pts} pts will be recorded.",
+  "@kotcEjectTeamBodyPoints": {
+    "placeholders": { "pts": { "type": "int" } }
+  },
+
+  "kotcEjectTeamBodyNoPoints": "Current team will be ejected and return to the queue.",
+  "@kotcEjectTeamBodyNoPoints": {},
+
+  "kotcLeaveTitle": "Leave without ejecting?",
+  "@kotcLeaveTitle": {},
+
+  "kotcLeaveBodyPoints": "The current team has {pts} unrecorded points. Leaving now will discard them. Eject the team first to save their score.",
+  "@kotcLeaveBodyPoints": {
+    "placeholders": { "pts": { "type": "int" } }
+  },
+
+  "kotcTournamentComplete": "Tournament complete",
+  "@kotcTournamentComplete": {},
+
+  "kotcGamesSummary": "{games} games · {pts} pts total",
+  "@kotcGamesSummary": {
+    "placeholders": {
+      "games": { "type": "int" },
+      "pts": { "type": "int" }
+    }
+  },
+
+  "kotcStatGames": "Games",
+  "@kotcStatGames": {},
+
+  "kotcStatWins": "Wins",
+  "@kotcStatWins": {},
+
+  "kotcStatPts": "Pts",
+  "@kotcStatPts": {},
+
+  "kotcOptions": "Options",
+  "@kotcOptions": {},
+
+  "kotcHistorySubtitle": "View all completed games",
+  "@kotcHistorySubtitle": {},
+
+  "kotcTeamEjected": "Team\nEjected",
+  "@kotcTeamEjected": {},
+
+  "kotcUndoEject": "Undo\nEject",
+  "@kotcUndoEject": {},
+
+  "kotcUndoLastEjection": "Undo Last Ejection",
+  "@kotcUndoLastEjection": {},
+
+  "kotcUpNext": "Up Next",
+  "@kotcUpNext": {},
+
+  "kotcChallengers": "Challengers",
+  "@kotcChallengers": {},
+
+  "kotcWaitingForPlayers": "Waiting for players...",
+  "@kotcWaitingForPlayers": {},
+
+  "kotcStrikePoints": "{n} pt strike",
+  "@kotcStrikePoints": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "kotcAdd4Random": "Add 4 random",
+  "@kotcAdd4Random": {},
+
+  "kotcExistingPlayers": "Existing Players ({n})",
+  "@kotcExistingPlayers": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "kotcPlayerNameHint": "Player name",
+  "@kotcPlayerNameHint": {},
+
+  "labelEject": "Eject",
+  "@labelEject": {},
+
+  "kotcSetupStyleLabel": "Style",
+  "@kotcSetupStyleLabel": {},
+
+  "kotcSetupStyleHelp": "The format of each game — 2vs2, 3vs3, and so on. Sets how many players make up each team on court.",
+  "@kotcSetupStyleHelp": {},
+
+  "kotcSetupAssignmentLabel": "Assignment",
+  "@kotcSetupAssignmentLabel": {},
+
+  "kotcSetupAssignmentHelp": "How the next court team is chosen.\n\nManual — the coach selects players from the queue by tapping them.\n\nAutomated — TournaQ suggests the best team, prioritising players who have waited longest and haven't been paired together recently. The coach can re-roll before confirming.\n\nAutomated — All Play — like Automated but no dedicated coach. A rotating admin keeps score while everyone else plays. TournaQ picks a random starting admin and suggests the next handoff from the ejected team after each game.",
+  "@kotcSetupAssignmentHelp": {},
+
+  "kotcSetupPlayersHelp": "Target number of players for the session. Used when auto-filling random players. Actual participants are added in the Players section below.",
+  "@kotcSetupPlayersHelp": {},
+
+  "kotcSetupTimeHelp": "Total session duration. The timer counts down from this value. When time runs out you will be prompted to complete the tournament or keep scoring.",
+  "@kotcSetupTimeHelp": {},
+
+  "kotcSetupStrikeLabel": "Strike Points (0 = off)",
+  "@kotcSetupStrikeLabel": {},
+
+  "kotcSetupStrikeHelp": "Points a team must score to win the game and be ejected as winners. Set to 0 to disable — teams stay on court until the coach manually ejects them.",
+  "@kotcSetupStrikeHelp": {},
+
+  "kotcHistoryWon": "Won",
+  "@kotcHistoryWon": {},
+
+  "kotcHistoryNoGames": "No games yet.",
+  "@kotcHistoryNoGames": {},
+
+  "kotcHistoryNoGamesSubtitle": "Games will appear here once a team is ejected.",
+  "@kotcHistoryNoGamesSubtitle": {},
+
+  "setupPlayersPerSide": "Players per side",
+  "@setupPlayersPerSide": {},
+
+  "setupAppliesToLast": "Applies to last",
+  "@setupAppliesToLast": {},
+
+  "setupScheduleLabel": "Schedule",
+  "@setupScheduleLabel": {},
+
+  "setupScheduleSoft": "Soft Schedule",
+  "@setupScheduleSoft": {},
+
+  "setupScheduleForced": "Forced Schedule",
+  "@setupScheduleForced": {},
+
+  "setupAddBreak": "Add break",
+  "@setupAddBreak": {},
+
+  "setupBreakMins": "{mins} min break",
+  "@setupBreakMins": {
+    "placeholders": {
+      "mins": {"type": "int"}
+    }
+  },
+
+  "setupStartsAt": "Starts: {date}",
+  "@setupStartsAt": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+
+  "setupMatchCount": "{count, plural, =1{1 match} other{{count} matches}}",
+  "@setupMatchCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "setupRoundPlayIn": "Play-in",
+  "@setupRoundPlayIn": {},
+
+  "setupRoundFinal": "Final",
+  "@setupRoundFinal": {},
+
+  "setupRoundSemiFinal": "Semi-final",
+  "@setupRoundSemiFinal": {},
+
+  "setupRoundQuarterFinal": "Quarter-final",
+  "@setupRoundQuarterFinal": {},
+
+  "setupRoundN": "Round {n}",
+  "@setupRoundN": {
+    "placeholders": {
+      "n": {"type": "int"}
     }
   }
 }

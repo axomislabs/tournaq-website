@@ -51,8 +51,8 @@ class _ContactPageState extends State<ContactPage> {
   Future<void> _launchWebsite(BuildContext context) =>
       openExternalUrl(context, AppLinks.website);
 
-  Future<void> _launchUserGuide(BuildContext context) =>
-      openExternalUrl(context, AppLinks.userGuide);
+  Future<void> _launchFeatures(BuildContext context) =>
+      openExternalUrl(context, AppLinks.featuresPage);
 
   Future<void> _launchPrivacyPolicy(BuildContext context) =>
       openExternalUrl(context, AppLinks.privacyPolicy);
@@ -129,12 +129,12 @@ class _ContactPageState extends State<ContactPage> {
               [
                 _buildClickableCard(
                   context,
-                  icon: Icons.menu_book_rounded,
+                  icon: Icons.explore_rounded,
                   iconBg: _kGoldLight,
                   iconColor: _kGold,
                   title: l10n.contactUserGuide,
                   subtitle: l10n.contactUserGuideSub,
-                  onTap: () => _launchUserGuide(context),
+                  onTap: () => _launchFeatures(context),
                 ),
               ],
             ),

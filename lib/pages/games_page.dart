@@ -10,7 +10,7 @@ import '../widgets/assign_dialog.dart';
 import '../widgets/game_tile.dart';
 import '../widgets/quick_start_sheet.dart';
 import 'score_page.dart';
-import 'scorecard_splash_page.dart';
+import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
 class GamesPage extends StatefulWidget {
   final AppState appState;
@@ -140,10 +140,16 @@ class _GamesPageState extends State<GamesPage> {
 
   void _navigateToScorecard(AppState state, String gameId) {
     final game = state.getGameById(gameId);
-    final page = (game != null && !game.hasShownScorecardIntro)
-        ? ScorecardSplashPage(appState: state, onAppStateChanged: _updateState, gameId: gameId)
-        : ScorePage(appState: state, onAppStateChanged: _updateState, gameId: gameId);
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+    final scorePage = ScorePage(appState: state, onAppStateChanged: _updateState, gameId: gameId);
+    if (game != null && !game.hasShownScorecardIntro) {
+      final updated = state.updateGame(game.copyWith(hasShownScorecardIntro: true));
+      _updateState(updated);
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => TournaqSplashPage(destination: scorePage),
+      ));
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => scorePage));
+    }
   }
 
   @override

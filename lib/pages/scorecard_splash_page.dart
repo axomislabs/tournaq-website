@@ -2,67 +2,39 @@ import 'package:flutter/material.dart';
 import '../app/app_assets.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
-import '../state/app_state.dart';
-import 'score_page.dart';
 
-class ScorecardSplashPage extends StatefulWidget {
-  final AppState appState;
-  final Function(AppState) onAppStateChanged;
-  final String gameId;
-  final VoidCallback? onSaveAndReturn;
+class TournaqSplashPage extends StatefulWidget {
+  final Widget destination;
 
-  const ScorecardSplashPage({
-    super.key,
-    required this.appState,
-    required this.onAppStateChanged,
-    required this.gameId,
-    this.onSaveAndReturn,
-  });
+  const TournaqSplashPage({super.key, required this.destination});
 
   @override
-  State<ScorecardSplashPage> createState() => _ScorecardSplashPageState();
+  State<TournaqSplashPage> createState() => _TournaqSplashPageState();
 }
 
-class _ScorecardSplashPageState extends State<ScorecardSplashPage> {
+class _TournaqSplashPageState extends State<TournaqSplashPage> {
   @override
   void initState() {
     super.initState();
-    // Defer to post-frame so we never touch state during build.
     WidgetsBinding.instance.addPostFrameCallback((_) => _proceed());
   }
 
   Future<void> _proceed() async {
     await Future.delayed(const Duration(milliseconds: 1500));
     if (!mounted) return;
-
-    // Mark intro as shown after the delay, right before navigating.
-    var state = widget.appState;
-    final game = state.getGameById(widget.gameId);
-    if (game != null && !game.hasShownScorecardIntro) {
-      state = state.updateGame(game.copyWith(hasShownScorecardIntro: true));
-      widget.onAppStateChanged(state);
-    }
-
-    if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => ScorePage(
-        appState: state,
-        onAppStateChanged: widget.onAppStateChanged,
-        gameId: widget.gameId,
-        onSaveAndReturn: widget.onSaveAndReturn,
-      ),
-    ));
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => widget.destination),
+    );
   }
 
   @override
-  Widget build(BuildContext context) => _TournaqSplash(loading: true);
+  Widget build(BuildContext context) => const _TournaqSplash();
 }
 
-// ── Shared splash visual ──────────────────────────────────────────────────────
+// ── Splash visual ─────────────────────────────────────────────────────────────
 
 class _TournaqSplash extends StatelessWidget {
-  final bool loading;
-  const _TournaqSplash({this.loading = true});
+  const _TournaqSplash();
 
   @override
   Widget build(BuildContext context) {
@@ -82,26 +54,26 @@ class _TournaqSplash extends StatelessWidget {
                 if (orientation == Orientation.landscape) {
                   final halfWidth = MediaQuery.of(context).size.width * 0.35;
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          AppAssets.logoTransparent,
-                          width: halfWidth * 1.55,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          AppLocalizations.of(context)!.appTagline,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.goldLight,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.2,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            AppAssets.logoTransparent,
+                            width: halfWidth * 1.55,
+                            fit: BoxFit.contain,
                           ),
-                        ),
-                        if (loading) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            AppLocalizations.of(context)!.appTagline,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.goldLight,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
                           const SizedBox(height: 20),
                           SizedBox(
                             width: 22,
@@ -114,7 +86,7 @@ class _TournaqSplash extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ],
+                      ),
                     ),
                   );
                 }
@@ -143,19 +115,16 @@ class _TournaqSplash extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    if (loading) ...[
-                      SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          color: AppColors.goldLight,
-                          backgroundColor:
-                              AppColors.goldLight.withValues(alpha: 0.2),
-                          strokeWidth: 2,
-                        ),
+                    const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: AppColors.goldLight,
+                        backgroundColor: AppColors.goldLight,
+                        strokeWidth: 2,
                       ),
-                      const SizedBox(height: 48),
-                    ],
+                    ),
+                    const SizedBox(height: 48),
                   ],
                 );
               },

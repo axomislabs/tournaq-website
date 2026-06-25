@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
@@ -141,26 +142,26 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   // ── Withdraw ──────────────────────────────────────────────────────────────
 
   Future<void> _withdrawTeam(KoTeam selected) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Withdraw Team?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.bracketWithdrawTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'Withdraw "${selected.name}"? Their pending matches will be '
-          'resolved as walkovers.',
+          l10n.bracketWithdrawBody(selected.name),
           style: const TextStyle(fontSize: 13, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Withdraw'),
+            child: Text(l10n.bracketWithdrawBtn),
           ),
         ],
       ),
@@ -265,6 +266,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: TournaQAppBar(title: 'Single Elimination', subtitle: _tournament.name),
       body: ScrollablePage(
@@ -273,14 +275,14 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Overview ─────────────────────────────────────────────────
-            _sectionDivider('Overview', Icons.bar_chart_rounded),
+            _sectionDivider(l10n.overviewSectionOverview, Icons.bar_chart_rounded),
             const SizedBox(height: 10),
             _buildOverviewCard(),
             const SizedBox(height: 20),
 
             // ── Time overview ─────────────────────────────────────────────
             _sectionDivider(
-              'Time',
+              l10n.labelTime,
               Icons.schedule_rounded,
               collapsible: true,
               expanded: _scheduleExpanded,
@@ -297,7 +299,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             const SizedBox(height: 20),
 
             // ── Schedule ─────────────────────────────────────────────────
-            _sectionDivider('Schedule', Icons.event_note_rounded),
+            _sectionDivider(l10n.overviewSectionSchedule, Icons.event_note_rounded),
             const SizedBox(height: 10),
             ..._buildScheduleSections(),
           ],
@@ -517,25 +519,27 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isFinal ? 'Final Rounds Format' : 'Early Rounds Format',
+                    isFinal
+                        ? AppLocalizations.of(context)!.bracketFinalRoundsFormat
+                        : AppLocalizations.of(context)!.bracketEarlyRoundsFormat,
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     isFinal
-                        ? 'Applies to the last ${_tournament.finalRoundsCount} round(s)'
-                        : 'Applies to all early rounds',
+                        ? AppLocalizations.of(context)!.bracketFinalRoundsAppliesTo(_tournament.finalRoundsCount)
+                        : AppLocalizations.of(context)!.bracketEarlyRoundsAppliesTo,
                     style: const TextStyle(fontSize: 12, color: Colors.black45),
                   ),
                   const SizedBox(height: 20),
-                  const Text('Sets per game',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  Text(AppLocalizations.of(context)!.setupSetsPerGame,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
                   const SizedBox(height: 8),
                   chipRow([1, 3, 5], fmt.setsPerGame,
                       (v) => pick(fmt.copyWith(setsPerGame: v))),
                   const SizedBox(height: 16),
-                  const Text('Points per set',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  Text(AppLocalizations.of(context)!.setupPointsPerSet,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
                   const SizedBox(height: 8),
                   chipRow([11, 15, 21], fmt.pointsPerSet,
                       (v) => pick(fmt.copyWith(pointsPerSet: v))),
@@ -564,7 +568,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Break — ${isFinal ? 'Final' : 'Early'} Rounds',
+                isFinal
+                    ? AppLocalizations.of(context)!.bracketBreakFinalRounds
+                    : AppLocalizations.of(context)!.bracketBreakEarlyRounds,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 16),
@@ -594,7 +600,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                         ),
                       ),
                       child: Text(
-                        v == 0 ? 'No break' : '$v min',
+                        v == 0
+                            ? AppLocalizations.of(context)!.bracketNoBreak
+                            : AppLocalizations.of(context)!.labelMinutes(v),
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -651,9 +659,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           child: Row(children: [
             const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
             const SizedBox(width: 6),
-            const Expanded(
-              child: Text('No start time set',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
+            Expanded(
+              child: Text(AppLocalizations.of(context)!.bracketNoStartTime,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
             ),
             const SizedBox(width: 4),
             const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
@@ -790,8 +798,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           Row(children: [
             const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
             const SizedBox(width: 6),
-            const Text('Schedule',
-                style: TextStyle(
+            Text(AppLocalizations.of(context)!.overviewSectionSchedule,
+                style: const TextStyle(
                     fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
             const Spacer(),
             Text(_formatDuration(_tournament.estimatedDuration),
@@ -804,7 +812,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             child: Row(children: [
               const Icon(Icons.play_circle_outline_rounded, size: 12, color: _kGoldDark),
               const SizedBox(width: 4),
-              Text('Starts: ${_formatStartLabel(start)}',
+              Text(AppLocalizations.of(context)!.bracketStartsLabel(_formatStartLabel(start)),
                   style: const TextStyle(
                       fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
               const SizedBox(width: 4),
@@ -899,8 +907,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Tournament Winner',
-                style: TextStyle(
+            Text(AppLocalizations.of(context)!.bracketTournamentWinner,
+                style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
                     fontWeight: FontWeight.w600)),
@@ -926,7 +934,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _sectionDivider(
-          'Teams (${_tournament.teamCount})',
+          AppLocalizations.of(context)!.bracketSectionTeams(_tournament.teamCount),
           Icons.groups_rounded,
           collapsible: true,
           expanded: _teamsExpanded,
@@ -1018,7 +1026,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
               ),
             ),
             Tooltip(
-              message: 'Swap Team',
+              message: AppLocalizations.of(context)!.bracketSwapTeamTitle,
               child: InkWell(
                 onTap: () => _swapTeam(team),
                 borderRadius: BorderRadius.circular(8),
@@ -1030,7 +1038,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             ),
             if (isLive)
               Tooltip(
-                message: 'Withdraw',
+                message: AppLocalizations.of(context)!.bracketWithdrawBtn,
                 child: InkWell(
                   onTap: () => _withdrawTeam(team),
                   borderRadius: BorderRadius.circular(8),
@@ -1183,11 +1191,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     final isBye      = match.status == KoMatchStatus.bye;
     final isWalkover = match.status == KoMatchStatus.walkover;
     final isComplete = match.isComplete;
-    final canTap     = !isComplete &&
-        team1 != null &&
-        team2 != null &&
-        !isBye &&
-        !isWalkover;
+    final canTap     = !isBye &&
+        !isWalkover &&
+        (isComplete || (team1 != null && team2 != null));
 
     final statusColor = switch (match.status) {
       KoMatchStatus.completed  => _kOlive,
@@ -1272,8 +1278,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Court',
-                          style: TextStyle(
+                      Text(AppLocalizations.of(context)!.matchCourtLabel(match.courtAssignment!).split(' ').first,
+                          style: const TextStyle(
                               fontSize: 7,
                               color: _kOlive,
                               fontWeight: FontWeight.w400)),
@@ -1349,7 +1355,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                         ],
                       ),
                     ],
-                    if (!isComplete && !isBye && !isWalkover) ...[
+                    if (!isBye && !isWalkover) ...[
                       const SizedBox(height: 3),
                       Row(
                         children: [
@@ -1536,11 +1542,11 @@ class _SwapPickerSheetState extends State<_SwapPickerSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Swap Team',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                Text(AppLocalizations.of(context)!.bracketSwapTeamTitle,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 2),
                 Text(
-                  'Replacing "${widget.replacing.name}" in all pending matches.',
+                  AppLocalizations.of(context)!.bracketSwapTeamSubtitle(widget.replacing.name),
                   style: const TextStyle(fontSize: 12, color: Colors.black45),
                 ),
                 const SizedBox(height: 12),
@@ -1550,7 +1556,7 @@ class _SwapPickerSheetState extends State<_SwapPickerSheet> {
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     isDense: true,
-                    hintText: 'Search teams…',
+                    hintText: AppLocalizations.of(context)!.bracketSearchTeams,
                     prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.black45),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -1567,8 +1573,8 @@ class _SwapPickerSheetState extends State<_SwapPickerSheet> {
                       padding: const EdgeInsets.all(24),
                       child: Text(
                         widget.existingTeams.isEmpty
-                            ? 'No teams in Teams Hub yet.'
-                            : 'All hub teams are already in this tournament.',
+                            ? AppLocalizations.of(context)!.bracketNoTeamsInHub
+                            : AppLocalizations.of(context)!.bracketAllTeamsInTournament,
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 13, color: Colors.black38),
                       ),

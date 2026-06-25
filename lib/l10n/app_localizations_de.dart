@@ -21,7 +21,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get navQuickStart => 'Schnellstart Spiel';
 
   @override
-  String get navTournaments => 'Turniere';
+  String get navTournaments => 'TournaQ Arena';
 
   @override
   String get navTeams => 'Teams';
@@ -51,7 +51,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pagePlayers => 'Spieler';
 
   @override
-  String get pageTournaments => 'Turniere';
+  String get pageTournaments => 'TournaQ Arena';
 
   @override
   String get pageClubs => 'Gruppen';
@@ -342,6 +342,101 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dein Feedback kann helfen, diese Funktion zu gestalten.';
 
   @override
+  String get comingSoonLearnMore => 'Mehr auf der Website erfahren';
+
+  @override
+  String get landingTournamentsSubtitle => 'Turniere & Scrambles verwalten';
+
+  @override
+  String get landingAdminSubtitle => 'Spieler, Teams & Gruppen verwalten';
+
+  @override
+  String get btnGotIt => 'Verstanden';
+
+  @override
+  String get btnLearnMore => 'Mehr erfahren';
+
+  @override
+  String get tournamentsSectionQuickGames => 'Schnellspiele';
+
+  @override
+  String get tournamentsSectionSingle => 'Einzelwettbewerbe & Socials';
+
+  @override
+  String get tournamentsSectionTeam => 'Teamwettbewerbe';
+
+  @override
+  String get tournamentsSectionHistory => 'Turnierhistorie';
+
+  @override
+  String get modeQuickGamesDesc => 'Ad-hoc gewertete Matches';
+
+  @override
+  String get modeSocialScramblesDesc => 'Rotierender Round-Robin-Mixer';
+
+  @override
+  String get modeKotcDesc => 'Sieger bleiben, Herausforderer rotieren';
+
+  @override
+  String get modeDoghouseDesc => 'Aus dem Doghouse entkommen';
+
+  @override
+  String get modeLeagueDesc => 'Punktebasierte Tabelle';
+
+  @override
+  String get modeSingleElimDesc => 'Klassisches Knockout-Bracket';
+
+  @override
+  String get modeDoubleElimDesc => 'Bracket mit zweiter Chance';
+
+  @override
+  String get modeGroupSeDesc => 'Gruppenphase · Single Elimination';
+
+  @override
+  String get modeGroupDeDesc => 'Gruppenphase · Double Elimination';
+
+  @override
+  String get modeSwissDesc => 'Paarungen nach Punktestand';
+
+  @override
+  String get modeLeagueShortDesc =>
+      'Tabelle über eine vollständige Round-Robin-Saison mit Punkten, Siegen und Tordifferenz.';
+
+  @override
+  String get modeDoubleElimShortDesc =>
+      'Gewinner- und Verliererbracket — zwei Niederlagen bedeuten Ausscheiden.';
+
+  @override
+  String get modeGroupSeShortDesc =>
+      'Teams steigen aus einer Gruppenphase in ein Single-Elimination-Bracket auf.';
+
+  @override
+  String get modeGroupDeShortDesc =>
+      'Teams steigen aus einer Gruppenphase in ein Double-Elimination-Bracket auf.';
+
+  @override
+  String get modeSwissShortDesc =>
+      'Spieler werden jede Runde nach Punktestand gepaart — keine Eliminierungen, voller Spielplan.';
+
+  @override
+  String get tournamentsDeleteTitle => 'Gesamten Verlauf löschen?';
+
+  @override
+  String tournamentsDeleteBody(int count) {
+    return 'Dadurch werden alle $count Turniere dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden.';
+  }
+
+  @override
+  String get tournamentsDeleteAll => 'Alles löschen';
+
+  @override
+  String get tournamentsAllLabel => 'Alle Turniere';
+
+  @override
+  String get tournamentsInfoContent =>
+      'Starte ein Match oder führe ein vollständiges Turnier durch — alles an einem Ort.\n\nQuick Games — Gewertete Matches auf der Stelle. Minimaler Aufwand, einfach zwei Teams wählen und loslegen.\n\nEinzelwettbewerbe & Socials — Individuelle Formate, bei denen Spieler als sie selbst antreten und rotieren.\n\nTeamwettbewerbe — Teambasierte Formate, bei denen vorgefertigte Teams in einem Bracket oder einer Tabelle gegeneinander antreten.\n\nTippe auf Info bei einer Kachel, um mehr zu erfahren.';
+
+  @override
   String get landingQuickStartSubtitle => 'Beach-Volleyball-Match';
 
   @override
@@ -352,40 +447,40 @@ class AppLocalizationsDe extends AppLocalizations {
       'Vergangene Spiele ansehen und überprüfen';
 
   @override
-  String get landingMoreTournamentTitle => 'More Tournament Features';
+  String get landingMoreTournamentTitle => 'Weitere Turnierfunktionen';
 
   @override
   String get landingMoreTournamentSub =>
-      'Additional formats, brackets, and competitive structures.';
+      'Zusätzliche Formate, Brackets und Wettbewerbsstrukturen.';
 
   @override
-  String get landingDeviceScalabilityTitle => 'Device & Screen Scalability';
+  String get landingDeviceScalabilityTitle => 'Geräte- & Bildschirmskalierung';
 
   @override
   String get landingDeviceScalabilitySub =>
-      'Optimised layouts for tablets, web, and all screen sizes.';
+      'Optimierte Layouts für Tablets, Web und alle Bildschirmgrößen.';
 
   @override
   String get landingScorecardSharingTitle =>
-      'Scorecard Sharing & Tournament Scaling';
+      'Scorekarten teilen & Turnierskalierung';
 
   @override
   String get landingScorecardSharingSub =>
-      'Share results and support larger events and groups.';
+      'Ergebnisse teilen und größere Events und Gruppen unterstützen.';
 
   @override
-  String get landingLiveTournamentTitle => 'Live Tournament Features';
+  String get landingLiveTournamentTitle => 'Live-Turnierfunktionen';
 
   @override
   String get landingLiveTournamentSub =>
-      'Real-time scoring, standings, and live event updates.';
+      'Echtzeit-Spielstand, Tabellen und Live-Event-Updates.';
 
   @override
-  String get landingAdvancedAdminTitle => 'Advanced User Administration';
+  String get landingAdvancedAdminTitle => 'Erweiterte Benutzerverwaltung';
 
   @override
   String get landingAdvancedAdminSub =>
-      'Manage players, teams, groups, and organiser roles.';
+      'Spieler, Teams, Gruppen und Veranstalterrollen verwalten.';
 
   @override
   String get promoSupportTitle => 'TournaQ unterstützen';
@@ -504,10 +599,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactSectionResources => 'Ressourcen';
 
   @override
-  String get contactUserGuide => 'Benutzerhandbuch';
+  String get contactUserGuide => 'Feature-Übersicht';
 
   @override
-  String get contactUserGuideSub => 'Anleitungen und Tutorials';
+  String get contactUserGuideSub =>
+      'Alle Modi und Features auf der Website entdecken';
 
   @override
   String get contactLegalHub => 'Rechtliche Dokumentation';
@@ -1518,5 +1614,774 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String doghouseAddedCount(int added, int total) {
     return 'Hinzugefügt ($added/$total)';
+  }
+
+  @override
+  String statsRounds(int count) {
+    return '$count Runden';
+  }
+
+  @override
+  String statsPtsScored(int total) {
+    return '$total Pkt. erzielt';
+  }
+
+  @override
+  String statsTeams(int count) {
+    return '$count Teams';
+  }
+
+  @override
+  String statsCourts(int count) {
+    return '$count Felder';
+  }
+
+  @override
+  String statsMatchesOf(int completed, int total) {
+    return '$completed / $total Spiele';
+  }
+
+  @override
+  String statsGamesOf(int completed, int total) {
+    return '$completed/$total Spiele';
+  }
+
+  @override
+  String get setupDuplicateNameTitle => 'Doppelter Name';
+
+  @override
+  String setupDuplicateNameBody(String name) {
+    return '\"$name\" ist bereits hinzugefügt. Trotzdem hinzufügen?';
+  }
+
+  @override
+  String get btnAddAnyway => 'Trotzdem hinzufügen';
+
+  @override
+  String get setupSectionPlayers => 'Spieler';
+
+  @override
+  String get setupSectionCreatePlayer => 'Spieler erstellen';
+
+  @override
+  String setupAddExistingPlayers(int count) {
+    return 'Vorhandene Spieler hinzufügen ($count)';
+  }
+
+  @override
+  String get setupSearchPlayersHint => 'Spieler suchen…';
+
+  @override
+  String get setupPlayerNameHint => 'Spielername';
+
+  @override
+  String setupPlayersOf(int count, int target) {
+    return '$count/$target Spieler hinzugefügt';
+  }
+
+  @override
+  String get setupTargetPlayers => 'Anzahl Spieler';
+
+  @override
+  String get setupAvailableTime => 'Verfügbare Zeit';
+
+  @override
+  String get setupMatchDuration => 'Matchdauer';
+
+  @override
+  String get setupCourts => 'Felder';
+
+  @override
+  String get setupBreakBetweenRounds => 'Pause zwischen Runden';
+
+  @override
+  String get setupFormat => 'Format';
+
+  @override
+  String get setupPlannedStartTime => 'Geplante Startzeit';
+
+  @override
+  String get setupPlannedEndTime => 'Geplante Endzeit';
+
+  @override
+  String get setupSchedulePreview => 'Zeitplan-Vorschau';
+
+  @override
+  String get setupRoundDuration => 'Rundendauer';
+
+  @override
+  String get setupRoundsLabel => 'Runden';
+
+  @override
+  String get setupScheduledDuration => 'Geplante Dauer';
+
+  @override
+  String get setupScheduledEndTime => 'Geplantes Ende';
+
+  @override
+  String get setupSuggestions => 'Vorschläge';
+
+  @override
+  String get setupFormatAutoAllplay => 'Auto-Allplay';
+
+  @override
+  String get setupCourtsInfoBody =>
+      'Derzeit auf 1 Feld festgelegt.\n\nMehrf-Feld-Unterstützung — mehrere simultane Felder zuweisen und verfolgen mit optimaler Rotation — ist für eine zukünftige Version geplant.';
+
+  @override
+  String get setupSeedingRandom => 'Zufällig';
+
+  @override
+  String get setupSeedingSeeded => 'Gesetzt';
+
+  @override
+  String get setupOddTeamsByes => 'Freilos';
+
+  @override
+  String get setupOddTeamsPlayIn => 'Play-in';
+
+  @override
+  String get setupSectionTeams => 'Teams';
+
+  @override
+  String get setupRemoveAllTeamsTitle => 'Alle Teams entfernen?';
+
+  @override
+  String get setupRemoveAllTeamsBody =>
+      'Damit werden alle hinzugefügten Teams aus der Liste entfernt.';
+
+  @override
+  String get setupNoTeamsMatch => 'Keine Teams gefunden.';
+
+  @override
+  String get setupNoTeamsAddedYet => 'Noch keine Teams hinzugefügt.';
+
+  @override
+  String get setupTeamNameHint => 'Teamname';
+
+  @override
+  String setupAddExistingTeams(int count) {
+    return 'Vorhandene Teams hinzufügen ($count)';
+  }
+
+  @override
+  String get setupSearchTeamsHint => 'Teams suchen…';
+
+  @override
+  String get setupCreateTeam => 'Team erstellen';
+
+  @override
+  String get setupGeneration => 'Auslosung';
+
+  @override
+  String get setupOddTeamsLabel => 'Ungerade Teams';
+
+  @override
+  String get setupEarlyRounds => 'Vorrunden';
+
+  @override
+  String get setupFinalRounds => 'Endrunden';
+
+  @override
+  String get setupReadyToStart => 'Bereit loszulegen!';
+
+  @override
+  String setupAddAllTeams(int count) {
+    return 'Füge alle $count Teams hinzu, um fortzufahren';
+  }
+
+  @override
+  String get setupTapToAddTeams => 'Tippe um Teams hinzuzufügen';
+
+  @override
+  String setupTeamsOf(int count, int target) {
+    return '$count/$target Teams hinzugefügt';
+  }
+
+  @override
+  String get overviewSectionOverview => 'Übersicht';
+
+  @override
+  String get overviewSectionSchedule => 'Zeitplan';
+
+  @override
+  String overviewGamesCompleted(int completed, int total) {
+    return '$completed / $total Spiele abgeschlossen';
+  }
+
+  @override
+  String overviewStatsSummary(int rounds, int courts, int players) {
+    return '$rounds Runden  ·  $courts Felder  ·  $players Spieler';
+  }
+
+  @override
+  String overviewFinished(String time) {
+    return 'Beendet: $time';
+  }
+
+  @override
+  String overviewEstFinish(String time) {
+    return 'Voraus. Ende: $time';
+  }
+
+  @override
+  String overviewSectionPlayers(int count) {
+    return 'Spieler ($count)';
+  }
+
+  @override
+  String get overviewAddPlayerSubtitle =>
+      'Hinzugefügte Spieler nehmen als Späteinsteiger teil.';
+
+  @override
+  String overviewAddConfirm(String name) {
+    return '$name hinzufügen?';
+  }
+
+  @override
+  String overviewAddLateBody(String name) {
+    return '$name nimmt als Späteinsteiger teil. Die verbleibenden Paarungen werden neu ausgelost — einige Spieler erhalten möglicherweise unterschiedlich viele Spiele.';
+  }
+
+  @override
+  String overviewSwapTitle(String name) {
+    return '$name ersetzen';
+  }
+
+  @override
+  String overviewSwapSubtitle(String name) {
+    return '$name wird aus den weiteren Runden entfernt.';
+  }
+
+  @override
+  String overviewEjectTitle(String name) {
+    return '$name ausschließen?';
+  }
+
+  @override
+  String overviewEjectBody(String name) {
+    return '$name wird aus allen weiteren Runden entfernt. Die verbleibenden Paarungen werden neu ausgelost — einige Spieler erhalten möglicherweise unterschiedlich viele Spiele. Abgeschlossene Spiele bleiben in der Statistik.';
+  }
+
+  @override
+  String get overviewEjectBtn => 'Ausschließen';
+
+  @override
+  String get overviewEditPlayer => 'Spieler bearbeiten';
+
+  @override
+  String get overviewAllPlayersAlready =>
+      'Alle vorhandenen Spieler sind bereits in diesem Turnier.';
+
+  @override
+  String overviewRound(int number) {
+    return 'Runde $number';
+  }
+
+  @override
+  String get overviewActual => 'tatsächlich';
+
+  @override
+  String overviewBreakUntil(String time) {
+    return '· Pause bis $time';
+  }
+
+  @override
+  String get scrambleStatusSwappedOut => 'ausgetauscht';
+
+  @override
+  String get scrambleStatusSwappedIn => 'Einwechslung';
+
+  @override
+  String get scrambleStatusLate => 'spät';
+
+  @override
+  String get tooltipEdit => 'Bearbeiten';
+
+  @override
+  String get tooltipEject => 'Ausschließen';
+
+  @override
+  String get tooltipSwap => 'Ersetzen';
+
+  @override
+  String get tooltipRankings => 'Spielerwertung';
+
+  @override
+  String get scorecardSwapSides => 'Seiten tauschen';
+
+  @override
+  String get scorecardSwapSidesSubtitle => 'Links-Rechts-Anzeige tauschen';
+
+  @override
+  String get scorecardMatchHistory => 'Spielverlauf';
+
+  @override
+  String get scorecardMatchHistorySubtitle => 'Punkt-für-Punkt-Verlauf';
+
+  @override
+  String get scorecardPlannedStart => 'Geplanter Start';
+
+  @override
+  String get scorecardPlannedEnd => 'Geplantes Ende';
+
+  @override
+  String get scorecardEnd => 'Ende';
+
+  @override
+  String get scorecardOverSchedule => 'Überzogen!';
+
+  @override
+  String get scorecardOverScheduleHurry => 'Überzogen · Beeilung!';
+
+  @override
+  String scorecardStartsServing(String name) {
+    return '$name beginnt mit Aufschlag';
+  }
+
+  @override
+  String get scorecardUndoCompletion => 'Abschluss rückgängig';
+
+  @override
+  String get scorecardStartMatch => 'Spiel starten';
+
+  @override
+  String get scorecardCompleteGame => 'Spiel abschließen';
+
+  @override
+  String get scorecardManualScore => 'Score manuell eingeben';
+
+  @override
+  String get scorecardBackToSchedule => 'Zurück zum Zeitplan';
+
+  @override
+  String get scorecardManualScoreBlockedTitle =>
+      'Manuelle Eingabe nicht verfügbar';
+
+  @override
+  String get scorecardManualScoreBlockedBody =>
+      'Manuelle Score-Eingabe ist nur verfügbar, bevor die Live-Wertung gestartet hat. Das verhindert das versehentliche Überschreiben bereits erfasster Punkte.';
+
+  @override
+  String get scorecardManualScoreDescription =>
+      'Verwende dies, wenn das Spiel ohne Live-Wertung gespielt wurde. Gib den Endstand für beide Seiten ein und schließe das Spiel ab.';
+
+  @override
+  String get btnOK => 'OK';
+
+  @override
+  String get btnAdjustFinalScore => 'Endergebnis anpassen';
+
+  @override
+  String get btnRestart => 'Neustart';
+
+  @override
+  String get btnResume => 'Fortsetzen';
+
+  @override
+  String get btnApply => 'Übernehmen';
+
+  @override
+  String labelMinutes(int n) {
+    return '$n min';
+  }
+
+  @override
+  String get matchScorecard => 'Anzeigetafel';
+
+  @override
+  String get matchOptions => 'Spieloptionen';
+
+  @override
+  String get matchViewHistory => 'Punkt-für-Punkt-Verlauf anzeigen';
+
+  @override
+  String get matchComplete => 'Spiel abgeschlossen';
+
+  @override
+  String get matchSetCompleteBanner =>
+      'Satz abgeschlossen — vor nächstem Satz bestätigen';
+
+  @override
+  String matchSuggestedToServe(String name) {
+    return '$name schlägt vor zu beginnen';
+  }
+
+  @override
+  String matchSuggestedReferee(String name) {
+    return '$name als Schiedsrichter vorgeschlagen';
+  }
+
+  @override
+  String get matchAssignRefereeManually => 'Schiedsrichter manuell zuweisen';
+
+  @override
+  String get matchScoresTiedSet =>
+      'Gleichstand — ein Satz kann nicht unentschieden enden.';
+
+  @override
+  String get matchScoresTiedMatch =>
+      'Gleichstand — es muss ein Gewinner festgestellt werden.';
+
+  @override
+  String get matchSetsTied =>
+      'Sätze sind unentschieden — es muss ein Gewinner bestimmt werden.';
+
+  @override
+  String get matchUndoSet => 'Satz rückgängig';
+
+  @override
+  String get matchCompleteSet => 'Satz abschließen';
+
+  @override
+  String get matchUndoMatchCompletion => 'Spielabschluss rückgängig';
+
+  @override
+  String get matchCompleteMatch => 'Spiel abschließen';
+
+  @override
+  String get matchSetScoreManually => 'Ergebnis manuell eingeben';
+
+  @override
+  String get matchBackToBracket => 'Zurück zum Bracket';
+
+  @override
+  String matchCourtLabel(int court) {
+    return 'Platz $court';
+  }
+
+  @override
+  String matchStartsAt(String time) {
+    return 'Startet $time';
+  }
+
+  @override
+  String matchSetNScore(int n) {
+    return 'Satz $n Ergebnis';
+  }
+
+  @override
+  String get matchSetScore => 'Ergebnis eingeben';
+
+  @override
+  String get bracketWithdrawTitle => 'Team zurückziehen?';
+
+  @override
+  String bracketWithdrawBody(String name) {
+    return '\"$name\" zurückziehen? Ihre ausstehenden Spiele werden als Walkover gewertet.';
+  }
+
+  @override
+  String get bracketWithdrawBtn => 'Zurückziehen';
+
+  @override
+  String get bracketFinalRoundsFormat => 'Format: Finale Runden';
+
+  @override
+  String get bracketEarlyRoundsFormat => 'Format: Frühe Runden';
+
+  @override
+  String bracketFinalRoundsAppliesTo(int n) {
+    return 'Gilt für die letzten $n Runde(n)';
+  }
+
+  @override
+  String get bracketEarlyRoundsAppliesTo => 'Gilt für alle frühen Runden';
+
+  @override
+  String get setupSetsPerGame => 'Sätze pro Spiel';
+
+  @override
+  String get setupPointsPerSet => 'Punkte pro Satz';
+
+  @override
+  String get bracketBreakFinalRounds => 'Pause — Finale Runden';
+
+  @override
+  String get bracketBreakEarlyRounds => 'Pause — Frühe Runden';
+
+  @override
+  String get bracketNoBreak => 'Keine Pause';
+
+  @override
+  String get bracketNoStartTime => 'Keine Startzeit festgelegt';
+
+  @override
+  String bracketStartsLabel(String label) {
+    return 'Start: $label';
+  }
+
+  @override
+  String get bracketTournamentWinner => 'Turniersieger';
+
+  @override
+  String bracketSectionTeams(int count) {
+    return 'Teams ($count)';
+  }
+
+  @override
+  String get bracketSwapTeamTitle => 'Team tauschen';
+
+  @override
+  String bracketSwapTeamSubtitle(String name) {
+    return 'Ersetzt \"$name\" in allen ausstehenden Spielen.';
+  }
+
+  @override
+  String get bracketSearchTeams => 'Teams suchen…';
+
+  @override
+  String get bracketNoTeamsInHub => 'Noch keine Teams im Teams-Hub.';
+
+  @override
+  String get bracketAllTeamsInTournament =>
+      'Alle Hub-Teams sind bereits in diesem Turnier.';
+
+  @override
+  String get scorecardMatchTimerLabel => 'Spieltimer';
+
+  @override
+  String get scorecardUpcomingGames => 'Nächste Spiele';
+
+  @override
+  String scorecardPlayerCount(int n) {
+    return '$n Spieler';
+  }
+
+  @override
+  String get scorecardGameCompletedLock =>
+      'Spiel abgeschlossen — Rückgängig zum Bearbeiten';
+
+  @override
+  String get kotcTimeIsUp => 'Zeit ist abgelaufen';
+
+  @override
+  String get kotcSessionEndedBody =>
+      'Der Sitzungstimer ist abgelaufen. Turnier jetzt abschließen?';
+
+  @override
+  String kotcSubstituteTitle(String name) {
+    return '$name ersetzen';
+  }
+
+  @override
+  String kotcSubstituteBody(String name) {
+    return '$name kehrt in die Warteschlange zurück.';
+  }
+
+  @override
+  String get kotcAddLateTitle => 'Spieler nachträglich hinzufügen?';
+
+  @override
+  String get kotcAddLateBody =>
+      'Dieser Spieler kommt zu spät und hatte nicht die gleichen Chancen wie Spieler, die von Anfang an dabei waren. Seine Statistiken werden als \"Spät\" markiert.';
+
+  @override
+  String get btnContinue => 'Weiter';
+
+  @override
+  String get kotcLateTag => 'SPÄT';
+
+  @override
+  String get kotcAdminTag => 'ADMIN';
+
+  @override
+  String get kotcChangeAdmin => 'Admin wechseln';
+
+  @override
+  String get kotcChangeAdminSubtitle =>
+      'Wähle, wer den Spielstand führt. Der aktuelle Admin kehrt in die Warteschlange zurück.';
+
+  @override
+  String get kotcNextAdmin => 'NÄCHSTER ADMIN';
+
+  @override
+  String get kotcNextAdminNote => 'Vorschlag aus dem aktuellen Hofteam.';
+
+  @override
+  String get kotcGameWon => 'Spiel gewonnen!';
+
+  @override
+  String kotcReachedPoints(String names, int points) {
+    return '$names hat $points Punkte erreicht!';
+  }
+
+  @override
+  String get kotcEjectReturn =>
+      'Sie werden ausgeschlossen und kehren in die Warteschlange zurück.';
+
+  @override
+  String get kotcEjectTeamTitle => 'Team ausschließen?';
+
+  @override
+  String kotcEjectTeamBodyPoints(int pts) {
+    return 'Das aktuelle Team wird ausgeschlossen. Ihre $pts Punkte werden gespeichert.';
+  }
+
+  @override
+  String get kotcEjectTeamBodyNoPoints =>
+      'Das aktuelle Team wird ausgeschlossen und kehrt in die Warteschlange zurück.';
+
+  @override
+  String get kotcLeaveTitle => 'Verlassen ohne auszuschließen?';
+
+  @override
+  String kotcLeaveBodyPoints(int pts) {
+    return 'Das Team hat $pts nicht gespeicherte Punkte. Beim Verlassen gehen sie verloren. Schließe das Team zuerst aus, um den Spielstand zu speichern.';
+  }
+
+  @override
+  String get kotcTournamentComplete => 'Turnier abgeschlossen';
+
+  @override
+  String kotcGamesSummary(int games, int pts) {
+    return '$games Spiele · $pts Punkte gesamt';
+  }
+
+  @override
+  String get kotcStatGames => 'Spiele';
+
+  @override
+  String get kotcStatWins => 'Siege';
+
+  @override
+  String get kotcStatPts => 'Pkt';
+
+  @override
+  String get kotcOptions => 'Optionen';
+
+  @override
+  String get kotcHistorySubtitle => 'Alle abgeschlossenen Spiele anzeigen';
+
+  @override
+  String get kotcTeamEjected => 'Team\nraus';
+
+  @override
+  String get kotcUndoEject => 'Ausschluss\nrückgängig';
+
+  @override
+  String get kotcUndoLastEjection => 'Letzten Ausschluss rückgängig';
+
+  @override
+  String get kotcUpNext => 'Als Nächstes';
+
+  @override
+  String get kotcChallengers => 'Herausforderer';
+
+  @override
+  String get kotcWaitingForPlayers => 'Warte auf Spieler...';
+
+  @override
+  String kotcStrikePoints(int n) {
+    return '$n Pkt. Strike';
+  }
+
+  @override
+  String get kotcAdd4Random => '4 zufällige hinzufügen';
+
+  @override
+  String kotcExistingPlayers(int n) {
+    return 'Bestehende Spieler ($n)';
+  }
+
+  @override
+  String get kotcPlayerNameHint => 'Spielername';
+
+  @override
+  String get labelEject => 'Ausschließen';
+
+  @override
+  String get kotcSetupStyleLabel => 'Stil';
+
+  @override
+  String get kotcSetupStyleHelp =>
+      'Das Format jedes Spiels — 2vs2, 3vs3 usw. Legt fest, wie viele Spieler jedes Team auf dem Platz ausmachen.';
+
+  @override
+  String get kotcSetupAssignmentLabel => 'Zuweisung';
+
+  @override
+  String get kotcSetupAssignmentHelp =>
+      'Wie das nächste Hofteam ausgewählt wird.\n\nManuell — der Trainer wählt Spieler aus der Warteschlange durch Antippen.\n\nAutomatisch — TournaQ schlägt das beste Team vor und priorisiert Spieler, die am längsten gewartet haben und zuletzt nicht zusammen gespielt haben. Der Trainer kann vor der Bestätigung neu würfeln.\n\nAutomatisch — Alle spielen — wie Automatisch, aber ohne dedizierten Trainer. Ein rotierender Admin führt den Spielstand, während alle anderen spielen.';
+
+  @override
+  String get kotcSetupPlayersHelp =>
+      'Zielvorgabe für die Spieleranzahl. Wird beim automatischen Auffüllen mit zufälligen Spielern verwendet. Tatsächliche Teilnehmer werden unten im Bereich Spieler hinzugefügt.';
+
+  @override
+  String get kotcSetupTimeHelp =>
+      'Gesamte Sitzungsdauer. Der Timer zählt von diesem Wert herunter. Wenn die Zeit abläuft, wirst du aufgefordert, das Turnier abzuschließen oder weiterzuspielen.';
+
+  @override
+  String get kotcSetupStrikeLabel => 'Strike-Punkte (0 = aus)';
+
+  @override
+  String get kotcSetupStrikeHelp =>
+      'Punkte, die ein Team erzielen muss, um das Spiel zu gewinnen und als Sieger ausgeschlossen zu werden. Auf 0 setzen zum Deaktivieren — Teams bleiben auf dem Platz, bis der Coach sie manuell ausschließt.';
+
+  @override
+  String get kotcHistoryWon => 'Gewonnen';
+
+  @override
+  String get kotcHistoryNoGames => 'Noch keine Spiele.';
+
+  @override
+  String get kotcHistoryNoGamesSubtitle =>
+      'Spiele erscheinen hier, sobald ein Team ausgeschlossen wird.';
+
+  @override
+  String get setupPlayersPerSide => 'Spieler pro Seite';
+
+  @override
+  String get setupAppliesToLast => 'Gilt für letzte';
+
+  @override
+  String get setupScheduleLabel => 'Zeitplan';
+
+  @override
+  String get setupScheduleSoft => 'Flexibler Zeitplan';
+
+  @override
+  String get setupScheduleForced => 'Fester Zeitplan';
+
+  @override
+  String get setupAddBreak => 'Pause hinzufügen';
+
+  @override
+  String setupBreakMins(int mins) {
+    return '$mins Min. Pause';
+  }
+
+  @override
+  String setupStartsAt(String date) {
+    return 'Start: $date';
+  }
+
+  @override
+  String setupMatchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Spiele',
+      one: '1 Spiel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get setupRoundPlayIn => 'Play-in';
+
+  @override
+  String get setupRoundFinal => 'Finale';
+
+  @override
+  String get setupRoundSemiFinal => 'Halbfinale';
+
+  @override
+  String get setupRoundQuarterFinal => 'Viertelfinale';
+
+  @override
+  String setupRoundN(int n) {
+    return 'Runde $n';
   }
 }

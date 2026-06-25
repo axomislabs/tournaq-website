@@ -1,6 +1,7 @@
 import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
@@ -86,26 +87,27 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
   }
 
   Future<void> _deleteOne(KoBracketTournament t) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Tournament?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteTournamentTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete "${t.name}" and all its data.',
+          l10n.doghouseDeleteTournamentBody(t.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -118,27 +120,27 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
 
   Future<void> _deleteAll() async {
     if (_tournaments.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete All Tournaments?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteAllTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete all ${_tournaments.length} '
-          'Single Elimination tournament${_tournaments.length > 1 ? 's' : ''}.',
+          l10n.doghouseDeleteAllBody(_tournaments.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete All'),
+            child: Text(l10n.btnDeleteAll),
           ),
         ],
       ),
@@ -153,21 +155,22 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
 
   // ── Label helpers ─────────────────────────────────────────────────────────
 
-  static String _statusLabel(KoBracketTournament t) => switch (t.status) {
-        KoBracketStatus.completed  => 'Completed',
-        KoBracketStatus.inProgress => 'In Progress',
-        KoBracketStatus.setup      => 'Setup',
+  String _statusLabel(AppLocalizations l10n, KoBracketTournament t) =>
+      switch (t.status) {
+        KoBracketStatus.completed  => l10n.statusCompleted,
+        KoBracketStatus.inProgress => l10n.statusInProgress,
+        KoBracketStatus.setup      => l10n.statusSetup,
       };
 
-  static String _dateLabel(KoBracketTournament t) {
+  String _dateLabel(AppLocalizations l10n, KoBracketTournament t) {
     final d    = t.createdAt;
     final now  = DateTime.now();
     final diff = DateTime(now.year, now.month, now.day)
         .difference(DateTime(d.year, d.month, d.day))
         .inDays;
-    if (diff == 0) return 'Today';
-    if (diff == 1) return 'Yesterday';
-    if (diff < 7)  return '$diff days ago';
+    if (diff == 0) return l10n.dateToday;
+    if (diff == 1) return l10n.dateYesterday;
+    if (diff < 7)  return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -175,6 +178,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'Single Elimination'),
       body: Column(
@@ -183,7 +187,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
           // ── Start card ───────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildStartCard(),
+            child: _buildStartCard(l10n),
           ),
           const SizedBox(height: 20),
 
@@ -197,7 +201,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tournament History (${_tournaments.length})',
+                    l10n.doghouseTournamentHistory(_tournaments.length),
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w800),
                   ),
@@ -206,8 +210,8 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                   TextButton.icon(
                     onPressed: _deleteAll,
                     icon: const Icon(Icons.delete_outline, size: 16),
-                    label: const Text('Delete All',
-                        style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.btnDeleteAll,
+                        style: const TextStyle(fontSize: 12)),
                     style: TextButton.styleFrom(
                         foregroundColor: Colors.red.shade400),
                   ),
@@ -229,14 +233,14 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                               size: 48, color: Colors.grey.shade300),
                         ),
                         const SizedBox(height: 12),
-                        const Text('No tournaments yet.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsYet,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black45)),
                         const SizedBox(height: 4),
-                        const Text('Tap New Tournament to get started.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsHint,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       ],
                     ),
@@ -250,7 +254,6 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                           t.matches.where((m) => m.isComplete).length;
                       final total = t.matches.length;
 
-                      // Winner name for completed tournaments
                       String? winnerName;
                       if (t.status == KoBracketStatus.completed) {
                         final finalMatch = t.matches
@@ -270,14 +273,14 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
                         typeColor:   AppColors.gold,
                         typeIcon:    Icons.account_tree_rounded,
                         iconAngle:   pi,
-                        dateLabel:   _dateLabel(t),
-                        statusLabel: _statusLabel(t),
+                        dateLabel:   _dateLabel(l10n, t),
+                        statusLabel: _statusLabel(l10n, t),
                         isActive:
                             t.status != KoBracketStatus.completed,
                         stats: [
-                          '${t.teamCount} teams',
-                          '${t.courtCount} court${t.courtCount == 1 ? '' : 's'}',
-                          '$completed / $total matches',
+                          l10n.statsTeams(t.teamCount),
+                          l10n.statsCourts(t.courtCount),
+                          l10n.statsMatchesOf(completed, total),
                           if (winnerName != null) '🏆 $winnerName',
                         ],
                         onTap:       () => _openTournament(t),
@@ -291,7 +294,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     );
   }
 
-  Widget _buildStartCard() {
+  Widget _buildStartCard(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -331,7 +334,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Classic KO bracket — one loss and you\'re out',
+            l10n.modeSingleElimDesc,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,
@@ -341,8 +344,8 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('New Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.doghouseNewTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,

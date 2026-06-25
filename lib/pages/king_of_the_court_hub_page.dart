@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../models/group.dart';
 import '../models/player.dart';
@@ -73,24 +74,25 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
   }
 
   Future<void> _deleteOne(KingOfTheCourtTournament s) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Tournament?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteTournamentTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete "${s.name}" and all its data.',
+          l10n.doghouseDeleteTournamentBody(s.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(l10n.btnCancel)),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -103,24 +105,25 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
 
   Future<void> _deleteAll() async {
     if (_tournaments.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete All Tournaments?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteAllTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete all ${_tournaments.length} tournament${_tournaments.length > 1 ? 's' : ''}.',
+          l10n.doghouseDeleteAllBody(_tournaments.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(l10n.btnCancel)),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete All'),
+            child: Text(l10n.btnDeleteAll),
           ),
         ],
       ),
@@ -133,26 +136,28 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
     }
   }
 
-  static String _statusLabel(KingOfTheCourtTournament s) => switch (s.status) {
-        KotcTournamentStatus.completed  => 'Completed',
-        KotcTournamentStatus.inProgress => 'In Progress',
-        KotcTournamentStatus.setup      => 'Setup',
+  String _statusLabel(AppLocalizations l10n, KingOfTheCourtTournament s) =>
+      switch (s.status) {
+        KotcTournamentStatus.completed  => l10n.statusCompleted,
+        KotcTournamentStatus.inProgress => l10n.statusInProgress,
+        KotcTournamentStatus.setup      => l10n.statusSetup,
       };
 
-  static String _dateLabel(KingOfTheCourtTournament s) {
+  String _dateLabel(AppLocalizations l10n, KingOfTheCourtTournament s) {
     final d    = s.createdAt;
     final now  = DateTime.now();
     final diff = DateTime(now.year, now.month, now.day)
         .difference(DateTime(d.year, d.month, d.day))
         .inDays;
-    if (diff == 0) return 'Today';
-    if (diff == 1) return 'Yesterday';
-    if (diff < 7)  return '$diff days ago';
+    if (diff == 0) return l10n.dateToday;
+    if (diff == 1) return l10n.dateYesterday;
+    if (diff < 7)  return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'King of the Court'),
       body: Column(
@@ -160,7 +165,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildStartCard(),
+            child: _buildStartCard(l10n),
           ),
           const SizedBox(height: 20),
           Padding(
@@ -172,7 +177,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tournament History (${_tournaments.length})',
+                    l10n.doghouseTournamentHistory(_tournaments.length),
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w800),
                   ),
@@ -181,8 +186,8 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
                   TextButton.icon(
                     onPressed: _deleteAll,
                     icon: const Icon(Icons.delete_outline, size: 16),
-                    label: const Text('Delete All',
-                        style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.btnDeleteAll,
+                        style: const TextStyle(fontSize: 12)),
                     style: TextButton.styleFrom(
                         foregroundColor: Colors.red.shade400),
                   ),
@@ -199,14 +204,14 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
                         Icon(Icons.workspace_premium_rounded,
                             size: 48, color: Colors.grey.shade300),
                         const SizedBox(height: 12),
-                        const Text('No tournaments yet.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsYet,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black45)),
                         const SizedBox(height: 4),
-                        const Text('Tap New Tournament to get started.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsHint,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       ],
                     ),
@@ -221,13 +226,13 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
                         typeLabel:   'King of the Court',
                         typeColor:   AppColors.gold,
                         typeIcon:    Icons.workspace_premium_rounded,
-                        dateLabel:   _dateLabel(s),
-                        statusLabel: _statusLabel(s),
+                        dateLabel:   _dateLabel(l10n, s),
+                        statusLabel: _statusLabel(l10n, s),
                         isActive:    s.status != KotcTournamentStatus.completed,
                         stats: [
-                          '${s.playerCount} players',
-                          '${s.gameCount} games',
-                          '${s.totalPoints} pts scored',
+                          l10n.doghouseStatsPlayers(s.playerCount),
+                          l10n.doghouseStatsGames(s.gameCount),
+                          l10n.statsPtsScored(s.totalPoints),
                         ],
                         onTap:       () => _openScoreboard(s),
                         onDeleteTap: () => _deleteOne(s),
@@ -240,7 +245,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
     );
   }
 
-  Widget _buildStartCard() {
+  Widget _buildStartCard(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -277,7 +282,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Winners stay, challengers rotate',
+            l10n.modeKotcDesc,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,
@@ -287,8 +292,8 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('New Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.doghouseNewTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,

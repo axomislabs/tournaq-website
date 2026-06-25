@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
@@ -11,6 +12,7 @@ import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'ko_bracket_bracket_page.dart';
+import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -290,14 +292,16 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     final tournament = KoBracketScheduler.assignTimes(base);
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => KoBracketBracketPage(
-        tournament: tournament,
-        onChanged: widget.onCreated,
-        existingPlayers: widget.existingPlayers,
-        existingTeams: widget.existingTeams,
-        existingGroups: widget.existingGroups,
-        onCreatePlayer: widget.onCreatePlayer,
-        onCreateTeam: widget.onCreateTeam,
+      builder: (_) => TournaqSplashPage(
+        destination: KoBracketBracketPage(
+          tournament:      tournament,
+          onChanged:       widget.onCreated,
+          existingPlayers: widget.existingPlayers,
+          existingTeams:   widget.existingTeams,
+          existingGroups:  widget.existingGroups,
+          onCreatePlayer:  widget.onCreatePlayer,
+          onCreateTeam:    widget.onCreateTeam,
+        ),
       ),
     ));
   }
@@ -330,29 +334,30 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     final preview  = _previewTournament;
     final anyEmpty = _teams.length < _teamCount;
 
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: const TournaQAppBar(
-          title: 'Single Elimination', subtitle: 'New Tournament'),
+      appBar: TournaQAppBar(
+          title: 'Single Elimination', subtitle: l10n.doghouseNewTournament),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ══ SECTION 1: Tournament Setup ═══════════════════════════════
-            _sectionDivider('Tournament Setup', Icons.tune_rounded),
+            _sectionDivider(l10n.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
             Row(children: [
               Expanded(
                 child: _comboField(
-                  label: 'Teams',
+                  label: l10n.setupSectionTeams,
                   ctrl: _teamCountCtrl,
                   presets: [4, 6, 8, 10, 12, 16],
                   onParsed: _onTeamCountChanged,
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: _styleField()),
+              Expanded(child: _scheduleField()),
             ]),
             const SizedBox(height: 14),
             Row(children: [
@@ -360,7 +365,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: _comboField(
-                  label: 'Courts',
+                  label: l10n.setupCourts,
                   ctrl: _courtCtrl,
                   presets: [1, 2, 3, 4, 5, 6],
                   onParsed: (v) => setState(() => _courtCount = v.clamp(1, 32)),
@@ -373,7 +378,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _fieldLabel('Generation'),
+                    _fieldLabel(l10n.setupGeneration),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<KoBracketGenerationMode>(
                       initialValue: _generationMode,
@@ -384,13 +389,15 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
                             value: KoBracketGenerationMode.random,
-                            child: Text('Random')),
+                            child: Text(l10n.setupSeedingRandom)),
                         DropdownMenuItem(
                             value: KoBracketGenerationMode.seeded,
-                            child: Text('Seeded')),
+                            enabled: false,
+                            child: Text(l10n.setupSeedingSeeded,
+                                style: const TextStyle(color: Colors.black38))),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _generationMode = v);
@@ -405,7 +412,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Expanded(child: _fieldLabel('Odd Teams')),
+                      Expanded(child: _fieldLabel(l10n.setupOddTeamsLabel)),
                       GestureDetector(
                         onTap: _showOddTeamsHelp,
                         child: const Icon(Icons.help_outline_rounded,
@@ -422,12 +429,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      items: const [
+                      items: [
                         DropdownMenuItem(
-                            value: KoOddTeamStrategy.byes, child: Text('Byes')),
+                            value: KoOddTeamStrategy.byes,
+                            child: Text(l10n.setupOddTeamsByes)),
                         DropdownMenuItem(
                             value: KoOddTeamStrategy.playIn,
-                            child: Text('Play-in')),
+                            child: Text(l10n.setupOddTeamsPlayIn)),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _oddStrategy = v);
@@ -439,13 +447,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             ]),
             const SizedBox(height: 14),
             _roundFormatCard(
-              label: 'Early Rounds',
+              label: l10n.setupEarlyRounds,
               format: _earlyFormat,
               onChanged: (f) => setState(() => _earlyFormat = f),
             ),
             const SizedBox(height: 10),
             _roundFormatCard(
-              label: 'Final Rounds',
+              label: l10n.setupFinalRounds,
               format: _finalFormat,
               onChanged: (f) => setState(() => _finalFormat = f),
               showFinalRoundsCount: true,
@@ -453,7 +461,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             const SizedBox(height: 14),
             _buildSchedulePreview(preview),
             const SizedBox(height: 14),
-            _fieldLabel('Tournament Name'),
+            // ══ SECTION 2: Teams ══════════════════════════════════════════
+            _sectionDivider(l10n.setupSectionTeams, Icons.groups_rounded),
+            const SizedBox(height: 10),
+            _buildTeamsCard(),
+            const SizedBox(height: 28),
+
+            _fieldLabel(l10n.doghouseTournamentName),
             const SizedBox(height: 8),
             Row(children: [
               Expanded(
@@ -478,12 +492,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             ]),
             const SizedBox(height: 28),
 
-            // ══ SECTION 2: Teams ══════════════════════════════════════════
-            _sectionDivider('Teams', Icons.groups_rounded),
-            const SizedBox(height: 10),
-            _buildTeamsCard(),
-            const SizedBox(height: 28),
-
             // ══ Create ════════════════════════════════════════════════════
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -498,10 +506,10 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 const SizedBox(width: 6),
                 Text(
                   _canCreate
-                      ? 'Ready to start!'
+                      ? l10n.setupReadyToStart
                       : anyEmpty
-                          ? 'Add all $_teamCount teams to continue'
-                          : 'Setup incomplete',
+                          ? l10n.setupAddAllTeams(_teamCount)
+                          : l10n.doghouseSetupIncomplete,
                   style: TextStyle(
                     color: _canCreate ? _kOlive : Colors.red.shade600,
                     fontWeight: FontWeight.w600,
@@ -518,9 +526,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Create Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              child: Text(
+                l10n.btnCreateTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
               ),
             ),
           ],
@@ -563,8 +571,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           Expanded(
             child: Text(
               hasAny
-                  ? '${_teams.length} / $_teamCount teams added'
-                  : 'Tap to add teams',
+                  ? AppLocalizations.of(context)!.setupTeamsOf(_teams.length, _teamCount)
+                  : AppLocalizations.of(context)!.setupTapToAddTeams,
               style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -581,6 +589,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   void _showTeamsSheet() {
     _teamSearchCtrl.clear();
+    final l10n = AppLocalizations.of(context)!;
     var createExpanded   = false;
     var existingExpanded = false;
     var addedExpanded    = false;
@@ -650,8 +659,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 children: [
                   // ── Header ────────────────────────────────────────────
                   Row(children: [
-                    const Text('Teams',
-                        style: TextStyle(
+                    Text(l10n.setupSectionTeams,
+                        style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w800)),
                     const Spacer(),
                     if (_teams.isNotEmpty)
@@ -662,25 +671,25 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                             builder: (dCtx) => AlertDialog(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16)),
-                              title: const Text('Remove all teams?',
-                                  style: TextStyle(
+                              title: Text(l10n.setupRemoveAllTeamsTitle,
+                                  style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700)),
-                              content: const Text(
-                                  'This will clear all added teams.',
-                                  style: TextStyle(
+                              content: Text(
+                                  l10n.setupRemoveAllTeamsBody,
+                                  style: const TextStyle(
                                       fontSize: 14, color: Colors.black54)),
                               actions: [
                                 TextButton(
                                     onPressed: () =>
                                         Navigator.of(dCtx).pop(false),
-                                    child: const Text('Cancel')),
+                                    child: Text(l10n.btnCancel)),
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.of(dCtx).pop(true),
                                   style: TextButton.styleFrom(
                                       foregroundColor: Colors.red),
-                                  child: const Text('Remove all'),
+                                  child: Text(l10n.doghouseRemoveAll),
                                 ),
                               ],
                             ),
@@ -693,8 +702,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(horizontal: 8)),
-                        child: const Text('Clear all',
-                            style: TextStyle(fontSize: 13)),
+                        child: Text(l10n.doghouseClearAll,
+                            style: const TextStyle(fontSize: 13)),
                       ),
                     Text('${_teams.length} / $_teamCount',
                         style: const TextStyle(
@@ -704,7 +713,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
                   // ── Create Team ───────────────────────────────────────
                   sectionHeader(
-                    'Create Team',
+                    l10n.setupCreateTeam,
                     createExpanded,
                     () => setSheetState(() => createExpanded = !createExpanded),
                   ),
@@ -716,7 +725,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                           textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(
                             isDense: true,
-                            hintText: 'Team name…',
+                            hintText: l10n.setupTeamNameHint,
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                             contentPadding: const EdgeInsets.symmetric(
@@ -749,7 +758,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Add'),
+                        child: Text(l10n.btnAdd),
                       ),
                     ]),
                     const SizedBox(height: 8),
@@ -758,7 +767,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
                   // ── Add Existing Teams ────────────────────────────────
                   sectionHeader(
-                    'Add Existing Teams (${allAvailable.length})',
+                    l10n.setupAddExistingTeams(allAvailable.length),
                     existingExpanded,
                     () => setSheetState(
                         () => existingExpanded = !existingExpanded),
@@ -834,13 +843,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         Expanded(
                           child: TextField(
                             controller: _teamSearchCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'Search teams…',
+                            decoration: InputDecoration(
+                              hintText: l10n.setupSearchTeamsHint,
                               isDense: true,
-                              prefixIcon: Icon(Icons.search_rounded,
+                              prefixIcon: const Icon(Icons.search_rounded,
                                   size: 18, color: Colors.black45),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 4, vertical: 10),
                             ),
                             onChanged: (_) => setSheetState(() {}),
@@ -850,10 +859,10 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                     ),
                     const SizedBox(height: 6),
                     if (filteredAvailable.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No teams match.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.setupNoTeamsMatch,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -920,7 +929,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
                   // ── Added Teams ───────────────────────────────────────
                   sectionHeader(
-                    'Added (${_teams.length} / $_teamCount)',
+                    l10n.doghouseAddedCount(_teams.length, _teamCount),
                     addedExpanded,
                     () => setSheetState(() => addedExpanded = !addedExpanded),
                     trailing: _teams.length < _teamCount
@@ -931,7 +940,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                             },
                             icon: const Icon(Icons.shuffle_rounded, size: 14),
                             label: Text(
-                              'Fill ${_teamCount - _teams.length} random',
+                              l10n.doghouseFillNRandom(_teamCount - _teams.length),
                               style: const TextStyle(fontSize: 12),
                             ),
                             style: TextButton.styleFrom(
@@ -943,10 +952,10 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                   ),
                   if (addedExpanded) ...[
                     if (_teams.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No teams added yet.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.setupNoTeamsAddedYet,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -1187,6 +1196,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     required void Function(KoRoundFormat) onChanged,
     bool showFinalRoundsCount = false,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1203,7 +1213,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           Row(children: [
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _fieldLabel('Sets per game'),
+                _fieldLabel(l10n.setupSetsPerGame),
                 const SizedBox(height: 6),
                 _chipRow(
                   options: [1, 3, 5],
@@ -1215,7 +1225,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             const SizedBox(width: 16),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _fieldLabel('Points per set'),
+                _fieldLabel(l10n.setupPointsPerSet),
                 const SizedBox(height: 6),
                 _chipRow(
                   options: [11, 15, 21],
@@ -1228,7 +1238,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           if (showFinalRoundsCount) ...[
             const SizedBox(height: 10),
             Row(children: [
-              _fieldLabel('Applies to last'),
+              _fieldLabel(l10n.setupAppliesToLast),
               const SizedBox(width: 10),
               _stepper(
                 value: _finalRoundsCount,
@@ -1236,8 +1246,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 onChanged: (v) => setState(() => _finalRoundsCount = v),
               ),
               const SizedBox(width: 6),
-              const Text('round(s)',
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text(l10n.setupRoundsLabel,
+                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
             ]),
           ],
         ],
@@ -1278,40 +1288,44 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     );
   }
 
-  Widget _styleField() {
+  Widget _scheduleField() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Style'),
+        _fieldLabel(l10n.setupScheduleLabel),
         const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade400),
-            borderRadius: BorderRadius.circular(10),
+        DropdownButtonFormField<String>(
+          initialValue: 'soft',
+          isDense: true,
+          isExpanded: true,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-          child: Row(children: [
-            const Expanded(
-              child: Text('Single Elimination',
-                  style: TextStyle(fontSize: 14, color: Colors.black87)),
+          items: [
+            DropdownMenuItem(value: 'soft', child: Text(l10n.setupScheduleSoft)),
+            DropdownMenuItem(
+              value: 'forced',
+              enabled: false,
+              child: Text(l10n.setupScheduleForced,
+                  style: const TextStyle(color: Colors.black38)),
             ),
-            Transform.rotate(
-              angle: pi,
-              child: const Icon(Icons.account_tree_rounded, size: 16, color: Colors.black38),
-            ),
-          ]),
+          ],
+          onChanged: (_) {},
         ),
       ],
     );
   }
 
   Widget _playersPerSideField() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Players per side'),
+        _fieldLabel(l10n.setupPlayersPerSide),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           initialValue: _playersPerSide,
@@ -1433,6 +1447,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   // ── Schedule preview ──────────────────────────────────────────────────────
 
   Widget _buildSchedulePreview(KoBracketTournament preview) {
+    final l10n   = AppLocalizations.of(context)!;
     final rounds = preview.allRounds;
     if (rounds.isEmpty) return const SizedBox.shrink();
 
@@ -1451,12 +1466,12 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
       final stepsFromFinal = preview.mainRoundCount - round;
       final label = round == 0
-          ? 'Play-in'
+          ? l10n.setupRoundPlayIn
           : switch (stepsFromFinal) {
-              0 => 'Final',
-              1 => 'Semi-final',
-              2 => 'Quarter-final',
-              _ => 'Round $round',
+              0 => l10n.setupRoundFinal,
+              1 => l10n.setupRoundSemiFinal,
+              2 => l10n.setupRoundQuarterFinal,
+              _ => l10n.setupRoundN(round),
             };
 
       rows.add(Padding(
@@ -1470,7 +1485,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                     fontWeight: FontWeight.w700,
                     color: Colors.black87)),
           ),
-          Text('${matches.length} match${matches.length == 1 ? '' : 'es'}',
+          Text(l10n.setupMatchCount(matches.length),
               style: const TextStyle(fontSize: 11, color: Colors.black45)),
           const Spacer(),
           if (start != null && end != null)
@@ -1502,7 +1517,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
               ),
               const SizedBox(width: 4),
               Text(
-                breakMins > 0 ? '$breakMins min break' : 'Add break',
+                breakMins > 0 ? l10n.setupBreakMins(breakMins) : l10n.setupAddBreak,
                 style: TextStyle(
                     fontSize: 11,
                     color: breakMins > 0 ? _kOlive : Colors.black38),
@@ -1529,8 +1544,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           Row(children: [
             const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
             const SizedBox(width: 6),
-            const Text('Schedule Preview',
-                style: TextStyle(
+            Text(l10n.setupSchedulePreview,
+                style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _kGoldDark)),
@@ -1548,7 +1563,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
               const Icon(Icons.play_circle_outline_rounded,
                   size: 12, color: _kGoldDark),
               const SizedBox(width: 4),
-              Text('Starts: ${_formatDateTime(_estimatedStart)}',
+              Text(l10n.setupStartsAt(_formatDateTime(_estimatedStart)),
                   style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,

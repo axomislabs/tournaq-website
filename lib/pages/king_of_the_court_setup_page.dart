@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../services/scramble_service.dart';
@@ -11,6 +12,7 @@ import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'king_of_the_court_scoreboard_page.dart';
+import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
 class KingOfTheCourtSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
@@ -127,11 +129,13 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
     );
     widget.onCreated(session);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => KingOfTheCourtScoreboardPage(
-        tournament:     session,
-        existingPlayers: widget.existingPlayers,
-        onChanged:      widget.onCreated,
-        onCreatePlayer: widget.onCreatePlayer,
+      builder: (_) => TournaqSplashPage(
+        destination: KingOfTheCourtScoreboardPage(
+          tournament:      session,
+          existingPlayers: widget.existingPlayers,
+          onChanged:       widget.onCreated,
+          onCreatePlayer:  widget.onCreatePlayer,
+        ),
       ),
     ));
   }
@@ -181,12 +185,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             const SizedBox(width: 12),
             Expanded(
               child: count == 0
-                  ? const Text('Tap to add players',
-                      style: TextStyle(color: Colors.black38, fontSize: 13))
+                  ? Text(AppLocalizations.of(context)!.doghouseTapToAddPlayers,
+                      style: const TextStyle(color: Colors.black38, fontSize: 13))
                   : Text(
                       enough
-                          ? '$count players added'
-                          : '$count added · need at least $min',
+                          ? AppLocalizations.of(context)!.doghouseNPlayersAdded(count)
+                          : AppLocalizations.of(context)!.doghouseNeedAtLeastN(count, min),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -210,6 +214,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   // ── Players sheet ─────────────────────────────────────────────────────────────
 
   void _showPlayersSheet() {
+    final l10n = AppLocalizations.of(context)!;
     _playerSearchCtrl.clear();
     var createExpanded   = false;
     var existingExpanded = false;
@@ -249,23 +254,22 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                 builder: (dCtx) => AlertDialog(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
-                  title: const Text('Duplicate Name',
-                      style: TextStyle(
+                  title: Text(l10n.setupDuplicateNameTitle,
+                      style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w700)),
                   content: Text(
-                    '"$trimmed" is already added to this tournament. '
-                    'Add anyway?',
+                    l10n.setupDuplicateNameBody(trimmed),
                     style: const TextStyle(
                         fontSize: 14, color: Colors.black54),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dCtx).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.btnCancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.of(dCtx).pop(true),
-                      child: const Text('Add Anyway'),
+                      child: Text(l10n.btnAddAnyway),
                     ),
                   ],
                 ),
@@ -319,23 +323,21 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
               builder: (dCtx) => AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
-                title: const Text('Remove all players?',
-                    style: TextStyle(
+                title: Text(l10n.doghouseRemoveAllTitle,
+                    style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w700)),
-                content: const Text(
-                    'This will remove all added players from the list.',
-                    style:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
+                content: Text(l10n.doghouseRemoveAllBody,
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.black54)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.btnCancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(true),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.red),
-                    child: const Text('Remove all'),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: Text(l10n.doghouseRemoveAll),
                   ),
                 ],
               ),
@@ -387,8 +389,8 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                   // ── Main header ─────────────────────────────────────────
                   Row(
                     children: [
-                      const Text('Players',
-                          style: TextStyle(
+                      Text(l10n.setupSectionPlayers,
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w800)),
                       const Spacer(),
                       if (_players.isNotEmpty)
@@ -398,8 +400,8 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                               foregroundColor: Colors.red,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8)),
-                          child: const Text('Clear all',
-                              style: TextStyle(fontSize: 13)),
+                          child: Text(l10n.doghouseClearAll,
+                              style: const TextStyle(fontSize: 13)),
                         ),
                       Text(
                         '${_players.length} / $_targetPlayerCount',
@@ -412,7 +414,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
 
                   // ── Create Player ───────────────────────────────────────
                   sectionHeader(
-                    'Create Player',
+                    l10n.setupSectionCreatePlayer,
                     createExpanded,
                     () => setSheetState(
                         () => createExpanded = !createExpanded),
@@ -425,7 +427,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                             controller: _playerNameCtrl,
                             textCapitalization: TextCapitalization.words,
                             decoration:
-                                _inputDecoration(hint: 'Player name'),
+                                _inputDecoration(hint: l10n.setupPlayerNameHint),
                             onSubmitted: addByName,
                           ),
                         ),
@@ -441,7 +443,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Add'),
+                          child: Text(l10n.btnAdd),
                         ),
                       ],
                     ),
@@ -451,7 +453,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
 
                   // ── Existing Players ────────────────────────────────────
                   sectionHeader(
-                    'Add Existing Players (${allExisting.length})',
+                    l10n.setupAddExistingPlayers(allExisting.length),
                     existingExpanded,
                     () => setSheetState(
                         () => existingExpanded = !existingExpanded),
@@ -502,12 +504,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                         Expanded(
                           child: TextField(
                             controller: _playerSearchCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'Search players…',
+                            decoration: InputDecoration(
+                              hintText: l10n.setupSearchPlayersHint,
                               isDense: true,
-                              prefixIcon: Icon(Icons.search_rounded, size: 18, color: Colors.black45),
+                              prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.black45),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                             ),
                             onChanged: (_) => setSheetState(() {}),
                           ),
@@ -516,10 +518,10 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                     ),
                     const SizedBox(height: 6),
                     if (filteredExisting.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No players match.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.doghouseNoPlayersMatch,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -556,7 +558,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
 
                   // ── Added ───────────────────────────────────────────────
                   sectionHeader(
-                    'Added (${_players.length}/$_targetPlayerCount)',
+                    l10n.doghouseAddedCount(_players.length, _targetPlayerCount),
                     addedExpanded,
                     () => setSheetState(
                         () => addedExpanded = !addedExpanded),
@@ -566,7 +568,8 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                             icon: const Icon(Icons.shuffle_rounded,
                                 size: 14),
                             label: Text(
-                              'Fill ${(_targetPlayerCount - _players.length).clamp(0, 999)} random',
+                              l10n.doghouseFillNRandom(
+                                  (_targetPlayerCount - _players.length).clamp(0, 999)),
                               style: const TextStyle(fontSize: 12),
                             ),
                             style: TextButton.styleFrom(
@@ -579,10 +582,10 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                   ),
                   if (addedExpanded) ...[
                     if (_players.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No players added yet.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.doghouseSetupNoPlayers,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -644,18 +647,19 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n      = AppLocalizations.of(context)!;
     final canCreate = _canCreate;
 
     return Scaffold(
-      appBar: const TournaQAppBar(
-          title: 'King of the Court', subtitle: 'New Tournament'),
+      appBar: TournaQAppBar(
+          title: 'King of the Court', subtitle: l10n.doghouseNewTournament),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Config grid ───────────────────────────────────────────────────
-            _sectionHeader('Tournament Setup', Icons.tune_rounded),
+            _sectionHeader(l10n.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
             // Row 1 — players / time
@@ -664,26 +668,22 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Players',
+                    label:    l10n.navPlayers,
                     ctrl:     _playerCountCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
-                    helpText: 'Target number of players for the session. '
-                        'Used when auto-filling random players. '
-                        'Actual participants are added in the Players section below.',
+                    helpText: l10n.kotcSetupPlayersHelp,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Time',
+                    label:    l10n.labelTime,
                     ctrl:     _totalMinCtrl,
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
                     unit:     'min',
-                    helpText: 'Total session duration. The timer counts down '
-                        'from this value. When time runs out you will be '
-                        'prompted to complete the tournament or keep scoring.',
+                    helpText: l10n.kotcSetupTimeHelp,
                   ),
                 ),
               ],
@@ -709,13 +709,11 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Strike Points (0 = off)',
+                    label:    l10n.kotcSetupStrikeLabel,
                     ctrl:     _strikeCtrl,
                     presets:  [0, 3, 5, 7, 10, 15, 21],
                     onParsed: (v) => _strikePoints = v.clamp(0, 999),
-                    helpText: 'Points a team must score to win the game and be '
-                        'ejected as winners. Set to 0 to disable — teams stay '
-                        'on court until the coach manually ejects them.',
+                    helpText: l10n.kotcSetupStrikeHelp,
                   ),
                 ),
               ],
@@ -725,7 +723,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             // ── Players ───────────────────────────────────────────────────────
             const Divider(),
             const SizedBox(height: 16),
-            _sectionHeader('Players', Icons.group_rounded),
+            _sectionHeader(l10n.setupSectionPlayers, Icons.group_rounded),
             const SizedBox(height: 12),
             _buildPlayersSummaryCard(),
 
@@ -733,9 +731,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name',
-                help: 'A name for this session, used to identify '
-                    'it in your tournament history.'),
+            _fieldLabel(l10n.doghouseTournamentName),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -774,7 +770,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    canCreate ? 'Setup looks good!' : 'Setup incomplete',
+                    canCreate ? l10n.doghouseSetupGood : l10n.doghouseSetupIncomplete,
                     style: TextStyle(
                       color: canCreate
                           ? AppColors.olive
@@ -794,9 +790,9 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Create Tournament',
-                style: TextStyle(
+              child: Text(
+                l10n.btnCreateTournament,
+                style: const TextStyle(
                     fontWeight: FontWeight.w700, fontSize: 16),
               ),
             ),
@@ -809,13 +805,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   // ── Style dropdown ────────────────────────────────────────────────────────────
 
   Widget _styleField() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Style',
-            help: 'The format of each game — 2vs2, 3vs3, and so on. '
-                'Sets how many players make up each team on court.'),
+        _fieldLabel(l10n.kotcSetupStyleLabel, help: l10n.kotcSetupStyleHelp),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           initialValue: _playersPerTeam,
@@ -842,20 +837,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
   // ── Assignment mode dropdown ──────────────────────────────────────────────────
 
   Widget _assignmentModeField() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Assignment',
-            help: 'How the next court team is chosen.\n\n'
-                'Manual — the coach selects players from the queue by tapping them.\n\n'
-                'Automated — TournaQ suggests the best team, prioritising players '
-                'who have waited longest and haven\'t been paired together recently. '
-                'The coach can re-roll before confirming.\n\n'
-                'Automated — All Play — like Automated but no dedicated coach. '
-                'A rotating admin keeps score while everyone else plays. '
-                'TournaQ picks a random starting admin and suggests the next handoff '
-                'from the ejected team after each game.'),
+        _fieldLabel(l10n.kotcSetupAssignmentLabel, help: l10n.kotcSetupAssignmentHelp),
         const SizedBox(height: 6),
         DropdownButtonFormField<KotcAssignmentMode>(
           initialValue: _assignmentMode,
@@ -865,18 +852,18 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10)),
           ),
-          items: const [
+          items: [
             DropdownMenuItem(
               value: KotcAssignmentMode.manual,
-              child: Text('Manual'),
+              child: Text(AppLocalizations.of(context)!.doghouseAssignmentManual),
             ),
             DropdownMenuItem(
               value: KotcAssignmentMode.automated,
-              child: Text('Automated'),
+              child: Text(AppLocalizations.of(context)!.doghouseAssignmentAutomated),
             ),
             DropdownMenuItem(
               value: KotcAssignmentMode.automatedAllPlay,
-              child: Text('Auto-Allplay'),
+              child: Text(AppLocalizations.of(context)!.setupFormatAutoAllplay),
             ),
           ],
           onChanged: (v) {
@@ -897,9 +884,9 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Courts',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.setupCourts,
+              style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.black54),
@@ -911,15 +898,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                 builder: (ctx) => AlertDialog(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
-                  title: const Text('Courts',
-                      style: TextStyle(
+                  title: Text(AppLocalizations.of(context)!.setupCourts,
+                      style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w700)),
-                  content: const Text(
-                    'Currently fixed at 1 court.\n\n'
-                    'Multi-court support — assign and track multiple '
-                    'simultaneous courts with optimal rotation — is planned '
-                    'for a future release.',
-                    style: TextStyle(
+                  content: Text(
+                    AppLocalizations.of(context)!.setupCourtsInfoBody,
+                    style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black54,
                         height: 1.5),
@@ -927,9 +911,8 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(ctx).pop(),
-                      child: const Text('Got it',
-                          style:
-                              TextStyle(fontWeight: FontWeight.w600)),
+                      child: Text(AppLocalizations.of(context)!.btnGotIt,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -1061,7 +1044,7 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got it'),
+            child: Text(AppLocalizations.of(context)!.btnGotIt),
           ),
         ],
       ),
@@ -1102,9 +1085,12 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
         KotcPlayerSource.random   => Colors.blueGrey,
       };
 
-  String _sourceLabel(KotcPlayerSource s) => switch (s) {
-        KotcPlayerSource.existing => 'Existing player',
-        KotcPlayerSource.created  => 'New player',
-        KotcPlayerSource.random   => 'Random placeholder',
-      };
+  String _sourceLabel(KotcPlayerSource s) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (s) {
+      KotcPlayerSource.existing => l10n.doghouseSourceExisting,
+      KotcPlayerSource.created  => l10n.doghouseSourceNew,
+      KotcPlayerSource.random   => l10n.doghouseSourceRandom,
+    };
+  }
 }

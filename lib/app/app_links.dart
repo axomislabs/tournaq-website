@@ -21,7 +21,25 @@ abstract final class AppLinks {
 
   static const String website = 'https://www.tournaq.com';
   static const String userGuide = '$website/pages/user-guide.html';
+  static const String featuresPage = '$website/pages/features.html';
   static const String legalHub = website;
+
+  // ── Game & Tournament mode pages ──────────────────────────────────────────
+
+  static const String _modesBase = '$website/pages/modes';
+
+  static const String modeGamesAndTournaments = '$_modesBase/games-and-tournaments.html';
+
+  // ── Feature pages ─────────────────────────────────────────────────────────
+
+  static const String _featuresBase = '$website/pages/features';
+
+  static const String featureUserAdministration = '$_featuresBase/user-administration.html';
+  static const String modeQuickGame          = '$_modesBase/quick-game.html';
+  static const String modeSocialScramble = '$_modesBase/social-scramble.html';
+  static const String modeDoghouse       = '$_modesBase/doghouse.html';
+  static const String modeKingOfTheCourt = '$_modesBase/king-of-the-court.html';
+  static const String modeKoSystem       = '$_modesBase/ko-system.html';
 
   // ── Individual legal docs (published under the current site root) ─────────
 

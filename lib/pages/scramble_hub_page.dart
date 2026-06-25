@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/scramble_tournament.dart';
 import '../models/player.dart';
@@ -77,25 +78,26 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   }
 
   Future<void> _deleteOne(ScrambleTournament t) async {
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete Tournament?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteTournamentTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete "${t.name}" and all its data.',
+          l10n.doghouseDeleteTournamentBody(t.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.btnDelete),
           ),
         ],
       ),
@@ -108,25 +110,26 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
 
   Future<void> _deleteAll() async {
     if (_scrambles.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete All Tournaments?',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(l10n.doghouseDeleteAllTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text(
-          'This will permanently delete all ${_scrambles.length} Social Scrambles tournament${_scrambles.length > 1 ? 's' : ''}.',
+          l10n.doghouseDeleteAllBody(_scrambles.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.btnCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete All'),
+            child: Text(l10n.btnDeleteAll),
           ),
         ],
       ),
@@ -141,21 +144,22 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
 
   // ── Card adapter ──────────────────────────────────────────────────────────
 
-  static String _statusLabel(ScrambleTournament t) => switch (t.status) {
-        ScrambleTournamentStatus.completed  => 'Completed',
-        ScrambleTournamentStatus.inProgress => 'In Progress',
-        ScrambleTournamentStatus.setup      => 'Setup',
+  String _statusLabel(AppLocalizations l10n, ScrambleTournament t) =>
+      switch (t.status) {
+        ScrambleTournamentStatus.completed  => l10n.statusCompleted,
+        ScrambleTournamentStatus.inProgress => l10n.statusInProgress,
+        ScrambleTournamentStatus.setup      => l10n.statusSetup,
       };
 
-  static String _dateLabel(ScrambleTournament t) {
+  String _dateLabel(AppLocalizations l10n, ScrambleTournament t) {
     final d    = t.startTime;
     final now  = DateTime.now();
     final diff = DateTime(now.year, now.month, now.day)
         .difference(DateTime(d.year, d.month, d.day))
         .inDays;
-    if (diff == 0) return 'Today';
-    if (diff == 1) return 'Yesterday';
-    if (diff < 7)  return '$diff days ago';
+    if (diff == 0) return l10n.dateToday;
+    if (diff == 1) return l10n.dateYesterday;
+    if (diff < 7)  return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -163,6 +167,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'Social Scrambles'),
       body: Column(
@@ -171,7 +176,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           // ── Start card ───────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildStartCard(),
+            child: _buildStartCard(l10n),
           ),
           const SizedBox(height: 20),
 
@@ -185,7 +190,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tournament History (${_scrambles.length})',
+                    l10n.doghouseTournamentHistory(_scrambles.length),
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w800),
                   ),
@@ -194,8 +199,8 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                   TextButton.icon(
                     onPressed: _deleteAll,
                     icon: const Icon(Icons.delete_outline, size: 16),
-                    label: const Text('Delete All',
-                        style: TextStyle(fontSize: 12)),
+                    label: Text(l10n.btnDeleteAll,
+                        style: const TextStyle(fontSize: 12)),
                     style: TextButton.styleFrom(
                         foregroundColor: Colors.red.shade400),
                   ),
@@ -214,14 +219,14 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                         Icon(Icons.shuffle_rounded,
                             size: 48, color: Colors.grey.shade300),
                         const SizedBox(height: 12),
-                        const Text('No tournaments yet.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsYet,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black45)),
                         const SizedBox(height: 4),
-                        const Text('Tap New Tournament to get started.',
-                            style: TextStyle(
+                        Text(l10n.doghouseNoTournamentsHint,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       ],
                     ),
@@ -236,14 +241,14 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                         typeLabel:   'Social Scrambles',
                         typeColor:   AppColors.gold,
                         typeIcon:    Icons.shuffle_rounded,
-                        dateLabel:   _dateLabel(t),
-                        statusLabel: _statusLabel(t),
+                        dateLabel:   _dateLabel(l10n, t),
+                        statusLabel: _statusLabel(l10n, t),
                         isActive:
                             t.status != ScrambleTournamentStatus.completed,
                         stats: [
-                          '${t.playerCount} players',
-                          '${t.roundCount} rounds',
-                          '${t.completedGames}/${t.totalGames} games',
+                          l10n.doghouseStatsPlayers(t.playerCount),
+                          l10n.statsRounds(t.roundCount),
+                          l10n.statsGamesOf(t.completedGames, t.totalGames),
                         ],
                         onTap:       () => _openOverview(t),
                         onDeleteTap: () => _deleteOne(t),
@@ -256,7 +261,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
     );
   }
 
-  Widget _buildStartCard() {
+  Widget _buildStartCard(AppLocalizations l10n) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -292,7 +297,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Timed round-robin for any group size',
+            l10n.modeSocialScramblesDesc,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,
@@ -302,8 +307,8 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('New Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.doghouseNewTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,

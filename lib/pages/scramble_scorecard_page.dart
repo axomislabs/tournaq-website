@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/scramble_tournament.dart';
 import '../pages/gameplay_history_page.dart';
 import '../services/scramble_service.dart';
@@ -418,9 +419,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Game Options',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                Text(
+                  AppLocalizations.of(context)!.gameOptions,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 _optionTile(
@@ -428,8 +429,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   icon: Icons.swap_horiz_rounded,
                   iconBg: _matchCompleted ? Colors.grey.shade100 : _kGoldLight,
                   iconColor: _matchCompleted ? Colors.grey : _kGold,
-                  label: 'Swap Sides',
-                  subtitle: 'Switch left and right display',
+                  label: AppLocalizations.of(context)!.scorecardSwapSides,
+                  subtitle: AppLocalizations.of(context)!.scorecardSwapSidesSubtitle,
                   enabled: !_matchCompleted,
                   onTap: () => closeAndRun(_swap),
                 ),
@@ -438,8 +439,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   icon: Icons.rotate_right_rounded,
                   iconBg: _kOliveLight,
                   iconColor: _kOlive,
-                  label: 'Change Serve',
-                  subtitle: 'Advance to next server',
+                  label: AppLocalizations.of(context)!.changeService,
+                  subtitle: AppLocalizations.of(context)!.changeServiceSubtitle,
                   enabled: true,
                   onTap: () => closeAndRun(_rotateActivePlayer),
                 ),
@@ -448,8 +449,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   icon: Icons.history_rounded,
                   iconBg: _kGoldLight,
                   iconColor: _kGold,
-                  label: 'Match History',
-                  subtitle: 'Point-by-point scoring timeline',
+                  label: AppLocalizations.of(context)!.scorecardMatchHistory,
+                  subtitle: AppLocalizations.of(context)!.scorecardMatchHistorySubtitle,
                   enabled: true,
                   onTap: () {
                     Navigator.of(sheetCtx).pop();
@@ -555,8 +556,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         if (game.isCompleted) continue;
         final roundObj = _t.getRound(game.roundId);
         if (roundObj == null) continue;
-        // Only show games in current or future rounds
-        if (roundObj.roundNumber < _round.roundNumber) continue;
+        // Parallel games on other courts in the same round are assumed to be
+        // already ongoing — only show games from the next round onwards.
+        if (roundObj.roundNumber <= _round.roundNumber) continue;
         result.add((game: game, round: roundObj));
         if (result.length >= limit) return result;
       }
@@ -593,7 +595,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
     final optionsButton = IconButton(
       icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
-      tooltip: 'Game Options',
+      tooltip: AppLocalizations.of(context)!.gameOptions,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
       visualDensity: VisualDensity.compact,
@@ -601,7 +603,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     );
 
     return Scaffold(
-      appBar: TournaQAppBar(title: 'Social Scramble', subtitle: 'Scoreboard'),
+      appBar: TournaQAppBar(
+          title: 'Social Scramble',
+          subtitle: AppLocalizations.of(context)!.doghouseScoreboard),
       body: SafeArea(
         child: OrientationBuilder(
           builder: (context, orientation) {
@@ -641,21 +645,23 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                               _adjusting
                                   ? Icons.check_rounded
                                   : Icons.edit_rounded,
-                              _adjusting ? 'Done' : 'Adjust Final Score',
+                              _adjusting
+                                  ? AppLocalizations.of(context)!.btnDone
+                                  : AppLocalizations.of(context)!.btnAdjustFinalScore,
                               () => setState(() => _adjusting = !_adjusting),
                               primary: _adjusting,
                             ),
                             const SizedBox(width: 4),
                             _refBtn(
                               Icons.replay_rounded,
-                              'Restart',
+                              AppLocalizations.of(context)!.btnRestart,
                               _startOrRestart,
                             ),
                           ] else ...[
                             if (timerRunning)
                               _refBtn(
                                 Icons.pause_rounded,
-                                'Stop',
+                                AppLocalizations.of(context)!.btnStop,
                                 () {
                                   _matchTimerKey.currentState?.pause();
                                   setState(() {});
@@ -664,7 +670,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                             else if (timerState == ScrambleTimerState.paused)
                               _refBtn(
                                 Icons.play_arrow_rounded,
-                                'Resume',
+                                AppLocalizations.of(context)!.btnResume,
                                 () {
                                   _matchTimerKey.currentState?.resume();
                                   setState(() {});
@@ -677,8 +683,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                                   ? Icons.play_arrow_rounded
                                   : Icons.replay_rounded,
                               timerState == ScrambleTimerState.idle
-                                  ? 'Start'
-                                  : 'Restart',
+                                  ? AppLocalizations.of(context)!.btnStart
+                                  : AppLocalizations.of(context)!.btnRestart,
                               _startOrRestart,
                             ),
                             const SizedBox(width: 4),
@@ -781,7 +787,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   ],
                   // 1. GAMEPLAY CONTROLS
                   _sectionHeader(
-                    'Gameplay Controls',
+                    AppLocalizations.of(context)!.doghouseGameplayControls,
                     Icons.sports_volleyball_rounded,
                     trailing: optionsButton,
                   ),
@@ -846,13 +852,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   const SizedBox(height: 24),
 
                   // 2. MATCH CONTROLS (sit-outs at the bottom)
-                  _sectionHeader('Match Controls', Icons.emoji_events_rounded),
+                  _sectionHeader(AppLocalizations.of(context)!.doghouseMatchControls, Icons.emoji_events_rounded),
                   const SizedBox(height: 10),
                   _buildMatchActions(sittingOut: sittingOut),
                   const SizedBox(height: 24),
 
                   // 3. UPCOMING GAMES
-                  _sectionHeader('Upcoming Games', Icons.schedule_rounded),
+                  _sectionHeader(AppLocalizations.of(context)!.scorecardUpcomingGames, Icons.schedule_rounded),
                   const SizedBox(height: 10),
                   _buildUpcomingGames(),
                   const SizedBox(height: 8),
@@ -926,9 +932,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             children: [
               const Icon(Icons.timer_rounded, size: 14, color: _kOlive),
               const SizedBox(width: 6),
-              const Text(
-                'MATCH TIMER',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.scorecardMatchTimerLabel.toUpperCase(),
+                style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   color: _kOlive,
@@ -957,20 +963,22 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 if (timerFinished) ...[
                   _refBtn(
                     _adjusting ? Icons.check_rounded : Icons.edit_rounded,
-                    _adjusting ? 'Done' : 'Adjust Final Score',
+                    _adjusting
+                        ? AppLocalizations.of(context)!.btnDone
+                        : AppLocalizations.of(context)!.btnAdjustFinalScore,
                     () => setState(() => _adjusting = !_adjusting),
                     primary: _adjusting,
                   ),
                   _refBtn(
                     Icons.replay_rounded,
-                    'Restart',
+                    AppLocalizations.of(context)!.btnRestart,
                     _startOrRestart,
                   ),
                 ] else ...[
                   if (timerRunning)
                     _refBtn(
                       Icons.pause_rounded,
-                      'Stop',
+                      AppLocalizations.of(context)!.btnStop,
                       () {
                         _matchTimerKey.currentState?.pause();
                         setState(() {});
@@ -979,7 +987,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   else if (timerState == ScrambleTimerState.paused)
                     _refBtn(
                       Icons.play_arrow_rounded,
-                      'Resume',
+                      AppLocalizations.of(context)!.btnResume,
                       () {
                         _matchTimerKey.currentState?.resume();
                         setState(() {});
@@ -990,7 +998,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     timerState == ScrambleTimerState.idle
                         ? Icons.play_arrow_rounded
                         : Icons.replay_rounded,
-                    timerState == ScrambleTimerState.idle ? 'Start' : 'Restart',
+                    timerState == ScrambleTimerState.idle
+                        ? AppLocalizations.of(context)!.btnStart
+                        : AppLocalizations.of(context)!.btnRestart,
                     _startOrRestart,
                   ),
                   _refTextBtn(
@@ -1144,7 +1154,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             Row(children: [
               Icon(Icons.schedule_rounded, size: 12, color: labelColor),
               const SizedBox(width: 4),
-              Text('SCHEDULE',
+              Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -1156,8 +1166,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               const Icon(Icons.play_circle_outline_rounded,
                   size: 11, color: Colors.black38),
               const SizedBox(width: 4),
-              const Text('Planned start',
-                  style: TextStyle(fontSize: 10, color: Colors.black45)),
+              Text(AppLocalizations.of(context)!.scorecardPlannedStart,
+                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
             ]),
             const SizedBox(height: 2),
             Text(ScrambleService.formatTime(start),
@@ -1178,8 +1188,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   size: 11,
                   color: isOverEnd ? Colors.red.shade300 : Colors.black38),
               const SizedBox(width: 4),
-              const Text('Planned end',
-                  style: TextStyle(fontSize: 10, color: Colors.black45)),
+              Text(AppLocalizations.of(context)!.scorecardPlannedEnd,
+                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
             ]),
             const SizedBox(height: 2),
             Text(ScrambleService.formatTime(end),
@@ -1200,9 +1210,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 const Icon(Icons.warning_amber_rounded,
                     size: 12, color: Colors.red),
                 const SizedBox(width: 4),
-                const Flexible(
-                  child: Text('Over schedule!',
-                      style: TextStyle(
+                Flexible(
+                  child: Text(AppLocalizations.of(context)!.scorecardOverSchedule,
+                      style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: Colors.red)),
@@ -1236,7 +1246,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               child: Row(children: [
                 Icon(Icons.schedule_rounded, size: 14, color: labelColor),
                 const SizedBox(width: 6),
-                Text('SCHEDULE',
+                Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
                     style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -1269,10 +1279,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     const Icon(Icons.play_circle_outline_rounded,
                         size: 13, color: Colors.black38),
                     const SizedBox(width: 6),
-                    const SizedBox(
+                    SizedBox(
                         width: 36,
-                        child: Text('Start',
-                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                        child: Text(AppLocalizations.of(context)!.btnStart,
+                            style: const TextStyle(fontSize: 11, color: Colors.black45))),
                     Text(ScrambleService.formatTime(start),
                         style: TextStyle(
                             fontSize: 15,
@@ -1288,10 +1298,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         size: 13,
                         color: isOverEnd ? Colors.red.shade300 : Colors.black38),
                     const SizedBox(width: 6),
-                    const SizedBox(
+                    SizedBox(
                         width: 36,
-                        child: Text('End',
-                            style: TextStyle(fontSize: 11, color: Colors.black45))),
+                        child: Text(AppLocalizations.of(context)!.scorecardEnd,
+                            style: const TextStyle(fontSize: 11, color: Colors.black45))),
                     Text(ScrambleService.formatTime(end),
                         style: TextStyle(
                             fontSize: 15,
@@ -1307,9 +1317,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       const Icon(Icons.warning_amber_rounded,
                           size: 13, color: Colors.red),
                       const SizedBox(width: 6),
-                      const Flexible(
-                        child: Text('Over schedule · Hurry up!',
-                            style: TextStyle(
+                      Flexible(
+                        child: Text(AppLocalizations.of(context)!.scorecardOverScheduleHurry,
+                            style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.red)),
@@ -1366,7 +1376,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '$serverName starts serving',
+              AppLocalizations.of(context)!.scorecardStartsServing(serverName),
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1399,8 +1409,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           Expanded(
             child: Text(
               arbName != null
-                  ? '$arbName suggested as referee'
-                  : 'Assign a referee manually',
+                  ? AppLocalizations.of(context)!.matchSuggestedReferee(arbName)
+                  : AppLocalizations.of(context)!.matchAssignRefereeManually,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1438,12 +1448,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.lock_rounded, size: 16, color: Colors.black54),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.lock_rounded, size: 16, color: Colors.black54),
+              const SizedBox(width: 8),
               Text(
-                'Game completed — undo to edit scores',
-                style: TextStyle(
+                AppLocalizations.of(context)!.scorecardGameCompletedLock,
+                style: const TextStyle(
                   fontSize: 12,
                   color: Colors.black54,
                   fontWeight: FontWeight.w500,
@@ -1692,13 +1702,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             _chip(Icons.emoji_events_rounded, _t.name, _kOliveLight, _kOlive),
             _chip(
               Icons.tag_rounded,
-              'Round ${_round.roundNumber}',
+              AppLocalizations.of(context)!.overviewRound(_round.roundNumber),
               _kGoldLight,
               _kGold,
             ),
             _chip(
               Icons.crop_square_rounded,
-              'Court ${_game.courtNumber}',
+              AppLocalizations.of(context)!.matchCourtLabel(_game.courtNumber),
               _kGoldLight,
               _kGold,
             ),
@@ -1722,7 +1732,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             ),
             _chip(
               Icons.people_rounded,
-              '${_t.playerCount} players',
+              AppLocalizations.of(context)!.scorecardPlayerCount(_t.playerCount),
               Colors.grey.shade100,
               Colors.black45,
             ),
@@ -1734,7 +1744,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           OutlinedButton.icon(
             onPressed: _undoCompletion,
             icon: const Icon(Icons.undo_rounded, size: 18),
-            label: const Text('Undo Completion'),
+            label: Text(AppLocalizations.of(context)!.scorecardUndoCompletion),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black54,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1747,9 +1757,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           ElevatedButton.icon(
             onPressed: _startMatch,
             icon: const Icon(Icons.play_arrow_rounded, size: 20),
-            label: const Text(
-              'Start Match',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            label: Text(
+              AppLocalizations.of(context)!.scorecardStartMatch,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
@@ -1764,9 +1774,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           ElevatedButton.icon(
             onPressed: _completeGame,
             icon: const Icon(Icons.emoji_events_rounded, size: 18),
-            label: const Text(
-              'Complete Game',
-              style: TextStyle(fontWeight: FontWeight.w700),
+            label: Text(
+              AppLocalizations.of(context)!.scorecardCompleteGame,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kOlive,
@@ -1783,7 +1793,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           OutlinedButton.icon(
             onPressed: _onManualScore,
             icon: const Icon(Icons.edit_rounded, size: 18),
-            label: const Text('Manually Set Score'),
+            label: Text(AppLocalizations.of(context)!.scorecardManualScore),
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.black54,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1797,7 +1807,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         OutlinedButton.icon(
           onPressed: () => Navigator.of(context).pop(_t),
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: const Text('Back to Schedule'),
+          label: Text(AppLocalizations.of(context)!.scorecardBackToSchedule),
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
@@ -1880,10 +1890,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 4),
-                const Text(
-                  'Use this when the game was played without live scoring. '
-                  'Enter the final score for both sides and complete the game.',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(ctx)!.scorecardManualScoreDescription,
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                     height: 1.5,
@@ -1908,7 +1917,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Cancel'),
+                    child: Text(AppLocalizations.of(ctx)!.btnCancel),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -1928,9 +1937,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       Navigator.of(ctx).pop();
                       _completeWithManualScore(a, b, showPostDialog: showPostDialog);
                     },
-                    child: const Text(
-                      'Complete Game',
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    child: Text(
+                      AppLocalizations.of(ctx)!.scorecardCompleteGame,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -2017,19 +2026,17 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Manual Score Not Available',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                AppLocalizations.of(context)!.scorecardManualScoreBlockedTitle,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),
           ],
         ),
-        content: const Text(
-          'Manual score entry is only available before live scoring has '
-          'started. This prevents accidentally overwriting points that '
-          'were already tracked.',
-          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+        content: Text(
+          AppLocalizations.of(context)!.scorecardManualScoreBlockedBody,
+          style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
         ),
         actions: [
           SizedBox(
@@ -2044,9 +2051,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text(
-                'OK',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              child: Text(
+                AppLocalizations.of(context)!.btnOK,
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -2181,8 +2188,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       Navigator.of(context).pop(_t);
                     },
                     icon: const Icon(Icons.calendar_today_rounded, size: 16),
-                    label: const Text('Back to Schedule',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    label: Text(AppLocalizations.of(ctx)!.scorecardBackToSchedule,
+                        style: const TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ),
               ),
@@ -2200,16 +2207,16 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       color: _kOlive,
       borderRadius: BorderRadius.circular(10),
     ),
-    child: const Row(
+    child: Row(
       children: [
-        SizedBox(width: 28, child: Text('#', style: _kRankHeaderStyle)),
-        SizedBox(width: 8),
-        Expanded(child: Text('Player', style: _kRankHeaderStyle)),
-        SizedBox(width: 36, child: Text('RP', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
-        SizedBox(width: 36, child: Text('W', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
-        SizedBox(width: 36, child: Text('D', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
-        SizedBox(width: 36, child: Text('L', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
-        SizedBox(width: 36, child: Text('+/-', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        const SizedBox(width: 28, child: Text('#', style: _kRankHeaderStyle)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(AppLocalizations.of(context)!.navPlayers, style: _kRankHeaderStyle)),
+        const SizedBox(width: 36, child: Text('RP', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        const SizedBox(width: 36, child: Text('W', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        const SizedBox(width: 36, child: Text('D', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        const SizedBox(width: 36, child: Text('L', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
+        const SizedBox(width: 36, child: Text('+/-', textAlign: TextAlign.center, style: _kRankHeaderStyle)),
       ],
     ),
   );
@@ -2395,15 +2402,15 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   Navigator.of(context).pop(_t);
                 },
                 icon: const Icon(Icons.calendar_today_rounded, size: 16),
-                label: const Text(
-                  'Back to Schedule',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                label: Text(
+                  AppLocalizations.of(ctx)!.scorecardBackToSchedule,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
               const SizedBox(height: 4),
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(ctx)!.btnCancel),
               ),
             ],
           ),

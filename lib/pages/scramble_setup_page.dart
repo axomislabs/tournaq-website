@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/scramble_tournament.dart';
 import '../services/scramble_service.dart';
@@ -12,6 +13,7 @@ import '../widgets/group_picker_sheet.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'scramble_overview_page.dart';
+import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
 class ScrambleSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
@@ -201,10 +203,12 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     );
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => ScrambleOverviewPage(
-        tournament:     tournament,
-        onChanged:      widget.onCreated,
-        onCreatePlayer: widget.onCreatePlayer,
+      builder: (_) => TournaqSplashPage(
+        destination: ScrambleOverviewPage(
+          tournament:     tournament,
+          onChanged:      widget.onCreated,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
     ));
   }
@@ -275,10 +279,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             const SizedBox(width: 12),
             Expanded(
               child: count == 0
-                  ? const Text('Tap to add players',
-                      style: TextStyle(color: Colors.black38, fontSize: 13))
+                  ? Text(AppLocalizations.of(context)!.doghouseTapToAddPlayers,
+                      style: const TextStyle(color: Colors.black38, fontSize: 13))
                   : Text(
-                      '$count/$target players added',
+                      AppLocalizations.of(context)!.setupPlayersOf(count, target),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
@@ -300,6 +304,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   }
 
   void _showPlayersSheet() {
+    final l10n = AppLocalizations.of(context)!;
     _playerSearchCtrl.clear();
     var createExpanded   = false;
     var existingExpanded = false;
@@ -346,23 +351,22 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 builder: (dCtx) => AlertDialog(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
-                  title: const Text('Duplicate Name',
-                      style: TextStyle(
+                  title: Text(l10n.setupDuplicateNameTitle,
+                      style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w700)),
                   content: Text(
-                    '"$trimmed" is already added to this tournament. '
-                    'Add anyway?',
+                    l10n.setupDuplicateNameBody(trimmed),
                     style: const TextStyle(
                         fontSize: 14, color: Colors.black54),
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(dCtx).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.btnCancel),
                     ),
                     ElevatedButton(
                       onPressed: () => Navigator.of(dCtx).pop(true),
-                      child: const Text('Add Anyway'),
+                      child: Text(l10n.btnAddAnyway),
                     ),
                   ],
                 ),
@@ -409,22 +413,21 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               builder: (dCtx) => AlertDialog(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
-                title: const Text('Remove all players?',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                content: const Text(
-                    'This will remove all added players from the list.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54)),
+                title: Text(l10n.doghouseRemoveAllTitle,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w700)),
+                content: Text(l10n.doghouseRemoveAllBody,
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.black54)),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.btnCancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(dCtx).pop(true),
-                    style:
-                        TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Remove all'),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: Text(l10n.doghouseRemoveAll),
                   ),
                 ],
               ),
@@ -476,8 +479,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   // ── Main header ─────────────────────────────────────────
                   Row(
                     children: [
-                      const Text('Players',
-                          style: TextStyle(
+                      Text(l10n.setupSectionPlayers,
+                          style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w800)),
                       const Spacer(),
                       if (_players.isNotEmpty)
@@ -487,8 +490,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                               foregroundColor: Colors.red,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8)),
-                          child: const Text('Clear all',
-                              style: TextStyle(fontSize: 13)),
+                          child: Text(l10n.doghouseClearAll,
+                              style: const TextStyle(fontSize: 13)),
                         ),
                       Text(
                         '${_players.length} / $_targetPlayerCount',
@@ -501,7 +504,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
                   // ── Create Player ───────────────────────────────────────
                   sectionHeader(
-                    'Create Player',
+                    l10n.setupSectionCreatePlayer,
                     createExpanded,
                     () => setSheetState(
                         () => createExpanded = !createExpanded),
@@ -514,7 +517,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                             controller: _playerNameCtrl,
                             textCapitalization: TextCapitalization.words,
                             decoration:
-                                _inputDecoration(hint: 'Player name'),
+                                _inputDecoration(hint: l10n.setupPlayerNameHint),
                             onSubmitted: addByName,
                           ),
                         ),
@@ -530,7 +533,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Add'),
+                          child: Text(l10n.btnAdd),
                         ),
                       ],
                     ),
@@ -540,7 +543,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
                   // ── Existing Players ────────────────────────────────────
                   sectionHeader(
-                    'Add Existing Players (${allExisting.length})',
+                    l10n.setupAddExistingPlayers(allExisting.length),
                     existingExpanded,
                     () => setSheetState(
                         () => existingExpanded = !existingExpanded),
@@ -615,8 +618,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                         Expanded(
                           child: TextField(
                             controller: _playerSearchCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'Search players…',
+                            decoration: InputDecoration(
+                              hintText: l10n.setupSearchPlayersHint,
                               isDense: true,
                               prefixIcon: Icon(Icons.search_rounded,
                                   size: 18, color: Colors.black45),
@@ -631,10 +634,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                     ),              // Container
                     const SizedBox(height: 6),
                     if (filteredExisting.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No players match.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.doghouseNoPlayersMatch,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -671,7 +674,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
                   // ── Added ───────────────────────────────────────────────
                   sectionHeader(
-                    'Added (${_players.length}/$_targetPlayerCount)',
+                    l10n.doghouseAddedCount(_players.length, _targetPlayerCount),
                     addedExpanded,
                     () => setSheetState(
                         () => addedExpanded = !addedExpanded),
@@ -681,7 +684,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                             icon: const Icon(Icons.shuffle_rounded,
                                 size: 14),
                             label: Text(
-                              'Fill ${_targetPlayerCount - _players.length} random',
+                              l10n.doghouseFillNRandom(
+                                  _targetPlayerCount - _players.length),
                               style: const TextStyle(fontSize: 12),
                             ),
                             style: TextButton.styleFrom(
@@ -694,10 +698,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   ),
                   if (addedExpanded) ...[
                     if (_players.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text('No players added yet.',
-                            style: TextStyle(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(l10n.doghouseSetupNoPlayers,
+                            style: const TextStyle(
                                 color: Colors.black38, fontSize: 13)),
                       )
                     else
@@ -759,11 +763,12 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n       = AppLocalizations.of(context)!;
     final suggestions = _suggestions;
     final canCreate   = _canCreate;
 
     return Scaffold(
-      appBar: TournaQAppBar(title: 'Social Scramble', subtitle: 'New Tournament'),
+      appBar: TournaQAppBar(title: 'Social Scramble', subtitle: l10n.doghouseNewTournament),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         child: Column(
@@ -771,7 +776,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           children: [
 
             // ── Config grid ───────────────────────────────────────────────────
-            _sectionHeader('Tournament Setup', Icons.tune_rounded),
+            _sectionHeader(l10n.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
             // Row 1 — target players / available time
@@ -780,7 +785,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Target Players',
+                    label:    l10n.setupTargetPlayers,
                     ctrl:     _targetPlayerCtrl,
                     presets:  [4, 6, 8, 10, 12, 16, 20, 24],
                     onParsed: (v) => _targetPlayerCount = v.clamp(4, 64),
@@ -792,7 +797,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Available Time',
+                    label:    l10n.setupAvailableTime,
                     ctrl:     _totalMinCtrl,
                     presets:  [30, 45, 60, 90, 120, 180, 240],
                     onParsed: (v) => _totalMinutes = v.clamp(1, 999),
@@ -812,7 +817,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               children: [
                 Expanded(
                   child: _comboField(
-                    label:    'Match Duration',
+                    label:    l10n.setupMatchDuration,
                     ctrl:     _matchMinCtrl,
                     presets:  [5, 8, 10, 12, 15, 20, 25, 30],
                     onParsed: (v) => _matchMinutes = v.clamp(1, 999),
@@ -825,7 +830,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Courts',
+                    label:    l10n.setupCourts,
                     ctrl:     _courtCtrl,
                     presets:  [1, 2, 3, 4, 5, 6, 8],
                     onParsed: (v) => _courtCount = v.clamp(1, 32),
@@ -846,7 +851,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    'Break Between Rounds',
+                    label:    l10n.setupBreakBetweenRounds,
                     ctrl:     _breakMinCtrl,
                     presets:  [0, 2, 3, 5, 7, 10],
                     onParsed: (v) => _breakMinutes = v.clamp(0, 999),
@@ -865,7 +870,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: _tapField(
-                  label:    'Planned Start Time',
+                  label:    l10n.setupPlannedStartTime,
                   value:    _startIsNow ? 'Now' : _fmtTod(_startTime),
                   onTap:    _pickStartTime,
                   trailing: _startIsNow
@@ -880,7 +885,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 )),
                 const SizedBox(width: 12),
                 Expanded(child: _tapField(
-                  label: 'Planned End Time',
+                  label: l10n.setupPlannedEndTime,
                   value: _fmtTod(_addMinutesToTime(_resolveStart(), _totalMinutes)),
                   onTap: _pickEndTime,
                   trailing: const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45),
@@ -900,7 +905,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 16),
-              _sectionHeader('Suggestions', Icons.lightbulb_outline_rounded),
+              _sectionHeader(l10n.setupSuggestions, Icons.lightbulb_outline_rounded),
               const SizedBox(height: 12),
               ...suggestions.map((s) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
@@ -917,7 +922,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _sectionHeader('Players', Icons.group_rounded),
+            _sectionHeader(l10n.setupSectionPlayers, Icons.group_rounded),
             const SizedBox(height: 12),
             _buildPlayersSummaryCard(),
 
@@ -925,9 +930,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 16),
-            _fieldLabel('Tournament Name',
-                help: 'A name for this session, used to identify '
-                    'it in your tournament history.'),
+            _fieldLabel(l10n.doghouseTournamentName),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -964,7 +967,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    canCreate ? 'Setup looks good!' : 'Setup incomplete',
+                    canCreate ? l10n.doghouseSetupGood : l10n.doghouseSetupIncomplete,
                     style: TextStyle(
                       color: canCreate
                           ? AppColors.olive
@@ -984,9 +987,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Create Tournament',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              child: Text(
+                l10n.btnCreateTournament,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
               ),
             ),
           ],
@@ -1022,35 +1025,38 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
         color: AppColors.oliveLight,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Schedule Preview',
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: AppColors.olive),
-          ),
-          const SizedBox(height: 8),
-          _previewRow('Round duration',
-              '${_matchMinutes}m match + ${_breakMinutes}m break = ${roundMin}m'),
-          _previewRow('Rounds', '$rounds'),
-          () {
-            final scheduledMins = rounds * roundMin;
-            final h = scheduledMins ~/ 60;
-            final m = scheduledMins % 60;
-            final durationStr = h > 0 ? '${h}h ${m}m' : '${m}m';
-            final endTime     = _addMinutesToTime(_resolveStart(), scheduledMins);
-            return Column(
-              children: [
-                _previewRow('Scheduled duration', durationStr),
-                _previewRow('Scheduled end time', _fmtTod(endTime)),
-              ],
-            );
-          }(),
-        ],
-      ),
+      child: Builder(builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx)!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.setupSchedulePreview,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: AppColors.olive),
+            ),
+            const SizedBox(height: 8),
+            _previewRow(l10n.setupRoundDuration,
+                '${_matchMinutes}m match + ${_breakMinutes}m break = ${roundMin}m'),
+            _previewRow(l10n.setupRoundsLabel, '$rounds'),
+            () {
+              final scheduledMins = rounds * roundMin;
+              final h = scheduledMins ~/ 60;
+              final m = scheduledMins % 60;
+              final durationStr = h > 0 ? '${h}h ${m}m' : '${m}m';
+              final endTime     = _addMinutesToTime(_resolveStart(), scheduledMins);
+              return Column(
+                children: [
+                  _previewRow(l10n.setupScheduledDuration, durationStr),
+                  _previewRow(l10n.setupScheduledEndTime, _fmtTod(endTime)),
+                ],
+              );
+            }(),
+          ],
+        );
+      }),
     );
   }
 
@@ -1136,9 +1142,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _fieldLabel('Format',
-            help: 'The format of each match — 2vs2, 3vs3, and so on. '
-                'Sets how many players are needed per court per round.'),
+        _fieldLabel(AppLocalizations.of(context)!.setupFormat),
         const SizedBox(height: 6),
         DropdownButtonFormField<int>(
           // ignore: deprecated_member_use
@@ -1272,9 +1276,12 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
         ScramblePlayerSource.random   => Colors.blueGrey,
       };
 
-  String _sourceLabel(ScramblePlayerSource s) => switch (s) {
-        ScramblePlayerSource.existing => 'Existing player',
-        ScramblePlayerSource.created  => 'New player',
-        ScramblePlayerSource.random   => 'Random placeholder',
-      };
+  String _sourceLabel(ScramblePlayerSource s) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (s) {
+      ScramblePlayerSource.existing => l10n.doghouseSourceExisting,
+      ScramblePlayerSource.created  => l10n.doghouseSourceNew,
+      ScramblePlayerSource.random   => l10n.doghouseSourceRandom,
+    };
+  }
 }
