@@ -121,7 +121,7 @@ abstract class AppLocalizations {
   /// No description provided for @navQuickStart.
   ///
   /// In en, this message translates to:
-  /// **'Quick Start Game'**
+  /// **'Start Game'**
   String get navQuickStart;
 
   /// No description provided for @navTournaments.
@@ -343,7 +343,7 @@ abstract class AppLocalizations {
   /// No description provided for @quickStartTitle.
   ///
   /// In en, this message translates to:
-  /// **'Quick Start Game'**
+  /// **'Quick Game'**
   String get quickStartTitle;
 
   /// No description provided for @quickStartFormatQuestion.
@@ -4297,7 +4297,7 @@ abstract class AppLocalizations {
   /// No description provided for @koImportFromHub.
   ///
   /// In en, this message translates to:
-  /// **'B — Import from Teams Hub'**
+  /// **'Import from Teams Hub'**
   String get koImportFromHub;
 
   /// No description provided for @koImportFromHubSubtitle.

@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navHome => 'Home';
 
   @override
-  String get navQuickStart => 'Quick Start Game';
+  String get navQuickStart => 'Start Game';
 
   @override
   String get navTournaments => 'TournaQ Arena';
@@ -129,7 +129,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get btnGenerate10RandomPlayers => 'Generate 10 Random Players';
 
   @override
-  String get quickStartTitle => 'Quick Start Game';
+  String get quickStartTitle => 'Quick Game';
 
   @override
   String get quickStartFormatQuestion => 'How many sets?';
@@ -2384,7 +2384,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Set a custom name and assign players manually';
 
   @override
-  String get koImportFromHub => 'B — Import from Teams Hub';
+  String get koImportFromHub => 'Import from Teams Hub';
 
   @override
   String get koImportFromHubSubtitle =>

@@ -10,7 +10,7 @@
   "navHome": "Home",
   "@navHome": {},
 
-  "navQuickStart": "Quick Start Game",
+  "navQuickStart": "Start Game",
   "@navQuickStart": {},
 
   "navTournaments": "TournaQ Arena",
@@ -121,7 +121,7 @@
   "btnGenerate10RandomPlayers": "Generate 10 Random Players",
   "@btnGenerate10RandomPlayers": {},
 
-  "quickStartTitle": "Quick Start Game",
+  "quickStartTitle": "Quick Game",
   "@quickStartTitle": {},
 
   "quickStartFormatQuestion": "How many sets?",

@@ -2403,7 +2403,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Set a custom name and assign players manually';
 
   @override
-  String get koImportFromHub => 'B — Import from Teams Hub';
+  String get koImportFromHub => 'Import from Teams Hub';
 
   @override
   String get koImportFromHubSubtitle =>
