@@ -2384,4 +2384,120 @@ class AppLocalizationsDe extends AppLocalizations {
   String setupRoundN(int n) {
     return 'Runde $n';
   }
+
+  @override
+  String setupPlayerN(int n) {
+    return 'Player $n';
+  }
+
+  @override
+  String get koEditTeam => 'Edit Team';
+
+  @override
+  String get koTeamSetupSubtitle => 'How would you like to set up this team?';
+
+  @override
+  String get koCreateNew => 'Edit Manually';
+
+  @override
+  String get koCreateNewSubtitle =>
+      'Set a custom name and assign players manually';
+
+  @override
+  String get koImportFromHub => 'B — Import from Teams Hub';
+
+  @override
+  String get koImportFromHubSubtitle =>
+      'Pick an existing team — name and players fill in automatically';
+
+  @override
+  String get koNoTeamsInHub =>
+      'No teams in Teams Hub yet.\nCreate teams via the Teams section first.';
+
+  @override
+  String get koPlayersSection => 'Players';
+
+  @override
+  String koSkillRating(Object rating) {
+    return 'Skill: $rating';
+  }
+
+  @override
+  String get koUnrated => 'Unrated';
+
+  @override
+  String get koTapToAssign => 'Tap to assign';
+
+  @override
+  String get koImportTitle => 'Import from Teams Hub';
+
+  @override
+  String get koNoTeamsFound => 'No teams found.';
+
+  @override
+  String koPlayerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count players',
+      one: '1 player',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String koAddTeamN(int n) {
+    return 'Add Team $n';
+  }
+
+  @override
+  String get koAddTeamSubtitle => 'How would you like to add this team?';
+
+  @override
+  String get koFromTeamsHub => 'From Teams Hub';
+
+  @override
+  String get koFromTeamsHubSubtitle => 'Pick an existing team from your hub';
+
+  @override
+  String get koNoTeamsInHubYet => 'No teams in hub yet.';
+
+  @override
+  String get koNoTeamsInHubYetShort => 'No teams in hub yet';
+
+  @override
+  String get koCreateNewTeamTitle => 'Create New Team';
+
+  @override
+  String get koAddTeamBtn => 'Add Team';
+
+  @override
+  String get koFromPlayersHub => 'B — From Players Hub';
+
+  @override
+  String get koNoPlayersInHub => 'No players in the hub yet.';
+
+  @override
+  String get koNoPlayersFound => 'No players found.';
+
+  @override
+  String get koEditPlayer => 'Edit Player';
+
+  @override
+  String get koPlayerNameLabel => 'Name';
+
+  @override
+  String get koSkillRatingOptional => 'Skill rating (optional)';
+
+  @override
+  String get koSectionAEditPlayer => 'A — Edit Player';
+
+  @override
+  String get koSectionANewPlayer => 'A — New Player';
+
+  @override
+  String get koSectionBNewPlayer => 'B — New Player';
+
+  @override
+  String get koSectionCFromHub => 'C — From Players Hub';
 }

@@ -64,6 +64,7 @@ class KoBracketSetupPage extends StatefulWidget {
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
   final void Function(KoBracketTournament) onCreated;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const KoBracketSetupPage({
     super.key,
@@ -73,6 +74,7 @@ class KoBracketSetupPage extends StatefulWidget {
     required this.onCreatePlayer,
     required this.onCreateTeam,
     required this.onCreated,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -106,6 +108,14 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   late final TextEditingController _courtCtrl;
   final _newTeamNameCtrl = TextEditingController();
   final _teamSearchCtrl  = TextEditingController();
+  List<TextEditingController> _newPlayerCtrls = [];
+  List<KoPlayerSnapshot?> _newPlayerSnapshots = [];
+
+  void _rebuildPlayerCtrls(int count) {
+    for (final c in _newPlayerCtrls) { c.dispose(); }
+    _newPlayerCtrls     = List.generate(count, (_) => TextEditingController());
+    _newPlayerSnapshots = List.filled(count, null);
+  }
 
   @override
   void initState() {
@@ -113,6 +123,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     _nameCtrl      = TextEditingController(text: _randomName());
     _teamCountCtrl = TextEditingController(text: '$_teamCount');
     _courtCtrl     = TextEditingController(text: '$_courtCount');
+    _rebuildPlayerCtrls(_playersPerSide);
   }
 
   @override
@@ -122,6 +133,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     _courtCtrl.dispose();
     _newTeamNameCtrl.dispose();
     _teamSearchCtrl.dispose();
+    for (final c in _newPlayerCtrls) { c.dispose(); }
     super.dispose();
   }
 
@@ -143,6 +155,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   }
 
   void _onPlayersPerSideChanged(int pps) {
+    _rebuildPlayerCtrls(pps);
     setState(() {
       _playersPerSide = pps;
       _teams = _teams.map((t) {
@@ -190,11 +203,19 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       _teams.add(KoTeam(
         id: KoTeam.generateId(),
         name: name,
-        players: List.generate(
-            _playersPerSide,
-            (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}')),
+        players: List.generate(_playersPerSide, (j) {
+          final snapshot = _newPlayerSnapshots[j];
+          final typed    = _newPlayerCtrls[j].text.trim();
+          if (snapshot != null) return snapshot;
+          return KoPlayerSnapshot(
+            appPlayerId: '',
+            name: typed.isNotEmpty ? typed : 'Player ${j + 1}',
+          );
+        }),
       ));
       _newTeamNameCtrl.clear();
+      for (final c in _newPlayerCtrls) { c.clear(); }
+      _newPlayerSnapshots = List.filled(_playersPerSide, null);
     });
   }
 
@@ -707,31 +728,86 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                     () => setSheetState(() => createExpanded = !createExpanded),
                   ),
                   if (createExpanded) ...[
-                    Row(children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _newTeamNameCtrl,
-                          textCapitalization: TextCapitalization.words,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            hintText: l10n.setupTeamNameHint,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
+                    TextField(
+                      controller: _newTeamNameCtrl,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: l10n.setupTeamNameHint,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                      ),
+                      onChanged: (_) => setSheetState(() {}),
+                    ),
+                    const SizedBox(height: 8),
+                    ...List.generate(_playersPerSide, (j) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _newPlayerCtrls[j],
+                            textCapitalization: TextCapitalization.words,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              hintText: l10n.setupPlayerN(j + 1),
+                              prefixIcon: _newPlayerSnapshots[j] != null
+                                  ? const Icon(Icons.person_rounded, size: 16, color: _kOlive)
+                                  : null,
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                            ),
+                            onChanged: (_) =>
+                                setSheetState(() => _newPlayerSnapshots[j] = null),
+                            onSubmitted: (_) {
+                              if (!isFull && _newTeamNameCtrl.text.trim().isNotEmpty) {
+                                _createNewTeam();
+                                rebuild();
+                              }
+                            },
                           ),
-                          onChanged: (_) => setSheetState(() {}),
-                          onSubmitted: (_) {
-                            if (!isFull &&
-                                _newTeamNameCtrl.text.trim().isNotEmpty) {
-                              _createNewTeam();
-                              rebuild();
-                            }
+                        ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          icon: const Icon(Icons.person_search_rounded, size: 20),
+                          color: Colors.black45,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                          onPressed: () async {
+                            final current = _newPlayerSnapshots[j] ??
+                                KoPlayerSnapshot(appPlayerId: '', name: _newPlayerCtrls[j].text.trim());
+                            await showModalBottomSheet<void>(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (_) => _SlotPickerSheet(
+                                slotIndex: j,
+                                currentPlayer: current,
+                                existingPlayers: widget.existingPlayers,
+                                existingGroups: widget.existingGroups,
+                                onCreatePlayer: widget.onCreatePlayer,
+                                onUpdatePlayer: widget.onUpdatePlayer,
+                                onPick: (s) => setSheetState(() {
+                                  _newPlayerSnapshots[j] = s;
+                                  _newPlayerCtrls[j].text = s.name;
+                                }),
+                                onClear: () => setSheetState(() {
+                                  _newPlayerSnapshots[j] = null;
+                                  _newPlayerCtrls[j].clear();
+                                }),
+                              ),
+                            );
                           },
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
+                      ]),
+                    )),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
                         onPressed: !isFull &&
                                 _newTeamNameCtrl.text.trim().isNotEmpty
                             ? () {
@@ -742,14 +818,13 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _kOlive,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12)),
                         ),
                         child: Text(l10n.btnAdd),
                       ),
-                    ]),
+                    ),
                     const SizedBox(height: 8),
                   ],
                   const Divider(height: 8),
@@ -804,7 +879,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                               const SizedBox(width: 4),
                               Text(
                                 selectedGroupId == null
-                                    ? 'Group'
+                                    ? l10n.filterClub
                                     : relevantGroups
                                         .firstWhere(
                                             (c) => c.id == selectedGroupId)
@@ -891,7 +966,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                                         : Colors.black87)),
                             subtitle: team.userIds.isNotEmpty
                                 ? Text(
-                                    '${team.userIds.length} player${team.userIds.length == 1 ? '' : 's'}',
+                                    l10n.koPlayerCount(team.userIds.length),
                                     style: const TextStyle(fontSize: 11))
                                 : null,
                             trailing: IconButton(
@@ -1004,6 +1079,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                                         existingGroups: widget.existingGroups,
                                         generationMode: _generationMode,
                                         onCreatePlayer: widget.onCreatePlayer,
+                                        onUpdatePlayer: widget.onUpdatePlayer,
                                         onCreateTeam: widget.onCreateTeam,
                                         onSave: (updated) {
                                           _teams[i] = updated;
@@ -1669,11 +1745,12 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TournaQSheet(
       body: switch (_method) {
-        null                    => _buildMethodPicker(),
-        _KoSlotMethod.fromHub   => _buildFromHub(),
-        _KoSlotMethod.create    => _buildCreate(),
+        null                    => _buildMethodPicker(l10n),
+        _KoSlotMethod.fromHub   => _buildFromHub(l10n),
+        _KoSlotMethod.create    => _buildCreate(l10n),
         _KoSlotMethod.random    => const SizedBox.shrink(),
       },
     );
@@ -1681,7 +1758,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
 
   // ── Method picker ─────────────────────────────────────────────────────────
 
-  Widget _buildMethodPicker() {
+  Widget _buildMethodPicker(AppLocalizations l10n) {
     final funName = _pickFunName(Set.from(widget.usedNames));
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -1701,38 +1778,38 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Add Team ${widget.slotIndex + 1}',
+                l10n.koAddTeamN(widget.slotIndex + 1),
                 style: const TextStyle(
                     fontSize: 20, fontWeight: FontWeight.w800),
               ),
             ),
           ]),
           const SizedBox(height: 8),
-          const Text('How would you like to add this team?',
-              style: TextStyle(fontSize: 14, color: Colors.black54)),
+          Text(l10n.koAddTeamSubtitle,
+              style: const TextStyle(fontSize: 14, color: Colors.black54)),
           const SizedBox(height: 24),
           _optionCard(
             icon: Icons.casino_rounded,
-            label: 'Random',
+            label: l10n.setupSeedingRandom,
             subtitle: '"$funName"',
             onTap: () => _pop(_makePlayers(name: funName)),
           ),
           const SizedBox(height: 12),
           _optionCard(
             icon: Icons.groups_rounded,
-            label: 'From Teams Hub',
-            subtitle: 'Pick an existing team from your hub',
+            label: l10n.koFromTeamsHub,
+            subtitle: l10n.koFromTeamsHubSubtitle,
             onTap: widget.existingTeams.isEmpty
                 ? null
                 : () => setState(() => _method = _KoSlotMethod.fromHub),
             disabled: widget.existingTeams.isEmpty,
-            disabledHint: 'No teams in hub yet',
+            disabledHint: l10n.koNoTeamsInHubYetShort,
           ),
           const SizedBox(height: 12),
           _optionCard(
             icon: Icons.edit_rounded,
-            label: 'Create New',
-            subtitle: 'Enter a custom name for this team',
+            label: l10n.koCreateNew,
+            subtitle: l10n.koCreateNewSubtitle,
             onTap: () => setState(() => _method = _KoSlotMethod.create),
           ),
         ],
@@ -1800,7 +1877,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
 
   // ── From Hub ──────────────────────────────────────────────────────────────
 
-  Widget _buildFromHub() {
+  Widget _buildFromHub(AppLocalizations l10n) {
     final query = _searchCtrl.text.toLowerCase();
     final relevantGroups = widget.existingGroups
         .where((c) => widget.existingTeams.any((t) => c.teamIds.contains(t.id)))
@@ -1830,10 +1907,10 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
-              child: Text('From Teams Hub',
+            Expanded(
+              child: Text(l10n.koFromTeamsHub,
                   style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                      const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
             ),
           ]),
         ),
@@ -1871,7 +1948,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
                       Icon(Icons.home_rounded, size: 14, color: _selectedGroupId != null ? AppColors.goldDark : Colors.black45),
                       const SizedBox(width: 4),
                       Text(
-                        _selectedGroupId == null ? 'Group' : relevantGroups.firstWhere((c) => c.id == _selectedGroupId).name,
+                        _selectedGroupId == null ? l10n.filterClub : relevantGroups.firstWhere((c) => c.id == _selectedGroupId).name,
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: _selectedGroupId != null ? AppColors.goldDark : Colors.black45),
                       ),
                       const SizedBox(width: 2),
@@ -1886,12 +1963,12 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
                   controller: _searchCtrl,
                   autofocus: true,
                   onChanged: (_) => setState(() {}),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
-                    hintText: 'Search teams…',
-                    prefixIcon: Icon(Icons.search_rounded, size: 18, color: Colors.black45),
+                    hintText: l10n.setupSearchTeamsHint,
+                    prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.black45),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                   ),
                 ),
               ),
@@ -1904,8 +1981,8 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
               ? Center(
                   child: Text(
                     _searchCtrl.text.isEmpty
-                        ? 'No teams in hub yet.'
-                        : 'No teams found.',
+                        ? l10n.koNoTeamsInHubYet
+                        : l10n.koNoTeamsFound,
                     style: const TextStyle(
                         fontSize: 13, color: Colors.black45),
                   ),
@@ -1966,7 +2043,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14)),
                         subtitle: pc > 0
-                            ? Text('$pc player${pc == 1 ? '' : 's'}',
+                            ? Text(l10n.koPlayerCount(pc),
                                 style: const TextStyle(fontSize: 12))
                             : null,
                         trailing: const Icon(Icons.download_rounded,
@@ -1982,7 +2059,7 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
 
   // ── Create ────────────────────────────────────────────────────────────────
 
-  Widget _buildCreate() {
+  Widget _buildCreate(AppLocalizations l10n) {
     final canSave = _nameCtrl.text.trim().isNotEmpty;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -2003,15 +2080,14 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Create New Team',
-                  style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Expanded(
+              child: Text(l10n.koCreateNewTeamTitle,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
             ),
           ]),
           const SizedBox(height: 24),
-          const Text('Team Name',
-              style: TextStyle(
+          Text(l10n.setupTeamNameHint,
+              style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.black54)),
@@ -2047,8 +2123,8 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
                   }
                 : null,
             icon: const Icon(Icons.check_rounded),
-            label: const Text('Add Team',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(l10n.koAddTeamBtn,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: _kGold,
               foregroundColor: Colors.white,
@@ -2077,6 +2153,7 @@ class KoTeamEditorSheet extends StatefulWidget {
   final Player Function(String name) onCreatePlayer;
   final void Function(KoTeam) onSave;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const KoTeamEditorSheet({
     super.key,
@@ -2088,6 +2165,7 @@ class KoTeamEditorSheet extends StatefulWidget {
     required this.onCreatePlayer,
     required this.onSave,
     required this.onCreateTeam,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -2177,6 +2255,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         existingPlayers: widget.existingPlayers,
         existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
+        onUpdatePlayer: widget.onUpdatePlayer,
         onPick: (s) => setState(() => _players[slotIndex] = s),
         onClear: () => setState(() => _players[slotIndex] = KoPlayerSnapshot(
               appPlayerId: '', name: 'Player ${slotIndex + 1}',
@@ -2187,39 +2266,40 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return TournaQSheet(
       body: switch (_mode) {
-        _EditorMode.choice => _buildChoice(),
-        _EditorMode.create => _buildCreate(),
-        _EditorMode.import => _buildImport(),
+        _EditorMode.choice => _buildChoice(l10n),
+        _EditorMode.create => _buildCreate(l10n),
+        _EditorMode.import => _buildImport(l10n),
       },
     );
   }
 
-  Widget _buildChoice() {
+  Widget _buildChoice(AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Edit Team',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          Text(l10n.koEditTeam,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text('How would you like to set up this team?',
-              style: TextStyle(fontSize: 13, color: Colors.black54)),
+          Text(l10n.koTeamSetupSubtitle,
+              style: const TextStyle(fontSize: 13, color: Colors.black54)),
           const SizedBox(height: 20),
           _choiceTile(
             icon: Icons.edit_rounded, color: _kOlive,
-            title: 'A — Create New',
-            subtitle: 'Set a custom name and assign players manually',
+            title: l10n.koCreateNew,
+            subtitle: l10n.koCreateNewSubtitle,
             onTap: () => setState(() => _mode = _EditorMode.create),
           ),
           const SizedBox(height: 12),
           if (widget.existingTeams.isNotEmpty)
             _choiceTile(
               icon: Icons.groups_rounded, color: _kGold,
-              title: 'B — Import from Teams Hub',
-              subtitle: 'Pick an existing team — name and players fill in automatically',
+              title: l10n.koImportFromHub,
+              subtitle: l10n.koImportFromHubSubtitle,
               onTap: () => setState(() => _mode = _EditorMode.import),
             )
           else
@@ -2235,7 +2315,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'No teams in Teams Hub yet.\nCreate teams via the Teams section first.',
+                    l10n.koNoTeamsInHub,
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ),
@@ -2289,7 +2369,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
     );
   }
 
-  Widget _buildCreate() {
+  Widget _buildCreate(AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
       child: Column(
@@ -2302,21 +2382,20 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                   size: 20, color: Colors.black54),
             ),
             const SizedBox(width: 10),
-            const Expanded(
-              child: Text('Edit Team',
-                  style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Expanded(
+              child: Text(l10n.koEditTeam,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
             ),
             TextButton(
               onPressed: _save,
               style: TextButton.styleFrom(foregroundColor: _kGold),
-              child: const Text('Save',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(l10n.btnSave,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ]),
           const SizedBox(height: 16),
-          const Text('Team Name',
-              style: TextStyle(
+          Text(l10n.setupTeamNameHint,
+              style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.black54)),
@@ -2324,16 +2403,16 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
           TextField(
             controller: _nameCtrl,
             textCapitalization: TextCapitalization.words,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.all(Radius.circular(10))),
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Players',
-              style: TextStyle(
+          Text(l10n.koPlayersSection,
+              style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.black54)),
@@ -2383,17 +2462,17 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600)),
                         if (isLinked && p.skillRating != null)
-                          Text('Skill: ${p.skillRating}',
+                          Text(l10n.koSkillRating(p.skillRating!),
                               style: const TextStyle(
                                   fontSize: 11, color: Colors.black45))
                         else if (isLinked)
-                          Text('Unrated',
+                          Text(l10n.koUnrated,
                               style: TextStyle(
                                   fontSize: 11,
                                   color: Colors.orange.shade700))
                         else
-                          const Text('Tap to assign',
-                              style: TextStyle(
+                          Text(l10n.koTapToAssign,
+                              style: const TextStyle(
                                   fontSize: 11, color: Colors.black38)),
                       ],
                     ),
@@ -2414,7 +2493,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
     );
   }
 
-  Widget _buildImport() {
+  Widget _buildImport(AppLocalizations l10n) {
     final query         = _teamSearchCtrl.text.toLowerCase();
     final relevantGroups = widget.existingGroups
         .where((c) => widget.existingTeams.any((t) => c.teamIds.contains(t.id)))
@@ -2441,9 +2520,9 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                   size: 20, color: Colors.black54),
             ),
             const SizedBox(width: 10),
-            const Expanded(
-              child: Text('Import from Teams Hub',
-                  style: TextStyle(
+            Expanded(
+              child: Text(l10n.koImportTitle,
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w800)),
             ),
           ]),
@@ -2484,7 +2563,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                       const SizedBox(width: 4),
                       Text(
                         _importGroupId == null
-                            ? 'Group'
+                            ? l10n.filterClub
                             : relevantGroups.firstWhere((c) => c.id == _importGroupId).name,
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                             color: _importGroupId != null ? _kGoldDark : Colors.black45),
@@ -2504,7 +2583,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     isDense: true,
-                    hintText: 'Search teams…',
+                    hintText: l10n.setupSearchTeamsHint,
                     prefixIcon: const Icon(Icons.search_rounded,
                         size: 18, color: Colors.black45),
                     border: InputBorder.none,
@@ -2519,9 +2598,9 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         const SizedBox(height: 8),
         Expanded(
           child: filtered.isEmpty
-              ? const Center(
-                  child: Text('No teams found.',
-                      style: TextStyle(fontSize: 13, color: Colors.black38)))
+              ? Center(
+                  child: Text(l10n.koNoTeamsFound,
+                      style: const TextStyle(fontSize: 13, color: Colors.black38)))
               : ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
                   itemCount: filtered.length,
@@ -2552,7 +2631,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14)),
                         subtitle: pc > 0
-                            ? Text('$pc player${pc == 1 ? '' : 's'}',
+                            ? Text(l10n.koPlayerCount(pc),
                                 style: const TextStyle(fontSize: 12))
                             : null,
                         trailing: const Icon(Icons.download_rounded,
@@ -2578,6 +2657,7 @@ class _SlotPickerSheet extends StatefulWidget {
   final Player Function(String name) onCreatePlayer;
   final void Function(KoPlayerSnapshot) onPick;
   final VoidCallback onClear;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const _SlotPickerSheet({
     required this.slotIndex,
@@ -2587,6 +2667,7 @@ class _SlotPickerSheet extends StatefulWidget {
     required this.onCreatePlayer,
     required this.onPick,
     required this.onClear,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -2594,14 +2675,24 @@ class _SlotPickerSheet extends StatefulWidget {
 }
 
 class _SlotPickerSheetState extends State<_SlotPickerSheet> {
-  final _newNameCtrl = TextEditingController();
-  final _searchCtrl  = TextEditingController();
+  final _newNameCtrl  = TextEditingController();
+  final _searchCtrl   = TextEditingController();
+  late final TextEditingController _editNameCtrl;
   String? _playerGroupId;
+  late List<Player> _players;
+
+  @override
+  void initState() {
+    super.initState();
+    _players      = List.from(widget.existingPlayers);
+    _editNameCtrl = TextEditingController(text: widget.currentPlayer.name);
+  }
 
   @override
   void dispose() {
     _newNameCtrl.dispose();
     _searchCtrl.dispose();
+    _editNameCtrl.dispose();
     super.dispose();
   }
 
@@ -2609,6 +2700,7 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
     final name = _newNameCtrl.text.trim();
     if (name.isEmpty) return;
     final player = widget.onCreatePlayer(name);
+    setState(() => _players.add(player));
     widget.onPick(KoPlayerSnapshot(
       appPlayerId: player.id,
       name: player.name,
@@ -2617,14 +2709,86 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
     Navigator.of(context).pop();
   }
 
+  void _saveEdit() {
+    final name = _editNameCtrl.text.trim();
+    if (name.isEmpty) return;
+    final current = widget.currentPlayer;
+    widget.onUpdatePlayer?.call(current.appPlayerId, name, current.skillRating);
+    widget.onPick(KoPlayerSnapshot(
+      appPlayerId: current.appPlayerId,
+      name: name,
+      skillRating: current.skillRating,
+    ));
+    setState(() {
+      final idx = _players.indexWhere((p) => p.id == current.appPlayerId);
+      if (idx >= 0) _players[idx] = _players[idx].copyWith(name: name);
+    });
+    Navigator.of(context).pop();
+  }
+
+  void _showEditPlayer(BuildContext context, Player player, AppLocalizations l10n) {
+    final nameCtrl = TextEditingController(text: player.name);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlgState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          title: Text(l10n.koEditPlayer,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          content: TextField(
+            controller: nameCtrl,
+            textCapitalization: TextCapitalization.words,
+            autofocus: true,
+            onChanged: (_) => setDlgState(() {}),
+            decoration: InputDecoration(
+              isDense: true,
+              labelText: l10n.koPlayerNameLabel,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 10),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l10n.btnCancel),
+            ),
+            TextButton(
+              onPressed: nameCtrl.text.trim().isEmpty
+                  ? null
+                  : () {
+                      final name = nameCtrl.text.trim();
+                      widget.onUpdatePlayer?.call(
+                          player.id, name, player.skillRating);
+                      setState(() {
+                        final idx =
+                            _players.indexWhere((p) => p.id == player.id);
+                        if (idx >= 0) {
+                          _players[idx] = player.copyWith(name: name);
+                        }
+                      });
+                      Navigator.of(ctx).pop();
+                    },
+              style: TextButton.styleFrom(foregroundColor: _kGold),
+              child: Text(l10n.btnSave,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n          = AppLocalizations.of(context)!;
     final isLinked      = widget.currentPlayer.appPlayerId.isNotEmpty;
     final query         = _searchCtrl.text.toLowerCase();
     final relevantGroups = widget.existingGroups
-        .where((c) => widget.existingPlayers.any((p) => c.playerIds.contains(p.id)))
+        .where((c) => _players.any((p) => c.playerIds.contains(p.id)))
         .toList();
-    final filtered = widget.existingPlayers.where((p) {
+    final filtered = _players.where((p) {
       final matchesGroup  = _playerGroupId == null ||
           widget.existingGroups.any((c) => c.id == _playerGroupId && c.playerIds.contains(p.id));
       final matchesQuery = query.isEmpty || p.name.toLowerCase().contains(query);
@@ -2639,7 +2803,7 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
           children: [
             Row(children: [
               Expanded(
-                child: Text('Player ${widget.slotIndex + 1}',
+                child: Text(l10n.setupPlayerN(widget.slotIndex + 1),
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w800)),
               ),
@@ -2650,13 +2814,58 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
                     Navigator.of(context).pop();
                   },
                   icon: const Icon(Icons.close_rounded, size: 14),
-                  label: const Text('Clear', style: TextStyle(fontSize: 13)),
+                  label: Text(l10n.btnClear, style: const TextStyle(fontSize: 13)),
                   style: TextButton.styleFrom(
                       foregroundColor: Colors.red.shade400),
                 ),
             ]),
             const SizedBox(height: 20),
-            _sectionLabel('A — New Player', _kOlive),
+
+            // ── A: Edit current player (only when linked) ────────────
+            if (isLinked) ...[
+              _sectionLabel(l10n.koSectionAEditPlayer, _kOlive),
+              const SizedBox(height: 8),
+              Row(children: [
+                Expanded(
+                  child: TextField(
+                    controller: _editNameCtrl,
+                    textCapitalization: TextCapitalization.words,
+                    onChanged: (_) => setState(() {}),
+                    onSubmitted: (_) => _saveEdit(),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _editNameCtrl.text.trim().isNotEmpty
+                      ? _saveEdit
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kOlive,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(l10n.btnSave,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              const SizedBox(height: 20),
+            ],
+
+            // ── B (or A) New Player ───────────────────────────────────
+            _sectionLabel(
+              isLinked ? l10n.koSectionBNewPlayer : l10n.koSectionANewPlayer,
+              _kOlive,
+            ),
             const SizedBox(height: 8),
             Row(children: [
               Expanded(
@@ -2688,12 +2897,17 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                 ),
-                child: const Text('Create',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                child: Text(l10n.btnCreate,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
               ),
             ]),
             const SizedBox(height: 20),
-            _sectionLabel('B — From Players Hub', _kGold),
+
+            // ── C (or B) From Players Hub ─────────────────────────────
+            _sectionLabel(
+              isLinked ? l10n.koSectionCFromHub : l10n.koFromPlayersHub,
+              _kGold,
+            ),
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
@@ -2729,7 +2943,7 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
                         const SizedBox(width: 4),
                         Text(
                           _playerGroupId == null
-                              ? 'Group'
+                              ? l10n.filterClub
                               : relevantGroups.firstWhere((c) => c.id == _playerGroupId).name,
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700,
                               color: _playerGroupId != null ? _kGoldDark : Colors.black45),
@@ -2748,7 +2962,7 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       isDense: true,
-                      hintText: 'Search players…',
+                      hintText: l10n.setupSearchPlayersHint,
                       prefixIcon: const Icon(Icons.search_rounded,
                           size: 18, color: Colors.black45),
                       border: InputBorder.none,
@@ -2760,23 +2974,23 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
               ]),
             ),
             const SizedBox(height: 6),
-            if (widget.existingPlayers.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('No players in the hub yet.',
-                    style: TextStyle(fontSize: 12, color: Colors.black38)),
+            if (_players.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(l10n.koNoPlayersInHub,
+                    style: const TextStyle(fontSize: 12, color: Colors.black38)),
               )
             else if (filtered.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(12),
-                child: Text('No players found.',
-                    style: TextStyle(fontSize: 12, color: Colors.black38)),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(l10n.koNoPlayersFound,
+                    style: const TextStyle(fontSize: 12, color: Colors.black38)),
               )
             else
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: filtered.length.clamp(0, 10),
+                itemCount: filtered.length.clamp(0, 20),
                 separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (_, i) {
                   final player    = filtered[i];
@@ -2801,16 +3015,31 @@ class _SlotPickerSheetState extends State<_SlotPickerSheet> {
                     title: Text(player.name,
                         style: const TextStyle(fontSize: 13)),
                     subtitle: player.skillRating != null
-                        ? Text('Skill: ${player.skillRating}',
+                        ? Text(l10n.koSkillRating(player.skillRating!),
                             style: const TextStyle(fontSize: 11))
-                        : const Text('Unrated',
-                            style: TextStyle(
+                        : Text(l10n.koUnrated,
+                            style: const TextStyle(
                                 fontSize: 11, color: Colors.orange)),
-                    trailing: isCurrent
-                        ? const Icon(Icons.check_rounded,
-                            color: _kOlive, size: 18)
-                        : const Icon(Icons.add_circle_outline_rounded,
-                            color: _kGold, size: 20),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (widget.onUpdatePlayer != null)
+                          GestureDetector(
+                            onTap: () =>
+                                _showEditPlayer(context, player, l10n),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(Icons.edit_rounded,
+                                  size: 16, color: Colors.black38),
+                            ),
+                          ),
+                        isCurrent
+                            ? const Icon(Icons.check_rounded,
+                                color: _kOlive, size: 18)
+                            : const Icon(Icons.add_circle_outline_rounded,
+                                color: _kGold, size: 20),
+                      ],
+                    ),
                     onTap: isCurrent
                         ? null
                         : () {

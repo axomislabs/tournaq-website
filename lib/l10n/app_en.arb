@@ -349,7 +349,7 @@
   "comingSoonLearnMore": "Learn more on website",
   "@comingSoonLearnMore": {},
 
-  "landingTournamentsSubtitle": "Manage tournaments & scrambles",
+  "landingTournamentsSubtitle": "Manage games, drills & tournaments",
   "@landingTournamentsSubtitle": {},
 
   "landingAdminSubtitle": "Manage players, teams & groups",
@@ -373,13 +373,13 @@
   "tournamentsSectionHistory": "Tournament History",
   "@tournamentsSectionHistory": {},
 
-  "modeQuickGamesDesc": "Ad-hoc scored matches",
+  "modeQuickGamesDesc": "Ad-hoc matches",
   "@modeQuickGamesDesc": {},
 
-  "modeSocialScramblesDesc": "Timed round-robin mixer",
+  "modeSocialScramblesDesc": "Meet and compete",
   "@modeSocialScramblesDesc": {},
 
-  "modeKotcDesc": "Winners stay, challengers rotate",
+  "modeKotcDesc": "Establish you reign",
   "@modeKotcDesc": {},
 
   "modeDoghouseDesc": "Get out of the Doghouse",
@@ -2352,5 +2352,123 @@
     "placeholders": {
       "n": {"type": "int"}
     }
-  }
+  },
+
+  "setupPlayerN": "Player {n}",
+  "@setupPlayerN": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+
+  "koEditTeam": "Edit Team",
+  "@koEditTeam": {},
+
+  "koTeamSetupSubtitle": "How would you like to set up this team?",
+  "@koTeamSetupSubtitle": {},
+
+  "koCreateNew": "Edit Manually",
+  "@koCreateNew": {},
+
+  "koCreateNewSubtitle": "Set a custom name and assign players manually",
+  "@koCreateNewSubtitle": {},
+
+  "koImportFromHub": "Import from Teams Hub",
+  "@koImportFromHub": {},
+
+  "koImportFromHubSubtitle": "Pick an existing team — name and players fill in automatically",
+  "@koImportFromHubSubtitle": {},
+
+  "koNoTeamsInHub": "No teams in Teams Hub yet.\nCreate teams via the Teams section first.",
+  "@koNoTeamsInHub": {},
+
+  "koPlayersSection": "Players",
+  "@koPlayersSection": {},
+
+  "koSkillRating": "Skill: {rating}",
+  "@koSkillRating": {
+    "placeholders": {
+      "rating": {"type": "Object"}
+    }
+  },
+
+  "koUnrated": "Unrated",
+  "@koUnrated": {},
+
+  "koTapToAssign": "Tap to assign",
+  "@koTapToAssign": {},
+
+  "koImportTitle": "Import from Teams Hub",
+  "@koImportTitle": {},
+
+  "koNoTeamsFound": "No teams found.",
+  "@koNoTeamsFound": {},
+
+  "koPlayerCount": "{count, plural, =1{1 player} other{{count} players}}",
+  "@koPlayerCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "koAddTeamN": "Add Team {n}",
+  "@koAddTeamN": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+
+  "koAddTeamSubtitle": "How would you like to add this team?",
+  "@koAddTeamSubtitle": {},
+
+  "koFromTeamsHub": "From Teams Hub",
+  "@koFromTeamsHub": {},
+
+  "koFromTeamsHubSubtitle": "Pick an existing team from your hub",
+  "@koFromTeamsHubSubtitle": {},
+
+  "koNoTeamsInHubYet": "No teams in hub yet.",
+  "@koNoTeamsInHubYet": {},
+
+  "koNoTeamsInHubYetShort": "No teams in hub yet",
+  "@koNoTeamsInHubYetShort": {},
+
+  "koCreateNewTeamTitle": "Create New Team",
+  "@koCreateNewTeamTitle": {},
+
+  "koAddTeamBtn": "Add Team",
+  "@koAddTeamBtn": {},
+
+  "koFromPlayersHub": "B — From Players Hub",
+  "@koFromPlayersHub": {},
+
+  "koNoPlayersInHub": "No players in the hub yet.",
+  "@koNoPlayersInHub": {},
+
+  "koNoPlayersFound": "No players found.",
+  "@koNoPlayersFound": {},
+
+  "koEditPlayer": "Edit Player",
+  "@koEditPlayer": {},
+
+  "koPlayerNameLabel": "Name",
+  "@koPlayerNameLabel": {},
+
+  "koSkillRatingOptional": "Skill rating (optional)",
+  "@koSkillRatingOptional": {},
+
+  "koSectionAEditPlayer": "A — Edit Player",
+  "@koSectionAEditPlayer": {},
+
+  "koSectionANewPlayer": "A — New Player",
+  "@koSectionANewPlayer": {},
+
+  "koSectionBNewPlayer": "B — New Player",
+  "@koSectionBNewPlayer": {},
+
+  "koSectionCFromHub": "C — From Players Hub",
+  "@koSectionCFromHub": {},
+
+  "btnClear": "Clear",
+  "@btnClear": {}
 }

@@ -739,7 +739,7 @@ abstract class AppLocalizations {
   /// No description provided for @landingTournamentsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage tournaments & scrambles'**
+  /// **'Manage games, drills & tournaments'**
   String get landingTournamentsSubtitle;
 
   /// No description provided for @landingAdminSubtitle.
@@ -787,19 +787,19 @@ abstract class AppLocalizations {
   /// No description provided for @modeQuickGamesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Ad-hoc scored matches'**
+  /// **'Ad-hoc matches'**
   String get modeQuickGamesDesc;
 
   /// No description provided for @modeSocialScramblesDesc.
   ///
   /// In en, this message translates to:
-  /// **'Timed round-robin mixer'**
+  /// **'Meet and compete'**
   String get modeSocialScramblesDesc;
 
   /// No description provided for @modeKotcDesc.
   ///
   /// In en, this message translates to:
-  /// **'Winners stay, challengers rotate'**
+  /// **'Establish you reign'**
   String get modeKotcDesc;
 
   /// No description provided for @modeDoghouseDesc.
@@ -4263,6 +4263,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Round {n}'**
   String setupRoundN(int n);
+
+  /// No description provided for @setupPlayerN.
+  ///
+  /// In en, this message translates to:
+  /// **'Player {n}'**
+  String setupPlayerN(int n);
+
+  /// No description provided for @koEditTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Team'**
+  String get koEditTeam;
+
+  /// No description provided for @koTeamSetupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to set up this team?'**
+  String get koTeamSetupSubtitle;
+
+  /// No description provided for @koCreateNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Manually'**
+  String get koCreateNew;
+
+  /// No description provided for @koCreateNewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a custom name and assign players manually'**
+  String get koCreateNewSubtitle;
+
+  /// No description provided for @koImportFromHub.
+  ///
+  /// In en, this message translates to:
+  /// **'B — Import from Teams Hub'**
+  String get koImportFromHub;
+
+  /// No description provided for @koImportFromHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing team — name and players fill in automatically'**
+  String get koImportFromHubSubtitle;
+
+  /// No description provided for @koNoTeamsInHub.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams in Teams Hub yet.\nCreate teams via the Teams section first.'**
+  String get koNoTeamsInHub;
+
+  /// No description provided for @koPlayersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get koPlayersSection;
+
+  /// No description provided for @koSkillRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill: {rating}'**
+  String koSkillRating(Object rating);
+
+  /// No description provided for @koUnrated.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrated'**
+  String get koUnrated;
+
+  /// No description provided for @koTapToAssign.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to assign'**
+  String get koTapToAssign;
+
+  /// No description provided for @koImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Teams Hub'**
+  String get koImportTitle;
+
+  /// No description provided for @koNoTeamsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams found.'**
+  String get koNoTeamsFound;
+
+  /// No description provided for @koPlayerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 player} other{{count} players}}'**
+  String koPlayerCount(int count);
+
+  /// No description provided for @koAddTeamN.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Team {n}'**
+  String koAddTeamN(int n);
+
+  /// No description provided for @koAddTeamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to add this team?'**
+  String get koAddTeamSubtitle;
+
+  /// No description provided for @koFromTeamsHub.
+  ///
+  /// In en, this message translates to:
+  /// **'From Teams Hub'**
+  String get koFromTeamsHub;
+
+  /// No description provided for @koFromTeamsHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an existing team from your hub'**
+  String get koFromTeamsHubSubtitle;
+
+  /// No description provided for @koNoTeamsInHubYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams in hub yet.'**
+  String get koNoTeamsInHubYet;
+
+  /// No description provided for @koNoTeamsInHubYetShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams in hub yet'**
+  String get koNoTeamsInHubYetShort;
+
+  /// No description provided for @koCreateNewTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Team'**
+  String get koCreateNewTeamTitle;
+
+  /// No description provided for @koAddTeamBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Team'**
+  String get koAddTeamBtn;
+
+  /// No description provided for @koFromPlayersHub.
+  ///
+  /// In en, this message translates to:
+  /// **'B — From Players Hub'**
+  String get koFromPlayersHub;
+
+  /// No description provided for @koNoPlayersInHub.
+  ///
+  /// In en, this message translates to:
+  /// **'No players in the hub yet.'**
+  String get koNoPlayersInHub;
+
+  /// No description provided for @koNoPlayersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No players found.'**
+  String get koNoPlayersFound;
+
+  /// No description provided for @koEditPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Player'**
+  String get koEditPlayer;
+
+  /// No description provided for @koPlayerNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get koPlayerNameLabel;
+
+  /// No description provided for @koSkillRatingOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Skill rating (optional)'**
+  String get koSkillRatingOptional;
+
+  /// No description provided for @koSectionAEditPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'A — Edit Player'**
+  String get koSectionAEditPlayer;
+
+  /// No description provided for @koSectionANewPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'A — New Player'**
+  String get koSectionANewPlayer;
+
+  /// No description provided for @koSectionBNewPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'B — New Player'**
+  String get koSectionBNewPlayer;
+
+  /// No description provided for @koSectionCFromHub.
+  ///
+  /// In en, this message translates to:
+  /// **'C — From Players Hub'**
+  String get koSectionCFromHub;
 }
 
 class _AppLocalizationsDelegate

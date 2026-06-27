@@ -26,6 +26,7 @@ class KoBracketBracketPage extends StatefulWidget {
   final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const KoBracketBracketPage({
     super.key,
@@ -36,6 +37,7 @@ class KoBracketBracketPage extends StatefulWidget {
     required this.existingGroups,
     required this.onCreatePlayer,
     required this.onCreateTeam,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -256,6 +258,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
         existingGroups: widget.existingGroups,
         generationMode: _tournament.generationMode,
         onCreatePlayer: widget.onCreatePlayer,
+        onUpdatePlayer: widget.onUpdatePlayer,
         onCreateTeam: widget.onCreateTeam,
         onSave: (updated) => _persist(_tournament.updateTeam(updated)),
       ),

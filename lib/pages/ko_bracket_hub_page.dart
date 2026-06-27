@@ -18,6 +18,7 @@ class KoBracketHubPage extends StatefulWidget {
   final List<Group> existingGroups;
   final Player Function(String name) onCreatePlayer;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const KoBracketHubPage({
     super.key,
@@ -26,6 +27,7 @@ class KoBracketHubPage extends StatefulWidget {
     required this.existingGroups,
     required this.onCreatePlayer,
     required this.onCreateTeam,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -66,6 +68,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
         existingTeams: widget.existingTeams,
         existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
+        onUpdatePlayer: widget.onUpdatePlayer,
         onCreateTeam: widget.onCreateTeam,
         onCreated: _persist,
       ),
@@ -81,6 +84,7 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
         existingTeams: widget.existingTeams,
         existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
+        onUpdatePlayer: widget.onUpdatePlayer,
         onCreateTeam: widget.onCreateTeam,
       ),
     )).then((_) => _loadTournaments());

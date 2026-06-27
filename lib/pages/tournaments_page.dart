@@ -68,6 +68,16 @@ class _TournamentsPageState extends State<TournamentsPage> {
     _updateState(_localState.updatePlayer(player.copyWith(name: newName)));
   }
 
+  void _updatePlayerFull(String playerId, String name, int? skillRating) {
+    final player = _localState.getPlayerById(playerId);
+    if (player == null) return;
+    _updateState(_localState.updatePlayer(player.copyWith(
+      name: name,
+      skillRating: skillRating,
+      clearSkillRating: skillRating == null,
+    )));
+  }
+
   String _createTeam(String name, List<String> linkedPlayerIds) {
     final team = Team(id: AppState.generateId(), name: name, userIds: linkedPlayerIds);
     _updateState(_localState.addTeam(team));
@@ -147,6 +157,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             existingTeams: _localState.teams,
             existingGroups: _localState.groups,
             onCreatePlayer: _createPlayer,
+            onUpdatePlayer: _updatePlayerFull,
             onCreateTeam: _createTeam,
           ),
         ))
