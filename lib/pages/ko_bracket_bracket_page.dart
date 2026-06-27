@@ -367,7 +367,6 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     final progress = total == 0 ? 0.0 : completed / total;
     final isComplete =
         _tournament.status == KoBracketStatus.completed;
-    final start = _tournament.estimatedStart;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -403,15 +402,43 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                             _chip(Icons.crop_square_rounded,
                                 '${_tournament.courtCount} court${_tournament.courtCount > 1 ? 's' : ''}',
                                 _kOliveLight, _kOlive),
-                            _chip(Icons.timer_rounded,
-                                '${_tournament.minutesPerGame} min',
-                                Colors.grey.shade100, Colors.black45),
-                            _chip(Icons.info_outline_rounded,
-                                _tournament.earlyRoundFormat.label,
-                                Colors.grey.shade100, Colors.black45),
-                            if (start != null)
+                            _chip(Icons.people_rounded,
+                                '${_tournament.playersPerSide}v${_tournament.playersPerSide}',
+                                _kOliveLight, _kOlive),
+                            _chip(
+                              _tournament.generationMode ==
+                                      KoBracketGenerationMode.seeded
+                                  ? Icons.leaderboard_rounded
+                                  : Icons.shuffle_rounded,
+                              _tournament.generationMode ==
+                                      KoBracketGenerationMode.seeded
+                                  ? 'Seeded'
+                                  : 'Random',
+                              Colors.grey.shade100, Colors.black54,
+                            ),
+                            _chip(
+                              switch (_tournament.oddTeamStrategy) {
+                                KoOddTeamStrategy.byes =>
+                                  Icons.skip_next_rounded,
+                                KoOddTeamStrategy.playIn =>
+                                  Icons.play_arrow_rounded,
+                                KoOddTeamStrategy.playInWithRepechage =>
+                                  Icons.replay_rounded,
+                              },
+                              switch (_tournament.oddTeamStrategy) {
+                                KoOddTeamStrategy.byes => 'Byes',
+                                KoOddTeamStrategy.playIn => 'Play-in',
+                                KoOddTeamStrategy.playInWithRepechage =>
+                                  'Play-in+',
+                              },
+                              Colors.grey.shade100, Colors.black54,
+                            ),
+                            _chip(Icons.calendar_today_rounded,
+                                'Soft Schedule',
+                                Colors.grey.shade100, Colors.black54),
+                            if (_tournament.estimatedStart != null)
                               _chip(Icons.schedule_rounded,
-                                  'Starts ${_fmtT(start)}',
+                                  'Starts ${_fmtT(_tournament.estimatedStart!)}',
                                   _kGoldCream, _kGoldDark),
                           ],
                         ),
@@ -445,11 +472,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
   // ── Time overview ─────────────────────────────────────────────────────────
 
-  static String _formatStartLabel(DateTime dt) {
+  static String _formatStartDate(DateTime dt) {
     final weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dt.weekday - 1];
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$weekday ${dt.day}/${dt.month} $h:$m';
+    return '$weekday ${dt.day}/${dt.month}';
   }
 
   static String _formatDuration(Duration d) {
@@ -460,21 +485,18 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     return '${h}h ${m}min';
   }
 
-  void _pickRoundFormat(int round) {
-    final isFinal = round >= _tournament.mainRoundCount - _tournament.finalRoundsCount + 1;
-
+  void _pickRoundFormat(int round, String roundLabel) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
-          final fmt = isFinal ? _tournament.finalRoundFormat : _tournament.earlyRoundFormat;
+          final fmt = _tournament.roundFormats[round] ?? _tournament.defaultFormat;
 
           void pick(KoRoundFormat updated) {
             var t = _tournament.copyWith(
-              earlyRoundFormat: isFinal ? null : updated,
-              finalRoundFormat: isFinal ? updated : null,
+              roundFormats: {..._tournament.roundFormats, round: updated},
             );
             t = KoBracketScheduler.assignTimes(t);
             _persist(t);
@@ -518,19 +540,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    isFinal
-                        ? AppLocalizations.of(context)!.bracketFinalRoundsFormat
-                        : AppLocalizations.of(context)!.bracketEarlyRoundsFormat,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isFinal
-                        ? AppLocalizations.of(context)!.bracketFinalRoundsAppliesTo(_tournament.finalRoundsCount)
-                        : AppLocalizations.of(context)!.bracketEarlyRoundsAppliesTo,
-                    style: const TextStyle(fontSize: 12, color: Colors.black45),
-                  ),
+                  Text(roundLabel,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 20),
                   Text(AppLocalizations.of(context)!.setupSetsPerGame,
                       style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
@@ -552,9 +563,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     );
   }
 
-  void _pickBreak(int round) {
-    final isFinal = round >= _tournament.mainRoundCount - _tournament.finalRoundsCount + 1;
-    final current = isFinal ? _tournament.finalBreakMinutes : _tournament.earlyBreakMinutes;
+  void _pickBreak(int round, String roundLabel) {
+    final current = _tournament.roundBreaks[round] ?? 0;
 
     showModalBottomSheet<void>(
       context: context,
@@ -568,9 +578,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                isFinal
-                    ? AppLocalizations.of(context)!.bracketBreakFinalRounds
-                    : AppLocalizations.of(context)!.bracketBreakEarlyRounds,
+                'Break after $roundLabel',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 16),
@@ -583,8 +591,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                     onTap: () {
                       Navigator.of(context).pop();
                       var updated = _tournament.copyWith(
-                        earlyBreakMinutes: isFinal ? null : v,
-                        finalBreakMinutes: isFinal ? v : null,
+                        roundBreaks: {..._tournament.roundBreaks, round: v},
                       );
                       updated = KoBracketScheduler.assignTimes(updated);
                       _persist(updated);
@@ -620,9 +627,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     );
   }
 
-  Future<void> _editStartTime() async {
+  Future<void> _editStartDate() async {
     final current = _tournament.estimatedStart ?? DateTime.now();
-
     final date = await showDatePicker(
       context: context,
       initialDate: current,
@@ -630,14 +636,22 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (date == null || !mounted) return;
+    final newStart = DateTime(date.year, date.month, date.day,
+        current.hour, current.minute);
+    var updated = _tournament.copyWith(estimatedStart: newStart);
+    updated = KoBracketScheduler.assignTimes(updated);
+    _persist(updated);
+  }
 
+  Future<void> _editStartTimeOnly() async {
+    final current = _tournament.estimatedStart ?? DateTime.now();
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(current),
     );
     if (time == null || !mounted) return;
-
-    final newStart = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    final newStart = DateTime(current.year, current.month, current.day,
+        time.hour, time.minute);
     var updated = _tournament.copyWith(estimatedStart: newStart);
     updated = KoBracketScheduler.assignTimes(updated);
     _persist(updated);
@@ -648,7 +662,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
     if (start == null) {
       return GestureDetector(
-        onTap: _editStartTime,
+        onTap: _editStartDate,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -703,7 +717,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           children: [
             // ── Col 1: round name + format chip ──────────────────
             GestureDetector(
-              onTap: () => _pickRoundFormat(round),
+              onTap: () => _pickRoundFormat(round, _roundLabel(round)),
               child: SizedBox(
                 width: 96,
                 child: Column(
@@ -748,7 +762,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                   if (!isLast) ...[
                     const SizedBox(height: 3),
                     GestureDetector(
-                      onTap: () => _pickBreak(round),
+                      onTap: () => _pickBreak(round, _roundLabel(round)),
                       child: Row(children: [
                         Icon(
                           breakMins > 0
@@ -807,18 +821,31 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                     fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
           ]),
           const SizedBox(height: 6),
-          GestureDetector(
-            onTap: _editStartTime,
-            child: Row(children: [
-              const Icon(Icons.play_circle_outline_rounded, size: 12, color: _kGoldDark),
-              const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.bracketStartsLabel(_formatStartLabel(start)),
-                  style: const TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
-              const SizedBox(width: 4),
-              const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
-            ]),
-          ),
+          Row(children: [
+            const Icon(Icons.play_circle_outline_rounded, size: 12, color: _kGoldDark),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: _editStartDate,
+              child: Row(children: [
+                Text(_formatStartDate(start),
+                    style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
+                const SizedBox(width: 2),
+                const Icon(Icons.edit_rounded, size: 9, color: _kGoldDark),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _editStartTimeOnly,
+              child: Row(children: [
+                Text(_fmtT(start),
+                    style: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w600, color: _kGoldDark)),
+                const SizedBox(width: 2),
+                const Icon(Icons.edit_rounded, size: 9, color: _kGoldDark),
+              ]),
+            ),
+          ]),
           if (rows.isNotEmpty) ...[
             const SizedBox(height: 10),
             const Divider(height: 1, color: AppColors.goldBadgeBorder),
@@ -1314,14 +1341,16 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                       team1?.isWithdrawn ?? false,
                       team1 == null,
                     ),
-                    const SizedBox(height: 2),
-                    _teamRow(
-                      team2?.name ?? 'TBD',
-                      _teamScore(match, isTeam1: false),
-                      match.winnerId == match.team2Id && isComplete,
-                      team2?.isWithdrawn ?? false,
-                      team2 == null,
-                    ),
+                    if (!isBye) ...[
+                      const SizedBox(height: 2),
+                      _teamRow(
+                        team2?.name ?? 'TBD',
+                        _teamScore(match, isTeam1: false),
+                        match.winnerId == match.team2Id && isComplete,
+                        team2?.isWithdrawn ?? false,
+                        team2 == null,
+                      ),
+                    ],
                     if (match.scheduledStartTime != null) ...[
                       const SizedBox(height: 4),
                       Row(

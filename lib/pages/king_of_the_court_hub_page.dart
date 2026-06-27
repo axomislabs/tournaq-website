@@ -67,6 +67,7 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
       builder: (_) => KingOfTheCourtScoreboardPage(
         tournament: s,
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onChanged:  _persist,
         onCreatePlayer: widget.onCreatePlayer,
       ),

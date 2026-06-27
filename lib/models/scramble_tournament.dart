@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 import '../services/device_id_service.dart';
+import 'player_status.dart';
 
 const _uuid = Uuid();
 
@@ -9,8 +10,6 @@ enum ScramblePlayerSource { existing, created, random }
 
 enum ScrambleGameStatus { scheduled, inProgress, completed }
 
-enum ScramblePlayerStatus { active, ejected, late, swappedOut, swappedIn }
-
 // ── Player ────────────────────────────────────────────────────────────────────
 
 class ScramblePlayer {
@@ -18,24 +17,21 @@ class ScramblePlayer {
   final String name;
   final ScramblePlayerSource source;
   final String? appUserId;
-  final ScramblePlayerStatus status;
+  final PlayerStatus status;
 
   const ScramblePlayer({
     required this.id,
     required this.name,
     required this.source,
     this.appUserId,
-    this.status = ScramblePlayerStatus.active,
+    this.status = PlayerStatus.active,
   });
 
-  bool get isActive =>
-      status == ScramblePlayerStatus.active ||
-      status == ScramblePlayerStatus.late ||
-      status == ScramblePlayerStatus.swappedIn;
+  bool get isActive => status.isActive;
 
   ScramblePlayer copyWith({
     String? name,
-    ScramblePlayerStatus? status,
+    PlayerStatus? status,
     String? appUserId,
     bool clearAppUserId = false,
   }) =>
@@ -61,8 +57,8 @@ class ScramblePlayer {
         source: ScramblePlayerSource.values.byName(
             (j['source'] as String?) ?? ScramblePlayerSource.random.name),
         appUserId: j['appUserId'] as String?,
-        status: ScramblePlayerStatus.values.byName(
-            (j['status'] as String?) ?? ScramblePlayerStatus.active.name),
+        status: PlayerStatus.values.byName(
+            (j['status'] as String?) ?? PlayerStatus.active.name),
       );
 
   static String generateId() => _uuid.v4();
@@ -262,7 +258,7 @@ class ScrambleRound {
 class ScramblePlayerStats {
   final String playerId;
   final String playerName;
-  final ScramblePlayerStatus status;
+  final PlayerStatus status;
   final int totalPoints;
   final int pointsAgainst;
   final int gamesPlayed;
@@ -276,7 +272,7 @@ class ScramblePlayerStats {
   ScramblePlayerStats({
     required this.playerId,
     required this.playerName,
-    this.status = ScramblePlayerStatus.active,
+    this.status = PlayerStatus.active,
     this.totalPoints = 0,
     this.pointsAgainst = 0,
     this.gamesPlayed = 0,

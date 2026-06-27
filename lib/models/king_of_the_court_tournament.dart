@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 import '../services/device_id_service.dart';
+import 'player_status.dart';
 
 const _uuid = Uuid();
 
@@ -16,23 +17,24 @@ class KotcPlayer {
   final String name;
   final KotcPlayerSource source;
   final String? appUserId;
-  // True when the player joined after the tournament started.
-  final bool isLate;
+  final PlayerStatus status;
 
   const KotcPlayer({
     required this.id,
     required this.name,
     required this.source,
     this.appUserId,
-    this.isLate = false,
+    this.status = PlayerStatus.active,
   });
 
-  KotcPlayer copyWith({String? name}) => KotcPlayer(
+  bool get isActive => status.isActive;
+
+  KotcPlayer copyWith({String? name, PlayerStatus? status}) => KotcPlayer(
         id: id,
         name: name ?? this.name,
         source: source,
         appUserId: appUserId,
-        isLate: isLate,
+        status: status ?? this.status,
       );
 
   Map<String, dynamic> toJson() => {
@@ -40,17 +42,27 @@ class KotcPlayer {
         'name': name,
         'source': source.name,
         'appUserId': appUserId,
-        'isLate': isLate,
+        'status': status.name,
       };
 
-  factory KotcPlayer.fromJson(Map<String, dynamic> j) => KotcPlayer(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        source: KotcPlayerSource.values.byName(
-            (j['source'] as String?) ?? KotcPlayerSource.random.name),
-        appUserId: j['appUserId'] as String?,
-        isLate: j['isLate'] as bool? ?? false,
-      );
+  factory KotcPlayer.fromJson(Map<String, dynamic> j) {
+    PlayerStatus status;
+    if (j['status'] != null) {
+      status = PlayerStatus.values.byName(j['status'] as String);
+    } else {
+      status = (j['isLate'] as bool? ?? false)
+          ? PlayerStatus.late
+          : PlayerStatus.active;
+    }
+    return KotcPlayer(
+      id: j['id'] as String,
+      name: j['name'] as String,
+      source: KotcPlayerSource.values.byName(
+          (j['source'] as String?) ?? KotcPlayerSource.random.name),
+      appUserId: j['appUserId'] as String?,
+      status: status,
+    );
+  }
 
   static String generateId() => _uuid.v4();
 }
@@ -132,7 +144,7 @@ class KingOfTheCourtTournament {
     this.remainingSeconds,
   }) : deviceId = deviceId ?? DeviceIdService.currentDeviceId;
 
-  int get playerCount => players.length;
+  int get playerCount => players.where((p) => p.isActive).length;
   int get gameCount   => games.length;
 
   int get totalPoints => games.fold(0, (sum, g) => sum + g.points);

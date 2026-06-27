@@ -947,17 +947,12 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
     );
 
     final activeColor = isTeam1 ? _kGold : _kOlive;
-    final chipsRow = Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      alignment: WrapAlignment.center,
-      children: players.asMap().entries.map((e) => PlayerPill(
-        name: e.value,
-        isServing: _isTeam1Serving == isTeam1 && _activePlayerOnSide == e.key,
-        activeColor: activeColor,
-        compact: compact || landscape,
-      )).toList(),
-    );
+    final pillWidgets = players.asMap().entries.map((e) => PlayerPill(
+      name: e.value,
+      isServing: _isTeam1Serving == isTeam1 && _activePlayerOnSide == e.key,
+      activeColor: activeColor,
+      compact: compact || landscape,
+    )).toList();
 
     Widget cardContent;
     if (landscape) {
@@ -974,7 +969,7 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
             child: Column(children: [
               SizedBox(height: nameH, child: teamNameWidget),
               const SizedBox(height: 4),
-              chipsRow,
+              PillGrid(pills: pillWidgets),
               Expanded(
                 child: FittedBox(
                   fit: BoxFit.contain,
@@ -1037,7 +1032,7 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
         children: [
           teamNameWidget,
           const SizedBox(height: 4),
-          chipsRow,
+          PillGrid(pills: pillWidgets, stacked: true),
           if (fillHeight) const Spacer(),
           Text(
             '$score',

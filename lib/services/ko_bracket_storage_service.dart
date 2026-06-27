@@ -10,7 +10,12 @@ class KoBracketStorageService {
   static Box<String> get _box => Hive.box<String>(_boxName);
 
   static Future<void> init() async {
-    await Hive.openBox<String>(_boxName);
+    try {
+      await Hive.openBox<String>(_boxName);
+    } catch (_) {
+      await Hive.deleteBoxFromDisk(_boxName);
+      await Hive.openBox<String>(_boxName);
+    }
   }
 
   static List<KoBracketTournament> loadAll() {

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/player.dart';
+import '../models/player_status.dart';
 import '../models/scramble_tournament.dart';
+import '../widgets/player_picker_sheet.dart';
+import '../widgets/tournament_player_row.dart';
 import '../services/local_storage_service.dart';
 import '../services/scramble_service.dart';
 import '../services/scramble_storage_service.dart';
@@ -313,7 +316,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               ? ScramblePlayerSource.existing
               : ScramblePlayerSource.created,
           appUserId: globalPlayer?.id,
-          status:    ScramblePlayerStatus.late,
+          status:    PlayerStatus.late,
         );
         _update(ScrambleService.rebuildRemainingRounds(
             _t, [..._t.players, newPlayer]));
@@ -331,7 +334,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           name:      name,
           source:    ScramblePlayerSource.existing,
           appUserId: appUserId,
-          status:    ScramblePlayerStatus.late,
+          status:    PlayerStatus.late,
         );
         _update(ScrambleService.rebuildRemainingRounds(
             _t, [..._t.players, newPlayer]));
@@ -364,7 +367,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     String? appUserId,
   }) {
     final swappedOut =
-        outgoing.copyWith(status: ScramblePlayerStatus.swappedOut);
+        outgoing.copyWith(status: PlayerStatus.swappedOut);
     final globalPlayer = appUserId != null
         ? null  // id already known; appUserId is the link
         : widget.onCreatePlayer?.call(name);
@@ -375,7 +378,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           ? ScramblePlayerSource.existing
           : ScramblePlayerSource.created,
       appUserId: globalPlayer?.id ?? appUserId,
-      status:    ScramblePlayerStatus.swappedIn,
+      status:    PlayerStatus.swappedIn,
     );
     final newPlayers = [
       ..._t.players.map((p) => p.id == outgoing.id ? swappedOut : p),
@@ -465,240 +468,27 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     required Future<bool> Function(String name) onPickName,
     required Future<bool> Function(String appUserId, String name) onPickExisting,
   }) {
-    final nameCtrl   = TextEditingController();
-    final searchCtrl = TextEditingController();
-    var createOpen   = true;
-    var existingOpen = false;
+    final alreadyIn  = _t.players
+        .map((p) => p.appUserId)
+        .whereType<String>()
+        .toSet();
+    final appState    = LocalStorageService.loadAppState();
+    final allExisting = appState.players;
+    final allGroups   = appState.groups;
 
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheet) {
-          final alreadyIn = _t.players
-              .map((p) => p.appUserId)
-              .whereType<String>()
-              .toSet();
-          final query       = searchCtrl.text.toLowerCase();
-          final allExisting = LocalStorageService.loadAppState().players
-              .where((p) => !alreadyIn.contains(p.id))
-              .toList();
-          final filtered   = query.isEmpty
-              ? allExisting
-              : allExisting
-                  .where((p) =>
-                      p.name.toLowerCase().contains(query))
-                  .toList();
-
-          Widget sectionHeader(
-              String label, bool open, VoidCallback onToggle) {
-            return InkWell(
-              onTap: onToggle,
-              borderRadius: BorderRadius.circular(6),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      open
-                          ? Icons.expand_less_rounded
-                          : Icons.expand_more_rounded,
-                      size: 18,
-                      color: Colors.black45,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return TournaQSheet(
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 2),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.black45)),
-                  const SizedBox(height: 16),
-
-                  // ── Create Player ────────────────────────────────────
-                  sectionHeader(
-                    AppLocalizations.of(ctx)!.setupSectionCreatePlayer,
-                    createOpen,
-                    () => setSheet(() => createOpen = !createOpen),
-                  ),
-                  if (createOpen) ...[
-                    const SizedBox(height: 8),
-                    Row(children: [
-                      Expanded(
-                        child: TextField(
-                          controller: nameCtrl,
-                          autofocus: true,
-                          textCapitalization: TextCapitalization.words,
-                          decoration: InputDecoration(
-                            hintText: AppLocalizations.of(ctx)!.setupPlayerNameHint,
-                            isDense: true,
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.circular(10)),
-                            contentPadding:
-                                const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 12),
-                          ),
-                          onSubmitted: (v) async {
-                            final name = v.trim();
-                            if (name.isEmpty) return;
-                            if (await onPickName(name) && ctx.mounted) {
-                              Navigator.of(ctx).pop();
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final name = nameCtrl.text.trim();
-                          if (name.isEmpty) return;
-                          if (await onPickName(name) && ctx.mounted) {
-                            Navigator.of(ctx).pop();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.olive,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
-                        ),
-                        child: Text(AppLocalizations.of(ctx)!.btnAdd),
-                      ),
-                    ]),
-                    const SizedBox(height: 12),
-                  ],
-
-                  const Divider(height: 1),
-                  const SizedBox(height: 4),
-
-                  // ── Existing Players ─────────────────────────────────
-                  sectionHeader(
-                    AppLocalizations.of(ctx)!.setupAddExistingPlayers(allExisting.length),
-                    existingOpen,
-                    () =>
-                        setSheet(() => existingOpen = !existingOpen),
-                  ),
-                  if (existingOpen) ...[
-                    const SizedBox(height: 6),
-                    if (allExisting.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          AppLocalizations.of(ctx)!.overviewAllPlayersAlready,
-                          style: const TextStyle(
-                              fontSize: 13, color: Colors.black38),
-                        ),
-                      )
-                    else ...[
-                      TextField(
-                        controller: searchCtrl,
-                        onChanged: (_) => setSheet(() {}),
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(ctx)!.setupSearchPlayersHint,
-                          isDense: true,
-                          prefixIcon: const Icon(Icons.search_rounded,
-                              size: 18, color: Colors.black45),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10)),
-                          contentPadding:
-                              const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      if (filtered.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(AppLocalizations.of(ctx)!.doghouseNoPlayersMatch,
-                              style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black38)),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics:
-                              const NeverScrollableScrollPhysics(),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) =>
-                              const Divider(height: 1),
-                          itemBuilder: (_, i) {
-                            final p = filtered[i];
-                            return ListTile(
-                              dense: true,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 4),
-                              leading: CircleAvatar(
-                                radius: 14,
-                                backgroundColor:
-                                    AppColors.oliveLight,
-                                child: Text(
-                                  p.name.isNotEmpty
-                                      ? p.name[0].toUpperCase()
-                                      : '?',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.olive,
-                                  ),
-                                ),
-                              ),
-                              title: Text(p.name,
-                                  style: const TextStyle(
-                                      fontSize: 13)),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                    Icons.add_circle_outline_rounded,
-                                    size: 20,
-                                    color: AppColors.olive),
-                                onPressed: () async {
-                                  if (await onPickExisting(p.id, p.name) &&
-                                      ctx.mounted) {
-                                    Navigator.of(ctx).pop();
-                                  }
-                                },
-                                padding: EdgeInsets.zero,
-                                constraints:
-                                    const BoxConstraints(),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ],
-                ],
-              ),
-            ),
-          );
-        },
+      builder: (_) => PlayerPickerSheet(
+        title: title,
+        subtitle: subtitle,
+        existingPlayers: allExisting,
+        existingGroups: allGroups,
+        alreadyInIds: alreadyIn,
+        nameHint: AppLocalizations.of(context)!.setupPlayerNameHint,
+        onCreateByName: onPickName,
+        onAddExisting: onPickExisting,
       ),
     );
   }
@@ -716,154 +506,22 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       );
     }
     return Column(
-      children: _t.players
-          .map((p) => _buildPlayerRow(l10n, p, statsById[p.id], isLive))
-          .toList(),
+      children: _t.players.map((p) {
+        final s = statsById[p.id];
+        return TournamentPlayerRow(
+          name: p.name,
+          status: p.status,
+          statsLine: (s != null && p.isActive)
+              ? '${s.gamesPlayed}g · ${s.totalPoints}pts'
+              : null,
+          onEdit: () => _showEditPlayerSheet(p),
+          onEject: isLive ? () => _confirmEject(p) : null,
+          onSwap: isLive ? () => _showSwapSheet(p) : null,
+          showDisabledActions: false,
+        );
+      }).toList(),
     );
   }
-
-  Widget _buildPlayerRow(AppLocalizations l10n, ScramblePlayer p, dynamic s, bool isLive) {
-    final inactive = !p.isActive;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor:
-                inactive ? Colors.grey.shade100 : AppColors.oliveLight,
-            child: Text(
-              p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: inactive
-                    ? Colors.grey.shade400
-                    : AppColors.olive,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        p.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              inactive ? Colors.grey.shade500 : null,
-                          decoration: inactive
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                    ),
-                    if (p.status != ScramblePlayerStatus.active) ...[
-                      const SizedBox(width: 6),
-                      _statusChip(l10n, p.status),
-                    ],
-                  ],
-                ),
-                if (s != null && !inactive)
-                  Text(
-                    '${s.gamesPlayed}g · ${s.totalPoints}pts',
-                    style: const TextStyle(
-                        fontSize: 10, color: Colors.black38),
-                  ),
-              ],
-            ),
-          ),
-          if (!inactive) ...[
-            _actionBtn(
-              icon: Icons.edit_rounded,
-              color: Colors.black38,
-              tooltip: l10n.tooltipEdit,
-              onTap: () => _showEditPlayerSheet(p),
-            ),
-            if (isLive) ...[
-              _actionBtn(
-                icon: Icons.person_off_rounded,
-                color: Colors.red.shade400,
-                tooltip: l10n.tooltipEject,
-                onTap: () => _confirmEject(p),
-              ),
-              _actionBtn(
-                icon: Icons.swap_horiz_rounded,
-                color: Colors.orange.shade700,
-                tooltip: l10n.tooltipSwap,
-                onTap: () => _showSwapSheet(p),
-              ),
-            ],
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _actionBtn({
-    required IconData icon,
-    required Color color,
-    required String tooltip,
-    required VoidCallback onTap,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Icon(icon, size: 18, color: color),
-        ),
-      ),
-    );
-  }
-
-  Widget _statusChip(AppLocalizations l10n, ScramblePlayerStatus status) {
-    final label = _playerStatusLabel(l10n, status);
-    final color = _playerStatusColor(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          color: color,
-          letterSpacing: 0.3,
-        ),
-      ),
-    );
-  }
-
-  String _playerStatusLabel(AppLocalizations l10n, ScramblePlayerStatus s) => switch (s) {
-        ScramblePlayerStatus.ejected    => l10n.doghouseEjected.toLowerCase(),
-        ScramblePlayerStatus.swappedOut => l10n.scrambleStatusSwappedOut,
-        ScramblePlayerStatus.swappedIn  => l10n.scrambleStatusSwappedIn,
-        ScramblePlayerStatus.late       => l10n.scrambleStatusLate,
-        ScramblePlayerStatus.active     => '',
-      };
-
-  Color _playerStatusColor(ScramblePlayerStatus s) => switch (s) {
-        ScramblePlayerStatus.ejected    => Colors.red.shade400,
-        ScramblePlayerStatus.swappedOut => Colors.orange.shade600,
-        ScramblePlayerStatus.swappedIn  => AppColors.olive,
-        ScramblePlayerStatus.late       => Colors.blue.shade400,
-        ScramblePlayerStatus.active     => Colors.transparent,
-      };
 
   // ── Eject ─────────────────────────────────────────────────────────────────
 
@@ -914,7 +572,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
     if (ok != true || !mounted) return;
     final ejected =
-        player.copyWith(status: ScramblePlayerStatus.ejected);
+        player.copyWith(status: PlayerStatus.ejected);
     final newPlayers = _t.players
         .map((p) => p.id == player.id ? ejected : p)
         .toList();

@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
+import '../models/player_status.dart';
+import '../widgets/player_picker_sheet.dart';
+import '../widgets/tournament_player_row.dart';
+import '../models/group.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/scramble_service.dart';
 import '../models/player.dart';
+
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -21,6 +26,7 @@ const _kOliveLight      = AppColors.oliveLight;
 class DoghouseScoreboardPage extends StatefulWidget {
   final DoghouseTournament tournament;
   final List<Player> existingPlayers;
+  final List<Group> existingGroups;
   final void Function(DoghouseTournament) onChanged;
   final Player Function(String name)? onCreatePlayer;
 
@@ -28,6 +34,7 @@ class DoghouseScoreboardPage extends StatefulWidget {
     super.key,
     required this.tournament,
     required this.existingPlayers,
+    this.existingGroups = const [],
     required this.onChanged,
     this.onCreatePlayer,
   });
@@ -73,7 +80,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   void initState() {
     super.initState();
     _t    = widget.tournament;
-    _pool = List.from(_t.players);
+    _pool = List.from(_t.players.where((p) => p.isActive));
     _initSuggestion();
   }
 
@@ -252,7 +259,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     setState(() {
       _teamPlayers      = List.from(players);
       _pool             = _t.players
-          .where((p) => !players.any((s) => s.id == p.id))
+          .where((p) => p.isActive && !players.any((s) => s.id == p.id))
           .toList();
       _pendingSelection = [];
       _currentSideOuts  = 0;
@@ -428,7 +435,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     } else {
       setState(() {
         _teamPlayers      = [];
-        _pool             = List.from(_t.players);
+        _pool             = List.from(_t.players.where((p) => p.isActive));
         _pendingSelection = [];
         _currentSideOuts  = 0;
         _currentGamesLost = 0;
@@ -465,7 +472,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     setState(() {
       _teamPlayers      = restoredPlayers;
       _pool             = _t.players
-          .where((p) => !restoredPlayers.any((r) => r.id == p.id))
+          .where((p) => p.isActive && !restoredPlayers.any((r) => r.id == p.id))
           .toList();
       _pendingSelection = [];
       _currentSideOuts  = lastGame.points;
@@ -535,9 +542,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                         style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 14)),
-                    if (incoming.isLate) ...[
+                    if (incoming.status != PlayerStatus.active) ...[
                       const SizedBox(width: 6),
-                      _lateChip(),
+                      PlayerStatusChip(incoming.status),
                     ],
                   ]),
                   trailing: const Icon(Icons.swap_horiz_rounded,
@@ -600,27 +607,15 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     _showLatePlayersSheet();
   }
 
-  void _showLatePlayersSheet() {
-    final nameCtrl   = TextEditingController();
-    final searchCtrl = TextEditingController();
-    var searchActive = false;
-
+  void _showLatePlayersSheet({bool isReplacement = false, String? outgoingName}) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) {
-          final query       = searchCtrl.text.toLowerCase();
-          final alreadyIn   = {..._t.players.map((p) => p.appUserId)};
-          final allExisting = widget.existingPlayers
-              .where((u) => !alreadyIn.contains(u.id))
-              .toList();
-          final filtered    = query.isEmpty
-              ? allExisting
-              : allExisting
-                  .where((u) => u.name.toLowerCase().contains(query))
-                  .toList();
+          final l10n = AppLocalizations.of(context)!;
+          final playerStatus = isReplacement ? PlayerStatus.swappedIn : PlayerStatus.late;
 
           void rebuild() {
             setSheet(() {});
@@ -628,286 +623,100 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             _recomputeUpNext();
           }
 
-          void addByName(String raw) {
-            final name = raw.trim();
-            if (name.isEmpty) return;
-            final globalPlayer = widget.onCreatePlayer?.call(name);
-            final p = DoghousePlayer(
-              id:        DoghousePlayer.generateId(),
-              name:      name,
-              source:    globalPlayer != null ? DoghousePlayerSource.existing : DoghousePlayerSource.created,
-              appUserId: globalPlayer?.id,
-              isLate:    true,
-            );
-            _t = _t.copyWith(players: [..._t.players, p]);
-            _persist();
-            _pool.add(p);
-            nameCtrl.clear();
-            rebuild();
-          }
+          final latePlayers = _t.players
+              .where((p) =>
+                  p.status == PlayerStatus.late ||
+                  p.status == PlayerStatus.swappedIn)
+              .toList();
 
-          void addExisting(String appUserId, String name) {
-            if (alreadyIn.contains(appUserId)) return;
-            final p = DoghousePlayer(
-              id:        DoghousePlayer.generateId(),
-              name:      name,
-              source:    DoghousePlayerSource.existing,
-              appUserId: appUserId,
-              isLate:    true,
-            );
-            _t = _t.copyWith(players: [..._t.players, p]);
-            _persist();
-            _pool.add(p);
-            rebuild();
-          }
-
-          void fillRandom() {
-            final generated = ScrambleService.generateRandomPlayers(4);
-            for (final g in generated) {
+          return PlayerPickerSheet(
+            title: isReplacement
+                ? l10n.overviewSwapTitle(outgoingName ?? '')
+                : l10n.doghouseAddPlayersToQueue,
+            subtitle: isReplacement
+                ? l10n.overviewSwapSubtitle(outgoingName ?? '')
+                : l10n.overviewAddPlayerSubtitle,
+            existingPlayers: widget.existingPlayers,
+            existingGroups: widget.existingGroups,
+            alreadyInIds: {
+              for (final p in _t.players)
+                if (p.appUserId != null) p.appUserId!,
+            },
+            nameHint: l10n.hintPlayerName,
+            onCreateByName: (name) async {
+              final globalPlayer = widget.onCreatePlayer?.call(name);
               final p = DoghousePlayer(
-                id:     DoghousePlayer.generateId(),
-                name:   g.name,
-                source: DoghousePlayerSource.random,
-                isLate: true,
+                id:        DoghousePlayer.generateId(),
+                name:      name,
+                source:    globalPlayer != null
+                    ? DoghousePlayerSource.existing
+                    : DoghousePlayerSource.created,
+                appUserId: globalPlayer?.id,
+                status:    playerStatus,
               );
               _t = _t.copyWith(players: [..._t.players, p]);
+              _persist();
               _pool.add(p);
-            }
-            _persist();
-            rebuild();
-          }
-
-          final latePlayers = _t.players.where((p) => p.isLate).toList();
-
-          return TournaQSheet(
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(children: [
-                    Text(AppLocalizations.of(context)!.doghouseAddPlayersToQueue,
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800)),
-                    const Spacer(),
-                    Text(AppLocalizations.of(context)!.doghouseNAdded(latePlayers.length),
-                        style: const TextStyle(
-                            color: Colors.black45, fontSize: 13)),
-                  ]),
-                  const SizedBox(height: 4),
-                  Text(
-                    AppLocalizations.of(context)!.doghouseLateTagInfo,
-                    style: const TextStyle(fontSize: 12, color: Colors.black45),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Row(children: [
-                    Expanded(
-                      child: TextField(
-                        controller: nameCtrl,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!.hintPlayerName,
-                          isDense: true,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                        ),
-                        onSubmitted: addByName,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () => addByName(nameCtrl.text),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _kOlive,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: Text(AppLocalizations.of(context)!.btnAdd),
-                    ),
-                  ]),
-
-                  if (allExisting.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Text('${AppLocalizations.of(context)!.pagePlayers} (${allExisting.length})',
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54)),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: searchCtrl,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.hintSearchPlayers,
-                        isDense: true,
-                        prefixIcon: const Icon(Icons.search_rounded,
-                            size: 18, color: Colors.black45),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
-                      ),
-                      onTap: () => setSheet(() => searchActive = true),
-                      onChanged: (_) =>
-                          setSheet(() => searchActive = true),
-                    ),
-                    if (searchActive) ...[
-                      const SizedBox(height: 6),
-                      if (filtered.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(AppLocalizations.of(context)!.doghouseNoPlayersMatch,
-                              style: const TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 13)),
-                        )
-                      else
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) =>
-                              const Divider(height: 1),
-                          itemBuilder: (_, i) {
-                            final u = filtered[i];
-                            return ListTile(
-                              dense: true,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(
-                                      horizontal: 4),
-                              title: Text(u.name,
-                                  style: const TextStyle(
-                                      fontSize: 13)),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                    Icons.add_circle_outline_rounded,
-                                    size: 20,
-                                    color: _kOlive),
-                                onPressed: () =>
-                                    addExisting(u.id, u.name),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ],
-
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                          AppLocalizations.of(context)!.doghouseNPlayersAdded(latePlayers.length),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black54)),
-                      TextButton.icon(
-                        onPressed: fillRandom,
-                        icon: const Icon(Icons.shuffle_rounded, size: 16),
-                        label: Text(AppLocalizations.of(context)!.doghouseAdd4Random),
-                        style: TextButton.styleFrom(
-                            foregroundColor: _kOlive),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-
-                  if (latePlayers.isEmpty)
-                    Text(AppLocalizations.of(context)!.doghouseNoLatePlayersYet,
-                        style: const TextStyle(
-                            color: Colors.black38, fontSize: 13))
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: latePlayers.length,
-                      separatorBuilder: (_, _) =>
-                          const SizedBox(height: 4),
-                      itemBuilder: (_, i) {
-                        final p = latePlayers[i];
-                        return ListTile(
-                          dense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                                color: Colors.grey.shade200),
-                          ),
-                          leading: CircleAvatar(
-                            radius: 14,
-                            backgroundColor: _kGoldLight,
-                            child: Text(
-                              p.name.isNotEmpty
-                                  ? p.name[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                  fontSize: 11,
-                                  color: _kGold,
-                                  fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                          title: Row(children: [
-                            Text(p.name,
-                                style: const TextStyle(fontSize: 13)),
-                            const SizedBox(width: 6),
-                            _lateChip(),
-                          ]),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close_rounded,
-                                size: 16, color: Colors.black38),
-                            onPressed: () {
-                              final updated = _t.players
-                                  .where((q) => q.id != p.id)
-                                  .toList();
-                              _t = _t.copyWith(players: updated);
-                              _persist();
-                              _pool.removeWhere((q) => q.id == p.id);
-                              rebuild();
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ),
+              rebuild();
+              return false;
+            },
+            onAddExisting: (appUserId, name) async {
+              final alreadyIn = {
+                for (final p in _t.players)
+                  if (p.appUserId != null) p.appUserId!,
+              };
+              if (alreadyIn.contains(appUserId)) return false;
+              final p = DoghousePlayer(
+                id:        DoghousePlayer.generateId(),
+                name:      name,
+                source:    DoghousePlayerSource.existing,
+                appUserId: appUserId,
+                status:    playerStatus,
+              );
+              _t = _t.copyWith(players: [..._t.players, p]);
+              _persist();
+              _pool.add(p);
+              rebuild();
+              return false;
+            },
+            addedPlayers: latePlayers
+                .map((p) => PlayerPickerEntry(
+                      id: p.id,
+                      name: p.name,
+                      status: p.status,
+                    ))
+                .toList(),
+            onRemoveAdded: (id) {
+              _t = _t.copyWith(
+                  players: _t.players.where((p) => p.id != id).toList());
+              _persist();
+              _pool.removeWhere((q) => q.id == id);
+              rebuild();
+            },
+            onFillRandom: () {
+              final generated = ScrambleService.generateRandomPlayers(4);
+              for (final g in generated) {
+                final p = DoghousePlayer(
+                  id:     DoghousePlayer.generateId(),
+                  name:   g.name,
+                  source: DoghousePlayerSource.random,
+                  status: playerStatus,
+                );
+                _t = _t.copyWith(players: [..._t.players, p]);
+                _pool.add(p);
+              }
+              _persist();
+              rebuild();
+            },
+            addedCountLabel: l10n.doghouseNPlayersAdded(latePlayers.length),
+            fillRandomLabel: l10n.doghouseAdd4Random,
           );
         },
       ),
-    ).whenComplete(() {
-      nameCtrl.dispose();
-      searchCtrl.dispose();
-    });
+    );
   }
 
   // ── Dialogs ───────────────────────────────────────────────────────────────
-
-  Widget _lateChip() => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade100,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          AppLocalizations.of(context)!.labelLate,
-          style: TextStyle(
-            fontSize: 8,
-            fontWeight: FontWeight.w800,
-            color: Colors.orange.shade700,
-            letterSpacing: 0.4,
-          ),
-        ),
-      );
 
   Future<void> _showEscapeDialog() async {
     if (!mounted) return;
@@ -1324,9 +1133,9 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                               style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14))),
-                        if (p.isLate) ...[
+                        if (p.status != PlayerStatus.active) ...[
                           const SizedBox(width: 6),
-                          _lateChip(),
+                          PlayerStatusChip(p.status),
                         ],
                       ]),
                     ),
@@ -2542,10 +2351,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         const SizedBox(height: 12),
 
         OutlinedButton.icon(
-          onPressed: _isCompleted ? null : _showAddPlayerToQueue,
-          icon: const Icon(Icons.person_add_rounded, size: 18),
-          label: Text(AppLocalizations.of(context)!.doghouseAddPlayerToQueue,
-              style: const TextStyle(fontWeight: FontWeight.w600)),
+          onPressed: _showPlayersSheet,
+          icon: const Icon(Icons.group_rounded, size: 18),
+          label: Text(
+            AppLocalizations.of(context)!.sectionPlayersCount(_t.players.length),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           style: OutlinedButton.styleFrom(
             foregroundColor: _kOlive,
             side: BorderSide(color: Colors.grey.shade300),
@@ -2554,7 +2365,6 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 borderRadius: BorderRadius.circular(12)),
           ),
         ),
-        const SizedBox(height: 8),
 
         const Divider(height: 20),
 
@@ -2686,4 +2496,190 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         child:
             Text(label, style: const TextStyle(fontSize: 12)),
       );
+
+  // ── Players section ───────────────────────────────────────────────────────
+
+  void _showPlayersSheet() {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          final players = _t.players;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(l10n.sectionPlayersCount(players.length),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 12),
+                  if (!_isCompleted) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        _showAddPlayerToQueue();
+                      },
+                      icon: const Icon(Icons.person_add_rounded, size: 16),
+                      label: Text(l10n.menuAddPlayer,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _kOlive,
+                        side: BorderSide(
+                            color: _kOlive.withValues(alpha: 0.4)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  ...players.map((p) {
+                    final onCourt = _teamPlayers.any((t) => t.id == p.id);
+                    final inPool  = _pool.any((q) => q.id == p.id);
+                    final games   = _t.gamesPerPlayer[p.id] ?? 0;
+                    final pts     = _t.pointsPerPlayer[p.id] ?? 0;
+                    return TournamentPlayerRow(
+                      name: p.name,
+                      status: p.status,
+                      statsLine: (games > 0 || pts > 0) ? '${games}g · ${pts}pts' : null,
+                      isOnCourt: onCourt,
+                      onEdit: !onCourt
+                          ? () {
+                              Navigator.of(ctx).pop();
+                              _showEditDoghousePlayer(p);
+                            }
+                          : null,
+                      onSwap: (inPool && !onCourt)
+                          ? () {
+                              Navigator.of(ctx).pop();
+                              _replaceDoghousePlayer(p);
+                            }
+                          : null,
+                      onEject: (inPool && !onCourt)
+                          ? () {
+                              _ejectDoghousePlayer(p);
+                              setSheet(() {});
+                            }
+                          : null,
+                      showDisabledActions: true,
+                    );
+                  }),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+    void _showEditDoghousePlayer(DoghousePlayer p) {
+    final l10n     = AppLocalizations.of(context)!;
+    final nameCtrl = TextEditingController(text: p.name);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => TournaQSheet(
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(children: [
+                Expanded(
+                  child: Text(l10n.overviewEditPlayer,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w800)),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      _saveDoghousePlayerName(ctx, p, nameCtrl.text),
+                  style: TextButton.styleFrom(foregroundColor: _kOlive),
+                  child: Text(l10n.btnSave,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              const SizedBox(height: 16),
+              Text(l10n.labelName,
+                  style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                onSubmitted: (_) =>
+                    _saveDoghousePlayerName(ctx, p, nameCtrl.text),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _saveDoghousePlayerName(
+      BuildContext ctx, DoghousePlayer p, String raw) {
+    final name = raw.trim();
+    if (name.isEmpty) return;
+    setState(() {
+      _t = _t.copyWith(
+        players: _t.players
+            .map((pl) => pl.id == p.id ? pl.copyWith(name: name) : pl)
+            .toList(),
+      );
+      _pool = _pool
+          .map((pl) => pl.id == p.id ? pl.copyWith(name: name) : pl)
+          .toList();
+      _teamPlayers = _teamPlayers
+          .map((pl) => pl.id == p.id ? pl.copyWith(name: name) : pl)
+          .toList();
+    });
+    _persist();
+    Navigator.of(ctx).pop();
+  }
+
+  void _ejectDoghousePlayer(DoghousePlayer p) {
+    setState(() {
+      _t = _t.copyWith(
+          players: _t.players
+              .map((pl) => pl.id == p.id
+                  ? pl.copyWith(status: PlayerStatus.ejected)
+                  : pl)
+              .toList());
+      _pool.removeWhere((pl) => pl.id == p.id);
+    });
+    _recomputeUpNext();
+    _persist();
+  }
+
+  void _replaceDoghousePlayer(DoghousePlayer outgoing) {
+    setState(() {
+      _t = _t.copyWith(
+          players: _t.players
+              .map((pl) => pl.id == outgoing.id
+                  ? pl.copyWith(status: PlayerStatus.swappedOut)
+                  : pl)
+              .toList());
+      _pool.removeWhere((pl) => pl.id == outgoing.id);
+    });
+    _persist();
+    _showLatePlayersSheet(isReplacement: true, outgoingName: outgoing.name);
+  }
 }

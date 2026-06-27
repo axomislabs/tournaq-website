@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
+import '../models/player_status.dart';
 import '../widgets/tournaq_app_bar.dart';
+import '../widgets/tournament_player_row.dart';
 
 const _kGold      = AppColors.goldDark;
 const _kGoldLight = AppColors.goldCream;
@@ -150,26 +152,9 @@ class DoghouseHistoryPage extends StatelessWidget {
                                               ? _kGold
                                               : Colors.black87)),
                                 ),
-                                if (p.isLate) ...[
+                                if (p.status != PlayerStatus.active) ...[
                                   const SizedBox(width: 3),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.shade100,
-                                      borderRadius:
-                                          BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      l10n.labelLate,
-                                      style: TextStyle(
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.orange.shade700,
-                                        letterSpacing: 0.4,
-                                      ),
-                                    ),
-                                  ),
+                                  PlayerStatusChip(p.status),
                                 ],
                               ],
                             ))

@@ -67,6 +67,7 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
       builder: (_) => DoghouseScoreboardPage(
         tournament: t,
         existingPlayers: widget.existingPlayers,
+        existingGroups: widget.existingGroups,
         onChanged:  _persist,
         onCreatePlayer: widget.onCreatePlayer,
       ),

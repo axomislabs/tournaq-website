@@ -605,7 +605,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     return Scaffold(
       appBar: TournaQAppBar(
           title: 'Social Scramble',
-          subtitle: AppLocalizations.of(context)!.doghouseScoreboard),
+          subtitle: AppLocalizations.of(context)!.matchScorecard),
       body: SafeArea(
         child: OrientationBuilder(
           builder: (context, orientation) {
@@ -872,45 +872,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   }
 
   /// Pill row used inside score cards.
-  Widget _buildPlayerPills(
-    List<ScramblePlayer> players,
-    bool isA,
-    bool disabled, {
-    bool stacked = false,
-    double fontSize = 10,
-  }) {
-    if (players.isEmpty) return const SizedBox.shrink();
-    final activeColor = isA ? _kGold : _kOlive;
-
-    final pills = players.asMap().entries.map((e) {
-      final isServing = (_isSideAServing == isA) && (_activePlayerOnTeam == e.key);
-      return PlayerPill(
-        name: e.value.name,
-        isServing: isServing,
-        activeColor: activeColor,
-        fontSize: fontSize,
-        onTap: null,
-      );
-    }).toList();
-
-    if (stacked) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: pills
-            .expand((p) => [p, const SizedBox(height: 4)])
-            .take(pills.length * 2 - 1)
-            .toList(),
-      );
-    }
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      alignment: WrapAlignment.center,
-      children: pills,
-    );
-  }
-
   // ── Gameplay timer row ────────────────────────────────────────────────────
 
   Widget _buildGameplayTimerRow({
@@ -1527,6 +1488,17 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         ? (isLeading ? _kGoldCardLeading : _kGoldCardBg)
         : (isLeading ? _kOliveCardLeading : _kOliveCardBg);
     final disabled = onIncrement == null;
+    final activeColor = isA ? _kGold : _kOlive;
+    final pillWidgets = players.asMap().entries.map((e) {
+      final isServing = (_isSideAServing == isA) && (_activePlayerOnTeam == e.key);
+      return PlayerPill(
+        name: e.value.name,
+        isServing: isServing,
+        activeColor: activeColor,
+        compact: true,
+        onTap: null,
+      );
+    }).toList();
 
     Widget cardContent;
     if (landscape) {
@@ -1557,9 +1529,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     maxLines: 1,
                   ),
                 ),
-                if (players.isNotEmpty) ...[
+                if (pillWidgets.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  _buildPlayerPills(players, isA, disabled, fontSize: 13),
+                  PillGrid(pills: pillWidgets),
                   const SizedBox(height: 2),
                 ],
                 Expanded(
@@ -1629,7 +1601,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             ),
           ),
           const SizedBox(height: 6),
-          _buildPlayerPills(players, isA, disabled, stacked: stackedPills),
+          PillGrid(pills: pillWidgets, stacked: true),
           const SizedBox(height: 4),
           Text(
             '$score',

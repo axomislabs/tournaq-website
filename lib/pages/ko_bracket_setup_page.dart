@@ -90,11 +90,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   KoOddTeamStrategy       _oddStrategy    = KoOddTeamStrategy.byes;
 
   // ── Game settings ─────────────────────────────────────────────────────────
-  KoRoundFormat _earlyFormat     = const KoRoundFormat(setsPerGame: 1, pointsPerSet: 15);
-  KoRoundFormat _finalFormat     = const KoRoundFormat(setsPerGame: 3, pointsPerSet: 21);
-  int _finalRoundsCount          = 2;
-  int _earlyBreakMinutes         = 0;
-  int _finalBreakMinutes         = 0;
+  KoRoundFormat _defaultFormat           = const KoRoundFormat(setsPerGame: 1, pointsPerSet: 15);
+  Map<int, KoRoundFormat> _roundFormats  = {};
+  Map<int, int> _roundBreaks             = {};
 
   // ── Schedule ──────────────────────────────────────────────────────────────
   DateTime _estimatedStart = DateTime.now().add(const Duration(hours: 1));
@@ -242,11 +240,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       oddTeamStrategy: _oddStrategy,
       playersPerSide: _playersPerSide,
       courtCount: _courtCount,
-      earlyRoundFormat: _earlyFormat,
-      finalRoundFormat: _finalFormat,
-      finalRoundsCount: _finalRoundsCount,
-      earlyBreakMinutes: _earlyBreakMinutes,
-      finalBreakMinutes: _finalBreakMinutes,
+      defaultFormat: _defaultFormat,
+      roundFormats: _roundFormats,
+      roundBreaks: _roundBreaks,
       estimatedStart: _estimatedStart,
       teams: teams,
     );
@@ -266,11 +262,9 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       oddTeamStrategy: _oddStrategy,
       playersPerSide: _playersPerSide,
       courtCount: _courtCount,
-      earlyRoundFormat: _earlyFormat,
-      finalRoundFormat: _finalFormat,
-      finalRoundsCount: _finalRoundsCount,
-      earlyBreakMinutes: _earlyBreakMinutes,
-      finalBreakMinutes: _finalBreakMinutes,
+      defaultFormat: _defaultFormat,
+      roundFormats: _roundFormats,
+      roundBreaks: _roundBreaks,
       estimatedStart: _estimatedStart,
       teams: teams,
       matches: KoBracketGenerator.generate(
@@ -280,9 +274,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           oddTeamStrategy: _oddStrategy,
           playersPerSide: _playersPerSide,
           courtCount: _courtCount,
-          earlyRoundFormat: _earlyFormat,
-          finalRoundFormat: _finalFormat,
-          finalRoundsCount: _finalRoundsCount,
+          defaultFormat: _defaultFormat,
+          roundFormats: _roundFormats,
           estimatedStart: _estimatedStart,
           teams: teams,
         ),
@@ -308,7 +301,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Start time picker ─────────────────────────────────────────────────────
 
-  Future<void> _pickStartTime() async {
+  Future<void> _pickStartDate() async {
     final date = await showDatePicker(
       context: context,
       initialDate: _estimatedStart,
@@ -316,14 +309,23 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (date == null || !mounted) return;
+    setState(() {
+      _estimatedStart = DateTime(
+          date.year, date.month, date.day,
+          _estimatedStart.hour, _estimatedStart.minute);
+    });
+  }
+
+  Future<void> _pickStartTimeOnly() async {
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_estimatedStart),
     );
     if (time == null || !mounted) return;
     setState(() {
-      _estimatedStart =
-          DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      _estimatedStart = DateTime(
+          _estimatedStart.year, _estimatedStart.month, _estimatedStart.day,
+          time.hour, time.minute);
     });
   }
 
@@ -445,19 +447,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                 ),
               ),
             ]),
-            const SizedBox(height: 14),
-            _roundFormatCard(
-              label: l10n.setupEarlyRounds,
-              format: _earlyFormat,
-              onChanged: (f) => setState(() => _earlyFormat = f),
-            ),
-            const SizedBox(height: 10),
-            _roundFormatCard(
-              label: l10n.setupFinalRounds,
-              format: _finalFormat,
-              onChanged: (f) => setState(() => _finalFormat = f),
-              showFinalRoundsCount: true,
-            ),
             const SizedBox(height: 14),
             _buildSchedulePreview(preview),
             const SizedBox(height: 14),
@@ -1054,8 +1043,92 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Break picker ──────────────────────────────────────────────────────────
 
-  void _pickBreak({required bool isFinal}) {
-    final current = isFinal ? _finalBreakMinutes : _earlyBreakMinutes;
+  void _pickRoundFormatSheet(int round, String roundLabel) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final fmt = _roundFormats[round] ?? _defaultFormat;
+          final l10n = AppLocalizations.of(ctx)!;
+
+          void pick(KoRoundFormat updated) {
+            setState(() => _roundFormats = {..._roundFormats, round: updated});
+            setSheetState(() {});
+          }
+
+          Widget chipRow(
+              List<int> options, int selected, void Function(int) onPick) {
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: options.map((v) {
+                final sel = v == selected;
+                return GestureDetector(
+                  onTap: () => onPick(v),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: sel ? _kGold : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: sel ? _kGoldDark : Colors.grey.shade300,
+                        width: sel ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Text('$v',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                            color: sel ? Colors.white : Colors.black54)),
+                  ),
+                );
+              }).toList(),
+            );
+          }
+
+          return TournaQSheet(
+            body: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(roundLabel,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 20),
+                  Text(l10n.setupSetsPerGame,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 8),
+                  chipRow([1, 3, 5], fmt.setsPerGame,
+                      (v) => pick(fmt.copyWith(setsPerGame: v))),
+                  const SizedBox(height: 16),
+                  Text(l10n.setupPointsPerSet,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 8),
+                  chipRow([11, 15, 21], fmt.pointsPerSet,
+                      (v) => pick(fmt.copyWith(pointsPerSet: v))),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _pickBreak(int round, String roundLabel) {
+    final current = _roundBreaks[round] ?? 0;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -1068,7 +1141,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Break — ${isFinal ? 'Final' : 'Early'} Rounds',
+                'Break after $roundLabel',
                 style: const TextStyle(
                     fontSize: 16, fontWeight: FontWeight.w800),
               ),
@@ -1080,10 +1153,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                   final selected = v == current;
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        if (isFinal) { _finalBreakMinutes = v; }
-                        else { _earlyBreakMinutes = v; }
-                      });
+                      setState(() =>
+                          _roundBreaks = {..._roundBreaks, round: v});
                       Navigator.of(context).pop();
                     },
                     child: Container(
@@ -1186,106 +1257,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
         ]),
       ),
     ]);
-  }
-
-  // ── Round format card ─────────────────────────────────────────────────────
-
-  Widget _roundFormatCard({
-    required String label,
-    required KoRoundFormat format,
-    required void Function(KoRoundFormat) onChanged,
-    bool showFinalRoundsCount = false,
-  }) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-          const SizedBox(height: 10),
-          Row(children: [
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _fieldLabel(l10n.setupSetsPerGame),
-                const SizedBox(height: 6),
-                _chipRow(
-                  options: [1, 3, 5],
-                  selected: format.setsPerGame,
-                  onSelected: (v) => onChanged(format.copyWith(setsPerGame: v)),
-                ),
-              ]),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                _fieldLabel(l10n.setupPointsPerSet),
-                const SizedBox(height: 6),
-                _chipRow(
-                  options: [11, 15, 21],
-                  selected: format.pointsPerSet,
-                  onSelected: (v) => onChanged(format.copyWith(pointsPerSet: v)),
-                ),
-              ]),
-            ),
-          ]),
-          if (showFinalRoundsCount) ...[
-            const SizedBox(height: 10),
-            Row(children: [
-              _fieldLabel(l10n.setupAppliesToLast),
-              const SizedBox(width: 10),
-              _stepper(
-                value: _finalRoundsCount,
-                min: 1, max: 4,
-                onChanged: (v) => setState(() => _finalRoundsCount = v),
-              ),
-              const SizedBox(width: 6),
-              Text(l10n.setupRoundsLabel,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
-            ]),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _chipRow({
-    required List<int> options,
-    required int selected,
-    required void Function(int) onSelected,
-  }) {
-    return Wrap(
-      spacing: 6,
-      children: options.map((v) {
-        final isSel = v == selected;
-        return GestureDetector(
-          onTap: () => onSelected(v),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: isSel ? _kGoldCream : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSel ? _kGoldDark : Colors.grey.shade300,
-                width: isSel ? 1.5 : 1,
-              ),
-            ),
-            child: Text('$v',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
-                    color: isSel ? _kGoldDark : Colors.black54)),
-          ),
-        );
-      }).toList(),
-    );
   }
 
   Widget _scheduleField() {
@@ -1400,34 +1371,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     );
   }
 
-  Widget _stepper({
-    required int value,
-    required int min,
-    required int max,
-    required void Function(int) onChanged,
-  }) {
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      GestureDetector(
-        onTap: value > min ? () => onChanged(value - 1) : null,
-        child: Icon(Icons.remove_circle_outline_rounded,
-            size: 22,
-            color: value > min ? _kOlive : Colors.grey.shade300),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text('$value',
-            style: const TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 14)),
-      ),
-      GestureDetector(
-        onTap: value < max ? () => onChanged(value + 1) : null,
-        child: Icon(Icons.add_circle_outline_rounded,
-            size: 22,
-            color: value < max ? _kOlive : Colors.grey.shade300),
-      ),
-    ]);
-  }
-
   Widget _sectionDivider(String label, IconData icon) => Row(children: [
         Icon(icon, size: 14, color: AppColors.oliveMedium),
         const SizedBox(width: 6),
@@ -1459,6 +1402,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     for (var i = 0; i < roundList.length; i++) {
       final round    = roundList[i];
       final matches  = preview.matchesForRound(round);
+      final isLast   = i == roundList.length - 1;
       final slots    = (matches.length / preview.courtCount).ceil();
       final gameMins = slots * preview.minutesForRound(round);
       final start    = cursor;
@@ -1474,61 +1418,106 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
               _ => l10n.setupRoundN(round),
             };
 
+      final fmt      = preview.formatForRound(round);
+      final fmtLabel = '${fmt.setsPerGame}×${fmt.pointsPerSet}';
+      final breakMins = isLast ? 0 : preview.breakAfterRound(round);
+
       rows.add(Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Row(children: [
-          SizedBox(
-            width: 92,
-            child: Text(label,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87)),
-          ),
-          Text(l10n.setupMatchCount(matches.length),
-              style: const TextStyle(fontSize: 11, color: Colors.black45)),
-          const Spacer(),
-          if (start != null && end != null)
-            Text('${_fmtTime(start)} – ${_fmtTime(end)}',
-                style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: _kGoldDark)),
-        ]),
+        padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Col 1: round label + format chip
+            GestureDetector(
+              onTap: () => _pickRoundFormatSheet(round, label),
+              child: SizedBox(
+                width: 96,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(label,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87)),
+                    const SizedBox(height: 3),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: AppColors.goldBadgeBorder),
+                      ),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Text(fmtLabel,
+                            style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: _kGoldDark)),
+                        const SizedBox(width: 2),
+                        const Icon(Icons.edit_rounded,
+                            size: 8, color: _kGoldDark),
+                      ]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Col 2: match count + break
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.setupMatchCount(matches.length),
+                      style: const TextStyle(
+                          fontSize: 11, color: Colors.black45)),
+                  if (!isLast) ...[
+                    const SizedBox(height: 3),
+                    GestureDetector(
+                      onTap: () => _pickBreak(round, label),
+                      child: Row(children: [
+                        Icon(
+                          breakMins > 0
+                              ? Icons.coffee_rounded
+                              : Icons.add_circle_outline_rounded,
+                          size: 11,
+                          color: breakMins > 0 ? _kOlive : Colors.black26,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          breakMins > 0
+                              ? l10n.setupBreakMins(breakMins)
+                              : l10n.setupAddBreak,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color:
+                                  breakMins > 0 ? _kOlive : Colors.black38),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.edit_rounded,
+                            size: 9, color: Colors.black26),
+                      ]),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            // Col 3: time range
+            if (start != null && end != null)
+              Text('${_fmtTime(start)} – ${_fmtTime(end)}',
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: _kGoldDark)),
+          ],
+        ),
       ));
 
-      final breakMins   = preview.breakAfterRound(round);
-      final isLast      = i == roundList.length - 1;
-      if (!isLast) {
-        final isFinalBreak =
-            round >= preview.mainRoundCount - preview.finalRoundsCount + 1;
-        rows.add(GestureDetector(
-          onTap: () => _pickBreak(isFinal: isFinalBreak),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Row(children: [
-              const SizedBox(width: 92),
-              Icon(
-                breakMins > 0
-                    ? Icons.coffee_rounded
-                    : Icons.add_circle_outline_rounded,
-                size: 11,
-                color: breakMins > 0 ? _kOlive : Colors.black26,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                breakMins > 0 ? l10n.setupBreakMins(breakMins) : l10n.setupAddBreak,
-                style: TextStyle(
-                    fontSize: 11,
-                    color: breakMins > 0 ? _kOlive : Colors.black38),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.edit_rounded, size: 9, color: Colors.black26),
-            ]),
-          ),
-        ));
-      }
-      cursor = end?.add(Duration(minutes: isLast ? 0 : breakMins));
+      cursor = end?.add(Duration(minutes: breakMins));
     }
 
     return Container(
@@ -1557,21 +1546,36 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                     color: _kGoldDark)),
           ]),
           const SizedBox(height: 6),
-          GestureDetector(
-            onTap: _pickStartTime,
-            child: Row(children: [
-              const Icon(Icons.play_circle_outline_rounded,
-                  size: 12, color: _kGoldDark),
-              const SizedBox(width: 4),
-              Text(l10n.setupStartsAt(_formatDateTime(_estimatedStart)),
-                  style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: _kGoldDark)),
-              const SizedBox(width: 4),
-              const Icon(Icons.edit_rounded, size: 10, color: _kGoldDark),
-            ]),
-          ),
+          Row(children: [
+            const Icon(Icons.play_circle_outline_rounded,
+                size: 12, color: _kGoldDark),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: _pickStartDate,
+              child: Row(children: [
+                Text(_formatDate(_estimatedStart),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _kGoldDark)),
+                const SizedBox(width: 2),
+                const Icon(Icons.edit_rounded, size: 9, color: _kGoldDark),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _pickStartTimeOnly,
+              child: Row(children: [
+                Text(_fmtTime(_estimatedStart),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _kGoldDark)),
+                const SizedBox(width: 2),
+                const Icon(Icons.edit_rounded, size: 9, color: _kGoldDark),
+              ]),
+            ),
+          ]),
           if (rows.isNotEmpty) ...[
             const SizedBox(height: 10),
             const Divider(height: 1, color: AppColors.goldBadgeBorder),
@@ -1600,12 +1604,10 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54),
       );
 
-  String _formatDateTime(DateTime dt) {
+  String _formatDate(DateTime dt) {
     final weekday =
         ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][dt.weekday - 1];
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$weekday ${dt.day}/${dt.month} $h:$m';
+    return '$weekday ${dt.day}/${dt.month}';
   }
 }
 

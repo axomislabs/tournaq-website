@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 import '../services/device_id_service.dart';
+import 'player_status.dart';
 
 const _uuid = Uuid();
 
@@ -16,22 +17,24 @@ class DoghousePlayer {
   final String name;
   final DoghousePlayerSource source;
   final String? appUserId;
-  final bool isLate;
+  final PlayerStatus status;
 
   const DoghousePlayer({
     required this.id,
     required this.name,
     required this.source,
     this.appUserId,
-    this.isLate = false,
+    this.status = PlayerStatus.active,
   });
 
-  DoghousePlayer copyWith({String? name}) => DoghousePlayer(
+  bool get isActive => status.isActive;
+
+  DoghousePlayer copyWith({String? name, PlayerStatus? status}) => DoghousePlayer(
         id: id,
         name: name ?? this.name,
         source: source,
         appUserId: appUserId,
-        isLate: isLate,
+        status: status ?? this.status,
       );
 
   Map<String, dynamic> toJson() => {
@@ -39,17 +42,27 @@ class DoghousePlayer {
         'name': name,
         'source': source.name,
         'appUserId': appUserId,
-        'isLate': isLate,
+        'status': status.name,
       };
 
-  factory DoghousePlayer.fromJson(Map<String, dynamic> j) => DoghousePlayer(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        source: DoghousePlayerSource.values.byName(
-            (j['source'] as String?) ?? DoghousePlayerSource.random.name),
-        appUserId: j['appUserId'] as String?,
-        isLate: j['isLate'] as bool? ?? false,
-      );
+  factory DoghousePlayer.fromJson(Map<String, dynamic> j) {
+    PlayerStatus status;
+    if (j['status'] != null) {
+      status = PlayerStatus.values.byName(j['status'] as String);
+    } else {
+      status = (j['isLate'] as bool? ?? false)
+          ? PlayerStatus.late
+          : PlayerStatus.active;
+    }
+    return DoghousePlayer(
+      id: j['id'] as String,
+      name: j['name'] as String,
+      source: DoghousePlayerSource.values.byName(
+          (j['source'] as String?) ?? DoghousePlayerSource.random.name),
+      appUserId: j['appUserId'] as String?,
+      status: status,
+    );
+  }
 
   static String generateId() => _uuid.v4();
 }
@@ -136,7 +149,7 @@ class DoghouseTournament {
     this.remainingSeconds,
   }) : deviceId = deviceId ?? DeviceIdService.currentDeviceId;
 
-  int get playerCount  => players.length;
+  int get playerCount  => players.where((p) => p.isActive).length;
   int get gameCount    => games.length;
   int get totalEscapes => games.where((g) => g.gamesWon > 0).length;
   int get totalPoints => games.fold(0, (sum, g) => sum + g.points);

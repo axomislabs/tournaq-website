@@ -388,11 +388,20 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   }
 
   void _undoMatchCompletion() {
+    if (_match.sets.isEmpty) return;
+    final last = _match.sets.last;
+    final updatedSets = _match.sets.sublist(0, _match.sets.length - 1);
     final updatedMatch = _match.copyWith(
+      sets: updatedSets,
       winnerId: null,
       status: KoMatchStatus.inProgress,
       completedAt: null,
     );
+    setState(() {
+      _score1 = last.score1;
+      _score2 = last.score2;
+      _activePlayerIndex = 0;
+    });
     _persist(updatedMatch, isComplete: false);
     _startTimer();
   }
@@ -1310,21 +1319,16 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         : (isLeading ? _kOliveCardLeading : _kOliveCardBg);
     final disabled = onIncrement == null;
 
-    final pills = team == null
-        ? const SizedBox.shrink()
-        : Wrap(
-            spacing: 4,
-            runSpacing: 4,
-            alignment: WrapAlignment.center,
-            children: team.players.asMap().entries
-                .map((e) => PlayerPill(
-                      name: e.value.name,
-                      isServing: _isTeam1Serving == isTeam1 && _activePlayerOnSide == e.key,
-                      activeColor: teamColor,
-                      compact: true,
-                    ))
-                .toList(),
-          );
+    final pillWidgets = team == null
+        ? <Widget>[]
+        : team.players.asMap().entries
+            .map((e) => PlayerPill(
+                  name: e.value.name,
+                  isServing: _isTeam1Serving == isTeam1 && _activePlayerOnSide == e.key,
+                  activeColor: teamColor,
+                  compact: true,
+                ))
+            .toList();
 
     final buttonsRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1363,13 +1367,14 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 2),
-            pills,
+            PillGrid(pills: pillWidgets),
             Expanded(
               child: FittedBox(
                 fit: BoxFit.contain,
                 child: Text(
                   '$score',
                   style: TextStyle(
+                    fontSize: 120,
                     fontWeight: FontWeight.bold,
                     height: 1.0,
                     color: disabled ? Colors.black38 : Colors.black87,
@@ -1392,7 +1397,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       );
     } else {
       cardContent = Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             team?.name ?? 'TBD',
@@ -1402,7 +1408,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          pills,
+          PillGrid(pills: pillWidgets, stacked: true),
+          const Spacer(),
           Text(
             '$score',
             style: TextStyle(
@@ -1633,7 +1640,12 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
             if (_match.courtAssignment != null)
               _chip(Icons.crop_square_rounded,
                   AppLocalizations.of(context)!.matchCourtLabel(_match.courtAssignment!), _kOliveLight, _kOlive),
-            _chip(Icons.info_outline_rounded, _fmt.label,
+            _chip(Icons.filter_1_rounded,
+                '${_fmt.setsPerGame} set${_fmt.setsPerGame == 1 ? '' : 's'}',
+                Colors.grey.shade100, Colors.black45),
+            _chip(Icons.info_outline_rounded, '${_fmt.pointsPerSet} pts',
+                Colors.grey.shade100, Colors.black45),
+            _chip(Icons.calendar_today_rounded, 'Soft Schedule',
                 Colors.grey.shade100, Colors.black45),
             if (startTime != null)
               _chip(Icons.schedule_rounded,

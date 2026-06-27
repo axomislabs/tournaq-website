@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../models/player_status.dart';
 import '../models/scramble_tournament.dart';
 import '../services/scramble_service.dart';
 import '../widgets/scrollable_page.dart';
@@ -167,7 +168,7 @@ class ScrambleStatsPage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (s.status != ScramblePlayerStatus.active) ...[
+                if (s.status != PlayerStatus.active) ...[
                   const SizedBox(width: 4),
                   _statusBadge(s.status),
                 ],
@@ -190,13 +191,13 @@ class ScrambleStatsPage extends StatelessWidget {
     );
   }
 
-  Widget _statusBadge(ScramblePlayerStatus status) {
+  Widget _statusBadge(PlayerStatus status) {
     final (label, color) = switch (status) {
-      ScramblePlayerStatus.ejected => ('OUT', Colors.red.shade400),
-      ScramblePlayerStatus.swappedOut => ('SUB−', Colors.orange.shade600),
-      ScramblePlayerStatus.swappedIn => ('SUB+', AppColors.olive),
-      ScramblePlayerStatus.late => ('LATE', Colors.blue.shade400),
-      ScramblePlayerStatus.active => ('', Colors.transparent),
+      PlayerStatus.ejected => ('OUT', Colors.red.shade400),
+      PlayerStatus.swappedOut => ('SUB−', Colors.orange.shade600),
+      PlayerStatus.swappedIn => ('SUB+', AppColors.olive),
+      PlayerStatus.late => ('LATE', Colors.blue.shade400),
+      PlayerStatus.active => ('', Colors.transparent),
     };
     if (label.isEmpty) return const SizedBox.shrink();
     return Container(

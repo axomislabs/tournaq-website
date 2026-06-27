@@ -47,16 +47,24 @@ class LocalStorageService {
 
   static Future<void> init() async {
     await Hive.initFlutter();
-    await Hive.openBox<String>(_gamesBox);
-    await Hive.openBox<String>(_teamsBox);
-    await Hive.openBox<String>(_playersBox);
-    await Hive.openBox<String>(_clubsBox);
-    await Hive.openBox<String>(_prefsBox);
+    for (final box in [_gamesBox, _teamsBox, _playersBox, _clubsBox, _prefsBox]) {
+      await _openBoxSafe(box);
+    }
     await DeviceIdService.init();
     await ScrambleStorageService.init();
     await KingOfTheCourtStorageService.init();
     await DoghouseStorageService.init();
     await KoBracketStorageService.init();
+  }
+
+  // Opens a Hive box, and if the file is corrupted, wipes it and reopens fresh.
+  static Future<void> _openBoxSafe(String name) async {
+    try {
+      await Hive.openBox<String>(name);
+    } catch (_) {
+      await Hive.deleteBoxFromDisk(name);
+      await Hive.openBox<String>(name);
+    }
   }
 
   // ── Box accessors ──────────────────────────────────────────────────────────

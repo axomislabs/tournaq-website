@@ -345,13 +345,14 @@ class KoBracketTournament {
   final KoOddTeamStrategy oddTeamStrategy;
   final int playersPerSide;
   final int courtCount;
-  final KoRoundFormat earlyRoundFormat;
-  final KoRoundFormat finalRoundFormat;
+  /// Default format applied to any round without a specific [roundFormats] override.
+  final KoRoundFormat defaultFormat;
 
-  /// Last N rounds (counting from the final) that use [finalRoundFormat].
-  final int finalRoundsCount;
-  final int earlyBreakMinutes;
-  final int finalBreakMinutes;
+  /// Per-round format overrides. Keys are round numbers (0 = play-in, 1+ = main rounds).
+  final Map<int, KoRoundFormat> roundFormats;
+
+  /// Break duration in minutes after each round. Keys are round numbers.
+  final Map<int, int> roundBreaks;
   final DateTime? estimatedStart;
   final List<KoTeam> teams;
   final List<KoMatch> matches;
@@ -367,11 +368,9 @@ class KoBracketTournament {
     this.oddTeamStrategy = KoOddTeamStrategy.byes,
     this.playersPerSide = 2,
     this.courtCount = 1,
-    required this.earlyRoundFormat,
-    required this.finalRoundFormat,
-    this.finalRoundsCount = 2,
-    this.earlyBreakMinutes = 0,
-    this.finalBreakMinutes = 0,
+    required this.defaultFormat,
+    this.roundFormats = const {},
+    this.roundBreaks = const {},
     this.estimatedStart,
     this.teams = const [],
     this.matches = const [],
@@ -405,25 +404,16 @@ class KoBracketTournament {
     return teams.length - _prevPow2(teams.length);
   }
 
-  KoRoundFormat formatForRound(int round) {
-    final lastMainRound = mainRoundCount;
-    if (round >= lastMainRound - finalRoundsCount + 1) return finalRoundFormat;
-    return earlyRoundFormat;
-  }
+  KoRoundFormat formatForRound(int round) => roundFormats[round] ?? defaultFormat;
 
   static int _minsForFormat(KoRoundFormat f) =>
       (((f.setsPerGame + 1) ~/ 2) * f.pointsPerSet).clamp(5, 999);
 
   int minutesForRound(int round) => _minsForFormat(formatForRound(round));
 
-  // Convenience getter — uses early-round format (e.g. for chips / fallbacks).
-  int get minutesPerGame => _minsForFormat(earlyRoundFormat);
+  int get minutesPerGame => _minsForFormat(defaultFormat);
 
-  int breakAfterRound(int round) {
-    final lastMain = mainRoundCount;
-    if (round >= lastMain - finalRoundsCount + 1) return finalBreakMinutes;
-    return earlyBreakMinutes;
-  }
+  int breakAfterRound(int round) => roundBreaks[round] ?? 0;
 
   /// Estimated total duration based on round structure and court count.
   Duration get estimatedDuration {
@@ -488,11 +478,9 @@ class KoBracketTournament {
     KoOddTeamStrategy? oddTeamStrategy,
     int? playersPerSide,
     int? courtCount,
-    KoRoundFormat? earlyRoundFormat,
-    KoRoundFormat? finalRoundFormat,
-    int? finalRoundsCount,
-    int? earlyBreakMinutes,
-    int? finalBreakMinutes,
+    KoRoundFormat? defaultFormat,
+    Map<int, KoRoundFormat>? roundFormats,
+    Map<int, int>? roundBreaks,
     DateTime? estimatedStart,
     List<KoTeam>? teams,
     List<KoMatch>? matches,
@@ -506,11 +494,9 @@ class KoBracketTournament {
         oddTeamStrategy: oddTeamStrategy ?? this.oddTeamStrategy,
         playersPerSide: playersPerSide ?? this.playersPerSide,
         courtCount: courtCount ?? this.courtCount,
-        earlyRoundFormat: earlyRoundFormat ?? this.earlyRoundFormat,
-        finalRoundFormat: finalRoundFormat ?? this.finalRoundFormat,
-        finalRoundsCount: finalRoundsCount ?? this.finalRoundsCount,
-        earlyBreakMinutes: earlyBreakMinutes ?? this.earlyBreakMinutes,
-        finalBreakMinutes: finalBreakMinutes ?? this.finalBreakMinutes,
+        defaultFormat: defaultFormat ?? this.defaultFormat,
+        roundFormats: roundFormats ?? this.roundFormats,
+        roundBreaks: roundBreaks ?? this.roundBreaks,
         estimatedStart: estimatedStart ?? this.estimatedStart,
         teams: teams ?? this.teams,
         matches: matches ?? this.matches,
@@ -560,11 +546,9 @@ class KoBracketTournament {
         'oddTeamStrategy': oddTeamStrategy.name,
         'playersPerSide': playersPerSide,
         'courtCount': courtCount,
-        'earlyRoundFormat': earlyRoundFormat.toJson(),
-        'finalRoundFormat': finalRoundFormat.toJson(),
-        'finalRoundsCount': finalRoundsCount,
-        'earlyBreakMinutes': earlyBreakMinutes,
-        'finalBreakMinutes': finalBreakMinutes,
+        'defaultFormat': defaultFormat.toJson(),
+        'roundFormats': roundFormats.map((k, v) => MapEntry(k.toString(), v.toJson())),
+        'roundBreaks': roundBreaks.map((k, v) => MapEntry(k.toString(), v)),
         'estimatedStart': estimatedStart?.toIso8601String(),
         'teams': teams.map((t) => t.toJson()).toList(),
         'matches': matches.map((m) => m.toJson()).toList(),
@@ -584,13 +568,14 @@ class KoBracketTournament {
             (j['oddTeamStrategy'] as String?) ?? KoOddTeamStrategy.byes.name),
         playersPerSide: j['playersPerSide'] as int? ?? 2,
         courtCount: j['courtCount'] as int? ?? 1,
-        earlyRoundFormat: KoRoundFormat.fromJson(
-            Map<String, dynamic>.from(j['earlyRoundFormat'] as Map? ?? {})),
-        finalRoundFormat: KoRoundFormat.fromJson(
-            Map<String, dynamic>.from(j['finalRoundFormat'] as Map? ?? {})),
-        finalRoundsCount: j['finalRoundsCount'] as int? ?? 2,
-        earlyBreakMinutes: j['earlyBreakMinutes'] as int? ?? j['breakBetweenRoundsMinutes'] as int? ?? 0,
-        finalBreakMinutes: j['finalBreakMinutes'] as int? ?? 0,
+        defaultFormat: KoRoundFormat.fromJson(Map<String, dynamic>.from(
+            j['defaultFormat'] as Map? ??
+            j['earlyRoundFormat'] as Map? ?? {})),
+        roundFormats: (j['roundFormats'] as Map?)?.map((k, v) =>
+            MapEntry(int.parse(k as String),
+                KoRoundFormat.fromJson(Map<String, dynamic>.from(v as Map)))) ?? {},
+        roundBreaks: (j['roundBreaks'] as Map?)?.map((k, v) =>
+            MapEntry(int.parse(k as String), v as int)) ?? {},
         estimatedStart: j['estimatedStart'] != null
             ? DateTime.parse(j['estimatedStart'] as String)
             : null,
