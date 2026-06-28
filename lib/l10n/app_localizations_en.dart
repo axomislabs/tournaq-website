@@ -346,7 +346,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get comingSoonLearnMore => 'Learn more on website';
 
   @override
-  String get landingTournamentsSubtitle => 'Manage games, drills & tournaments';
+  String get landingTournamentsSubtitle => 'Manage games and tournaments';
 
   @override
   String get landingAdminSubtitle => 'Manage players, teams & groups';
@@ -2310,7 +2310,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Games will appear here once a team is ejected.';
 
   @override
-  String get setupPlayersPerSide => 'Players per side';
+  String get setupPlayersPerSide => 'Style';
 
   @override
   String get setupAppliesToLast => 'Applies to last';
@@ -2495,4 +2495,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickGameTapToConfigure => 'Tap to configure team';
+
+  @override
+  String get adminHelpBody =>
+      'Manage players, teams, and groups to efficiently set up your games and tournaments.';
+
+  @override
+  String get adminInfoTooltip => 'About Administration';
+
+  @override
+  String get adminManagePlayers => 'Manage player profiles';
+
+  @override
+  String get adminManageTeams => 'Manage teams and rosters';
+
+  @override
+  String get adminManageGroups => 'Manage groups and affiliations';
+
+  @override
+  String get playerHubSubtitle => 'Manage your global player pool';
+
+  @override
+  String get teamHubSubtitle => 'Manage your global team pool';
+
+  @override
+  String get groupHubSubtitle => 'Manage your global group pool';
+
+  @override
+  String get modeQuickGamesName => 'Quick Games';
+
+  @override
+  String get modeSocialScramblesName => 'Social Scrambles';
+
+  @override
+  String get modeKotcName => 'King of the Court';
+
+  @override
+  String get modeDoghouseName => 'Doghouse';
+
+  @override
+  String get modeLeagueName => 'League';
+
+  @override
+  String get modeLeagueFullName => 'League / Round Robin';
+
+  @override
+  String get modeSingleElimName => 'Single Elimination';
+
+  @override
+  String get modeDoubleElimName => 'Double Elimination';
+
+  @override
+  String get modeGroupSeName => 'Group + SE';
+
+  @override
+  String get modeGroupSeFullName => 'Group + Single Elimination';
+
+  @override
+  String get modeGroupDeName => 'Group + DE';
+
+  @override
+  String get modeGroupDeFullName => 'Group + Double Elimination';
+
+  @override
+  String get modeSwissName => 'Swiss System';
+
+  @override
+  String get modeComingSoonHelp => 'Detailed description coming soon.';
+
+  @override
+  String get modeQuickGamesHelp =>
+      'Quick Games lets you start a scored match on the spot — no tournament setup required. Pick two teams, set the format, and start tracking the score immediately.\n\nIdeal for casual play, training sessions, or any time you just want to run a game without a bracket.';
+
+  @override
+  String get modeSocialScramblesHelp =>
+      'Social Scrambles is a timed, rotating mixer where teams are randomly reshuffled every round. No one stays partnered for long — the whole point is to play with and against as many different people as possible across the session.\n\nPerfect for beach sessions, open days, or any group that wants competitive play without the pressure of a fixed bracket.\n\nFair by design. TournaQ schedules every player into the maximum number of rounds while keeping wait times as short as possible. When not everyone can fit on court at once, sitting-out rotations are balanced so no player waits longer than others.\n\nHow a round works:\n• Teams are randomly drawn at the start of each round\n• All courts play simultaneously for the set match duration\n• A short break follows before the next round\n• Cumulative wins are tracked across all rounds\n\nAdd your players, set a session timer, and go.';
+
+  @override
+  String get modeKotcHelp =>
+      'King of the Court is a fast, individual competition where every player fights for the crown. Players rotate on and off court in groups, scoring points for each rally won — but the ranking is entirely personal. The player who accumulates the most game wins (then points) across the session takes the title.\n\nShort format, high energy — perfect as a session warm-up or a standalone competition.\n\nFair by design. TournaQ\'s Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of individual performance — not just who got the easiest draw.\n\nHow a game works:\n• Win a rally → each player on that side scores a point\n• Reach your Strike Points target → current group wins the game, everyone rotates back to the queue\n• Coach manually ejects → stint ends, points recorded as-is\n• Next players step up immediately\n\nBefore you start, agree on:\n• Who serves each rally\n• Whether to use Strike Points and what the target should be\n\nAdd your players, set a session timer, and go.';
+
+  @override
+  String get modeDoghouseHelp =>
+      'Doghouse is a fast, competitive tournament where the action never stops. One team battles from the doghouse — score enough points to escape and make way for the next challengers. Hit your loss limit first and you\'re out.\n\nShort format, high intensity — great as a session warm-up or a standalone competition.\n\nFair by design. TournaQ\'s Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of how each player performed — not just who got the easier draw.\n\nHow a game works:\n• Win a rally → score a point\n• Lose a rally → game lost, point score resets\n• Reach your Escape Points target → escaped, back to the queue\n• Hit the Loss Limit → ejected, next team steps in\n\nBefore you start, agree on:\n• Which team serves each rally\n• Escape Points and Loss Limit settings\n\nAdd your players, set a session timer, and go.';
 }

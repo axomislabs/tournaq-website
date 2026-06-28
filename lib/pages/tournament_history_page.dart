@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
+import '../models/group.dart';
 import '../models/king_of_the_court_tournament.dart';
+import '../models/ko_bracket_tournament.dart';
 import '../models/scramble_tournament.dart';
+import '../models/team.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
+import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../models/player.dart';
 import '../widgets/tournament_history_card.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
 import 'king_of_the_court_scoreboard_page.dart';
+import 'ko_bracket_bracket_page.dart';
 import 'scramble_overview_page.dart';
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
-enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse }
+enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse, koBracket }
 
 extension on TournamentFilter {
   String get label => switch (this) {
@@ -23,6 +29,7 @@ extension on TournamentFilter {
         TournamentFilter.scramble       => 'Social Scrambles',
         TournamentFilter.kingOfTheCourt => 'King of the Court',
         TournamentFilter.doghouse       => 'Doghouse',
+        TournamentFilter.koBracket      => 'Single Elimination',
       };
 }
 
@@ -30,14 +37,22 @@ extension on TournamentFilter {
 
 class TournamentHistoryPage extends StatefulWidget {
   final List<Player> existingPlayers;
+  final List<Team> existingTeams;
+  final List<Group> existingGroups;
   final TournamentFilter initialFilter;
   final Player Function(String name)? onCreatePlayer;
+  final String Function(String name, List<String> linkedPlayerIds)? onCreateTeam;
+  final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
 
   const TournamentHistoryPage({
     super.key,
     required this.existingPlayers,
+    this.existingTeams = const [],
+    this.existingGroups = const [],
     this.initialFilter = TournamentFilter.all,
     this.onCreatePlayer,
+    this.onCreateTeam,
+    this.onUpdatePlayer,
   });
 
   @override
@@ -50,6 +65,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
   List<ScrambleTournament> _scrambles = [];
   List<KingOfTheCourtTournament> _kotcTournaments = [];
   List<DoghouseTournament> _doghouseDrills = [];
+  List<KoBracketTournament> _koBrackets = [];
 
   @override
   void initState() {
@@ -60,6 +76,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     _scrambles       = scrambles;
     _kotcTournaments = KingOfTheCourtStorageService.loadAll();
     _doghouseDrills  = DoghouseStorageService.loadAll();
+    _koBrackets      = KoBracketStorageService.loadAll();
   }
 
   void _onScrambleChanged(ScrambleTournament t) {
@@ -92,6 +109,16 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     });
   }
 
+  void _onKoBracketChanged(KoBracketTournament t) {
+    KoBracketStorageService.save(t);
+    setState(() {
+      final idx = _koBrackets.indexWhere((e) => e.id == t.id);
+      if (idx >= 0) {
+        _koBrackets = List.from(_koBrackets)..[idx] = t;
+      }
+    });
+  }
+
   // ── Filtered items ────────────────────────────────────────────────────────
 
   List<_HistoryEntry> get _entries {
@@ -114,6 +141,21 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
         entries.add(_HistoryEntry.fromDoghouse(d, _onDoghouseChanged, widget.existingPlayers, widget.onCreatePlayer));
       }
     }
+    if (_filter == TournamentFilter.all ||
+        _filter == TournamentFilter.koBracket) {
+      for (final t in _koBrackets) {
+        entries.add(_HistoryEntry.fromKoBracket(
+          t,
+          _onKoBracketChanged,
+          widget.existingPlayers,
+          widget.existingTeams,
+          widget.existingGroups,
+          widget.onCreatePlayer,
+          widget.onCreateTeam,
+          widget.onUpdatePlayer,
+        ));
+      }
+    }
     entries.sort((a, b) => b.date.compareTo(a.date));
     return entries;
   }
@@ -125,7 +167,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     final entries = _entries;
 
     return Scaffold(
-      appBar: const TournaQAppBar(title: 'Tournament History'),
+      appBar: TournaQAppBar(title: AppLocalizations.of(context)!.tournamentsSectionHistory),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -356,6 +398,54 @@ class _HistoryEntry {
           existingPlayers: existingPlayers,
           onChanged:       onChanged,
           onCreatePlayer:  onCreatePlayer,
+        ),
+      )),
+    );
+  }
+
+  factory _HistoryEntry.fromKoBracket(
+    KoBracketTournament t,
+    void Function(KoBracketTournament) onChanged,
+    List<Player> existingPlayers,
+    List<Team> existingTeams,
+    List<Group> existingGroups,
+    Player Function(String name)? onCreatePlayer,
+    String Function(String name, List<String> linkedPlayerIds)? onCreateTeam,
+    void Function(String id, String name, int? skillRating)? onUpdatePlayer,
+  ) {
+    final completedMatches = t.matches
+        .where((m) => m.status == KoMatchStatus.completed)
+        .length;
+
+    final statusLabel = switch (t.status) {
+      KoBracketStatus.completed  => 'Completed',
+      KoBracketStatus.inProgress => 'In Progress',
+      KoBracketStatus.setup      => 'Setup',
+    };
+
+    return _HistoryEntry(
+      name:        t.name,
+      typeLabel:   'Single Elimination',
+      typeColor:   AppColors.gold,
+      typeIcon:    Icons.account_tree_rounded,
+      dateLabel:   _dateLabel(t.createdAt),
+      statusLabel: statusLabel,
+      isActive:    t.status != KoBracketStatus.completed,
+      date:        t.createdAt,
+      stats: [
+        '${t.teamCount} teams',
+        '$completedMatches matches played',
+      ],
+      onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
+        builder: (_) => KoBracketBracketPage(
+          tournament:      t,
+          onChanged:       onChanged,
+          existingPlayers: existingPlayers,
+          existingTeams:   existingTeams,
+          existingGroups:  existingGroups,
+          onCreatePlayer:  onCreatePlayer ?? (name) => Player(id: '', name: name),
+          onCreateTeam:    onCreateTeam   ?? (name, _) => name,
+          onUpdatePlayer:  onUpdatePlayer,
         ),
       )),
     );

@@ -143,10 +143,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => TournamentHistoryPage(
         existingPlayers: _localState.players,
-        initialFilter: filter,
-        onCreatePlayer: _createPlayer,
+        existingTeams:   _localState.teams,
+        existingGroups:  _localState.groups,
+        initialFilter:   filter,
+        onCreatePlayer:  _createPlayer,
+        onCreateTeam:    _createTeam,
+        onUpdatePlayer:  _updatePlayerFull,
       ),
-    ));
+    )).then((_) => _refreshCounts());
   }
 
   void _openKoBracketHub() {
@@ -272,16 +276,11 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 icon:         Icons.flash_on_rounded,
                 color:        AppColors.gold,
                 gradientEnd:  AppColors.goldGradientEnd,
-                name:         'Quick Games',
+                name:         l10n.modeQuickGamesName,
                 description:  l10n.modeQuickGamesDesc,
                 onTap:        _openQuickGames,
                 learnMoreUrl: AppLinks.modeQuickGame,
-                helpText:
-                    'Quick Games lets you start a scored match on the spot — '
-                    'no tournament setup required. Pick two teams, set the '
-                    'format, and start tracking the score immediately.\n\n'
-                    'Ideal for casual play, training sessions, or any time '
-                    'you just want to run a game without a bracket.',
+                helpText:     l10n.modeQuickGamesHelp,
               ),
             ]),
             const SizedBox(height: 24),
@@ -294,90 +293,34 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 icon:         Icons.shuffle_rounded,
                 color:        AppColors.gold,
                 gradientEnd:  AppColors.goldGradientEnd,
-                name:         'Social Scrambles',
+                name:         l10n.modeSocialScramblesName,
                 description:  l10n.modeSocialScramblesDesc,
                 count:        _scrambleCount,
                 onTap:        _openScrambleHub,
                 learnMoreUrl: AppLinks.modeSocialScramble,
-                helpText:
-                    'Social Scrambles is a timed, rotating mixer where teams are randomly '
-                    'reshuffled every round. No one stays partnered for long — the whole '
-                    'point is to play with and against as many different people as possible '
-                    'across the session.\n\n'
-                    'Perfect for beach sessions, open days, or any group that wants '
-                    'competitive play without the pressure of a fixed bracket.\n\n'
-                    'Fair by design. TournaQ schedules every player into the maximum number '
-                    'of rounds while keeping wait times as short as possible. When not '
-                    'everyone can fit on court at once, sitting-out rotations are balanced '
-                    'so no player waits longer than others.\n\n'
-                    'How a round works:\n'
-                    '• Teams are randomly drawn at the start of each round\n'
-                    '• All courts play simultaneously for the set match duration\n'
-                    '• A short break follows before the next round\n'
-                    '• Cumulative wins are tracked across all rounds\n\n'
-                    'Add your players, set a session timer, and go.',
+                helpText:     l10n.modeSocialScramblesHelp,
               ),
               _TypeTile(
                 icon:         Icons.workspace_premium_rounded,
                 color:        AppColors.gold,
                 gradientEnd:  AppColors.goldGradientEnd,
-                name:         'King of the Court',
+                name:         l10n.modeKotcName,
                 description:  l10n.modeKotcDesc,
                 count:        _kotcCount,
                 onTap:        _openKotcHub,
                 learnMoreUrl: AppLinks.modeKingOfTheCourt,
-                helpText:
-                    'King of the Court is a fast, individual competition where every '
-                    'player fights for the crown. Players rotate on and off court in '
-                    'groups, scoring points for each rally won — but the ranking is '
-                    'entirely personal. The player who accumulates the most game wins '
-                    '(then points) across the session takes the title.\n\n'
-                    'Short format, high energy — perfect as a session warm-up or a '
-                    'standalone competition.\n\n'
-                    'Fair by design. TournaQ\'s Automated assignment ensures everyone '
-                    'plays with and against different people, keeping wait times low '
-                    'and avoiding repeat pairings. Because matchups stay balanced '
-                    'throughout the session, the final standings are a genuine '
-                    'reflection of individual performance — not just who got the '
-                    'easiest draw.\n\n'
-                    'How a game works:\n'
-                    '• Win a rally → each player on that side scores a point\n'
-                    '• Reach your Strike Points target → current group wins the game, '
-                    'everyone rotates back to the queue\n'
-                    '• Coach manually ejects → stint ends, points recorded as-is\n'
-                    '• Next players step up immediately\n\n'
-                    'Before you start, agree on:\n'
-                    '• Who serves each rally\n'
-                    '• Whether to use Strike Points and what the target should be\n\n'
-                    'Add your players, set a session timer, and go.',
+                helpText:     l10n.modeKotcHelp,
               ),
               _TypeTile(
                 icon:         Icons.pets_rounded,
                 color:        AppColors.gold,
                 gradientEnd:  AppColors.goldGradientEnd,
-                name:         'Doghouse',
+                name:         l10n.modeDoghouseName,
                 description:  l10n.modeDoghouseDesc,
                 count:        _doghouseCount,
                 onTap:        _openDoghouseHub,
                 learnMoreUrl: AppLinks.modeDoghouse,
-                helpText:
-                    'Doghouse is a fast, competitive tournament where the action never stops. '
-                    'One team battles from the doghouse — score enough points to escape and make '
-                    'way for the next challengers. Hit your loss limit first and you\'re out.\n\n'
-                    'Short format, high intensity — great as a session warm-up or a standalone competition.\n\n'
-                    'Fair by design. TournaQ\'s Automated assignment ensures everyone plays with and '
-                    'against different people, keeping wait times low and avoiding repeat pairings. '
-                    'Because matchups stay balanced throughout the session, the final standings are a '
-                    'genuine reflection of how each player performed — not just who got the easier draw.\n\n'
-                    'How a game works:\n'
-                    '• Win a rally → score a point\n'
-                    '• Lose a rally → game lost, point score resets\n'
-                    '• Reach your Escape Points target → escaped, back to the queue\n'
-                    '• Hit the Loss Limit → ejected, next team steps in\n\n'
-                    'Before you start, agree on:\n'
-                    '• Which team serves each rally\n'
-                    '• Escape Points and Loss Limit settings\n\n'
-                    'Add your players, set a session timer, and go.',
+                helpText:     l10n.modeDoghouseHelp,
               ),
             ]),
 
@@ -390,78 +333,78 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 icon:         Icons.table_chart_rounded,
                 color:        AppColors.olive,
                 gradientEnd:  AppColors.oliveMedium,
-                name:         'League',
+                name:         l10n.modeLeagueName,
                 description:  l10n.modeLeagueDesc,
                 comingSoon:   true,
                 onTap: () => _openComingSoon(
-                    'League / Round Robin',
+                    l10n.modeLeagueFullName,
                     l10n.modeLeagueShortDesc),
                 learnMoreUrl: AppLinks.featuresPage,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
               _TypeTile(
                 icon:         Icons.account_tree_rounded,
                 iconAngle:    pi,
                 color:        AppColors.gold,
                 gradientEnd:  AppColors.goldGradientEnd,
-                name:         'Single Elimination',
+                name:         l10n.modeSingleElimName,
                 description:  l10n.modeSingleElimDesc,
                 count:        _koBracketCount,
                 onTap:        _openKoBracketHub,
                 learnMoreUrl: AppLinks.modeKoSystem,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
               _TypeTile(
                 icon:         Icons.device_hub_rounded,
                 color:        AppColors.tertiary,
                 gradientEnd:  const Color(0xFF6D4C2E),
-                name:         'Double Elimination',
+                name:         l10n.modeDoubleElimName,
                 description:  l10n.modeDoubleElimDesc,
                 comingSoon:   true,
                 onTap: () => _openComingSoon(
-                    'Double Elimination',
+                    l10n.modeDoubleElimName,
                     l10n.modeDoubleElimShortDesc),
                 learnMoreUrl: AppLinks.featuresPage,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
               _TypeTile(
                 icon:         Icons.stacked_bar_chart_rounded,
                 color:        const Color(0xFF00897B),
                 gradientEnd:  const Color(0xFF00695C),
-                name:         'Group + SE',
+                name:         l10n.modeGroupSeName,
                 description:  l10n.modeGroupSeDesc,
                 comingSoon:   true,
                 onTap: () => _openComingSoon(
-                    'Group + Single Elimination',
+                    l10n.modeGroupSeFullName,
                     l10n.modeGroupSeShortDesc),
                 learnMoreUrl: AppLinks.featuresPage,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
               _TypeTile(
                 icon:         Icons.stacked_line_chart_rounded,
                 color:        const Color(0xFF6D4C41),
                 gradientEnd:  const Color(0xFF4E342E),
-                name:         'Group + DE',
+                name:         l10n.modeGroupDeName,
                 description:  l10n.modeGroupDeDesc,
                 comingSoon:   true,
                 onTap: () => _openComingSoon(
-                    'Group + Double Elimination',
+                    l10n.modeGroupDeFullName,
                     l10n.modeGroupDeShortDesc),
                 learnMoreUrl: AppLinks.featuresPage,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
               _TypeTile(
                 icon:         Icons.swap_vert_rounded,
                 color:        const Color(0xFF00897B),
                 gradientEnd:  const Color(0xFF00695C),
-                name:         'Swiss System',
+                name:         l10n.modeSwissName,
                 description:  l10n.modeSwissDesc,
                 comingSoon:   true,
                 onTap: () => _openComingSoon(
-                    'Swiss System',
+                    l10n.modeSwissName,
                     l10n.modeSwissShortDesc),
                 learnMoreUrl: AppLinks.featuresPage,
-                helpText:     'Detailed description coming soon.',
+                helpText:     l10n.modeComingSoonHelp,
               ),
             ]),
 
@@ -486,12 +429,12 @@ class _TournamentsPageState extends State<TournamentsPage> {
             const SizedBox(height: 12),
             _HistoryShortcutTile(
               label: l10n.tournamentsAllLabel,
-              count: _scrambleCount + _kotcCount + _doghouseCount,
+              count: _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount,
               onTap: _openHistory,
             ),
             const SizedBox(height: 6),
             _HistoryShortcutTile(
-              label:     'Social Scrambles',
+              label:     l10n.modeSocialScramblesName,
               count:     _scrambleCount,
               typeColor: AppColors.gold,
               typeIcon:  Icons.shuffle_rounded,
@@ -499,7 +442,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             ),
             const SizedBox(height: 6),
             _HistoryShortcutTile(
-              label:     'King of the Court',
+              label:     l10n.modeKotcName,
               count:     _kotcCount,
               typeColor: AppColors.gold,
               typeIcon:  Icons.workspace_premium_rounded,
@@ -507,11 +450,19 @@ class _TournamentsPageState extends State<TournamentsPage> {
             ),
             const SizedBox(height: 6),
             _HistoryShortcutTile(
-              label:     'Doghouse',
+              label:     l10n.modeDoghouseName,
               count:     _doghouseCount,
               typeColor: AppColors.gold,
               typeIcon:  Icons.pets_rounded,
               onTap: () => _openHistory(filter: TournamentFilter.doghouse),
+            ),
+            const SizedBox(height: 6),
+            _HistoryShortcutTile(
+              label:     l10n.modeSingleElimName,
+              count:     _koBracketCount,
+              typeColor: AppColors.gold,
+              typeIcon:  Icons.account_tree_rounded,
+              onTap: () => _openHistory(filter: TournamentFilter.koBracket),
             ),
           ],
         ),
@@ -566,7 +517,8 @@ class _TypeTile extends StatelessWidget {
   });
 
   void _showHelp(BuildContext context) {
-    final text = helpText ?? 'Detailed description coming soon.';
+    final l10n = AppLocalizations.of(context)!;
+    final text = helpText ?? l10n.modeComingSoonHelp;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -588,12 +540,12 @@ class _TypeTile extends StatelessWidget {
           if (learnMoreUrl != null)
             TextButton(
               onPressed: () => openExternalUrl(ctx, learnMoreUrl!),
-              child: const Text('Learn more'),
+              child: Text(l10n.btnLearnMore),
             ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got it',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(l10n.btnGotIt,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),

@@ -739,7 +739,7 @@ abstract class AppLocalizations {
   /// No description provided for @landingTournamentsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage games, drills & tournaments'**
+  /// **'Manage games and tournaments'**
   String get landingTournamentsSubtitle;
 
   /// No description provided for @landingAdminSubtitle.
@@ -4183,7 +4183,7 @@ abstract class AppLocalizations {
   /// No description provided for @setupPlayersPerSide.
   ///
   /// In en, this message translates to:
-  /// **'Players per side'**
+  /// **'Style'**
   String get setupPlayersPerSide;
 
   /// No description provided for @setupAppliesToLast.
@@ -4491,6 +4491,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to configure team'**
   String get quickGameTapToConfigure;
+
+  /// No description provided for @adminHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage players, teams, and groups to efficiently set up your games and tournaments.'**
+  String get adminHelpBody;
+
+  /// No description provided for @adminInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'About Administration'**
+  String get adminInfoTooltip;
+
+  /// No description provided for @adminManagePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage player profiles'**
+  String get adminManagePlayers;
+
+  /// No description provided for @adminManageTeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage teams and rosters'**
+  String get adminManageTeams;
+
+  /// No description provided for @adminManageGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage groups and affiliations'**
+  String get adminManageGroups;
+
+  /// No description provided for @playerHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your global player pool'**
+  String get playerHubSubtitle;
+
+  /// No description provided for @teamHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your global team pool'**
+  String get teamHubSubtitle;
+
+  /// No description provided for @groupHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your global group pool'**
+  String get groupHubSubtitle;
+
+  /// No description provided for @modeQuickGamesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Games'**
+  String get modeQuickGamesName;
+
+  /// No description provided for @modeSocialScramblesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Social Scrambles'**
+  String get modeSocialScramblesName;
+
+  /// No description provided for @modeKotcName.
+  ///
+  /// In en, this message translates to:
+  /// **'King of the Court'**
+  String get modeKotcName;
+
+  /// No description provided for @modeDoghouseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Doghouse'**
+  String get modeDoghouseName;
+
+  /// No description provided for @modeLeagueName.
+  ///
+  /// In en, this message translates to:
+  /// **'League'**
+  String get modeLeagueName;
+
+  /// No description provided for @modeLeagueFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'League / Round Robin'**
+  String get modeLeagueFullName;
+
+  /// No description provided for @modeSingleElimName.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Elimination'**
+  String get modeSingleElimName;
+
+  /// No description provided for @modeDoubleElimName.
+  ///
+  /// In en, this message translates to:
+  /// **'Double Elimination'**
+  String get modeDoubleElimName;
+
+  /// No description provided for @modeGroupSeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group + SE'**
+  String get modeGroupSeName;
+
+  /// No description provided for @modeGroupSeFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group + Single Elimination'**
+  String get modeGroupSeFullName;
+
+  /// No description provided for @modeGroupDeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group + DE'**
+  String get modeGroupDeName;
+
+  /// No description provided for @modeGroupDeFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group + Double Elimination'**
+  String get modeGroupDeFullName;
+
+  /// No description provided for @modeSwissName.
+  ///
+  /// In en, this message translates to:
+  /// **'Swiss System'**
+  String get modeSwissName;
+
+  /// No description provided for @modeComingSoonHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed description coming soon.'**
+  String get modeComingSoonHelp;
+
+  /// No description provided for @modeQuickGamesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Games lets you start a scored match on the spot — no tournament setup required. Pick two teams, set the format, and start tracking the score immediately.\n\nIdeal for casual play, training sessions, or any time you just want to run a game without a bracket.'**
+  String get modeQuickGamesHelp;
+
+  /// No description provided for @modeSocialScramblesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Social Scrambles is a timed, rotating mixer where teams are randomly reshuffled every round. No one stays partnered for long — the whole point is to play with and against as many different people as possible across the session.\n\nPerfect for beach sessions, open days, or any group that wants competitive play without the pressure of a fixed bracket.\n\nFair by design. TournaQ schedules every player into the maximum number of rounds while keeping wait times as short as possible. When not everyone can fit on court at once, sitting-out rotations are balanced so no player waits longer than others.\n\nHow a round works:\n• Teams are randomly drawn at the start of each round\n• All courts play simultaneously for the set match duration\n• A short break follows before the next round\n• Cumulative wins are tracked across all rounds\n\nAdd your players, set a session timer, and go.'**
+  String get modeSocialScramblesHelp;
+
+  /// No description provided for @modeKotcHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'King of the Court is a fast, individual competition where every player fights for the crown. Players rotate on and off court in groups, scoring points for each rally won — but the ranking is entirely personal. The player who accumulates the most game wins (then points) across the session takes the title.\n\nShort format, high energy — perfect as a session warm-up or a standalone competition.\n\nFair by design. TournaQ\'s Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of individual performance — not just who got the easiest draw.\n\nHow a game works:\n• Win a rally → each player on that side scores a point\n• Reach your Strike Points target → current group wins the game, everyone rotates back to the queue\n• Coach manually ejects → stint ends, points recorded as-is\n• Next players step up immediately\n\nBefore you start, agree on:\n• Who serves each rally\n• Whether to use Strike Points and what the target should be\n\nAdd your players, set a session timer, and go.'**
+  String get modeKotcHelp;
+
+  /// No description provided for @modeDoghouseHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Doghouse is a fast, competitive tournament where the action never stops. One team battles from the doghouse — score enough points to escape and make way for the next challengers. Hit your loss limit first and you\'re out.\n\nShort format, high intensity — great as a session warm-up or a standalone competition.\n\nFair by design. TournaQ\'s Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of how each player performed — not just who got the easier draw.\n\nHow a game works:\n• Win a rally → score a point\n• Lose a rally → game lost, point score resets\n• Reach your Escape Points target → escaped, back to the queue\n• Hit the Loss Limit → ejected, next team steps in\n\nBefore you start, agree on:\n• Which team serves each rally\n• Escape Points and Loss Limit settings\n\nAdd your players, set a session timer, and go.'**
+  String get modeDoghouseHelp;
 }
 
 class _AppLocalizationsDelegate

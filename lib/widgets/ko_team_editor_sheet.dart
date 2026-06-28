@@ -28,6 +28,7 @@ class KoTeamEditorSheet extends StatefulWidget {
   final void Function(KoTeam) onSave;
   final String Function(String name, List<String> linkedPlayerIds) onCreateTeam;
   final void Function(String id, String name, int? skillRating)? onUpdatePlayer;
+  final bool startInCreateMode;
 
   const KoTeamEditorSheet({
     super.key,
@@ -40,6 +41,7 @@ class KoTeamEditorSheet extends StatefulWidget {
     required this.onSave,
     required this.onCreateTeam,
     this.onUpdatePlayer,
+    this.startInCreateMode = false,
   });
 
   @override
@@ -53,22 +55,30 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
   String? _importGroupId;
   late final TextEditingController _nameCtrl;
   late List<KoPlayerSnapshot> _players;
+  late List<TextEditingController> _playerCtrls;
   final _teamSearchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    if (widget.startInCreateMode || widget.team.hubTeamId != null) {
+      _mode = _EditorMode.create;
+    }
     final initialName = widget.team.hubTeamId == null
         ? TeamNameGenerator.randomName()
         : widget.team.name;
     _nameCtrl = TextEditingController(text: initialName);
     _players  = List.from(widget.team.players);
+    _playerCtrls = _players.map((p) => TextEditingController(
+      text: p.appPlayerId.isNotEmpty ? p.name : '',
+    )).toList();
   }
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _teamSearchCtrl.dispose();
+    for (final c in _playerCtrls) c.dispose();
     super.dispose();
   }
 
@@ -98,6 +108,9 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
       _fromImport    = true;
       _hubTeamId     = team.id;
       _teamSearchCtrl.clear();
+      for (var i = 0; i < _playerCtrls.length && i < matched.length; i++) {
+        _playerCtrls[i].text = matched[i].appPlayerId.isNotEmpty ? matched[i].name : '';
+      }
     });
   }
 
@@ -105,9 +118,17 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
     final name = _nameCtrl.text.trim().isEmpty
         ? widget.team.name
         : _nameCtrl.text.trim();
+    final finalPlayers = List.generate(_players.length, (i) {
+      final typed = _playerCtrls[i].text.trim();
+      return KoPlayerSnapshot(
+        appPlayerId: _players[i].appPlayerId,
+        name: typed.isNotEmpty ? typed : 'Player ${i + 1}',
+        skillRating: _players[i].skillRating,
+      );
+    });
     String? resolvedHubTeamId = _hubTeamId;
     if (!_fromImport) {
-      final linkedIds = _players
+      final linkedIds = finalPlayers
           .where((p) => p.appPlayerId.isNotEmpty)
           .map((p) => p.appPlayerId)
           .toList();
@@ -115,7 +136,7 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
     }
     widget.onSave(widget.team.copyWith(
       name: name,
-      players: _players,
+      players: finalPlayers,
       hubTeamId: resolvedHubTeamId,
     ));
     Navigator.of(context).pop();
@@ -133,10 +154,14 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         existingGroups: widget.existingGroups,
         onCreatePlayer: widget.onCreatePlayer,
         onUpdatePlayer: widget.onUpdatePlayer,
-        onPick: (s) => setState(() => _players[slotIndex] = s),
-        onClear: () => setState(() => _players[slotIndex] = KoPlayerSnapshot(
-              appPlayerId: '', name: 'Player ${slotIndex + 1}',
-            )),
+        onPick: (s) => setState(() {
+          _players[slotIndex] = s;
+          _playerCtrls[slotIndex].text = s.name;
+        }),
+        onClear: () => setState(() {
+          _players[slotIndex] = KoPlayerSnapshot(appPlayerId: '', name: 'Player ${slotIndex + 1}');
+          _playerCtrls[slotIndex].text = '';
+        }),
       ),
     );
   }
@@ -254,7 +279,13 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         children: [
           Row(children: [
             GestureDetector(
-              onTap: () => setState(() => _mode = _EditorMode.choice),
+              onTap: () {
+                if (_fromImport || !widget.startInCreateMode) {
+                  setState(() => _mode = _EditorMode.choice);
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
               child: const Icon(Icons.arrow_back_rounded,
                   size: 20, color: Colors.black54),
             ),
@@ -307,74 +338,39 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
                   color: Colors.black54)),
           const SizedBox(height: 8),
           ..._players.asMap().entries.map((e) {
-            final i              = e.key;
-            final p              = e.value;
-            final isLinked       = p.appPlayerId.isNotEmpty;
-            final needsAttention =
-                widget.generationMode == KoBracketGenerationMode.seeded &&
-                    (!isLinked || p.skillRating == null);
-            return InkWell(
-              onTap: () => _showSlotPicker(i),
-              borderRadius: BorderRadius.circular(10),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: needsAttention
-                        ? Colors.red.shade300
-                        : Colors.grey.shade200,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(children: [
-                  CircleAvatar(
-                    radius: 14,
-                    backgroundColor:
-                        isLinked ? _kOlive : Colors.grey.shade300,
-                    child: Text(
-                      p.name.isNotEmpty ? p.name[0].toUpperCase() : '?',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(p.name,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600)),
-                        if (isLinked && p.skillRating != null)
-                          Text(l10n.koSkillRating(p.skillRating!),
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.black45))
-                        else if (isLinked)
-                          Text(l10n.koUnrated,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.orange.shade700))
-                        else
-                          Text(l10n.koTapToAssign,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Colors.black38)),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    isLinked
-                        ? Icons.edit_rounded
-                        : Icons.add_circle_outline_rounded,
-                    size: 16,
-                    color: isLinked ? Colors.black38 : _kGold,
-                  ),
-                ]),
+            final i = e.key;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Row(children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: TextField(
+                      controller: _playerCtrls[i],
+                      textCapitalization: TextCapitalization.words,
+                      style: const TextStyle(fontSize: 15),
+                      decoration: InputDecoration(
+                        hintText: 'Player ${i + 1}',
+                        hintStyle: const TextStyle(color: Colors.black38),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(width: 1, height: 46, color: Colors.grey.shade200),
+                IconButton(
+                  icon: const Icon(Icons.person_search_rounded, size: 20),
+                  color: Colors.black38,
+                  tooltip: 'Assign player',
+                  onPressed: () => _showSlotPicker(i),
+                ),
+              ]),
             );
           }),
         ],

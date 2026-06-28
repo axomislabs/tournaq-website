@@ -411,13 +411,13 @@ class _UsersPageState extends State<UsersPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.people_rounded, color: Colors.white, size: 22),
-              SizedBox(width: 8),
+              const Icon(Icons.people_rounded, color: Colors.white, size: 22),
+              const SizedBox(width: 8),
               Text(
-                'Players',
-                style: TextStyle(
+                l10n.navPlayers,
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800),
@@ -426,7 +426,7 @@ class _UsersPageState extends State<UsersPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Manage your global player pool',
+            l10n.playerHubSubtitle,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,

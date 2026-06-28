@@ -2386,132 +2386,215 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String setupPlayerN(int n) {
-    return 'Player $n';
+    return 'Jugador $n';
   }
 
   @override
-  String get koEditTeam => 'Edit Team';
+  String get koEditTeam => 'Editar equipo';
 
   @override
-  String get koTeamSetupSubtitle => 'How would you like to set up this team?';
+  String get koTeamSetupSubtitle => '¿Cómo quieres configurar este equipo?';
 
   @override
-  String get koCreateNew => 'Edit Manually';
+  String get koCreateNew => 'Editar manualmente';
 
   @override
   String get koCreateNewSubtitle =>
-      'Set a custom name and assign players manually';
+      'Establece un nombre personalizado y asigna jugadores manualmente';
 
   @override
-  String get koImportFromHub => 'Import from Teams Hub';
+  String get koImportFromHub => 'Importar desde el Hub de Equipos';
 
   @override
   String get koImportFromHubSubtitle =>
-      'Pick an existing team — name and players fill in automatically';
+      'Elige un equipo existente — nombre y jugadores se completan automáticamente';
 
   @override
   String get koNoTeamsInHub =>
-      'No teams in Teams Hub yet.\nCreate teams via the Teams section first.';
+      'Aún no hay equipos en el Hub de Equipos.\nCrea equipos primero en la sección de Equipos.';
 
   @override
-  String get koPlayersSection => 'Players';
+  String get koPlayersSection => 'Jugadores';
 
   @override
   String koSkillRating(Object rating) {
-    return 'Skill: $rating';
+    return 'Habilidad: $rating';
   }
 
   @override
-  String get koUnrated => 'Unrated';
+  String get koUnrated => 'Sin calificación';
 
   @override
-  String get koTapToAssign => 'Tap to assign';
+  String get koTapToAssign => 'Toca para asignar';
 
   @override
-  String get koImportTitle => 'Import from Teams Hub';
+  String get koImportTitle => 'Importar desde el Hub de Equipos';
 
   @override
-  String get koNoTeamsFound => 'No teams found.';
+  String get koNoTeamsFound => 'No se encontraron equipos.';
 
   @override
   String koPlayerCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count players',
-      one: '1 player',
+      other: '$count jugadores',
+      one: '1 jugador',
     );
     return '$_temp0';
   }
 
   @override
   String koAddTeamN(int n) {
-    return 'Add Team $n';
+    return 'Añadir equipo $n';
   }
 
   @override
-  String get koAddTeamSubtitle => 'How would you like to add this team?';
+  String get koAddTeamSubtitle => '¿Cómo quieres añadir este equipo?';
 
   @override
-  String get koFromTeamsHub => 'From Teams Hub';
+  String get koFromTeamsHub => 'Desde el Hub de Equipos';
 
   @override
-  String get koFromTeamsHubSubtitle => 'Pick an existing team from your hub';
+  String get koFromTeamsHubSubtitle => 'Elige un equipo existente de tu hub';
 
   @override
-  String get koNoTeamsInHubYet => 'No teams in hub yet.';
+  String get koNoTeamsInHubYet => 'Aún no hay equipos en el hub.';
 
   @override
-  String get koNoTeamsInHubYetShort => 'No teams in hub yet';
+  String get koNoTeamsInHubYetShort => 'Aún no hay equipos en el hub';
 
   @override
-  String get koCreateNewTeamTitle => 'Create New Team';
+  String get koCreateNewTeamTitle => 'Crear nuevo equipo';
 
   @override
-  String get koAddTeamBtn => 'Add Team';
+  String get koAddTeamBtn => 'Añadir equipo';
 
   @override
-  String get koFromPlayersHub => 'B — From Players Hub';
+  String get koFromPlayersHub => 'B — Desde el Hub de Jugadores';
 
   @override
-  String get koNoPlayersInHub => 'No players in the hub yet.';
+  String get koNoPlayersInHub => 'Aún no hay jugadores en el hub.';
 
   @override
-  String get koNoPlayersFound => 'No players found.';
+  String get koNoPlayersFound => 'No se encontraron jugadores.';
 
   @override
-  String get koEditPlayer => 'Edit Player';
+  String get koEditPlayer => 'Editar jugador';
 
   @override
-  String get koPlayerNameLabel => 'Name';
+  String get koPlayerNameLabel => 'Nombre';
 
   @override
-  String get koSkillRatingOptional => 'Skill rating (optional)';
+  String get koSkillRatingOptional => 'Calificación de habilidad (opcional)';
 
   @override
-  String get koSectionAEditPlayer => 'A — Edit Player';
+  String get koSectionAEditPlayer => 'A — Editar jugador';
 
   @override
-  String get koSectionANewPlayer => 'A — New Player';
+  String get koSectionANewPlayer => 'A — Nuevo jugador';
 
   @override
-  String get koSectionBNewPlayer => 'B — New Player';
+  String get koSectionBNewPlayer => 'B — Nuevo jugador';
 
   @override
-  String get koSectionCFromHub => 'C — From Players Hub';
+  String get koSectionCFromHub => 'C — Desde el Hub de Jugadores';
 
   @override
-  String get quickGameSettingsTitle => 'Game Settings';
+  String get quickGameSettingsTitle => 'Configuración del juego';
 
   @override
-  String get quickGamePlayersPerSide => 'Players per side';
+  String get quickGamePlayersPerSide => 'Jugadores por lado';
 
   @override
-  String get quickGameFormatLabel => 'Format';
+  String get quickGameFormatLabel => 'Formato';
 
   @override
-  String get quickGameTeamsTitle => 'Teams';
+  String get quickGameTeamsTitle => 'Equipos';
 
   @override
-  String get quickGameTapToConfigure => 'Tap to configure team';
+  String get quickGameTapToConfigure => 'Toca para configurar el equipo';
+
+  @override
+  String get adminHelpBody =>
+      'Gestiona jugadores, equipos y grupos para configurar eficientemente tus juegos y torneos.';
+
+  @override
+  String get adminInfoTooltip => 'Acerca de la Administración';
+
+  @override
+  String get adminManagePlayers => 'Gestionar perfiles de jugadores';
+
+  @override
+  String get adminManageTeams => 'Gestionar equipos y plantillas';
+
+  @override
+  String get adminManageGroups => 'Gestionar grupos y afiliaciones';
+
+  @override
+  String get playerHubSubtitle => 'Tu pool global de jugadores';
+
+  @override
+  String get teamHubSubtitle => 'Tu pool global de equipos';
+
+  @override
+  String get groupHubSubtitle => 'Tu pool global de grupos';
+
+  @override
+  String get modeQuickGamesName => 'Quick Games';
+
+  @override
+  String get modeSocialScramblesName => 'Social Scrambles';
+
+  @override
+  String get modeKotcName => 'King of the Court';
+
+  @override
+  String get modeDoghouseName => 'Doghouse';
+
+  @override
+  String get modeLeagueName => 'Liga';
+
+  @override
+  String get modeLeagueFullName => 'Liga / Round Robin';
+
+  @override
+  String get modeSingleElimName => 'Eliminación Simple';
+
+  @override
+  String get modeDoubleElimName => 'Eliminación Doble';
+
+  @override
+  String get modeGroupSeName => 'Grupo + ES';
+
+  @override
+  String get modeGroupSeFullName => 'Grupo + Eliminación Simple';
+
+  @override
+  String get modeGroupDeName => 'Grupo + ED';
+
+  @override
+  String get modeGroupDeFullName => 'Grupo + Eliminación Doble';
+
+  @override
+  String get modeSwissName => 'Sistema Suizo';
+
+  @override
+  String get modeComingSoonHelp => 'Descripción detallada próximamente.';
+
+  @override
+  String get modeQuickGamesHelp =>
+      'Quick Games te permite iniciar un partido puntuado al instante — sin configuración de torneo. Elige dos equipos, establece el formato y empieza a registrar el marcador de inmediato.\n\nIdeal para juego casual, sesiones de entrenamiento o cuando simplemente quieras disputar un partido sin bracket.';
+
+  @override
+  String get modeSocialScramblesHelp =>
+      'Social Scrambles es un mixer rotativo cronometrado donde los equipos se redistribuyen aleatoriamente cada ronda. Nadie permanece como compañero mucho tiempo — el objetivo es jugar con y contra la mayor cantidad de personas posible.\n\nPerfecto para sesiones de playa, días abiertos o cualquier grupo que quiera juego competitivo sin la presión de un bracket fijo.\n\nJusto por diseño. TournaQ programa a cada jugador en el máximo número de rondas manteniendo los tiempos de espera lo más cortos posible.\n\nCómo funciona una ronda:\n• Los equipos se sortean aleatoriamente al inicio de cada ronda\n• Todas las pistas juegan simultáneamente durante la duración establecida\n• Un breve descanso precede a la siguiente ronda\n• Las victorias acumuladas se registran en todas las rondas\n\nAgrega tus jugadores, configura el temporizador — y a jugar.';
+
+  @override
+  String get modeKotcHelp =>
+      'King of the Court es una competición individual rápida donde cada jugador lucha por la corona. Los jugadores rotan en grupos, ganando puntos por cada rally — el ranking es completamente personal.\n\nFormato corto, alta energía — perfecto como calentamiento o competición independiente.\n\nJusto por diseño. La asignación automática de TournaQ garantiza que todos jueguen con y contra personas distintas.\n\nCómo funciona un juego:\n• Ganar un rally → cada jugador de ese lado anota un punto\n• Alcanzar el objetivo de Strike Points → el grupo actual gana, todos vuelven a la cola\n• El coach expulsa manualmente → el turno termina, puntos registrados\n• Los siguientes jugadores entran inmediatamente\n\nAntes de empezar, acuerda:\n• Quién saca cada rally\n• Si usar Strike Points y cuál es el objetivo\n\nAgrega tus jugadores, configura el temporizador — y a jugar.';
+
+  @override
+  String get modeDoghouseHelp =>
+      'Doghouse es un torneo competitivo rápido donde la acción nunca se detiene. Un equipo lucha desde el doghouse — anota suficientes puntos para escapar y abrir paso a los próximos retadores.\n\nFormato corto, alta intensidad — genial como calentamiento o competición independiente.\n\nJusto por diseño. La asignación automática de TournaQ garantiza que todos jueguen con y contra personas distintas.\n\nCómo funciona un juego:\n• Ganar un rally → anotar un punto\n• Perder un rally → juego perdido, puntos reiniciados\n• Alcanzar el objetivo de Escape Points → escapado, de vuelta a la cola\n• Alcanzar el Límite de Derrotas → expulsado, entra el siguiente equipo\n\nAntes de empezar, acuerda:\n• Qué equipo saca cada rally\n• Configuración de Escape Points y Límite de Derrotas\n\nAgrega tus jugadores, configura el temporizador — y a jugar.';
 }

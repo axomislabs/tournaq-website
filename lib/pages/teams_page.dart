@@ -376,13 +376,13 @@ class _TeamsPageState extends State<TeamsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.group_rounded, color: Colors.white, size: 22),
-              SizedBox(width: 8),
+              const Icon(Icons.group_rounded, color: Colors.white, size: 22),
+              const SizedBox(width: 8),
               Text(
-                'Teams',
-                style: TextStyle(
+                l10n.navTeams,
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800),
@@ -391,7 +391,7 @@ class _TeamsPageState extends State<TeamsPage> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Manage your global team pool',
+            l10n.teamHubSubtitle,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.90),
                 fontSize: 13,

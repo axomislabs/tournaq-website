@@ -20,6 +20,7 @@ class AdministrationPage extends StatelessWidget {
   });
 
   void _showInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -27,23 +28,23 @@ class AdministrationPage extends StatelessWidget {
         titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
         actionsPadding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        title: const Text('Administration',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-        content: const SingleChildScrollView(
+        title: Text(l10n.navAdmin,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: SingleChildScrollView(
           child: Text(
-            'Manage players, teams, and groups to efficiently set up your games and tournaments.',
-            style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
+            l10n.adminHelpBody,
+            style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.6),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => openExternalUrl(ctx, AppLinks.featureUserAdministration),
-            child: const Text('Learn more'),
+            child: Text(l10n.btnLearnMore),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Got it',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(l10n.btnGotIt,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -59,7 +60,7 @@ class AdministrationPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline_rounded),
-            tooltip: 'About Administration',
+            tooltip: l10n.adminInfoTooltip,
             onPressed: () => _showInfo(context),
           ),
         ],
@@ -74,7 +75,7 @@ class AdministrationPage extends StatelessWidget {
               color: AppColors.gold,
               gradientEnd: AppColors.goldGradientEnd,
               name: l10n.navPlayers,
-              description: 'Manage player profiles',
+              description: l10n.adminManagePlayers,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => UsersPage(
                   appState: appState,
@@ -87,7 +88,7 @@ class AdministrationPage extends StatelessWidget {
               color: AppColors.gold,
               gradientEnd: AppColors.goldGradientEnd,
               name: l10n.navTeams,
-              description: 'Manage teams and rosters',
+              description: l10n.adminManageTeams,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => TeamsPage(
                   appState: appState,
@@ -100,7 +101,7 @@ class AdministrationPage extends StatelessWidget {
               color: AppColors.gold,
               gradientEnd: AppColors.goldGradientEnd,
               name: l10n.navClubs,
-              description: 'Manage groups and affiliations',
+              description: l10n.adminManageGroups,
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => GroupsPage(
                   appState: appState,

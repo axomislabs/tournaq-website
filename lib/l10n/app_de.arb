@@ -151,7 +151,7 @@
   "comingSoonBody": "Dein Feedback kann helfen, diese Funktion zu gestalten.",
   "comingSoonLearnMore": "Mehr auf der Website erfahren",
 
-  "landingTournamentsSubtitle": "Turniere & Scrambles verwalten",
+  "landingTournamentsSubtitle": "Spiele und Turniere",
   "landingAdminSubtitle": "Spieler, Teams & Gruppen verwalten",
 
   "btnGotIt": "Verstanden",
@@ -162,12 +162,12 @@
   "tournamentsSectionTeam": "Teamwettbewerbe",
   "tournamentsSectionHistory": "Turnierhistorie",
 
-  "modeQuickGamesDesc": "Ad-hoc gewertete Matches",
-  "modeSocialScramblesDesc": "Rotierender Round-Robin-Mixer",
-  "modeKotcDesc": "Sieger bleiben, Herausforderer rotieren",
+  "modeQuickGamesDesc": "Ad-hoc Matches",
+  "modeSocialScramblesDesc": "Jeder mit jedem",
+  "modeKotcDesc": "Beherrsche den Court",
   "modeDoghouseDesc": "Aus dem Doghouse entkommen",
   "modeLeagueDesc": "Punktebasierte Tabelle",
-  "modeSingleElimDesc": "Klassisches Knockout-Bracket",
+  "modeSingleElimDesc": "Klassisches KO System",
   "modeDoubleElimDesc": "Bracket mit zweiter Chance",
   "modeGroupSeDesc": "Gruppenphase · Single Elimination",
   "modeGroupDeDesc": "Gruppenphase · Double Elimination",
@@ -555,8 +555,8 @@
   "@doghousePairStat": { "placeholders": { "escapes": { "type": "int" }, "losses": { "type": "int" } } },
   "doghousePlayerStats": "Spielerstatistiken",
   "doghouseSessionTimer": "SITZUNGS-TIMER",
-  "doghouseGameplayControls": "Steuerung",
-  "doghouseMatchControls": "Spielsteuerung",
+  "doghouseGameplayControls": "Spielsteuerung",
+  "doghouseMatchControls": "Spielaktionen",
   "doghouseStartRestart": "Start / Neu starten",
   "doghouseTournamentCompleted": "Turnier abgeschlossen",
   "doghouseNotEnoughInQueue": "Nicht genug Spieler in der Warteschlange.",
@@ -1329,5 +1329,213 @@
     "placeholders": {
       "n": {"type": "int"}
     }
-  }
+  },
+
+  "setupPlayerN": "Spieler {n}",
+  "@setupPlayerN": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+
+  "koEditTeam": "Team bearbeiten",
+  "@koEditTeam": {},
+
+  "koTeamSetupSubtitle": "Wie möchtest du dieses Team einrichten?",
+  "@koTeamSetupSubtitle": {},
+
+  "koCreateNew": "Manuell bearbeiten",
+  "@koCreateNew": {},
+
+  "koCreateNewSubtitle": "Benutzerdefinierten Namen festlegen und Spieler manuell zuweisen",
+  "@koCreateNewSubtitle": {},
+
+  "koCreateNewTeamTitle": "Neues Team erstellen",
+  "@koCreateNewTeamTitle": {},
+
+  "koImportFromHub": "Aus Teams Hub importieren",
+  "@koImportFromHub": {},
+
+  "koImportFromHubSubtitle": "Ein vorhandenes Team auswählen – Name und Spieler werden automatisch übernommen",
+  "@koImportFromHubSubtitle": {},
+
+  "koNoTeamsInHub": "Noch keine Teams im Teams Hub.\nErstelle Teams zuerst im Bereich Teams.",
+  "@koNoTeamsInHub": {},
+
+  "koPlayersSection": "Spieler",
+  "@koPlayersSection": {},
+
+  "koSkillRating": "Können: {rating}",
+  "@koSkillRating": {
+    "placeholders": {
+      "rating": {"type": "Object"}
+    }
+  },
+
+  "koUnrated": "Nicht bewertet",
+  "@koUnrated": {},
+
+  "koTapToAssign": "Zum Zuweisen antippen",
+  "@koTapToAssign": {},
+
+  "koImportTitle": "Aus Teams Hub importieren",
+  "@koImportTitle": {},
+
+  "koNoTeamsFound": "Keine Teams gefunden.",
+  "@koNoTeamsFound": {},
+
+  "koPlayerCount": "{count, plural, =1{1 Spieler} other{{count} Spieler}}",
+  "@koPlayerCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "koAddTeamN": "Team {n} hinzufügen",
+  "@koAddTeamN": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+
+  "koAddTeamSubtitle": "Wie möchtest du dieses Team hinzufügen?",
+  "@koAddTeamSubtitle": {},
+
+  "koFromTeamsHub": "Aus Teams Hub",
+  "@koFromTeamsHub": {},
+
+  "koFromTeamsHubSubtitle": "Ein vorhandenes Team aus deinem Hub auswählen",
+  "@koFromTeamsHubSubtitle": {},
+
+  "koNoTeamsInHubYet": "Noch keine Teams im Hub.",
+  "@koNoTeamsInHubYet": {},
+
+  "koNoTeamsInHubYetShort": "Noch keine Teams im Hub",
+  "@koNoTeamsInHubYetShort": {},
+
+  "koAddTeamBtn": "Team hinzufügen",
+  "@koAddTeamBtn": {},
+
+  "koFromPlayersHub": "B – Aus Spieler-Hub",
+  "@koFromPlayersHub": {},
+
+  "koNoPlayersInHub": "Noch keine Spieler im Hub.",
+  "@koNoPlayersInHub": {},
+
+  "koNoPlayersFound": "Keine Spieler gefunden.",
+  "@koNoPlayersFound": {},
+
+  "koEditPlayer": "Spieler bearbeiten",
+  "@koEditPlayer": {},
+
+  "koPlayerNameLabel": "Name",
+  "@koPlayerNameLabel": {},
+
+  "koSkillRatingOptional": "Können-Bewertung (optional)",
+  "@koSkillRatingOptional": {},
+
+  "koSectionAEditPlayer": "A – Spieler bearbeiten",
+  "@koSectionAEditPlayer": {},
+
+  "koSectionANewPlayer": "A – Neuer Spieler",
+  "@koSectionANewPlayer": {},
+
+  "koSectionBNewPlayer": "B – Neuer Spieler",
+  "@koSectionBNewPlayer": {},
+
+  "koSectionCFromHub": "C – Aus Spieler-Hub",
+  "@koSectionCFromHub": {},
+
+  "quickGameSettingsTitle": "Spieleinstellungen",
+  "@quickGameSettingsTitle": {},
+
+  "quickGamePlayersPerSide": "Spieler pro Seite",
+  "@quickGamePlayersPerSide": {},
+
+  "quickGameFormatLabel": "Format",
+  "@quickGameFormatLabel": {},
+
+  "quickGameTeamsTitle": "Teams",
+  "@quickGameTeamsTitle": {},
+
+  "quickGameTapToConfigure": "Zum Konfigurieren antippen",
+  "@quickGameTapToConfigure": {},
+
+  "adminHelpBody": "Spieler, Teams und Gruppen verwalten – für einen effizienten Start in deine Spiele und Turniere.",
+  "@adminHelpBody": {},
+
+  "adminInfoTooltip": "Über die Verwaltung",
+  "@adminInfoTooltip": {},
+
+  "adminManagePlayers": "Spielerprofile verwalten",
+  "@adminManagePlayers": {},
+
+  "adminManageTeams": "Teams und Kader verwalten",
+  "@adminManageTeams": {},
+
+  "adminManageGroups": "Gruppen und Zugehörigkeiten verwalten",
+  "@adminManageGroups": {},
+
+  "playerHubSubtitle": "Dein globaler Spieler-Pool",
+  "@playerHubSubtitle": {},
+
+  "teamHubSubtitle": "Dein globaler Team-Pool",
+  "@teamHubSubtitle": {},
+
+  "groupHubSubtitle": "Dein globaler Gruppen-Pool",
+  "@groupHubSubtitle": {},
+
+  "modeQuickGamesName": "Quick Games",
+  "@modeQuickGamesName": {},
+
+  "modeSocialScramblesName": "Social Scrambles",
+  "@modeSocialScramblesName": {},
+
+  "modeKotcName": "King of the Court",
+  "@modeKotcName": {},
+
+  "modeDoghouseName": "Doghouse",
+  "@modeDoghouseName": {},
+
+  "modeLeagueName": "Liga",
+  "@modeLeagueName": {},
+
+  "modeLeagueFullName": "Liga / Round Robin",
+  "@modeLeagueFullName": {},
+
+  "modeSingleElimName": "Single Elimination",
+  "@modeSingleElimName": {},
+
+  "modeDoubleElimName": "Double Elimination",
+  "@modeDoubleElimName": {},
+
+  "modeGroupSeName": "Gruppe + SE",
+  "@modeGroupSeName": {},
+
+  "modeGroupSeFullName": "Gruppe + Single Elimination",
+  "@modeGroupSeFullName": {},
+
+  "modeGroupDeName": "Gruppe + DE",
+  "@modeGroupDeName": {},
+
+  "modeGroupDeFullName": "Gruppe + Double Elimination",
+  "@modeGroupDeFullName": {},
+
+  "modeSwissName": "Schweizer System",
+  "@modeSwissName": {},
+
+  "modeComingSoonHelp": "Detaillierte Beschreibung folgt in Kürze.",
+  "@modeComingSoonHelp": {},
+
+  "modeQuickGamesHelp": "Quick Games ermöglicht es dir, sofort ein gewertetes Match zu starten – kein Turnier-Setup erforderlich. Wähle zwei Teams, lege das Format fest und verfolge den Spielstand direkt.\n\nIdeal für lockeres Spielen, Trainingseinheiten oder immer dann, wenn du schnell ein Spiel ohne Bracket starten möchtest.",
+  "@modeQuickGamesHelp": {},
+
+  "modeSocialScramblesHelp": "Social Scrambles ist ein zeitbasierter, rotierender Mixer, bei dem die Teams in jeder Runde neu gemischt werden. Niemand bleibt lange Partner – das Ziel ist, mit und gegen möglichst viele verschiedene Personen zu spielen.\n\nPerfekt für Beach-Sessions, Open Days oder jede Gruppe, die kompetitiv spielen möchte, ohne den Druck eines festen Brackets.\n\nFair by Design: TournaQ plant jeden Spieler in die maximale Anzahl von Runden ein und hält die Wartezeiten so kurz wie möglich. Wenn nicht alle gleichzeitig aufs Feld passen, werden die Auszeiten fair verteilt.\n\nWie eine Runde funktioniert:\n• Teams werden zu Beginn jeder Runde zufällig ausgelost\n• Alle Courts spielen gleichzeitig für die festgelegte Matchdauer\n• Nach einer kurzen Pause beginnt die nächste Runde\n• Kumulierte Siege werden über alle Runden hinweg gezählt\n\nFüge deine Spieler hinzu, stell den Session-Timer ein – und los.",
+  "@modeSocialScramblesHelp": {},
+
+  "modeKotcHelp": "King of the Court ist ein schneller Einzelwettbewerb, bei dem jeder Spieler um die Krone kämpft. Spieler rotieren gruppenweise auf und vom Feld und erzielen Punkte für gewonnene Ballwechsel – das Ranking ist jedoch rein individuell. Der Spieler mit den meisten Spielsiegen (dann Punkten) über die Session gewinnt den Titel.\n\nKurzes Format, hohe Energie – perfekt als Aufwärmen oder eigenständiger Wettbewerb.\n\nFair by Design: TournaQs automatische Zuteilung sorgt dafür, dass alle mit und gegen verschiedene Personen spielen, Wartezeiten gering bleiben und Wiederholungen vermieden werden.\n\nWie ein Spiel funktioniert:\n• Ballwechsel gewinnen → jeder Spieler auf dieser Seite erhält einen Punkt\n• Strike-Points-Ziel erreichen → aktuelle Gruppe gewinnt das Spiel, alle rotieren zurück\n• Coach wirft manuell aus → Stint endet, Punkte werden gespeichert\n• Nächste Spieler treten sofort an\n\nVor dem Start einigen auf:\n• Wer jeden Ballwechsel aufschlägt\n• Ob Strike Points genutzt werden und was das Ziel ist\n\nFüge deine Spieler hinzu, stell den Session-Timer ein – und los.",
+  "@modeKotcHelp": {},
+
+  "modeDoghouseHelp": "Doghouse ist ein schnelles, kompetitives Turnier, bei dem die Action nie stoppt. Ein Team kämpft aus dem Doghouse heraus – erziele genug Punkte, um zu entkommen, und mach Platz für die nächsten Herausforderer. Wer zuerst das Niederlage-Limit erreicht, scheidet aus.\n\nKurzes Format, hohe Intensität – großartig als Aufwärmen oder eigenständiger Wettbewerb.\n\nFair by Design: TournaQs automatische Zuteilung sorgt dafür, dass alle mit und gegen verschiedene Personen spielen, Wartezeiten gering bleiben und Wiederholungen vermieden werden.\n\nWie ein Spiel funktioniert:\n• Ballwechsel gewinnen → Punkt erzielen\n• Ballwechsel verlieren → Spiel verloren, Punkte zurückgesetzt\n• Escape-Points-Ziel erreichen → entkommen, zurück in die Warteschlange\n• Niederlage-Limit erreichen → ausgeschlossen, nächstes Team tritt an\n\nVor dem Start einigen auf:\n• Welches Team jeden Ballwechsel aufschlägt\n• Escape-Points und Niederlage-Limit\n\nFüge deine Spieler hinzu, stell den Session-Timer ein – und los.",
+  "@modeDoghouseHelp": {}
 }
