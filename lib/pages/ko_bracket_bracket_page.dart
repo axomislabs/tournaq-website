@@ -6,11 +6,11 @@ import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
 import '../models/team.dart';
 import '../services/ko_bracket_storage_service.dart';
+import '../widgets/ko_team_editor_sheet.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import 'ko_bracket_match_page.dart';
-import 'ko_bracket_setup_page.dart';
 
 const _kGold     = AppColors.gold;
 const _kGoldDark = AppColors.goldDark;

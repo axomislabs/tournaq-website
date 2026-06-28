@@ -4461,6 +4461,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'C — From Players Hub'**
   String get koSectionCFromHub;
+
+  /// No description provided for @quickGameSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Settings'**
+  String get quickGameSettingsTitle;
+
+  /// No description provided for @quickGamePlayersPerSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Players per side'**
+  String get quickGamePlayersPerSide;
+
+  /// No description provided for @quickGameFormatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get quickGameFormatLabel;
+
+  /// No description provided for @quickGameTeamsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get quickGameTeamsTitle;
+
+  /// No description provided for @quickGameTapToConfigure.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to configure team'**
+  String get quickGameTapToConfigure;
 }
 
 class _AppLocalizationsDelegate

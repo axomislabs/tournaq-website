@@ -2499,4 +2499,19 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get koSectionCFromHub => 'C — From Players Hub';
+
+  @override
+  String get quickGameSettingsTitle => 'Game Settings';
+
+  @override
+  String get quickGamePlayersPerSide => 'Players per side';
+
+  @override
+  String get quickGameFormatLabel => 'Format';
+
+  @override
+  String get quickGameTeamsTitle => 'Teams';
+
+  @override
+  String get quickGameTapToConfigure => 'Tap to configure team';
 }

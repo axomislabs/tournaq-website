@@ -2470,5 +2470,20 @@
   "@koSectionCFromHub": {},
 
   "btnClear": "Clear",
-  "@btnClear": {}
+  "@btnClear": {},
+
+  "quickGameSettingsTitle": "Game Settings",
+  "@quickGameSettingsTitle": {},
+
+  "quickGamePlayersPerSide": "Players per side",
+  "@quickGamePlayersPerSide": {},
+
+  "quickGameFormatLabel": "Format",
+  "@quickGameFormatLabel": {},
+
+  "quickGameTeamsTitle": "Teams",
+  "@quickGameTeamsTitle": {},
+
+  "quickGameTapToConfigure": "Tap to configure team",
+  "@quickGameTapToConfigure": {}
 }

@@ -351,6 +351,281 @@ class _TeamPickerSheetState extends State<_TeamPickerSheet> {
   }
 }
 
+/// Shows a bottom sheet with a create section + group-filter + search for picking a player.
+/// Returns the selected or newly created player ID, or null if dismissed.
+Future<String?> showPlayerPickerSheet({
+  required BuildContext context,
+  required String title,
+  required List<({String id, String name})> players,
+  required List<Group> groups,
+  String Function(String name)? onCreatePlayer,
+}) async {
+  if (players.isEmpty && onCreatePlayer == null) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.assignNothingAvailable)),
+      );
+    }
+    return null;
+  }
+  return showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => _PlayerPickerSheet(
+      title: title,
+      players: players,
+      groups: groups,
+      onCreatePlayer: onCreatePlayer,
+    ),
+  );
+}
+
+class _PlayerPickerSheet extends StatefulWidget {
+  final String title;
+  final List<({String id, String name})> players;
+  final List<Group> groups;
+  final String Function(String name)? onCreatePlayer;
+  const _PlayerPickerSheet({
+    required this.title,
+    required this.players,
+    required this.groups,
+    this.onCreatePlayer,
+  });
+  @override
+  State<_PlayerPickerSheet> createState() => _PlayerPickerSheetState();
+}
+
+class _PlayerPickerSheetState extends State<_PlayerPickerSheet> {
+  final _searchCtrl  = TextEditingController();
+  final _createCtrl  = TextEditingController();
+  String? _selectedGroupId;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    _createCtrl.dispose();
+    super.dispose();
+  }
+
+  void _createAndPick() {
+    final name = _createCtrl.text.trim();
+    if (name.isEmpty) return;
+    final id = widget.onCreatePlayer!(name);
+    Navigator.of(context).pop(id);
+  }
+
+  List<Group> get _relevantGroups => widget.groups
+      .where((g) => widget.players.any((p) => g.playerIds.contains(p.id)))
+      .toList();
+
+  List<({String id, String name})> get _filtered {
+    final q = _searchCtrl.text.toLowerCase();
+    var result = widget.players;
+    if (_selectedGroupId != null) {
+      final group = widget.groups.firstWhere((g) => g.id == _selectedGroupId);
+      result = result.where((p) => group.playerIds.contains(p.id)).toList();
+    }
+    if (q.isNotEmpty) {
+      result = result.where((p) => p.name.toLowerCase().contains(q)).toList();
+    }
+    return result;
+  }
+
+  Future<void> _pickGroup() async {
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => GroupPickerSheet(
+        groups: _relevantGroups,
+        selectedId: _selectedGroupId,
+      ),
+    );
+    if (picked != null) {
+      setState(() => _selectedGroupId = picked.isEmpty ? null : picked);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final relevantGroups = _relevantGroups;
+    final hasGroups = relevantGroups.isNotEmpty;
+    final filtered = _filtered;
+    final groupName = _selectedGroupId == null
+        ? null
+        : relevantGroups.firstWhere((g) => g.id == _selectedGroupId).name;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: mq.viewInsets.bottom),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      constraints: BoxConstraints(maxHeight: mq.size.height * 0.75),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 10, bottom: 4),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.black12,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(widget.title,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w800)),
+                ),
+                // ── Create new player ──────────────────────────────────
+                if (widget.onCreatePlayer != null) ...[
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _createCtrl,
+                        textCapitalization: TextCapitalization.words,
+                        onChanged: (_) => setState(() {}),
+                        onSubmitted: (_) => _createAndPick(),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          hintText: 'New player name…',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _createCtrl.text.trim().isNotEmpty
+                          ? _createAndPick
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.olive,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: const Text('Create',
+                          style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ]),
+                  const SizedBox(height: 8),
+                  const Divider(),
+                ],
+                // ── Search existing players ────────────────────────────
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(children: [
+                    if (hasGroups) ...[
+                      GestureDetector(
+                        onTap: _pickGroup,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _selectedGroupId != null
+                                ? AppColors.goldCream
+                                : Colors.grey.shade50,
+                            borderRadius: const BorderRadius.horizontal(
+                                left: Radius.circular(11)),
+                          ),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [
+                            Icon(Icons.home_rounded,
+                                size: 14,
+                                color: _selectedGroupId != null
+                                    ? AppColors.goldDark
+                                    : Colors.black45),
+                            const SizedBox(width: 4),
+                            Text(
+                              groupName ?? 'Group',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: _selectedGroupId != null
+                                      ? AppColors.goldDark
+                                      : Colors.black45),
+                            ),
+                            const SizedBox(width: 2),
+                            Icon(Icons.arrow_drop_down_rounded,
+                                size: 16,
+                                color: _selectedGroupId != null
+                                    ? AppColors.goldDark
+                                    : Colors.black45),
+                          ]),
+                        ),
+                      ),
+                      Container(
+                          width: 1, height: 36, color: Colors.grey.shade200),
+                    ],
+                    Expanded(
+                      child: TextField(
+                        controller: _searchCtrl,
+                        autofocus: widget.onCreatePlayer == null,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          hintText: 'Search players…',
+                          prefixIcon: Icon(Icons.search_rounded,
+                              size: 18, color: Colors.black45),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 10),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Flexible(
+            child: filtered.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Text('No matches',
+                        style: TextStyle(color: Colors.black45)),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: filtered.length,
+                    itemBuilder: (ctx, i) {
+                      final item = filtered[i];
+                      return ListTile(
+                        leading: const Icon(Icons.person_rounded,
+                            color: AppColors.olive),
+                        title: Text(item.name),
+                        onTap: () => Navigator.of(ctx).pop(item.id),
+                      );
+                    },
+                  ),
+          ),
+          SizedBox(height: mq.padding.bottom + 8),
+        ],
+      ),
+    );
+  }
+}
+
 /// Shows a dropdown-based assignment dialog.
 /// Returns the selected ID on confirm, null on cancel or if no items.
 Future<String?> showAssignDialog({

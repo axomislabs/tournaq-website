@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../models/player.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
@@ -69,11 +70,16 @@ class _TeamDetailPageState extends State<TeamDetailPage> {
         .where((u) => !existingIds.contains(u.id))
         .map((u) => (id: u.id, name: u.name))
         .toList();
-    final selected = await showSearchPickerSheet(
+    final selected = await showPlayerPickerSheet(
       context: context,
       title: l10n.menuAddPlayer,
-      items: available,
-      emptyMessage: 'All players are already on this team.',
+      players: available,
+      groups: _localState.groups,
+      onCreatePlayer: (name) {
+        final player = Player(id: AppState.generateId(), name: name);
+        setState(() => _localState = _localState.addPlayer(player));
+        return player.id;
+      },
     );
     if (selected != null && mounted) {
       _updateState(AppDataService.assignUserToTeam(
