@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.king-of-the-court.title">
+<html lang="en" data-i18n-base="../../">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>King of the Court – TournaQ Game Modes</title>
+  <title>King of the Court – TournaQ</title>
   <link rel="stylesheet" href="../../css/style.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
@@ -12,87 +12,116 @@
   <style>
     html { scroll-behavior: smooth; }
 
-    .modes-subnav {
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .guide-grid,
+      .guide-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .guide-card {
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 22px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-      margin-bottom: 40px;
+      padding: 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
-    .modes-subnav-links {
+
+    .guide-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .guide-card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .guide-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--olive-light);
+      margin-top: 8px;
+    }
+
+    .guide-card img.vertical {
+      max-width: 230px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 760px) {
+      .guide-card img.vertical {
+        max-width: 280px;
+      }
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+    }
+
+    .card-nav {
+      margin: 20px 0;
+      padding: 14px 16px;
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .card-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card-nav-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
+      gap: 6px;
     }
-    .modes-subnav-links a {
-      background: var(--olive-light);
+
+    .card-nav-links a {
+      background: white;
       color: var(--olive);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 7px 14px;
+      padding: 5px 12px;
       border-radius: 999px;
+      border: 1px solid var(--border);
       transition: background 0.15s, color 0.15s;
     }
-    .modes-subnav-links a:hover,
-    .modes-subnav-links a.active {
+
+    .card-nav-links a:hover {
       background: var(--olive);
       color: white;
     }
-
-    .under-construction-banner {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #fff8e1;
-      border: 1px solid #f9a825;
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 24px;
-    }
-    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
-    .under-construction-banner .sign-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: #7c5a00;
-      line-height: 1.4;
-    }
-    .under-construction-banner .sign-text span {
-      display: block;
-      font-weight: 400;
-      font-size: 12px;
-      color: #9e7500;
-      margin-top: 2px;
-    }
-
-    .detail-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin: 24px 0;
-    }
-    .detail-box {
-      background: var(--olive-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-    }
-    .detail-box .label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--olive);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .detail-box .value {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--olive-dark);
-    }
-
   </style>
 </head>
 
@@ -114,8 +143,8 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="modes.king-of-the-court.hero.title">King of the Court</h1>
-      <p class="subtitle" data-i18n="modes.king-of-the-court.hero.subtitle">Win and hold the court. Every win counts. The strongest team stays on top.</p>
+      <h1>King of the Court</h1>
+      <p class="subtitle">Hold the court. Score points. Stay on top — until someone knocks you off.</p>
     </div>
   </header>
 
@@ -123,56 +152,157 @@
 
     <div id="feature-subnav"></div>
 
+    <!-- Overview -->
     <section class="card">
-      <div class="completed-status phase-status" data-i18n="modes.king-of-the-court.status">Available</div>
-      <h2 data-i18n="modes.king-of-the-court.hero.title">King of the Court</h2>
-      <div class="under-construction-banner">
-        <div class="sign">🚧</div>
-        <div class="sign-text" data-i18n-html="modes.king-of-the-court.construction">
-          Page Under Construction
-          <span>This page is being updated. Content may be incomplete.</span>
-        </div>
-      </div>
+      <div class="completed-status phase-status">Available</div>
+      <h2>King of the Court</h2>
+      <p>King of the Court is a continuous-play session format. One team defends the court while challengers queue up to take them on. When the defenders lose, they leave — the challengers become the new court holders and the next team from the queue steps up. Points accumulate across the session, and the player with the most points when time runs out is the King. A configurable strike system prevents any team from dominating too long: once a team reaches the strike limit they are automatically ejected and rejoin the queue.</p>
 
-      <div style="display:none">
-      <p data-i18n="modes.king-of-the-court.intro">King of the Court is a competitive rotation format where the winning team stays on court and the losing team is replaced by the next challenger from the queue. Unlike Doghouse, the goal is not just continuous play — it's to hold the court as long as possible. Win streaks are tracked, and the team with the most cumulative wins at the end is crowned King.</p>
+      <img src="../../assets/screenshots/kotc_hub.png" alt="King of the Court hub showing tournament history with player counts, game totals and points scored"
+        style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
 
-      <div class="detail-row">
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.king-of-the-court.detail.teams.label">Teams</div>
-          <div class="value" data-i18n="modes.king-of-the-court.detail.teams.value">3+</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.king-of-the-court.detail.courts.label">Courts</div>
-          <div class="value" data-i18n="modes.king-of-the-court.detail.courts.value">1 per group</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.king-of-the-court.detail.wins.label">Win tracking</div>
-          <div class="value" data-i18n="modes.king-of-the-court.detail.wins.value">Cumulative</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.king-of-the-court.detail.tournament.label">Tournament required</div>
-          <div class="value" data-i18n="modes.king-of-the-court.detail.tournament.value">Yes</div>
-        </div>
-      </div>
-
-      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.king-of-the-court.how.title">How it works</h3>
-      <p data-i18n="modes.king-of-the-court.how.text">The organiser sets up the match format and registers all participating teams. TournaQ tracks who is on court, manages the challenger queue, records every result, and maintains a live win count per team. Win streaks are highlighted — holding the court for multiple consecutive matches earns additional recognition in the standings. The session ends when time runs out or a target number of matches is completed.</p>
-
-      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.king-of-the-court.bestfor.title">Best for</h3>
-      <ul style="padding-left: 20px; line-height: 2;">
-        <li data-i18n="modes.king-of-the-court.bestfor.li1">Competitive club training with a clear winner at the end</li>
-        <li data-i18n="modes.king-of-the-court.bestfor.li2">Events where the best team should be identifiable</li>
-        <li data-i18n="modes.king-of-the-court.bestfor.li3">Groups of mixed ability where holding the court is a real challenge</li>
-        <li data-i18n="modes.king-of-the-court.bestfor.li4">Any session where you want tension and stakes beyond a single match</li>
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;">Best for</h3>
+      <ul style="padding-left: 20px; line-height: 2; font-size: 14px;">
+        <li>Informal group sessions where continuous action is the priority</li>
+        <li>Mixed-ability groups — challengers rotate in regardless of result</li>
+        <li>Sessions where one organiser manages the flow from a single device</li>
       </ul>
+
+      <div class="card-nav">
+        <div class="card-nav-label">Jump to section</div>
+        <div class="card-nav-links">
+          <a href="#setup">Setup</a>
+          <a href="#scorecard">Scorecard</a>
+          <a href="#manual-mode">Manual Queue</a>
+          <a href="#game-events">Game Events</a>
+          <a href="#rankings">Rankings</a>
+          <a href="#workflow">Workflow</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Setup -->
+    <section id="setup" style="margin-top: 40px;">
+      <h2 class="section-title">Tournament Setup</h2>
+      <p class="section-text">Tap New Tournament to configure the session. Set the number of players, total session time, match style, assignment mode, courts, and the strike points limit. Add players, name the tournament, and tap Create Tournament to begin.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>Session Settings</h3>
+          <p>Configure players, total session time, match style (2v2), assignment mode, number of courts, and the Strike Points threshold. Strike Points set when a defending team is automatically ejected — for example, a limit of 5 means a team is sent back to the queue once they reach 5 points. Set to 0 to disable ejections.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_setup.png" alt="King of the Court setup form showing players, time, style, assignment mode, courts and strike points fields">
+        </div>
+        <div class="guide-card">
+          <h3>Assignment Modes</h3>
+          <p><strong>Manual</strong> — the organiser picks the next two challengers from a player pool after each game. <strong>Automated</strong> — TournaQ automatically selects challengers and shows a preview of who is up next, with a Re-roll option. <strong>Auto-Allplay</strong> — automated assignment designed to ensure every player gets equal court time across the session.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_setup_manualautomatedallplay.png" alt="Assignment mode dropdown showing Manual, Automated and Auto-Allplay options">
+        </div>
+        <div class="guide-card">
+          <h3>Add Players</h3>
+          <p>Tap the Players field to open the player panel. Create players on the spot, import from the Players Hub, or use a random fill option. All added players enter the rotation from the start of the session.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_setup_players.png" alt="Player setup screen for King of the Court with player list and add options">
+        </div>
+      </div>
+    </section>
+
+    <!-- Scorecard -->
+    <section id="scorecard" style="margin-top: 40px;">
+      <h2 class="section-title">Scorecard</h2>
+      <p class="section-text">The King of the Court scorecard uses a session timer that counts down the total event time — not individual game timers. The current game, challenger queue, and all match controls are visible from one screen throughout the session.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Automated Mode</h3>
+          <p>In Automated mode, the scorecard shows the session timer at the top, the Up Next row with the next challengers (and a Re-roll button to shuffle), and the current Challengers waiting on deck. The defending team's card shows their score, time on court, and running strike count. The Team Ejected button appears on the right side of the card throughout the game.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_automated_ingamequeue.png" alt="Automated mode scorecard with session timer, Up Next queue, Challengers and defending team card with strike counter">
+        </div>
+        <div class="guide-card">
+          <h3>Auto-Allplay Mode</h3>
+          <p>Auto-Allplay uses the same layout. An admin indicator at the bottom shows who is managing the session. The Up Next and Challengers rows ensure fair rotation. All team cards display the current strike progress. The Team Ejected button is always available for manual override if the organiser needs to intervene.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_allplay1.png" alt="Auto-Allplay scorecard showing session timer, challenger queue, defending team and admin indicator">
+        </div>
+      </div>
+    </section>
+
+    <!-- Manual Queue -->
+    <section id="manual-mode" style="margin-top: 40px;">
+      <h2 class="section-title">Manual Queue</h2>
+      <p class="section-text">In Manual mode, the organiser selects the next two challengers after each game. All waiting players are shown as tappable chips — select two to form the next team, then start the game.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Defending the Court</h3>
+          <p>The defending team's card shows their names, current score, time on court, and strike counter (e.g. 3/5). Match Controls below show tournament context chips. Complete Tournament and Save and Return buttons are always visible so the organiser can end the session at any point.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_manual_ingame.png" alt="Manual mode scorecard showing defending team with score, strike counter and session timer">
+        </div>
+        <div class="guide-card">
+          <h3>Select Next Challengers</h3>
+          <p>After a game ends in Manual mode, all available players appear as chip buttons. Tap two to form the next challenging team — Start Game activates once both slots are filled. An Undo Last Ejection button allows correcting mistakes without navigating away.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_manual_queue.png" alt="Manual queue selection with all available players as tappable chip buttons and Undo Last Ejection option">
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Events -->
+    <section id="game-events" style="margin-top: 40px;">
+      <h2 class="section-title">Game Events</h2>
+      <p class="section-text">When a defending team hits the strike limit the app triggers ejection automatically. They return to the queue, the challengers take the court, and the session continues without interruption. The landscape view is available throughout for easier table-side or net-post scoring.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Strike Limit Reached</h3>
+          <p>When the defending team accumulates enough points to hit the strike threshold, a Game Won dialog confirms the result. It names the team, the points total reached, and explains they will be ejected and return to the queue. Tap Eject Team to confirm — the challengers automatically become the new court holders.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_manual_wingame.png" alt="Game Won dialog showing team name, strike points reached and Eject Team confirmation button">
+        </div>
+        <div class="guide-card">
+          <h3>Landscape Scoring</h3>
+          <p>Rotate the device to switch to landscape mode. The session timer and controls appear on the left, with team scoring on the right. Useful when the phone is placed on a table or net post where portrait orientation is less practical.</p>
+          <img src="../../assets/screenshots/kotc_scorecard_manual_score_landscape.png" alt="Landscape scorecard showing session timer on the left and team scoring on the right">
+        </div>
+      </div>
+    </section>
+
+    <!-- Rankings -->
+    <section id="rankings" style="margin-top: 40px;">
+      <h2 class="section-title">Player Stats &amp; Rankings</h2>
+      <p class="section-text">Player stats are tracked across the whole session. Games played, wins, and total points accumulate continuously. Stats can be viewed live at any point and the final standings are shown when the session ends.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Final Player Stats</h3>
+          <p>At the end of the session, the Player Stats panel shows the complete standings: each player ranked by total points scored, with their game count and win count. The session leader is highlighted at the top in gold. Stats reflect the full session including all ejections and queue rotations.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_storedrankings.png" alt="Player Stats panel showing final ranking by games, wins and total points with session leader highlighted">
+        </div>
+        <div class="guide-card">
+          <h3>Live Rankings</h3>
+          <p>Tap the rankings icon at any point during the session to see a live leaderboard. Players are ordered by wins and cumulative score so far. Rankings update after every completed game, giving everyone a real-time view of who is leading before time runs out.</p>
+          <img class="vertical" src="../../assets/screenshots/kotc_scorecard_adhocrankings.png" alt="Live mid-session rankings showing player positions by wins and score">
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow -->
+    <section id="workflow" style="margin-top: 40px;">
+      <h2 class="section-title">Step-by-Step Workflow</h2>
+      <div class="workflow-card">
+        <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
+          <li>Open TournaQ and navigate to King of the Court.</li>
+          <li>Tap <strong>New Tournament</strong> and configure players, time, match style, assignment mode, courts, and strike points.</li>
+          <li>Add players and name the tournament, then tap <strong>Create Tournament</strong>.</li>
+          <li>Start the session timer. The first game begins with the initial court holders.</li>
+          <li>Use the + and − buttons to track the defending team's score.</li>
+          <li>In <strong>Manual mode</strong>: select two challengers after each game. In <strong>Automated / Auto-Allplay</strong>: challengers are assigned automatically — re-roll if needed.</li>
+          <li>When a team hits the strike limit, tap <strong>Eject Team</strong> to rotate them out.</li>
+          <li>Continue until the session timer reaches zero.</li>
+          <li>Tap <strong>Complete Tournament</strong> to finalise the session and review the final Player Stats.</li>
+        </ol>
       </div>
     </section>
 
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.king-of-the-court.feedback.text">Have a question about King of the Court, spotted something missing, or want to suggest an improvement?</p>
+        <p>Have a question about King of the Court, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
@@ -189,4 +319,5 @@
   </footer>
 
 </body>
+
 </html>

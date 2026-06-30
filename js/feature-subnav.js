@@ -106,7 +106,7 @@
             <a href="${m}social-scramble.html">Social Scramble</a>
             <a href="${m}doghouse.html">Doghouse</a>
             <a href="${m}king-of-the-court.html">King of the Court</a>
-            <a href="${m}ko-system.html">KO System</a>
+            <a href="${m}ko-system.html">Single Elimination</a>
             <a href="${m}league.html">League</a>
             <a href="${m}double-elimination.html">Double Elimination</a>
             <a href="${m}group-single-elimination.html">Group &amp; Single Elim.</a>

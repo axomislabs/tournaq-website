@@ -1,112 +1,127 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.doghouse.title">
+<html lang="en" data-i18n-base="../../">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Doghouse – TournaQ Game Modes</title>
+  <title>Doghouse – TournaQ</title>
   <link rel="stylesheet" href="../../css/style.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
   <script src="../../js/feature-subnav.js" defer></script>
   <style>
-    html {
-      scroll-behavior: smooth;
+    html { scroll-behavior: smooth; }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 20px;
     }
 
-    .modes-subnav {
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .guide-grid,
+      .guide-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .guide-card {
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 22px;
+      padding: 22px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-      margin-bottom: 40px;
     }
 
-    .modes-subnav-links {
+    .guide-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .guide-card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .guide-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--olive-light);
+      margin-top: 8px;
+    }
+
+    .guide-card img.vertical {
+      max-width: 230px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 760px) {
+      .guide-card img.vertical {
+        max-width: 280px;
+      }
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+    }
+
+    .card-nav {
+      margin: 20px 0;
+      padding: 14px 16px;
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .card-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card-nav-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
+      gap: 6px;
     }
 
-    .modes-subnav-links a {
-      background: var(--olive-light);
+    .card-nav-links a {
+      background: white;
       color: var(--olive);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 7px 14px;
+      padding: 5px 12px;
       border-radius: 999px;
+      border: 1px solid var(--border);
       transition: background 0.15s, color 0.15s;
     }
 
-    .modes-subnav-links a:hover,
-    .modes-subnav-links a.active {
+    .card-nav-links a:hover {
       background: var(--olive);
       color: white;
     }
-
-    .under-construction-banner {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #fff8e1;
-      border: 1px solid #f9a825;
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 24px;
-    }
-
-    .under-construction-banner .sign {
-      font-size: 28px;
-      flex-shrink: 0;
-    }
-
-    .under-construction-banner .sign-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: #7c5a00;
-      line-height: 1.4;
-    }
-
-    .under-construction-banner .sign-text span {
-      display: block;
-      font-weight: 400;
-      font-size: 12px;
-      color: #9e7500;
-      margin-top: 2px;
-    }
-
-    .detail-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin: 24px 0;
-    }
-
-    .detail-box {
-      background: var(--olive-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-    }
-
-    .detail-box .label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--olive);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    .detail-box .value {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--olive-dark);
-    }
-
   </style>
 </head>
 
@@ -129,7 +144,7 @@
 
     <div class="hero">
       <h1 data-i18n="modes.doghouse.hero.title">Doghouse</h1>
-      <p class="subtitle" data-i18n="modes.doghouse.hero.subtitle">Handle the pressure. Try to get out of the doghouse.</p>
+      <p class="subtitle" data-i18n="modes.doghouse.hero.subtitle">Lose to enter. Score to escape. Keep the heat on.</p>
     </div>
   </header>
 
@@ -137,59 +152,155 @@
 
     <div id="feature-subnav"></div>
 
+    <!-- Overview -->
     <section class="card">
       <div class="completed-status phase-status" data-i18n="modes.doghouse.status">Available</div>
       <h2 data-i18n="modes.doghouse.hero.title">Doghouse</h2>
-      <div class="under-construction-banner">
-        <div class="sign">🚧</div>
-        <div class="sign-text" data-i18n-html="modes.doghouse.construction">
-          Page Under Construction
-          <span>This page is being updated. Content may be incomplete.</span>
+      <p data-i18n="modes.doghouse.intro">Doghouse is a session-based format built around a single pressure concept: one team is placed "in the doghouse" and must score enough points to escape. While they are in the doghouse, challengers rotate in to play against them. Every point the doghouse team scores counts toward their escape total. If they hit the Escape Points target, they break free and return to the queue. If they lose too many games before escaping, they hit the Loss Limit and are ejected — sent back to the queue without credit. A session timer drives the whole event and player stats track escapes across the session.</p>
+
+      <img src="../../assets/screenshots/dog_hub.png" alt="Doghouse hub showing tournament history with player counts, games played and escape counts"
+        style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
+
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.doghouse.bestfor.title">Best for</h3>
+      <ul style="padding-left: 20px; line-height: 2; font-size: 14px;">
+        <li data-i18n="modes.doghouse.bestfor.li1">Informal group sessions where you want one focal "challenge" spot</li>
+        <li data-i18n="modes.doghouse.bestfor.li2">Groups that enjoy a high-pressure, escape-or-get-ejected format</li>
+        <li data-i18n="modes.doghouse.bestfor.li3">Sessions where continuous rotation and pressure keep things competitive</li>
+      </ul>
+
+      <div class="card-nav">
+        <div class="card-nav-label" data-i18n="modes.doghouse.cardnav.label">Jump to section</div>
+        <div class="card-nav-links">
+          <a href="#setup" data-i18n="modes.doghouse.cardnav.setup">Setup</a>
+          <a href="#manual" data-i18n="modes.doghouse.cardnav.manual">Manual Mode</a>
+          <a href="#automated" data-i18n="modes.doghouse.cardnav.automated">Automated Mode</a>
+          <a href="#game-events" data-i18n="modes.doghouse.cardnav.gameevents">Game Events</a>
+          <a href="#standings" data-i18n="modes.doghouse.cardnav.standings">Player Stats</a>
+          <a href="#workflow" data-i18n="modes.doghouse.cardnav.workflow">Workflow</a>
         </div>
       </div>
+    </section>
 
-      <div style="display:none">
-        <p data-i18n="modes.doghouse.intro">Doghouse is a continuous play format for groups where not everyone can be on court at the same time. The
-          losing
-          team steps off and joins the back of a waiting queue — the "doghouse". The next team in the queue steps
-          straight
-          on to face the winners. Play never stops, and teams rotate through the queue until time runs out or a target
-          win
-          count is reached.</p>
+    <!-- Setup -->
+    <section id="setup" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.setup.title">Tournament Setup</h2>
+      <p class="section-text" data-i18n="modes.doghouse.setup.text">Tap New Tournament to open the setup form. Configure the number of players, total session time, match style, assignment mode, Escape Points target, and Loss Limit. Add players, name the tournament, then tap Create Tournament to begin.</p>
 
-        <div class="detail-row">
-          <div class="detail-box">
-            <div class="label" data-i18n="modes.doghouse.detail.teams.label">Teams</div>
-            <div class="value" data-i18n="modes.doghouse.detail.teams.value">3+</div>
-          </div>
-          <div class="detail-box">
-            <div class="label" data-i18n="modes.doghouse.detail.courts.label">Courts</div>
-            <div class="value" data-i18n="modes.doghouse.detail.courts.value">1 per group</div>
-          </div>
-          <div class="detail-box">
-            <div class="label" data-i18n="modes.doghouse.detail.length.label">Match length</div>
-            <div class="value" data-i18n="modes.doghouse.detail.length.value">Short sets</div>
-          </div>
-          <div class="detail-box">
-            <div class="label" data-i18n="modes.doghouse.detail.tournament.label">Tournament required</div>
-            <div class="value" data-i18n="modes.doghouse.detail.tournament.value">Yes</div>
-          </div>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.setup.card1.title">Session Settings</h3>
+          <p data-i18n="modes.doghouse.setup.card1.text">Set the player count, session time (e.g. 60 min), match style (2v2), assignment mode (Manual or Automated), Escape Points target, and Loss Limit. Escape Points determines how many points a doghouse team must score to escape. Loss Limit sets how many games they can lose before being ejected. Set either to 0 to disable that condition.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_setup.png" alt="Doghouse setup form showing Players, Time, Style, Assignment, Escape Points and Loss Limit fields">
         </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.setup.card2.title">Assignment Modes</h3>
+          <p data-i18n-html="modes.doghouse.setup.card2.text"><strong>Manual</strong> — the organiser selects which two players enter the doghouse after each rotation. <strong>Automated</strong> — TournaQ automatically selects the next doghouse team, shows an Up Next preview, and manages the queue. Automated mode also includes a Re-roll option if you want to shuffle the assignment.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_setup_manualautomated.png" alt="Assignment mode dropdown showing Manual and Automated options">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.setup.card3.title">Add Players</h3>
+          <p data-i18n="modes.doghouse.setup.card3.text">Tap the Players field to open the player panel. Create players on the spot, import from the Players Hub, or use a random fill option. All added players enter the rotation from the start of the session.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_setupcomplete.png" alt="Doghouse setup complete with players added and ready to create tournament">
+        </div>
+      </div>
+    </section>
 
-        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.doghouse.how.title">How it works</h3>
-        <p data-i18n="modes.doghouse.how.text">The organiser registers all teams and sets the match format (typically a single short set to keep the queue
-          moving). TournaQ tracks the queue order, records each result, and updates standings in real time. The team
-          with
-          the most wins when the session ends is the winner. Matches are intentionally short — the energy comes from the
-          constant rotation and the pressure of defending on court.</p>
+    <!-- Manual Mode -->
+    <section id="manual" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.manual.title">Manual Mode</h2>
+      <p class="section-text" data-i18n="modes.doghouse.manual.text">In Manual mode, the organiser controls which two players go into the doghouse after each rotation. All available players are shown as tappable chip buttons — select two, confirm, and the game begins. The session timer counts down in the background throughout.</p>
 
-        <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.doghouse.bestfor.title">Best for</h3>
-        <ul style="padding-left: 20px; line-height: 2;">
-          <li data-i18n="modes.doghouse.bestfor.li1">Club training sessions with an odd number of teams</li>
-          <li data-i18n="modes.doghouse.bestfor.li2">Social evenings where continuous action is the priority</li>
-          <li data-i18n="modes.doghouse.bestfor.li3">Groups of 3–6 teams on a single court</li>
-          <li data-i18n="modes.doghouse.bestfor.li4">Warm-up competitions before a main draw tournament</li>
-        </ul>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.manual.card1.title">Select Doghouse Team</h3>
+          <p data-i18n="modes.doghouse.manual.card1.text">The scorecard opens with a player selection panel showing all participants as chip buttons. The "Select 2 players (0/2)" indicator tracks how many have been chosen. Match Controls at the bottom show the tournament context: name, match style, player count, escape target (green chip), and loss limit (red chip). Enter Doghouse is disabled until two players are selected.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_start.png" alt="Manual mode player selection panel with all players as chips and disabled Enter Doghouse button">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.manual.card2.title">Confirm the Team</h3>
+          <p data-i18n="modes.doghouse.manual.card2.text">Once two players are selected, their chips are highlighted in gold and the Enter Doghouse button activates. Tap it to place the selected pair in the doghouse and start the game against the waiting challengers.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_enterdoghouse.png" alt="Two players selected and Enter Doghouse button active in gold">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.manual.card3.title">In-Game Scoring</h3>
+          <p data-i18n="modes.doghouse.manual.card3.text">Once in play, the doghouse team's card shows their names, current score, time on court, and two counters: the escape progress (e.g. 1/3) and the loss counter (e.g. 0/3). Use the + and − buttons to score points. A separate Game Lost panel on the right tracks losses independently with an Undo button for corrections.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_score1.png" alt="In-game scorecard showing doghouse team with escape and loss counters">
+        </div>
+      </div>
+    </section>
+
+    <!-- Automated Mode -->
+    <section id="automated" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.automated.title">Automated Mode</h2>
+      <p class="section-text" data-i18n="modes.doghouse.automated.text">In Automated mode, TournaQ manages the queue automatically. The scorecard shows three sections: Up Next (who goes into the doghouse next), Challengers (the team about to play them), and In Doghouse (the current team under pressure). A landscape view is available throughout for table-side or net-post use.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.automated.card1.title">Queue View</h3>
+          <p data-i18n="modes.doghouse.automated.card1.text">The session timer runs at the top. Below it, the Up Next row shows which pair will enter the doghouse next (with a Re-roll button). The Challengers row shows who is waiting to play against the doghouse team. The In Doghouse card shows the current team's score, time on court, escape counter, and loss counter. The Game Lost panel appears to the right with an Undo button.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_auto_scorequeue1.png" alt="Automated mode scorecard with Up Next, Challengers and In Doghouse sections visible">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.automated.card2.title">Landscape Scoring</h3>
+          <p data-i18n="modes.doghouse.automated.card2.text">Rotate the device to switch to landscape mode. The session timer and controls move to the left column. The In Doghouse team card and Game Lost panel appear on the right. Useful when the device is placed flat on a table or attached to a net post during play.</p>
+          <img src="../../assets/screenshots/dog_scorecard_manual_landscape.png" alt="Landscape Doghouse scorecard with session timer on the left and team card on the right">
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Events -->
+    <section id="game-events" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.events.title">Game Events</h2>
+      <p class="section-text" data-i18n="modes.doghouse.events.text">Two outcomes resolve a doghouse stint: the team escapes by reaching the Escape Points target, or they are ejected by hitting the Loss Limit. Both trigger a confirmation dialog before the next rotation begins.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.events.card1.title">Escaped!</h3>
+          <p data-i18n="modes.doghouse.events.card1.text">When the doghouse team scores enough points to reach the Escape Points target, a celebration dialog appears. It names the team, confirms how many points they scored, and announces they are returning to the queue. Tap Escape! to confirm the result and begin the next rotation.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_escaped.png" alt="Escaped dialog with party celebration confirming the team earned enough points to escape">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.events.card2.title">Ejected!</h3>
+          <p data-i18n="modes.doghouse.events.card2.text">If the doghouse team loses too many games before escaping, an Ejected dialog appears in red. It names the team and confirms they hit the Loss Limit. They return to the queue without an escape credit. Tap Eject Team to confirm and continue the session.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_ejected.png" alt="Ejected dialog in red confirming the team hit the loss limit and is returning to the queue">
+        </div>
+      </div>
+    </section>
+
+    <!-- Player Stats -->
+    <section id="standings" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.stats.title">Player Stats &amp; Final Standings</h2>
+      <p class="section-text" data-i18n="modes.doghouse.stats.text">Player stats are tracked across the entire session. Escapes, losses, games played, and total points accumulate continuously. Stats can be viewed at any point and the complete final standings are shown when the session timer reaches zero.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.stats.card1.title">Player Stats Panel</h3>
+          <p data-i18n="modes.doghouse.stats.card1.text">The Player Stats panel shows each player ranked by total points, with columns for Games, Escapes (Esc), Games Lost (Lost), and Points (pts). The session leader appears at the top. Stats reflect the full session including all escape and ejection events.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_playerstatsfinal.png" alt="Player Stats panel showing all players ranked by escapes, games lost and points">
+        </div>
+        <div class="guide-card">
+          <h3 data-i18n="modes.doghouse.stats.card2.title">Tournament Complete</h3>
+          <p data-i18n="modes.doghouse.stats.card2.text">When the session timer reaches zero, a Tournament Complete dialog shows the final summary: total games played, total escapes across all players, and the Final Standings with each player's escape count and losses. Tap Done to close and return to the Doghouse hub.</p>
+          <img class="vertical" src="../../assets/screenshots/dog_scorecard_adhocranking.png" alt="Tournament Complete dialog showing final standings with escape and loss counts per player">
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow -->
+    <section id="workflow" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="modes.doghouse.workflow.title">Step-by-Step Workflow</h2>
+      <div class="workflow-card">
+        <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
+          <li data-i18n="modes.doghouse.workflow.li1">Open TournaQ and navigate to Doghouse.</li>
+          <li data-i18n-html="modes.doghouse.workflow.li2">Tap <strong>New Tournament</strong> and configure players, session time, match style, assignment mode, Escape Points, and Loss Limit.</li>
+          <li data-i18n-html="modes.doghouse.workflow.li3">Add players and name the tournament, then tap <strong>Create Tournament</strong>.</li>
+          <li data-i18n-html="modes.doghouse.workflow.li4">Start the session timer. In <strong>Manual mode</strong>: select two players from the panel and tap <strong>Enter Doghouse</strong>. In <strong>Automated mode</strong>: the first pair is assigned automatically.</li>
+          <li data-i18n="modes.doghouse.workflow.li5">Use the + and − buttons to track the doghouse team's score against the challengers.</li>
+          <li data-i18n-html="modes.doghouse.workflow.li6">If the doghouse team reaches the Escape Points target, tap <strong>Escape!</strong> — they return to the queue with an escape credited.</li>
+          <li data-i18n-html="modes.doghouse.workflow.li7">If the doghouse team hits the Loss Limit, tap <strong>Eject Team</strong> — they return to the queue without an escape credit.</li>
+          <li data-i18n="modes.doghouse.workflow.li8">The next pair enters the doghouse and the cycle continues.</li>
+          <li data-i18n="modes.doghouse.workflow.li9">Continue until the session timer reaches zero. Review the final Player Stats in the Tournament Complete dialog.</li>
+        </ol>
       </div>
     </section>
 

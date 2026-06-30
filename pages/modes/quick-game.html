@@ -1,51 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.quick-game.title">
+<html lang="en" data-i18n-base="../../">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Game – TournaQ Game Modes</title>
+  <title>Quick Game – TournaQ</title>
   <link rel="stylesheet" href="../../css/style.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
   <script src="../../js/feature-subnav.js" defer></script>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
-
-    .modes-subnav {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 22px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-      margin-bottom: 40px;
-    }
-
-    .modes-subnav-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-
-    .modes-subnav-links a {
-      background: var(--olive-light);
-      color: var(--olive);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 700;
-      padding: 7px 14px;
-      border-radius: 999px;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .modes-subnav-links a:hover,
-    .modes-subnav-links a.active {
-      background: var(--olive);
-      color: white;
-    }
+    html { scroll-behavior: smooth; }
 
     .detail-row {
       display: grid;
@@ -91,7 +56,6 @@
     }
 
     @media (max-width: 760px) {
-
       .guide-grid,
       .guide-grid-2 {
         grid-template-columns: 1fr;
@@ -187,7 +151,6 @@
       background: var(--olive);
       color: white;
     }
-
   </style>
 </head>
 
@@ -209,8 +172,8 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="modes.quick-game.hero.title">Quick Game</h1>
-      <p class="subtitle" data-i18n="modes.quick-game.hero.subtitle">Two teams. One court. Standard beach volleyball rules. Get playing in seconds.</p>
+      <h1>Quick Game</h1>
+      <p class="subtitle">Two teams, one court. Start scoring in seconds — no tournament setup needed.</p>
     </div>
   </header>
 
@@ -220,163 +183,169 @@
 
     <!-- Overview -->
     <section class="card">
-      <div class="completed-status phase-status" data-i18n="modes.quick-game.status">Available Now</div>
-      <h2 data-i18n="modes.quick-game.hero.title">Quick Game</h2>
-      <p data-i18n="modes.quick-game.intro">Quick Game focuses on providing quick access to one of TournaQs core elements: The Scoreboard — set up a game
-        quickly and start scoring. You might set up a game between available or new teams and players, or save your time
-        randomize a the settings and just start scoring.</p>
+      <div class="completed-status phase-status">Available</div>
+      <h2>Quick Game</h2>
+      <p>Quick Game gives you instant access to a live beach volleyball match. Set up a game between two teams in seconds, track scores, manage side changes and service, and review the full match history — all without any tournament configuration.</p>
 
-      <img src="../../assets/scoreboard_landscape.PNG" alt="TournaQ landscape scoreboard"
+      <img src="../../assets/screenshots/quickgames_hub.png" alt="Quick Games hub showing Start Game and match history list"
         style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
 
-
-
-      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.quick-game.bestfor.title">Best for</h3>
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;">Best for</h3>
       <ul style="padding-left: 20px; line-height: 2; font-size: 14px;">
-        <li data-i18n="modes.quick-game.bestfor.li1">Casual matches at the beach or training</li>
-        <li data-i18n="modes.quick-game.bestfor.li2">Informal club sessions with fixed teams</li>
-        <li data-i18n="modes.quick-game.bestfor.li3">Any situation where you just need a scorekeeper</li>
+        <li>Casual matches at the beach or in training</li>
+        <li>Informal club sessions with fixed teams</li>
+        <li>Any situation where you just need a reliable scorekeeper</li>
       </ul>
+
       <div class="card-nav">
-        <div class="card-nav-label" data-i18n="modes.quick-game.jumpto">Jump to section</div>
+        <div class="card-nav-label">Jump to section</div>
         <div class="card-nav-links">
-          <a href="#setup" data-i18n="modes.quick-game.nav.setup">Setting Up</a>
-          <a href="#scoreboard" data-i18n="modes.quick-game.nav.scoreboard">Scoreboard</a>
-          <a href="#match-controls" data-i18n="modes.quick-game.nav.controls">Match Controls</a>
-          <a href="#completion" data-i18n="modes.quick-game.nav.completion">Set &amp; Game Completion</a>
-          <a href="#workflow" data-i18n="modes.quick-game.nav.workflow">Workflow</a>
+          <a href="#setup">Setup</a>
+          <a href="#scoreboard">Scoreboard</a>
+          <a href="#match-controls">Match Controls</a>
+          <a href="#match-history">Match History</a>
+          <a href="#workflow">Workflow</a>
         </div>
       </div>
     </section>
 
     <!-- Setup -->
     <section id="setup" style="margin-top: 40px;">
-      <h2 class="section-title" data-i18n="modes.quick-game.setup.title">Setting Up a Quick Game</h2>
-      <p class="section-text" data-i18n="modes.quick-game.setup.text">Quick Start Game allows you to create a beach volleyball match quickly without any complex
-        setup.</p>
+      <h2 class="section-title">Setting Up a Quick Game</h2>
+      <p class="section-text">Tap Start Game to open the Game Setup sheet. Choose a match style and format, then configure your teams — manually, by importing from the Players Hub, or by generating random team names.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.setup.card1.title">Select Match Format</h3>
-          <p data-i18n="modes.quick-game.setup.card1.text">Choose One Set or Best of Three Sets as the match format before entering team details.</p>
-          <img class="vertical" src="../../assets/quickstart_sets.PNG" alt="TournaQ quick start screen">
+          <h3>Choose Match Format</h3>
+          <p>Select the match style (2v2) and format: One Set to decide the winner in a single set, or Best of Three Sets where the first team to win two sets wins the match.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_setup1.png" alt="Game Setup sheet showing format selection">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.setup.card2.title">Choose Teams</h3>
-          <p data-i18n="modes.quick-game.setup.card2.text">Select existing teams, create new teams manually, or let the app generate random teams.</p>
-          <img class="vertical" src="../../assets/createteams.PNG" alt="TournaQ create teams screen">
+          <h3>Configure Teams</h3>
+          <p>The team setup screen shows two team slots. Each can be filled by editing team and player names directly, or by importing an existing team or individual players from the Players Hub.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_setup_teams.png" alt="Team configuration screen with two team slots">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.setup.card3.title">Random Team Generator</h3>
-          <p data-i18n="modes.quick-game.setup.card3.text">Generate fun random team names, re-roll if needed, and start the match immediately.</p>
-          <img class="vertical" src="../../assets/randomteams.PNG" alt="TournaQ team generator screen">
+          <h3>Create a Team</h3>
+          <p>Give your team a name and enter player names. Each player slot includes a search icon to pull an existing player from the Players Hub without re-entering their details.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_setup_createteams.png" alt="Edit Team sheet with team name and player fields">
+        </div>
+      </div>
+
+      <div class="guide-grid" style="margin-top: 18px;">
+        <div class="guide-card">
+          <h3>Import Players</h3>
+          <p>Tap the import icon on any player slot to open the Players Hub. Search by name or filter by group to find existing players and add them directly to the team.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_setup_createteams_importplayer.png" alt="Player import screen showing Players Hub search">
+        </div>
+        <div class="guide-card">
+          <h3>Import a Team</h3>
+          <p>Tap the import button on a team slot to load an existing team from the database — including saved player names — directly into the match setup without re-entering anything.</p>
+          <img class="vertical" src="../../assets/screenshots/guickgames_setup_importteams.png" alt="Import team from database">
+        </div>
+        <div class="guide-card">
+          <h3>Random Teams</h3>
+          <p>Tap Generate Random Teams to let the app assign fun random names to both teams. Tap Re-roll Teams to generate new names, then start the game immediately.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_setup_randomteams.png" alt="Random Teams screen with two generated team names and re-roll option">
         </div>
       </div>
     </section>
 
     <!-- Scoreboard -->
     <section id="scoreboard" style="margin-top: 40px;">
-      <h2 class="section-title" data-i18n="modes.quick-game.scoreboard.title">Scoreboard</h2>
-      <p class="section-text" data-i18n="modes.quick-game.scoreboard.text">The Scoreboard is the main live scoring screen. It displays team names, scores, sets,
-        player names, active player information and match actions.</p>
+      <h2 class="section-title">Scoreboard</h2>
+      <p class="section-text">The Quick Game Scorecard is the live scoring screen. It shows both teams, player names, the current set score, the active server, and match action buttons — all on a single view.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.scoreboard.card1.title">Vertical Scoreboard</h3>
-          <p data-i18n="modes.quick-game.scoreboard.card1.text">The vertical scoreboard provides a complete view for live scoring, including all information needed during
-            a match.</p>
-          <img class="vertical" src="../../assets/scoreboard.PNG" alt="TournaQ vertical scoreboard">
+          <h3>Portrait Scorecard</h3>
+          <p>The standard vertical layout shows both teams side by side with large score digits and plus/minus buttons. The current set and target score appear at the top. The active server is highlighted with a gold background within the team card.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_0.png" alt="Portrait scorecard at 0–0 with both teams">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.scoreboard.card2.title">Landscape Scoreboard</h3>
-          <p data-i18n="modes.quick-game.scoreboard.card2.text">The landscape scoreboard is optimized for horizontal mobile use during live matches.</p>
-          <img src="../../assets/scoreboard_landscape.PNG" alt="TournaQ landscape scoreboard">
+          <h3>Landscape Mode</h3>
+          <p>Rotate the device to switch to landscape view. Teams stack vertically with set info and score on the left side. Useful when placing the phone on a net post or table during play.</p>
+          <img src="../../assets/screenshots/quickgames_scorecard_landscape.png" alt="Landscape scorecard view">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.scoreboard.card3.title">Match History</h3>
-          <p data-i18n="modes.quick-game.scoreboard.card3.text">The Match History view shows a point-by-point log of the match, including who scored each point and when
-            sides switched.</p>
-          <img class="vertical" src="../../assets/scoreboard_match_history.PNG" alt="TournaQ match history">
+          <h3>Multi-Set View</h3>
+          <p>In Best of Three format, set tabs appear at the top of the scorecard. Completed sets are greyed out and show the final score. The active set is highlighted in gold. The third set tab becomes active only if needed.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_3set.png" alt="Three-set scorecard with set tabs at the top">
         </div>
       </div>
     </section>
 
     <!-- Match Controls -->
     <section id="match-controls" style="margin-top: 40px;">
-      <h2 class="section-title" data-i18n="modes.quick-game.controls.title">Match Controls</h2>
-      <p class="section-text" data-i18n="modes.quick-game.controls.text">Match controls help you manage side changes, team positions, service order, and player
-        names during live scoring.</p>
+      <h2 class="section-title">Match Controls</h2>
+      <p class="section-text">Side changes and service tracking happen automatically during scoring. Tap the controls icon in the top right of the scorecard to open the Game Options panel for additional adjustments.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.controls.card1.title">Side Change Reminder</h3>
-          <p data-i18n="modes.quick-game.controls.card1.text">When the total score reaches the target, a dialog prompts teams to switch sides. Confirm to continue the
-            match.</p>
-          <img class="vertical" src="../../assets/scoreboard_sidechange_dialog.PNG" alt="TournaQ side change dialog">
+          <h3>Side Change Alert</h3>
+          <p>When the combined score reaches the halfway point — for example a total of 5 in a set to 15 — a Side Change dialog appears automatically. Confirm that the teams have physically switched sides, then continue scoring.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_changesidbefore.png" alt="Side Change dialog prompting teams to switch sides">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.controls.card2.title">After Side Change</h3>
-          <p data-i18n="modes.quick-game.controls.card2.text">After confirming a side change, the teams are automatically swapped on the scoreboard so the display always
-            reflects the physical court position.</p>
-          <img class="vertical" src="../../assets/scoreboard_after_change.PNG"
-            alt="TournaQ scoreboard after side change">
+          <h3>After Side Change</h3>
+          <p>Once confirmed, teams are automatically swapped on the scorecard so the left/right layout always reflects the physical court positions. Scoring continues immediately with no disruption.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_changesideafter.png" alt="Scorecard after side change with teams swapped">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.controls.card3.title">Change Service</h3>
-          <p data-i18n="modes.quick-game.controls.card3.text">The active server is highlighted on the scoreboard. Service changes automatically when the non-serving team
-            scores, and can also be adjusted manually.</p>
-          <img class="vertical" src="../../assets/socreboard_change_serve.PNG" alt="TournaQ change service">
+          <h3>Service Tracking</h3>
+          <p>The current server is highlighted with a gold background inside the team card. Service changes automatically when the non-serving team scores. The active player indicator moves accordingly on every point.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_changeservice.png" alt="Scorecard showing active server highlighted in the team card">
+        </div>
+      </div>
+
+      <div class="guide-grid-2" style="margin-top: 18px;">
+        <div class="guide-card">
+          <h3>Game Options Panel</h3>
+          <p>Tap the options icon to open the Game Options sheet. From here you can manually swap teams (switch left and right sides), advance the server, or open the Match History view for a point-by-point log.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_gameoptions.png" alt="Game Options panel showing Swap Teams, Change Service and Match History">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.controls.card4.title">Player Names &amp; Service</h3>
-          <p data-i18n="modes.quick-game.controls.card4.text">Player names are shown directly on the scoreboard. They can be edited ad-hoc by tapping on the team name.
-          </p>
-          <img class="vertical" src="../../assets/scoreboard_names.PNG" alt="TournaQ player names and service">
+          <h3>Adjust Players</h3>
+          <p>Tap a team name on the scorecard to open the player adjustment panel. Drag players up or down using the handle to set the serve order. Changes take effect on the scorecard immediately.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_adjustplayers.png" alt="Player adjustment panel with drag handles for serve order">
         </div>
       </div>
     </section>
 
-    <!-- Set & Game Completion -->
-    <section id="completion" style="margin-top: 40px;">
-      <h2 class="section-title" data-i18n="modes.quick-game.completion.title">Set &amp; Game Completion</h2>
+    <!-- Match History -->
+    <section id="match-history" style="margin-top: 40px;">
+      <h2 class="section-title">Match History</h2>
+      <p class="section-text">Every scored point is logged in real time. The Match History view shows a full point-by-point timeline, including who scored, the running total, and the moment side changes occurred. Completed matches are automatically saved to the Quick Games hub.</p>
 
-      <div class="guide-grid">
+      <div class="guide-grid-2">
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.completion.card1.title">Set Complete</h3>
-          <p data-i18n="modes.quick-game.completion.card1.text">When a team reaches the target score the set is completed. The result is locked and you can proceed to the
-            next set or complete the game.</p>
-          <img class="vertical" src="../../assets/scoreboard_set_complete.PNG" alt="TournaQ set complete">
+          <h3>Point-by-Point Log</h3>
+          <p>The Match History screen shows each rally result in sequence — which team scored, the running totals on both sides, and which player was serving. Side changes are marked inline. The final score is shown at the bottom.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_scorecard_gameoptions_matchhistory.png" alt="Match History showing point-by-point scoring log">
         </div>
         <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.completion.card2.title">Game Complete</h3>
-          <p data-i18n="modes.quick-game.completion.card2.text">When the match is decided the game completion screen shows all set results and the winner. The match is
-            saved to Match History.</p>
-          <img class="vertical" src="../../assets/scoreboard_gamecompletion.PNG" alt="TournaQ game complete">
-        </div>
-        <div class="guide-card">
-          <h3 data-i18n="modes.quick-game.completion.card3.title">Games &amp; Match History</h3>
-          <p data-i18n="modes.quick-game.completion.card3.text">The Games screen shows in-progress and completed matches with team names, set scores, match status and the
-            winner when the match is completed.</p>
-          <img class="vertical" src="../../assets/gamescard_winner_inprogress.PNG" alt="TournaQ games screen">
+          <h3>Saved Match History</h3>
+          <p>Completed and in-progress matches are automatically saved and listed on the Quick Games hub. Each entry shows the team names, set scores, match status, and the winner. Previous matches can be reviewed or deleted from this view.</p>
+          <img class="vertical" src="../../assets/screenshots/quickgames_hub.png" alt="Quick Games hub showing list of saved matches with results">
         </div>
       </div>
     </section>
 
     <!-- Workflow -->
     <section id="workflow" style="margin-top: 40px;">
-      <h2 class="section-title" data-i18n="modes.quick-game.workflow.title">Step-by-Step Workflow</h2>
+      <h2 class="section-title">Step-by-Step Workflow</h2>
       <div class="workflow-card">
         <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
-          <li data-i18n="modes.quick-game.workflow.li1">Open TournaQ.</li>
-          <li data-i18n="modes.quick-game.workflow.li2">Tap Quick Start Game.</li>
-          <li data-i18n="modes.quick-game.workflow.li3">Select One Set or Best of Three Sets.</li>
-          <li data-i18n="modes.quick-game.workflow.li4">Choose existing teams, create new teams or generate random teams.</li>
-          <li data-i18n="modes.quick-game.workflow.li5">Start the game.</li>
-          <li data-i18n="modes.quick-game.workflow.li6">Use the plus and minus buttons to score.</li>
-          <li data-i18n="modes.quick-game.workflow.li7">Confirm side changes when prompted.</li>
-          <li data-i18n="modes.quick-game.workflow.li8">Complete the set.</li>
-          <li data-i18n="modes.quick-game.workflow.li9">Complete the game.</li>
-          <li data-i18n="modes.quick-game.workflow.li10">Return to Games to review match history.</li>
+          <li>Open TournaQ and navigate to Quick Games.</li>
+          <li>Tap <strong>Start Game</strong> to open the Game Setup sheet.</li>
+          <li>Select match style (2v2) and format (One Set or Best of Three Sets).</li>
+          <li>Configure Team 1 and Team 2 — enter names manually, import from the Players Hub, or generate random teams.</li>
+          <li>Tap <strong>Start Game</strong> to open the Scorecard.</li>
+          <li>Use the + and − buttons to track each scored point. The active server updates automatically.</li>
+          <li>Confirm side changes when the alert appears mid-set.</li>
+          <li>In Best of Three format, tap <strong>Complete Set</strong> after each set to move to the next.</li>
+          <li>Tap <strong>Complete Game</strong> to finalise the match. The result is saved to Match History.</li>
+          <li>Return to Quick Games to review past matches or start a new game.</li>
         </ol>
       </div>
     </section>
@@ -384,7 +353,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.quick-game.feedback.text">Have a question about Quick Game, spotted something missing, or want to suggest an improvement?</p>
+        <p>Have a question about Quick Game, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

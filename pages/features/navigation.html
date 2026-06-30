@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.navigation.title">
+<html lang="en" data-i18n-base="../../">
 
 <head>
   <meta charset="UTF-8" />
@@ -12,29 +12,115 @@
   <style>
     html { scroll-behavior: smooth; }
 
-    .under-construction-banner {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #fff8e1;
-      border: 1px solid #f9a825;
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .guide-grid,
+      .guide-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .guide-card {
+      background: white;
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 24px;
+      padding: 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
-    .under-construction-banner .sign { font-size: 28px; flex-shrink: 0; }
-    .under-construction-banner .sign-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: #7c5a00;
-      line-height: 1.4;
+
+    .guide-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 10px;
     }
-    .under-construction-banner .sign-text span {
+
+    .guide-card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .guide-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--olive-light);
+      margin-top: 8px;
+    }
+
+    .guide-card img.vertical {
+      max-width: 230px;
       display: block;
-      font-weight: 400;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 760px) {
+      .guide-card img.vertical {
+        max-width: 280px;
+      }
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+    }
+
+    .card-nav {
+      margin: 20px 0;
+      padding: 14px 16px;
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .card-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .card-nav-links a {
+      background: white;
+      color: var(--olive);
+      text-decoration: none;
       font-size: 12px;
-      color: #9e7500;
-      margin-top: 2px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .card-nav-links a:hover {
+      background: var(--olive);
+      color: white;
     }
   </style>
 </head>
@@ -58,7 +144,7 @@
 
     <div class="hero">
       <h1 data-i18n="features.navigation.hero.title">App Navigation</h1>
-      <p class="subtitle" data-i18n="features.navigation.hero.subtitle">A user-friendly navigation experience designed to keep everything within reach.</p>
+      <p class="subtitle" data-i18n="features.navigation.hero.subtitle">Everything in TournaQ is two taps away — from the first screen to a live scorecard.</p>
     </div>
   </header>
 
@@ -66,14 +152,128 @@
 
     <div id="feature-subnav"></div>
 
+    <!-- Overview -->
     <section class="card">
-      <div class="completed-status status-badge" data-i18n="features.navigation.status">Available</div>
-      <h2 data-i18n="features.navigation.feature.title">App Navigation</h2>
-      <div class="under-construction-banner">
-        <div class="sign">🚧</div>
-        <div class="sign-text" data-i18n-html="features.navigation.construction">
-          More detail coming soon
-          <span>TournaQ is built around a user-friendly navigation concept. A full explanation will be added here shortly.</span>
+      <div class="completed-status phase-status">Available</div>
+      <h2>App Navigation</h2>
+      <p>TournaQ is built around two top-level destinations: <strong>TournaQ Arena</strong> for all games and tournaments, and <strong>Administration</strong> for managing players, teams, and groups. Both are reachable from the Home screen. A side drawer gives access to secondary screens — Settings, Contact & About, and Sponsoring & Promo. The whole structure is designed to get an organiser from opening the app to a live scorecard in three taps.</p>
+
+      <img src="../../assets/screenshots/home.png" alt="TournaQ Home screen showing TournaQ Arena and Administration tiles plus Coming Soon feature cards"
+        style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
+
+      <div class="card-nav">
+        <div class="card-nav-label">Jump to section</div>
+        <div class="card-nav-links">
+          <a href="#drawer">Navigation Drawer</a>
+          <a href="#arena">TournaQ Arena</a>
+          <a href="#flow">Arena to Scorecard</a>
+          <a href="#history">Tournament History</a>
+          <a href="#supporting">Supporting Screens</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Drawer -->
+    <section id="drawer" style="margin-top: 40px;">
+      <h2 class="section-title">Navigation Drawer</h2>
+      <p class="section-text">Tap the hamburger icon in the top-left corner of any main screen to open the side drawer. The drawer shows the TournaQ logo and tagline at the top, followed by links to Home, Sponsoring &amp; Promo, Contact &amp; About, and Settings. It is available from the Home screen and any top-level section.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Side Drawer</h3>
+          <p>The drawer slides in from the left and gives access to all secondary destinations in the app. The TournaQ logo and "Scoring, Games and Tournament Management" tagline sit at the top. Below are four navigation items: Home (returns to the main screen), Sponsoring &amp; Promo, Contact &amp; About, and Settings. Each item has an icon and a chevron indicating it navigates forward.</p>
+          <img class="vertical" src="../../assets/screenshots/drawer.png" alt="TournaQ side drawer showing logo, Home, Sponsoring and Promo, Contact and About and Settings links">
+        </div>
+        <div class="guide-card">
+          <h3>Settings</h3>
+          <p>The Settings screen is accessible from the drawer. It offers a Language section with four options — Automatic (device default), English, Deutsch, and Español — and a Legal section with a link to Privacy Options for managing ad consent choices. The active language is highlighted in dark green.</p>
+          <img class="vertical" src="../../assets/screenshots/settings.png" alt="Settings screen showing Language selection with Automatic English Deutsch Espanol options and Privacy Options">
+        </div>
+      </div>
+    </section>
+
+    <!-- TournaQ Arena -->
+    <section id="arena" style="margin-top: 40px;">
+      <h2 class="section-title">TournaQ Arena</h2>
+      <p class="section-text">The Arena is the central hub for all games and tournaments. It groups every mode into three categories — Quick Games, Single Competitions &amp; Socials, and Team Competitions — each shown as a large tappable card. Available modes are shown in gold; modes coming soon appear in grey with a "Soon" badge. A tournament count badge on each available card shows how many tournaments have been run in that mode. An info icon on every card opens a built-in description of the mode before you commit to it.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>Quick Games &amp; Socials</h3>
+          <p>The top of the Arena lists Quick Games (ad-hoc scored matches with minimal setup) and the Single Competitions &amp; Socials group — Social Scrambles (21 tournaments), King of the Court (20), and Doghouse (10). All three social modes are available and show their tournament history count as a badge.</p>
+          <img class="vertical" src="../../assets/screenshots/arena1.png" alt="TournaQ Arena showing Quick Games and Single Competitions Socials with mode cards and tournament count badges">
+        </div>
+        <div class="guide-card">
+          <h3>Team Competitions</h3>
+          <p>The Team Competitions section lists bracket and standings formats. Single Elimination (26 tournaments) is available. League, Double Elimination, Group &amp; Single Elimination, Group &amp; Double Elimination, and Swiss System are all marked Soon. Below the mode list, a Tournament History section groups all past tournaments by mode with a total count.</p>
+          <img class="vertical" src="../../assets/screenshots/arena2.png" alt="Arena Team Competitions section with Single Elimination available and other modes coming soon">
+        </div>
+        <div class="guide-card">
+          <h3>Built-in Help</h3>
+          <p>Tap the info icon on any mode card to see a description before starting. The Arena help tooltip explains all three category types: Quick Games for scored matches on the spot; Single Competitions &amp; Socials for individual-entry rotating formats; and Team Competitions for pre-formed team brackets. Tap "Learn more" to go to the website, or "Got it" to dismiss.</p>
+          <img class="vertical" src="../../assets/screenshots/arena_helptext_learnmore.png" alt="TournaQ Arena help tooltip explaining Quick Games Single Competitions and Team Competitions categories">
+        </div>
+      </div>
+    </section>
+
+    <!-- Arena to Scorecard flow -->
+    <section id="flow" style="margin-top: 40px;">
+      <h2 class="section-title">From Arena to Scorecard</h2>
+      <p class="section-text">Every tournament follows the same three-step path: tap a mode in the Arena, configure the tournament setup, then open a match to start scoring. The path is consistent across all modes — once you know it for one format, you know it for all of them.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>1. Tournament Setup</h3>
+          <p>Tap any available mode in the Arena to enter its hub, then tap New Tournament. The setup form lets you configure teams, schedule type, match style, courts, and any mode-specific options. A live Schedule Preview shows the full round structure and time slots as you adjust settings.</p>
+          <img class="vertical" src="../../assets/screenshots/singleko_setup1.png" alt="Single Elimination tournament setup form with schedule preview showing rounds and time slots">
+        </div>
+        <div class="guide-card">
+          <h3>2. Tournament Dashboard</h3>
+          <p>After creating the tournament, the dashboard shows the full match schedule grouped by round — with team names, courts, times, and match status. An overview card at the top shows progress, configuration, and a completion percentage. Tap any match to open its scorecard.</p>
+          <img class="vertical" src="../../assets/screenshots/singleko_tournament_overview1.png" alt="Tournament dashboard showing progress overview and full schedule by round">
+        </div>
+        <div class="guide-card">
+          <h3>3. Live Scorecard</h3>
+          <p>The scorecard is the match scoring screen. It shows both teams with player names, the current set score, serving player, match context chips, and a suggested referee. Use the + and − buttons to track points. All match controls are on a single screen — no navigation needed mid-match.</p>
+          <img class="vertical" src="../../assets/screenshots/singleko_tournament_scorecard_3set.png" alt="Live scorecard showing two teams with player names set tabs and match controls">
+        </div>
+      </div>
+    </section>
+
+    <!-- Tournament History -->
+    <section id="history" style="margin-top: 40px;">
+      <h2 class="section-title">Tournament History &amp; Discovery</h2>
+      <p class="section-text">All past tournaments are saved locally and accessible from the Arena's Tournament History section. History is grouped by mode so you can jump directly to past Social Scrambles, King of the Court sessions, or Single Elimination brackets. Coming Soon feature cards in the Arena and Home screen link directly to the website and feedback form.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Tournament History</h3>
+          <p>The Tournament History panel at the bottom of the Arena lists a total count across all modes (77 in this example), plus per-mode entries: Social Scrambles (21), King of the Court (20), Doghouse (10), and Single Elimination (26). Tapping any entry opens that mode's history list, filtered to show only those past tournaments.</p>
+          <img class="vertical" src="../../assets/screenshots/arena_history.png" alt="Arena Tournament History panel showing total count and per-mode breakdowns">
+        </div>
+        <div class="guide-card">
+          <h3>Coming Soon Cards</h3>
+          <p>Modes that are not yet available appear as Coming Soon cards both in the Arena and on the Home screen. Each card shows the mode name, a brief description, and a Coming Soon badge. Tapping a card opens a detail screen with three options: Learn more on website, Give Feedback, and Email Us — so users can follow development and shape upcoming releases.</p>
+          <img class="vertical" src="../../assets/screenshots/featurecards.png" alt="More Tournament Features coming soon card with Learn more Give Feedback and Email Us options">
+        </div>
+      </div>
+    </section>
+
+    <!-- Supporting Screens -->
+    <section id="supporting" style="margin-top: 40px;">
+      <h2 class="section-title">Supporting Screens</h2>
+      <p class="section-text">The drawer gives access to three supporting sections alongside the main app flow. Contact &amp; About covers social links, support channels, legal documents, and the app version. Sponsoring &amp; Promo explains how advertising supports development and lists upcoming partnership opportunities. Settings handles language preference and privacy choices.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Contact &amp; About</h3>
+          <p>The Contact &amp; About screen is organised into four groups: Social (Instagram @tournaq), Contact &amp; Support (Email, Feedback Form, Website), Resources (Feature Overview — links to the website), and Legal (Privacy Policy, Terms of Use, Legal Notice). The app version number appears at the bottom of the screen.</p>
+          <img class="vertical" src="../../assets/screenshots/contact1.png" alt="Contact and About screen showing Social Contact Support Resources and Legal sections">
+        </div>
+        <div class="guide-card">
+          <h3>Sponsoring &amp; Promo</h3>
+          <p>The Sponsoring &amp; Promo screen explains that advertising helps fund TournaQ's development and shows the current ad placement. It also lists ways to support the app: following on Instagram, leaving an app store rating, and upcoming partnership features — Partner Spotlight, Tournament Partnerships, and Promote Your Event — all marked Coming Soon.</p>
+          <img class="vertical" src="../../assets/screenshots/sponsoring1.png" alt="Sponsoring and Promo screen showing ad banner Follow the Journey rate app and Coming Soon partnership features">
         </div>
       </div>
     </section>
@@ -81,7 +281,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="features.navigation.feedback.text">Have a question about app navigation, spotted something missing, or want to suggest an improvement?</p>
+        <p>Have a question about app navigation, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
@@ -98,4 +298,5 @@
   </footer>
 
 </body>
+
 </html>

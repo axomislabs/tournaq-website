@@ -1,90 +1,126 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../" data-i18n-title="page.modes.social-scramble.title">
+<html lang="en" data-i18n-base="../../">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Social Scramble – TournaQ Game Modes</title>
+  <title>Social Scramble – TournaQ</title>
   <link rel="stylesheet" href="../../css/style.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
   <script src="../../js/feature-subnav.js" defer></script>
   <style>
-    html {
-      scroll-behavior: smooth;
+    html { scroll-behavior: smooth; }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 20px;
     }
 
-    .modes-subnav {
+    .guide-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .guide-grid,
+      .guide-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .guide-card {
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px 22px;
+      padding: 22px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-      margin-bottom: 40px;
     }
 
-    .modes-subnav-links {
+    .guide-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+
+    .guide-card p {
+      line-height: 1.7;
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    .guide-card img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--olive-light);
+      margin-top: 8px;
+    }
+
+    .guide-card img.vertical {
+      max-width: 230px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: 760px) {
+      .guide-card img.vertical {
+        max-width: 280px;
+      }
+    }
+
+    .workflow-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
+    }
+
+    .card-nav {
+      margin: 20px 0;
+      padding: 14px 16px;
+      background: var(--olive-light);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .card-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+
+    .card-nav-links {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
+      gap: 6px;
     }
 
-    .modes-subnav-links a {
-      background: var(--olive-light);
+    .card-nav-links a {
+      background: white;
       color: var(--olive);
       text-decoration: none;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 7px 14px;
+      padding: 5px 12px;
       border-radius: 999px;
+      border: 1px solid var(--border);
       transition: background 0.15s, color 0.15s;
     }
 
-    .modes-subnav-links a:hover,
-    .modes-subnav-links a.active {
+    .card-nav-links a:hover {
       background: var(--olive);
       color: white;
-    }
-
-    .coming-soon-status {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      margin-bottom: 12px;
-      background: var(--gold);
-      color: var(--gold-dark);
-    }
-
-    .detail-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 14px;
-      margin: 24px 0;
-    }
-
-    .detail-box {
-      background: var(--olive-light);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
-    }
-
-    .detail-box .label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--olive);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-
-    .detail-box .value {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--olive-dark);
     }
   </style>
 </head>
@@ -107,8 +143,8 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="modes.social-scramble.hero.title">Social Scramble</h1>
-      <p class="subtitle" data-i18n="modes.social-scramble.hero.subtitle">Everyone plays with everyone — randomly shuffled teams, round after round.</p>
+      <h1>Social Scramble</h1>
+      <p class="subtitle">Players join individually. Partners rotate every round. Everyone meets everyone.</p>
     </div>
   </header>
 
@@ -116,54 +152,170 @@
 
     <div id="feature-subnav"></div>
 
+    <!-- Overview -->
     <section class="card">
-      <div class="completed-status phase-status" data-i18n="modes.social-scramble.status">Available</div>
-      <h2 data-i18n="modes.social-scramble.hero.title">Social Scramble</h2>
-      <p data-i18n="modes.social-scramble.intro">Social Scramble is a rotating partner format where players are reshuffled into new teams at the start of each
-        round. No two people should be paired together more than once. The result is a social event where everyone
-        interacts with everyone — competitive enough to be engaging, but designed to mix the group rather than crown a
-        winner.</p>
+      <div class="completed-status phase-status">Available</div>
+      <h2>Social Scramble</h2>
+      <p>Social Scramble is TournaQ's social tournament format. Players enter as individuals — not fixed teams. Each round the app assigns new partner pairings and opponent matchups, so every player gets to compete with and against different people throughout the event. TournaQ handles the full schedule: partner rotation, referee assignments, court allocation, match timing, and live player rankings.</p>
 
-      <div class="detail-row">
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.social-scramble.detail.players.label">Players</div>
-          <div class="value" data-i18n="modes.social-scramble.detail.players.value">4 – 32+</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.social-scramble.detail.teams.label">Teams per round</div>
-          <div class="value" data-i18n="modes.social-scramble.detail.teams.value">2 per court</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.social-scramble.detail.assignment.label">Player assignment</div>
-          <div class="value" data-i18n="modes.social-scramble.detail.assignment.value">Randomised</div>
-        </div>
-        <div class="detail-box">
-          <div class="label" data-i18n="modes.social-scramble.detail.tournament.label">Tournament required</div>
-          <div class="value" data-i18n="modes.social-scramble.detail.tournament.value">Yes</div>
+      <img src="../../assets/screenshots/scramble_hub.png" alt="Social Scrambles hub showing tournament history with Completed, In Progress and Setup statuses"
+        style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
+
+      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;">Best for</h3>
+      <ul style="padding-left: 20px; line-height: 2; font-size: 14px;">
+        <li>Social beach volleyball events where mixing people is the priority</li>
+        <li>Group training sessions where every player should meet every other player</li>
+        <li>Club socials with 6 to 20+ players and a defined time slot</li>
+      </ul>
+
+      <div class="card-nav">
+        <div class="card-nav-label">Jump to section</div>
+        <div class="card-nav-links">
+          <a href="#setup">Setup</a>
+          <a href="#dashboard">Tournament Dashboard</a>
+          <a href="#scorecard">Scorecard</a>
+          <a href="#completion">Completing Games</a>
+          <a href="#rankings">Rankings</a>
+          <a href="#workflow">Workflow</a>
         </div>
       </div>
+    </section>
 
-      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.social-scramble.how.title">How it works</h3>
-      <p data-i18n="modes.social-scramble.how.text">The organiser sets up the event and registers all players before the event starts. Available time can be
-        considered as well as match length. Play tournaments between 15 min or multiple hours, you choose. TournaQ
-        generates a match schedule where partners
-        rotate each round, minimising repeat pairings. Scores are recorded per match. At the end of all rounds,
-        individual standings are calculated based on personal win/point totals — because in a scramble, you compete as
-        an individual across changing teams.</p>
+    <!-- Setup -->
+    <section id="setup" style="margin-top: 40px;">
+      <h2 class="section-title">Tournament Setup</h2>
+      <p class="section-text">Tap New Tournament to open the setup form. Enter the number of players, the time available, match duration, number of courts, format, and break length. The app instantly calculates how many rounds fit in the available time and shows a live schedule preview as you adjust the settings.</p>
 
-      <h3 style="color: var(--olive-dark); margin: 24px 0 12px;" data-i18n="modes.social-scramble.bestfor.title">Best for</h3>
-      <ul style="padding-left: 20px; line-height: 2;">
-        <li data-i18n="modes.social-scramble.bestfor.li1">Club social days and open events</li>
-        <li data-i18n="modes.social-scramble.bestfor.li2">Mixed-ability groups where balanced competition matters</li>
-        <li data-i18n="modes.social-scramble.bestfor.li3">Events where meeting new players is part of the fun</li>
-        <li data-i18n="modes.social-scramble.bestfor.li4">Beach volleyball clinics and training days with multiple participants</li>
-      </ul>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>Tournament Settings</h3>
+          <p>Configure target players, available time, match duration, courts, format (2v2), break between rounds, and planned start time. The Schedule Preview section updates in real time — showing total rounds, scheduled duration, and estimated end time as you adjust each field.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_setup1.png" alt="Tournament setup form with all configuration fields and live schedule preview">
+        </div>
+        <div class="guide-card">
+          <h3>Smart Suggestions</h3>
+          <p>The Suggestions section analyses your setup and flags when the schedule may not be optimal — for example, if there are too few rounds for every player to partner with every other player, or if the game count is uneven across players. Each suggestion shows the time adjustment needed and a quick-apply shortcut.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_setup_suggestionpartner.png" alt="Setup suggestions showing partner coverage tip with recommended time adjustment">
+        </div>
+        <div class="guide-card">
+          <h3>Add Players</h3>
+          <p>Tap the Players field to open the player panel. Create new players on the spot, add from the existing Players Hub (with a searchable list of all saved players), or use Fill Random to quickly populate the tournament with placeholder names for testing.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_setup_players.png" alt="Player panel showing Create Player, Add Existing Players and Fill random options">
+        </div>
+      </div>
+    </section>
+
+    <!-- Tournament Dashboard -->
+    <section id="dashboard" style="margin-top: 40px;">
+      <h2 class="section-title">Tournament Dashboard</h2>
+      <p class="section-text">Once a tournament is created, the dashboard shows the full picture in one view: game progress, player list with live stats, and the complete round-by-round schedule. Players can be added, swapped, or removed at any point during the tournament.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Players & Live Schedule</h3>
+          <p>The main tournament view shows the player list with running game counts and points, plus the full schedule below. Each round entry shows the matchup (team names and individual players), the assigned court, and the suggested referee. Tap any game to open its scorecard.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_tournament_players1.png" alt="Tournament view with player list, game stats and round schedule">
+        </div>
+        <div class="guide-card">
+          <h3>Schedule Preview</h3>
+          <p>Expand the Schedule Preview to see all rounds in a timeline with their planned start and end times, and break windows. Each round is marked as Completed, Overdue, Due, or Upcoming — giving a clear view of tournament progress at a glance.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_tournament_schedulepreview1.png" alt="Expanded schedule preview showing all rounds with status labels">
+        </div>
+      </div>
+    </section>
+
+    <!-- Scorecard -->
+    <section id="scorecard" style="margin-top: 40px;">
+      <h2 class="section-title">Scorecard</h2>
+      <p class="section-text">The Social Scramble scorecard is time-based. Each game has a built-in match timer set to the configured match duration. The scorecard shows the schedule status, match timer, team cards, and all tournament context — round, court, time slot, format, and the suggested referee.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>Ready to Start</h3>
+          <p>Before the timer starts, the scorecard shows the full match context: tournament name, round number, court, scheduled start time, match duration, format, and player count. A suggested referee is displayed. Tap Start Match to begin the countdown, or Manually Set Score to enter a result directly without using the timer.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_serverefinfo.png" alt="Pre-game scorecard showing match context, referee suggestion and Start Match button">
+        </div>
+        <div class="guide-card">
+          <h3>In Play</h3>
+          <p>Once the match starts, the countdown timer runs at the top. Both team cards show player names, current score, and plus/minus buttons. The schedule status shows whether the game is running on time or overdue. The serving player is highlighted within the team card.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_ingame.png" alt="In-game scorecard with countdown timer, team scores and match context chips">
+        </div>
+        <div class="guide-card">
+          <h3>Landscape Mode</h3>
+          <p>Rotate the device to switch to landscape view. The timer and timer controls appear on the left, with both teams stacked vertically on the right. Useful when the phone is placed on the net post or a table sideline during play.</p>
+          <img src="../../assets/screenshots/scramble_scorecard_landscape.png" alt="Landscape scorecard with timer on the left and teams stacked vertically">
+        </div>
+      </div>
+    </section>
+
+    <!-- Completing Games -->
+    <section id="completion" style="margin-top: 40px;">
+      <h2 class="section-title">Completing Games</h2>
+      <p class="section-text">When the match timer reaches zero, the app prompts whether the final rally was still in play. If needed, you can adjust the score before locking the result. Once complete, a "Select Next Game" panel appears so the next match can be started immediately from the same screen.</p>
+
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>Time is Up</h3>
+          <p>When the timer hits zero, a "Time is up" dialog appears asking whether a rally was still in progress when the buzzer sounded. Choose Adjust Final Score to modify the result, or Complete Game to lock the score as-is and finalise the match.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_outoftime.png" alt="Time is up dialog with Adjust Final Score and Complete Game options">
+        </div>
+        <div class="guide-card">
+          <h3>Adjust Final Score</h3>
+          <p>After time expires, the scorecard remains editable — showing Adjust Final Score and Restart buttons in place of the timer controls. Correct the score if a point was scored on the last rally, then tap Complete Game to finalise. The score is locked and saved to the tournament.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_adjustfinalscore1.png" alt="Post-timer scorecard showing Adjust Final Score and Restart options">
+        </div>
+        <div class="guide-card">
+          <h3>Select Next Game</h3>
+          <p>Once a game is completed, a Select Next Game panel slides up showing all remaining matches with their round, court, and scheduled time. Tap any upcoming game to jump straight to its scorecard — no need to navigate back to the tournament overview.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_selectnextgame.png" alt="Select Next Game panel listing upcoming rounds with court and time info">
+        </div>
+      </div>
+    </section>
+
+    <!-- Rankings -->
+    <section id="rankings" style="margin-top: 40px;">
+      <h2 class="section-title">Player Rankings</h2>
+      <p class="section-text">Rankings are calculated continuously throughout the tournament. Each player accumulates Ranking Points (RP) based on wins, draws, and score differences. Rankings can be viewed live at any point and a final standings screen is shown when all games are completed.</p>
+
+      <div class="guide-grid-2">
+        <div class="guide-card">
+          <h3>Live Rankings</h3>
+          <p>The live ranking table shows each player ranked by RP, with columns for wins (W), draws (D), losses (L), and score differential (+/−). The tournament leader is highlighted in gold. Rankings update after every completed game.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_scorecard_adhocranking.png" alt="Live ranking table showing players ranked by RP, wins, draws, losses and score difference">
+        </div>
+        <div class="guide-card">
+          <h3>Final Standings</h3>
+          <p>When all games are completed, the final Player Rankings screen shows the definitive standings with full stats for every player. The winner is highlighted at the top. Players marked as late arrivals or substitutes are flagged with status tags next to their names.</p>
+          <img class="vertical" src="../../assets/screenshots/scramble_tournament_finalranking.png" alt="Final Player Rankings screen with complete standings and winner highlighted">
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow -->
+    <section id="workflow" style="margin-top: 40px;">
+      <h2 class="section-title">Step-by-Step Workflow</h2>
+      <div class="workflow-card">
+        <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
+          <li>Open TournaQ and navigate to Social Scrambles.</li>
+          <li>Tap <strong>New Tournament</strong> to open the setup form.</li>
+          <li>Set the number of players, available time, match duration, courts, format, and break length.</li>
+          <li>Review the Schedule Preview and act on any Suggestions to optimise partner coverage or game balance.</li>
+          <li>Add players — create new ones, import from the Players Hub, or use Fill Random.</li>
+          <li>Give the tournament a name and tap <strong>Create Tournament</strong>.</li>
+          <li>From the tournament dashboard, tap the first game in Round 1 to open its scorecard.</li>
+          <li>Confirm the referee suggestion and tap <strong>Start Match</strong> to begin the countdown timer.</li>
+          <li>Use the + and − buttons to track scores during the match.</li>
+          <li>When the timer expires, confirm or adjust the final score and tap <strong>Complete Game</strong>.</li>
+          <li>Use Select Next Game to jump to the next match without returning to the dashboard.</li>
+          <li>Continue until all rounds are complete. Review the final Player Rankings.</li>
+        </ol>
+      </div>
     </section>
 
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.social-scramble.feedback.text">Have a question about Social Scramble, spotted something missing, or want to suggest an improvement?</p>
+        <p>Have a question about Social Scramble, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
