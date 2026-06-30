@@ -108,6 +108,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     setState(() => _timerRunning = true);
   }
 
+  void _resumeTimer() {
+    _sessionTimerKey.currentState?.resume();
+    if (_hasTeam) _gameWatch.start();
+    setState(() => _timerRunning = true);
+  }
+
   void _pauseTimer() {
     _sessionTimerKey.currentState?.pause();
     _gameWatch.stop();
@@ -879,9 +885,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   }
 
   void _undoCompletion() {
-    _t = _t.copyWith(status: DoghouseTournamentStatus.inProgress);
+    _t = _t.copyWith(status: DoghouseTournamentStatus.inProgress, clearRemainingSeconds: true);
     _persist();
     setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sessionTimerKey.currentState?.setRemaining(_t.totalTime);
+    });
   }
 
   Future<void> _saveAndReturn() async {
@@ -1638,10 +1647,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
+              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+                _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
+                    _resumeTimer, primary: true),
               _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
               _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
-                  _startOrRestart,
-                  primary: true),
+                  _startOrRestart),
               _refTextBtn('+30s',
                   () => _sessionTimerKey.currentState
                       ?.addTime(const Duration(seconds: 30))),

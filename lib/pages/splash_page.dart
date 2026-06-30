@@ -57,37 +57,39 @@ class _SplashPageState extends State<SplashPage> {
                 if (orientation == Orientation.landscape) {
                   final halfWidth = MediaQuery.of(context).size.width * 0.35;
                   return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(
-                          AppAssets.logoTransparent,
-                          width: halfWidth * 1.55,
-                          fit: BoxFit.contain,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          AppLocalizations.of(context)!.appTagline,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppColors.goldLight,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.2,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            AppAssets.logoTransparent,
+                            width: halfWidth * 1.55,
+                            fit: BoxFit.contain,
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            color: AppColors.goldLight,
-                            backgroundColor:
-                                AppColors.goldLight.withValues(alpha: 0.2),
-                            strokeWidth: 2,
+                          const SizedBox(height: 10),
+                          Text(
+                            AppLocalizations.of(context)!.appTagline,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AppColors.goldLight,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.2,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: AppColors.goldLight,
+                              backgroundColor:
+                                  AppColors.goldLight.withValues(alpha: 0.2),
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }

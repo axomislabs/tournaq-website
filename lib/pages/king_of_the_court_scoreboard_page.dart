@@ -130,6 +130,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
     setState(() => _timerRunning = true);
   }
 
+  void _resumeTimer() {
+    _sessionTimerKey.currentState?.resume();
+    if (_hasTeam) _gameWatch.start();
+    setState(() => _timerRunning = true);
+  }
+
   void _pauseTimer() {
     _sessionTimerKey.currentState?.pause();
     _gameWatch.stop();
@@ -1044,9 +1050,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
   }
 
   void _undoCompletion() {
-    _t = _t.copyWith(status: KotcTournamentStatus.inProgress);
+    _t = _t.copyWith(status: KotcTournamentStatus.inProgress, clearRemainingSeconds: true);
     _persist();
     setState(() {});
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sessionTimerKey.currentState?.setRemaining(_t.totalTime);
+    });
   }
 
   Future<void> _saveAndReturn() async {
@@ -1522,11 +1531,13 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
                 onFinished: _onSessionFinished,
               ),
               const SizedBox(width: 8),
+              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+                _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
+                    _resumeTimer, primary: true),
               _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
               const SizedBox(width: 4),
               _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
-                  _startOrRestart,
-                  primary: true),
+                  _startOrRestart),
               const SizedBox(width: 4),
               _refTextBtn('+30s',
                   () => _sessionTimerKey.currentState
@@ -1738,10 +1749,12 @@ class _KotcScoreboardState extends State<KingOfTheCourtScoreboardPage> {
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
+              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+                _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
+                    _resumeTimer, primary: true),
               _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
               _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
-                  _startOrRestart,
-                  primary: true),
+                  _startOrRestart),
               _refTextBtn('+30s',
                   () => _sessionTimerKey.currentState
                       ?.addTime(const Duration(seconds: 30))),

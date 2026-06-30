@@ -210,6 +210,8 @@ class ScrambleRound {
 
   ScrambleRound copyWith({
     DateTime? scheduledStartTime,
+    Duration? matchDuration,
+    Duration? breakDuration,
     DateTime? actualStartTime,
     DateTime? actualEndTime,
   }) =>
@@ -217,8 +219,8 @@ class ScrambleRound {
         id: id,
         roundNumber: roundNumber,
         scheduledStartTime: scheduledStartTime ?? this.scheduledStartTime,
-        matchDuration: matchDuration,
-        breakDuration: breakDuration,
+        matchDuration: matchDuration ?? this.matchDuration,
+        breakDuration: breakDuration ?? this.breakDuration,
         actualStartTime: actualStartTime ?? this.actualStartTime,
         actualEndTime: actualEndTime ?? this.actualEndTime,
       );
@@ -307,7 +309,6 @@ class ScrambleTournament {
   /// Players per side: 2 → 2v2, 3 → 3v3.
   final int playersPerTeam;
   final DateTime startTime;
-  final ScrambleTournamentStatus status;
   final List<ScramblePlayer> players;
   final List<ScrambleRound> rounds;
   final List<ScrambleGame> games;
@@ -323,7 +324,6 @@ class ScrambleTournament {
     required this.courtCount,
     this.playersPerTeam = 2,
     required this.startTime,
-    required this.status,
     required this.players,
     required this.rounds,
     required this.games,
@@ -348,6 +348,12 @@ class ScrambleTournament {
   double get progressFraction =>
       totalGames == 0 ? 0 : completedGames / totalGames;
 
+  ScrambleTournamentStatus get status {
+    if (totalGames > 0 && completedGames == totalGames) return ScrambleTournamentStatus.completed;
+    if (completedGames > 0 || games.any((g) => g.status == ScrambleGameStatus.inProgress)) return ScrambleTournamentStatus.inProgress;
+    return ScrambleTournamentStatus.setup;
+  }
+
   ScrambleRound? getRound(String roundId) =>
       rounds.cast<ScrambleRound?>().firstWhere(
             (r) => r?.id == roundId,
@@ -366,7 +372,6 @@ class ScrambleTournament {
 
   ScrambleTournament copyWith({
     String? name,
-    ScrambleTournamentStatus? status,
     List<ScramblePlayer>? players,
     List<ScrambleRound>? rounds,
     List<ScrambleGame>? games,
@@ -381,7 +386,6 @@ class ScrambleTournament {
         courtCount: courtCount,
         playersPerTeam: playersPerTeam,
         startTime: startTime ?? this.startTime,
-        status: status ?? this.status,
         players: players ?? this.players,
         rounds: rounds ?? this.rounds,
         games: games ?? this.games,
@@ -429,9 +433,6 @@ class ScrambleTournament {
         courtCount: j['courtCount'] as int,
         playersPerTeam: j['playersPerTeam'] as int? ?? 2,
         startTime: DateTime.parse(j['startTime'] as String),
-        status: ScrambleTournamentStatus.values.byName(
-            (j['status'] as String?) ??
-                ScrambleTournamentStatus.setup.name),
         players: (j['players'] as List)
             .map((e) => ScramblePlayer.fromJson(
                 Map<String, dynamic>.from(e as Map)))

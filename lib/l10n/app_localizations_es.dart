@@ -370,13 +370,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tournamentsSectionHistory => 'Historial de Torneos';
 
   @override
-  String get modeQuickGamesDesc => 'Partidos puntuados al instante';
+  String get modeQuickGamesDesc => 'Partidos al instante';
 
   @override
-  String get modeSocialScramblesDesc => 'Mixer rotativo de round-robin';
+  String get modeSocialScramblesDesc => 'Mixer rotativo';
 
   @override
-  String get modeKotcDesc => 'El ganador se queda, los retadores rotan';
+  String get modeKotcDesc => 'Domina la cancha';
 
   @override
   String get modeDoghouseDesc => 'Escapa del Doghouse';
@@ -1248,6 +1248,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statusInProgress => 'En curso';
 
   @override
+  String get statusDue => 'En curso';
+
+  @override
+  String get statusOverdue => 'Retrasado';
+
+  @override
+  String get statusUpcoming => 'Próximo';
+
+  @override
   String get dateToday => 'Hoy';
 
   @override
@@ -1799,6 +1808,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String get overviewSectionOverview => 'Resumen';
 
   @override
+  String get overviewSectionTimeline => 'Vista previa del horario';
+
+  @override
+  String timelineStart(String time) {
+    return 'Inicio: $time';
+  }
+
+  @override
+  String timelinePredictedEnd(String time) {
+    return 'Fin previsto: $time';
+  }
+
+  @override
+  String timelineRound(int number) {
+    return 'Ronda $number';
+  }
+
+  @override
+  String timelineBreakUntil(String time) {
+    return 'Descanso hasta $time';
+  }
+
+  @override
+  String get timelineScheduleTitle => 'Programación del torneo';
+
+  @override
+  String get timelineTournamentStart => 'Inicio del torneo';
+
+  @override
+  String get timelineGameDuration => 'Duración del juego (rondas pendientes)';
+
+  @override
+  String get timelineBreakDurationPending =>
+      'Duración del descanso (rondas pendientes)';
+
+  @override
+  String get timelineEditStartTime => 'Hora de inicio';
+
+  @override
+  String get timelineMatchDuration => 'Duración del partido';
+
+  @override
+  String get timelineBreakAfterRound => 'Descanso después de la ronda';
+
+  @override
   String get overviewSectionSchedule => 'Horario';
 
   @override
@@ -1997,8 +2051,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get matchComplete => 'Partido completado';
 
   @override
-  String get matchSetCompleteBanner =>
-      'Set completado — confirmar antes del siguiente';
+  String get matchSetCompleteBanner => 'Set completado';
 
   @override
   String matchSuggestedToServe(String name) {
@@ -2112,6 +2165,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get bracketTournamentWinner => 'Ganador del torneo';
+
+  @override
+  String get bracketRunnerUp => 'Finalista';
+
+  @override
+  String get bracketThirdPlace => '3.er lugar';
 
   @override
   String bracketSectionTeams(int count) {

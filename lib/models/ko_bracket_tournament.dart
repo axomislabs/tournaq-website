@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:uuid/uuid.dart';
 import '../services/device_id_service.dart';
+import 'player_status.dart';
 
 const _uuid = Uuid();
 
@@ -83,6 +84,7 @@ class KoTeam {
   final bool isWithdrawn;
   final int? withdrawnAtRound;
   final String? hubTeamId;
+  final PlayerStatus status;
 
   const KoTeam({
     required this.id,
@@ -91,7 +93,10 @@ class KoTeam {
     this.isWithdrawn = false,
     this.withdrawnAtRound,
     this.hubTeamId,
+    this.status = PlayerStatus.active,
   });
+
+  bool get isActive => status == PlayerStatus.active || status == PlayerStatus.swappedIn;
 
   /// Weighted team rating: players sorted descending, weights [0.6, 0.4] for 2
   /// players, [0.5, 0.3, 0.2] for 3, declining for more.
@@ -132,6 +137,7 @@ class KoTeam {
     int? withdrawnAtRound,
     String? hubTeamId,
     bool clearHubTeamId = false,
+    PlayerStatus? status,
   }) =>
       KoTeam(
         id: id,
@@ -140,6 +146,7 @@ class KoTeam {
         isWithdrawn: isWithdrawn ?? this.isWithdrawn,
         withdrawnAtRound: withdrawnAtRound ?? this.withdrawnAtRound,
         hubTeamId: clearHubTeamId ? null : (hubTeamId ?? this.hubTeamId),
+        status: status ?? this.status,
       );
 
   Map<String, dynamic> toJson() => {
@@ -149,18 +156,27 @@ class KoTeam {
         'isWithdrawn': isWithdrawn,
         'withdrawnAtRound': withdrawnAtRound,
         if (hubTeamId != null) 'hubTeamId': hubTeamId,
+        'status': status.name,
       };
 
-  factory KoTeam.fromJson(Map<String, dynamic> j) => KoTeam(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        players: (j['players'] as List? ?? [])
-            .map((e) => KoPlayerSnapshot.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList(),
-        isWithdrawn: j['isWithdrawn'] as bool? ?? false,
-        withdrawnAtRound: j['withdrawnAtRound'] as int?,
-        hubTeamId: j['hubTeamId'] as String?,
-      );
+  factory KoTeam.fromJson(Map<String, dynamic> j) {
+    final isWithdrawn = j['isWithdrawn'] as bool? ?? false;
+    final statusStr = j['status'] as String?;
+    final status = statusStr != null
+        ? PlayerStatus.values.byName(statusStr)
+        : (isWithdrawn ? PlayerStatus.ejected : PlayerStatus.active);
+    return KoTeam(
+      id: j['id'] as String,
+      name: j['name'] as String,
+      players: (j['players'] as List? ?? [])
+          .map((e) => KoPlayerSnapshot.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
+      isWithdrawn: isWithdrawn,
+      withdrawnAtRound: j['withdrawnAtRound'] as int?,
+      hubTeamId: j['hubTeamId'] as String?,
+      status: status,
+    );
+  }
 
   static String generateId() => _uuid.v4();
 }
@@ -217,6 +233,8 @@ class KoMatch {
   final DateTime? completedAt;
   final String? suggestedServingPlayerId;
   final String? refereeTeamId;
+  final int? liveScore1;
+  final int? liveScore2;
 
   const KoMatch({
     required this.id,
@@ -235,6 +253,8 @@ class KoMatch {
     this.completedAt,
     this.suggestedServingPlayerId,
     this.refereeTeamId,
+    this.liveScore1,
+    this.liveScore2,
   });
 
   bool get isComplete =>
@@ -265,6 +285,9 @@ class KoMatch {
     DateTime? completedAt,
     String? suggestedServingPlayerId,
     String? refereeTeamId,
+    int? liveScore1,
+    int? liveScore2,
+    bool clearLiveScores = false,
   }) =>
       KoMatch(
         id: id,
@@ -284,6 +307,8 @@ class KoMatch {
         suggestedServingPlayerId:
             suggestedServingPlayerId ?? this.suggestedServingPlayerId,
         refereeTeamId: refereeTeamId ?? this.refereeTeamId,
+        liveScore1: clearLiveScores ? null : (liveScore1 ?? this.liveScore1),
+        liveScore2: clearLiveScores ? null : (liveScore2 ?? this.liveScore2),
       );
 
   Map<String, dynamic> toJson() => {
@@ -303,6 +328,8 @@ class KoMatch {
         'completedAt': completedAt?.toIso8601String(),
         'suggestedServingPlayerId': suggestedServingPlayerId,
         'refereeTeamId': refereeTeamId,
+        'liveScore1': liveScore1,
+        'liveScore2': liveScore2,
       };
 
   factory KoMatch.fromJson(Map<String, dynamic> j) => KoMatch(
@@ -330,6 +357,8 @@ class KoMatch {
             j['completedAt'] != null ? DateTime.parse(j['completedAt'] as String) : null,
         suggestedServingPlayerId: j['suggestedServingPlayerId'] as String?,
         refereeTeamId: j['refereeTeamId'] as String?,
+        liveScore1: j['liveScore1'] as int?,
+        liveScore2: j['liveScore2'] as int?,
       );
 
   static String generateId() => _uuid.v4();
@@ -521,9 +550,11 @@ class KoBracketTournament {
   /// Completed match results are preserved as-is.
   KoBracketTournament swapTeam(String oldTeamId, KoTeam newTeam) {
     final updatedTeams = teams
-        .where((t) => t.id != oldTeamId)
+        .map((t) => t.id == oldTeamId
+            ? t.copyWith(status: PlayerStatus.swappedOut)
+            : t)
         .toList()
-      ..add(newTeam);
+      ..add(newTeam.copyWith(status: PlayerStatus.swappedIn));
 
     final updatedMatches = matches.map((m) {
       if (m.isComplete) return m;

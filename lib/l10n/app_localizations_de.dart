@@ -1249,6 +1249,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get statusInProgress => 'Laufend';
 
   @override
+  String get statusDue => 'Läuft';
+
+  @override
+  String get statusOverdue => 'Überfällig';
+
+  @override
+  String get statusUpcoming => 'Ausstehend';
+
+  @override
   String get dateToday => 'Heute';
 
   @override
@@ -1802,6 +1811,50 @@ class AppLocalizationsDe extends AppLocalizations {
   String get overviewSectionOverview => 'Übersicht';
 
   @override
+  String get overviewSectionTimeline => 'Zeitplanvorschau';
+
+  @override
+  String timelineStart(String time) {
+    return 'Start: $time';
+  }
+
+  @override
+  String timelinePredictedEnd(String time) {
+    return 'Voraussichtliches Ende: $time';
+  }
+
+  @override
+  String timelineRound(int number) {
+    return 'Runde $number';
+  }
+
+  @override
+  String timelineBreakUntil(String time) {
+    return 'Pause bis $time';
+  }
+
+  @override
+  String get timelineScheduleTitle => 'Turnierplan';
+
+  @override
+  String get timelineTournamentStart => 'Turnierstart';
+
+  @override
+  String get timelineGameDuration => 'Spieldauer (ausstehende Runden)';
+
+  @override
+  String get timelineBreakDurationPending => 'Pausendauer (ausstehende Runden)';
+
+  @override
+  String get timelineEditStartTime => 'Startzeit';
+
+  @override
+  String get timelineMatchDuration => 'Spieldauer';
+
+  @override
+  String get timelineBreakAfterRound => 'Pause nach der Runde';
+
+  @override
   String get overviewSectionSchedule => 'Zeitplan';
 
   @override
@@ -1999,8 +2052,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get matchComplete => 'Spiel abgeschlossen';
 
   @override
-  String get matchSetCompleteBanner =>
-      'Satz abgeschlossen — vor nächstem Satz bestätigen';
+  String get matchSetCompleteBanner => 'Satz abgeschlossen';
 
   @override
   String matchSuggestedToServe(String name) {
@@ -2113,6 +2165,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bracketTournamentWinner => 'Turniersieger';
+
+  @override
+  String get bracketRunnerUp => 'Finalist';
+
+  @override
+  String get bracketThirdPlace => '3. Platz';
 
   @override
   String bracketSectionTeams(int count) {

@@ -120,10 +120,19 @@ class _KoTeamEditorSheetState extends State<KoTeamEditorSheet> {
         : _nameCtrl.text.trim();
     final finalPlayers = List.generate(_players.length, (i) {
       final typed = _playerCtrls[i].text.trim();
+      final existing = _players[i];
+      if (existing.appPlayerId.isEmpty && typed.isNotEmpty) {
+        final player = widget.onCreatePlayer(typed);
+        return KoPlayerSnapshot(
+          appPlayerId: player.id,
+          name: player.name,
+          skillRating: existing.skillRating,
+        );
+      }
       return KoPlayerSnapshot(
-        appPlayerId: _players[i].appPlayerId,
+        appPlayerId: existing.appPlayerId,
         name: typed.isNotEmpty ? typed : 'Player ${i + 1}',
-        skillRating: _players[i].skillRating,
+        skillRating: existing.skillRating,
       );
     });
     String? resolvedHubTeamId = _hubTeamId;

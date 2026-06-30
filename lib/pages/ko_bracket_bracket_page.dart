@@ -4,9 +4,11 @@ import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
+import '../models/player_status.dart';
 import '../models/team.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../widgets/ko_team_editor_sheet.dart';
+import '../widgets/tournament_player_row.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
@@ -47,7 +49,7 @@ class KoBracketBracketPage extends StatefulWidget {
 class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   late KoBracketTournament _tournament;
   bool _teamsExpanded    = false;
-  bool _scheduleExpanded = true;
+  bool _scheduleExpanded = false;
 
   @override
   void initState() {
@@ -181,7 +183,9 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
     var updated = _tournament.updateTeam(
       selected.copyWith(
-          isWithdrawn: true, withdrawnAtRound: withdrawRound),
+          isWithdrawn: true,
+          withdrawnAtRound: withdrawRound,
+          status: PlayerStatus.ejected),
     );
 
     for (final m in updated.matches) {
@@ -285,7 +289,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
 
             // ── Time overview ─────────────────────────────────────────────
             _sectionDivider(
-              l10n.labelTime,
+              l10n.overviewSectionTimeline,
               Icons.schedule_rounded,
               collapsible: true,
               expanded: _scheduleExpanded,
@@ -294,8 +298,8 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
             if (_scheduleExpanded) ...[
               const SizedBox(height: 10),
               _buildTimeOverviewCard(),
-              const SizedBox(height: 20),
             ],
+            const SizedBox(height: 20),
 
             // ── Teams ────────────────────────────────────────────────────
             _buildTeamsSection(),
@@ -815,7 +819,7 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           Row(children: [
             const Icon(Icons.schedule_rounded, size: 13, color: _kGoldDark),
             const SizedBox(width: 6),
-            Text(AppLocalizations.of(context)!.overviewSectionSchedule,
+            Text(AppLocalizations.of(context)!.overviewSectionTimeline,
                 style: const TextStyle(
                     fontSize: 12, fontWeight: FontWeight.w700, color: _kGoldDark)),
             const Spacer(),
@@ -905,13 +909,62 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   // ── Winner banner ─────────────────────────────────────────────────────────
 
   Widget _buildWinnerBanner() {
+    final l10n = AppLocalizations.of(context)!;
+
+    // Use the actual highest main-bracket round from the match data — more
+    // robust than mainRoundCount when team count changes after generation.
+    final maxRound = _tournament.allRounds.where((r) => r > 0).lastOrNull;
+    if (maxRound == null) return const SizedBox.shrink();
+
     final finalMatch = _tournament.matches
-        .where((m) =>
-            m.round == _tournament.mainRoundCount && m.isComplete)
+        .where((m) => m.round == maxRound && m.isComplete)
         .firstOrNull;
-    final winnerId = finalMatch?.winnerId;
-    final winner =
-        winnerId != null ? _tournament.teamById(winnerId) : null;
+    if (finalMatch == null) return const SizedBox.shrink();
+
+    final winnerId = finalMatch.winnerId;
+    final loserId =
+        finalMatch.team1Id == winnerId ? finalMatch.team2Id : finalMatch.team1Id;
+
+    final winner = winnerId != null ? _tournament.teamById(winnerId) : null;
+    final runnerUp = loserId != null ? _tournament.teamById(loserId) : null;
+
+    // Semi-final losers share 3rd place.
+    final thirdPlaceTeams = <KoTeam>[];
+    if (maxRound > 1) {
+      for (final semi in _tournament.matches
+          .where((m) => m.round == maxRound - 1 && m.isComplete)) {
+        final semiLoserId =
+            semi.team1Id == semi.winnerId ? semi.team2Id : semi.team1Id;
+        final loser =
+            semiLoserId != null ? _tournament.teamById(semiLoserId) : null;
+        if (loser != null) thirdPlaceTeams.add(loser);
+      }
+    }
+
+    Widget placeRow(String medal, String label, String name) => Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(medal, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600)),
+                  Text(name,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
+          ],
+        );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -930,28 +983,21 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
           ),
         ],
       ),
-      child: Row(children: [
-        const Icon(Icons.emoji_events_rounded,
-            color: Colors.white, size: 32),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppLocalizations.of(context)!.bracketTournamentWinner,
-                style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600)),
-            Text(
-              winner?.name ?? 'TBD',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800),
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          placeRow('🥇', l10n.bracketTournamentWinner, winner?.name ?? 'TBD'),
+          if (runnerUp != null) ...[
+            const Divider(color: Colors.white24, height: 20),
+            placeRow('🥈', l10n.bracketRunnerUp, runnerUp.name),
           ],
-        ),
-      ]),
+          if (thirdPlaceTeams.isNotEmpty) ...[
+            const Divider(color: Colors.white24, height: 20),
+            placeRow('🥉', l10n.bracketThirdPlace,
+                thirdPlaceTeams.map((t) => t.name).join(' · ')),
+          ],
+        ],
+      ),
     );
   }
 
@@ -981,23 +1027,20 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
   }
 
   Widget _buildTeamRow(KoTeam team, bool isLive) {
-    final isWithdrawn = team.isWithdrawn;
+    final inactive = !team.isActive;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
           CircleAvatar(
             radius: 14,
-            backgroundColor:
-                isWithdrawn ? Colors.grey.shade100 : _kOliveLight,
+            backgroundColor: inactive ? Colors.grey.shade100 : _kOliveLight,
             child: Text(
               team.name.isNotEmpty ? team.name[0].toUpperCase() : '?',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: isWithdrawn
-                    ? Colors.grey.shade400
-                    : _kOlive,
+                color: inactive ? Colors.grey.shade400 : _kOlive,
               ),
             ),
           ),
@@ -1017,18 +1060,14 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isWithdrawn
-                              ? Colors.grey.shade500
-                              : null,
-                          decoration: isWithdrawn
-                              ? TextDecoration.lineThrough
-                              : null,
+                          color: inactive ? Colors.grey.shade500 : null,
+                          decoration: inactive ? TextDecoration.lineThrough : null,
                         ),
                       ),
                     ),
-                    if (isWithdrawn) ...[
+                    if (team.status != PlayerStatus.active) ...[
                       const SizedBox(width: 6),
-                      _teamStatusChip('withdrawn'),
+                      PlayerStatusChip(team.status),
                     ],
                   ],
                 ),
@@ -1037,13 +1076,12 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
                     team.players.map((p) => p.name).join(' · '),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 10, color: Colors.black38),
+                    style: const TextStyle(fontSize: 10, color: Colors.black38),
                   ),
               ],
             ),
           ),
-          if (!isWithdrawn) ...[
+          if (team.isActive) ...[
             Tooltip(
               message: 'Edit Players',
               child: InkWell(
@@ -1085,23 +1123,6 @@ class _KoBracketBracketPageState extends State<KoBracketBracketPage> {
     );
   }
 
-  Widget _teamStatusChip(String label) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.red.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: Colors.red.shade400,
-            letterSpacing: 0.3,
-          ),
-        ),
-      );
 
   // ── Schedule sections ─────────────────────────────────────────────────────
 

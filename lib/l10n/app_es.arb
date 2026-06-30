@@ -455,6 +455,9 @@
   "statusSetup": "Configuración",
   "statusCompleted": "Completado",
   "statusInProgress": "En curso",
+  "statusDue": "En curso",
+  "statusOverdue": "Retrasado",
+  "statusUpcoming": "Próximo",
   "dateToday": "Hoy",
   "dateYesterday": "Ayer",
   "dateDaysAgo": "Hace {count} días",
@@ -761,6 +764,50 @@
   "overviewSectionOverview": "Resumen",
   "@overviewSectionOverview": {},
 
+  "overviewSectionTimeline": "Vista previa del horario",
+  "@overviewSectionTimeline": {},
+
+  "timelineStart": "Inicio: {time}",
+  "@timelineStart": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelinePredictedEnd": "Fin previsto: {time}",
+  "@timelinePredictedEnd": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelineRound": "Ronda {number}",
+  "@timelineRound": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "timelineBreakUntil": "Descanso hasta {time}",
+  "@timelineBreakUntil": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelineScheduleTitle": "Programación del torneo",
+  "@timelineScheduleTitle": {},
+
+  "timelineTournamentStart": "Inicio del torneo",
+  "@timelineTournamentStart": {},
+
+  "timelineGameDuration": "Duración del juego (rondas pendientes)",
+  "@timelineGameDuration": {},
+
+  "timelineBreakDurationPending": "Duración del descanso (rondas pendientes)",
+  "@timelineBreakDurationPending": {},
+
+  "timelineEditStartTime": "Hora de inicio",
+  "@timelineEditStartTime": {},
+
+  "timelineMatchDuration": "Duración del partido",
+  "@timelineMatchDuration": {},
+
+  "timelineBreakAfterRound": "Descanso después de la ronda",
+  "@timelineBreakAfterRound": {},
+
   "overviewSectionSchedule": "Horario",
   "@overviewSectionSchedule": {},
 
@@ -953,7 +1000,7 @@
   "matchComplete": "Partido completado",
   "@matchComplete": {},
 
-  "matchSetCompleteBanner": "Set completado — confirmar antes del siguiente",
+  "matchSetCompleteBanner": "Set completado",
   "@matchSetCompleteBanner": {},
 
   "matchSuggestedToServe": "{name} sugerido para sacar",
@@ -1064,6 +1111,12 @@
 
   "bracketTournamentWinner": "Ganador del torneo",
   "@bracketTournamentWinner": {},
+
+  "bracketRunnerUp": "Finalista",
+  "@bracketRunnerUp": {},
+
+  "bracketThirdPlace": "3.er lugar",
+  "@bracketThirdPlace": {},
 
   "bracketSectionTeams": "Equipos ({count})",
   "@bracketSectionTeams": {

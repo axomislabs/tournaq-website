@@ -184,6 +184,7 @@ class KingOfTheCourtTournament {
     List<KotcPlayer>? players,
     List<KotcGame>? games,
     int? remainingSeconds,
+    bool clearRemainingSeconds = false,
   }) =>
       KingOfTheCourtTournament(
         id: id,
@@ -198,7 +199,7 @@ class KingOfTheCourtTournament {
         games: games ?? this.games,
         createdAt: createdAt,
         deviceId: deviceId,
-        remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+        remainingSeconds: clearRemainingSeconds ? null : (remainingSeconds ?? this.remainingSeconds),
       );
 
   Map<String, dynamic> toJson() => {

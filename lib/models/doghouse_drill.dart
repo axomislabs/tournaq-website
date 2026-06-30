@@ -201,6 +201,7 @@ class DoghouseTournament {
     List<DoghousePlayer>? players,
     List<DoghouseGame>? games,
     int? remainingSeconds,
+    bool clearRemainingSeconds = false,
   }) =>
       DoghouseTournament(
         id: id,
@@ -216,7 +217,7 @@ class DoghouseTournament {
         games: games ?? this.games,
         createdAt: createdAt,
         deviceId: deviceId,
-        remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+        remainingSeconds: clearRemainingSeconds ? null : (remainingSeconds ?? this.remainingSeconds),
       );
 
   Map<String, dynamic> toJson() => {

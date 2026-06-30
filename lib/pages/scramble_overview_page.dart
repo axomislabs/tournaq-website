@@ -37,6 +37,7 @@ class ScrambleOverviewPage extends StatefulWidget {
 class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   late ScrambleTournament _t;
   bool _playersExpanded = false;
+  bool _timelineExpanded = false;
 
   @override
   void initState() {
@@ -100,6 +101,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             _sectionDivider(l10n.overviewSectionOverview, Icons.bar_chart_rounded),
             const SizedBox(height: 10),
             _buildHeader(l10n, completed, total, progress),
+            const SizedBox(height: 20),
+            _buildTimelineSection(l10n),
             const SizedBox(height: 20),
             _buildPlayersSection(l10n),
             const SizedBox(height: 20),
@@ -242,6 +245,514 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             '${(progress * 100).round()}%',
             style: const TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Timeline section ──────────────────────────────────────────────────────
+
+  Widget _buildTimelineSection(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sectionDivider(
+          l10n.overviewSectionTimeline,
+          Icons.schedule_rounded,
+          collapsible: true,
+          expanded: _timelineExpanded,
+          onToggle: () => setState(() => _timelineExpanded = !_timelineExpanded),
+        ),
+        if (_timelineExpanded) ...[
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.goldCream,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildStartAndEndRow(),
+                const SizedBox(height: 8),
+                const Divider(height: 1, thickness: 0.5, color: AppColors.goldDark),
+                const SizedBox(height: 4),
+                ..._buildTimelineRows(),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStartAndEndRow() {
+    if (_t.rounds.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
+
+    final allDone = _t.rounds.every((r) => r.actualEndTime != null);
+    final DateTime predictedEnd;
+    if (allDone) {
+      predictedEnd = _t.rounds
+          .map((r) => r.actualEndTime!)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+    } else {
+      predictedEnd = _t.rounds.last.scheduledBreakEndTime;
+    }
+    final endText = allDone
+        ? l10n.overviewFinished(ScrambleService.formatTime(predictedEnd))
+        : l10n.timelinePredictedEnd(ScrambleService.formatTime(predictedEnd));
+
+    return InkWell(
+      onTap: _showOverallEditSheet,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    const Icon(Icons.play_circle_outline_rounded,
+                        size: 13, color: Colors.black38),
+                    const SizedBox(width: 5),
+                    Text(
+                      l10n.timelineStart(ScrambleService.formatTime(_t.startTime)),
+                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ]),
+                  const SizedBox(height: 2),
+                  Row(children: [
+                    Icon(
+                      allDone
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.flag_outlined,
+                      size: 13,
+                      color: allDone ? AppColors.olive : Colors.black38,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      endText,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: allDone ? AppColors.olive : Colors.black54,
+                        fontWeight:
+                            allDone ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+            const Icon(Icons.edit_rounded, size: 14, color: AppColors.olive),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildTimelineRows() {
+    final l10n = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    return _t.rounds.map((round) {
+      final games = _t.getGamesForRound(round.id);
+      final completedCount = games.where((g) => g.isCompleted).length;
+      final totalCount = games.length;
+      final allDone = totalCount > 0 && completedCount == totalCount;
+      final isOverdue = !allDone && now.isAfter(round.scheduledMatchEndTime);
+      final hasStarted = now.isAfter(round.scheduledStartTime);
+
+      final Color statusColor;
+      if (allDone) {
+        statusColor = AppColors.olive;
+      } else if (isOverdue) {
+        statusColor = Colors.red.shade400;
+      } else if (hasStarted) {
+        statusColor = AppColors.gold;
+      } else {
+        statusColor = Colors.black26;
+      }
+
+      final timeLabel =
+          '${ScrambleService.formatTime(round.scheduledStartTime)} – '
+          '${ScrambleService.formatTime(round.scheduledMatchEndTime)}';
+      final breakTime = round.breakDuration > Duration.zero
+          ? ScrambleService.formatTime(round.scheduledBreakEndTime)
+          : null;
+
+      return InkWell(
+        onTap: () => _showRoundEditSheet(round),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 66,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: allDone ? AppColors.olive : AppColors.goldCream,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    l10n.timelineRound(round.roundNumber),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: allDone ? Colors.white : AppColors.goldDark,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(timeLabel,
+                        style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    if (breakTime != null)
+                      Text(l10n.timelineBreakUntil(breakTime),
+                          style: const TextStyle(fontSize: 11, color: Colors.black38)),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: statusColor.withValues(alpha: allDone ? 1.0 : 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      allDone
+                          ? l10n.statusCompleted
+                          : isOverdue
+                              ? l10n.statusOverdue
+                              : hasStarted
+                                  ? l10n.statusDue
+                                  : l10n.statusUpcoming,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: allDone ? Colors.white : statusColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.edit_rounded, size: 13, color: Colors.black26),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  // ── Timeline editing ──────────────────────────────────────────────────────
+
+  void _showOverallEditSheet() {
+    TimeOfDay startTime = TimeOfDay.fromDateTime(_t.startTime);
+    final firstPending = _t.rounds.cast<ScrambleRound?>().firstWhere(
+      (r) {
+        final games = _t.getGamesForRound(r!.id);
+        return games.isEmpty || games.any((g) => !g.isCompleted);
+      },
+      orElse: () => null,
+    );
+    int matchMinutes =
+        (firstPending ?? _t.rounds.first).matchDuration.inMinutes;
+    int breakMinutes =
+        (firstPending ?? _t.rounds.first).breakDuration.inMinutes;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          final l10n = AppLocalizations.of(context)!;
+          return TournaQSheet(
+            body: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [
+                    Expanded(
+                      child: Text(
+                        l10n.timelineScheduleTitle,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        _applyOverallEdit(startTime, matchMinutes, breakMinutes);
+                        Navigator.of(ctx).pop();
+                      },
+                      style: TextButton.styleFrom(
+                          foregroundColor: AppColors.gold),
+                      child: Text(
+                        l10n.btnSave,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+                  Text(l10n.timelineTournamentStart,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildTimeTile(startTime.format(ctx), () async {
+                    final picked = await showTimePicker(
+                        context: ctx, initialTime: startTime);
+                    if (picked != null) setSheet(() => startTime = picked);
+                  }),
+                  const SizedBox(height: 16),
+                  Text(l10n.timelineGameDuration,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: matchMinutes,
+                    min: 1,
+                    onChanged: (v) => setSheet(() => matchMinutes = v),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(l10n.timelineBreakDurationPending,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: breakMinutes,
+                    min: 0,
+                    onChanged: (v) => setSheet(() => breakMinutes = v),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _applyOverallEdit(TimeOfDay newTime, int matchMinutes, int breakMinutes) {
+    final old = _t.startTime;
+    final newStart =
+        DateTime(old.year, old.month, old.day, newTime.hour, newTime.minute);
+
+    var rounds = List<ScrambleRound>.from(_t.rounds);
+    var cursor = newStart;
+
+    for (var i = 0; i < rounds.length; i++) {
+      final games = _t.getGamesForRound(rounds[i].id);
+      final allDone =
+          games.isNotEmpty && games.every((g) => g.isCompleted);
+
+      if (allDone) {
+        // Completed: leave scheduled times alone; advance cursor past actual end + break.
+        final r = rounds[i];
+        if (r.actualEndTime != null) {
+          final afterBreak = r.actualEndTime!.add(r.breakDuration);
+          if (afterBreak.isAfter(cursor)) cursor = afterBreak;
+        }
+        continue;
+      }
+
+      // Pending: place at cursor with new durations.
+      rounds[i] = rounds[i].copyWith(
+        scheduledStartTime: cursor,
+        matchDuration: Duration(minutes: matchMinutes),
+        breakDuration: Duration(minutes: breakMinutes),
+      );
+      cursor = cursor.add(Duration(minutes: matchMinutes + breakMinutes));
+    }
+
+    _update(_t.copyWith(startTime: newStart, rounds: rounds));
+  }
+
+  void _showRoundEditSheet(ScrambleRound round) {
+    TimeOfDay startTime = TimeOfDay.fromDateTime(round.scheduledStartTime);
+    int matchMinutes = round.matchDuration.inMinutes;
+    int breakMinutes = round.breakDuration.inMinutes;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          final l10n = AppLocalizations.of(context)!;
+          return TournaQSheet(
+            body: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [
+                    Expanded(
+                      child: Text(
+                        l10n.timelineRound(round.roundNumber),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        final d = round.scheduledStartTime;
+                        final newStart = DateTime(
+                            d.year, d.month, d.day, startTime.hour, startTime.minute);
+                        final updatedRound = round.copyWith(
+                          scheduledStartTime: newStart,
+                          matchDuration: Duration(minutes: matchMinutes),
+                          breakDuration: Duration(minutes: breakMinutes),
+                        );
+                        // Cascade pending rounds from the edited round's break end.
+                        final rounds = List<ScrambleRound>.from(_t.rounds);
+                        final idx = rounds.indexWhere((r) => r.id == round.id);
+                        rounds[idx] = updatedRound;
+                        var cursor = updatedRound.scheduledBreakEndTime;
+                        for (var i = idx + 1; i < rounds.length; i++) {
+                          final games = _t.getGamesForRound(rounds[i].id);
+                          final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
+                          if (allDone) {
+                            final r = rounds[i];
+                            if (r.actualEndTime != null) {
+                              final afterBreak = r.actualEndTime!.add(r.breakDuration);
+                              if (afterBreak.isAfter(cursor)) cursor = afterBreak;
+                            }
+                            continue;
+                          }
+                          rounds[i] = rounds[i].copyWith(scheduledStartTime: cursor);
+                          cursor = cursor.add(rounds[i].matchDuration + rounds[i].breakDuration);
+                        }
+                        _update(_t.copyWith(rounds: rounds));
+                        Navigator.of(ctx).pop();
+                      },
+                      style:
+                          TextButton.styleFrom(foregroundColor: AppColors.gold),
+                      child: Text(l10n.btnSave,
+                          style:
+                              const TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+                  Text(l10n.timelineEditStartTime,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildTimeTile(startTime.format(ctx), () async {
+                    final picked = await showTimePicker(
+                        context: ctx, initialTime: startTime);
+                    if (picked != null) setSheet(() => startTime = picked);
+                  }),
+                  const SizedBox(height: 16),
+                  Text(l10n.timelineMatchDuration,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: matchMinutes,
+                    min: 1,
+                    onChanged: (v) => setSheet(() => matchMinutes = v),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(l10n.timelineBreakAfterRound,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: breakMinutes,
+                    min: 0,
+                    onChanged: (v) => setSheet(() => breakMinutes = v),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTimeTile(String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.access_time_rounded,
+                size: 16, color: Colors.black38),
+            const SizedBox(width: 10),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w500)),
+            const Spacer(),
+            const Icon(Icons.chevron_right_rounded,
+                size: 18, color: Colors.black38),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMinutePicker({
+    required int value,
+    required int min,
+    required void Function(int) onChanged,
+  }) {
+    final label = value == 1 ? '1 min' : '$value min';
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.remove_rounded, size: 20),
+            onPressed: value > min ? () => onChanged(value - 1) : null,
+          ),
+          Expanded(
+            child: Text(label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w600)),
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_rounded, size: 20),
+            onPressed: () => onChanged(value + 1),
           ),
         ],
       ),

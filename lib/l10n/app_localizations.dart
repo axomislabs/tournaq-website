@@ -2362,6 +2362,24 @@ abstract class AppLocalizations {
   /// **'In Progress'**
   String get statusInProgress;
 
+  /// No description provided for @statusDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get statusDue;
+
+  /// No description provided for @statusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get statusOverdue;
+
+  /// No description provided for @statusUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get statusUpcoming;
+
   /// No description provided for @dateToday.
   ///
   /// In en, this message translates to:
@@ -3304,6 +3322,78 @@ abstract class AppLocalizations {
   /// **'Overview'**
   String get overviewSectionOverview;
 
+  /// No description provided for @overviewSectionTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule preview'**
+  String get overviewSectionTimeline;
+
+  /// No description provided for @timelineStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start: {time}'**
+  String timelineStart(String time);
+
+  /// No description provided for @timelinePredictedEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Predicted end: {time}'**
+  String timelinePredictedEnd(String time);
+
+  /// No description provided for @timelineRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {number}'**
+  String timelineRound(int number);
+
+  /// No description provided for @timelineBreakUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Break until {time}'**
+  String timelineBreakUntil(String time);
+
+  /// No description provided for @timelineScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament schedule'**
+  String get timelineScheduleTitle;
+
+  /// No description provided for @timelineTournamentStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament start'**
+  String get timelineTournamentStart;
+
+  /// No description provided for @timelineGameDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Game duration (pending rounds)'**
+  String get timelineGameDuration;
+
+  /// No description provided for @timelineBreakDurationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Break duration (pending rounds)'**
+  String get timelineBreakDurationPending;
+
+  /// No description provided for @timelineEditStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get timelineEditStartTime;
+
+  /// No description provided for @timelineMatchDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Match duration'**
+  String get timelineMatchDuration;
+
+  /// No description provided for @timelineBreakAfterRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Break after round'**
+  String get timelineBreakAfterRound;
+
   /// No description provided for @overviewSectionSchedule.
   ///
   /// In en, this message translates to:
@@ -3631,7 +3721,7 @@ abstract class AppLocalizations {
   /// No description provided for @matchSetCompleteBanner.
   ///
   /// In en, this message translates to:
-  /// **'Set complete — confirm before next set'**
+  /// **'Set complete — undo set to edit score'**
   String get matchSetCompleteBanner;
 
   /// No description provided for @matchSuggestedToServe.
@@ -3819,6 +3909,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tournament Winner'**
   String get bracketTournamentWinner;
+
+  /// No description provided for @bracketRunnerUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner-up'**
+  String get bracketRunnerUp;
+
+  /// No description provided for @bracketThirdPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'3rd place'**
+  String get bracketThirdPlace;
 
   /// No description provided for @bracketSectionTeams.
   ///

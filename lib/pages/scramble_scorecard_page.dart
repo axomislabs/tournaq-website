@@ -233,8 +233,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final liveRound = updated.getRound(_round.id) ?? _round;
     updated = updated.updateRound(liveRound.copyWith(actualEndTime: actualEnd));
 
-    // Recalculate all pending round start times from the new baseline.
-    return ScrambleService.reflowAllPending(updated);
+    // Only reflow when the round finished ahead of schedule.
+    // Late rounds show an overdue warning; the admin adjusts manually.
+    if (actualEnd.isBefore(liveRound.scheduledMatchEndTime)) {
+      return ScrambleService.reflowAllPending(updated);
+    }
+    return updated;
   }
 
   Future<void> _completeGame() async {
@@ -253,6 +257,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
     setState(() {
       _game = updatedGame;
+      _t = updated;
       _matchCompleted = true;
       _adjusting = false;
     });
@@ -704,14 +709,30 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                           ],
                         ],
                         const Spacer(),
+                        // In landscape, inline the serve indicator so it
+                        // doesn't consume a full extra row of height.
+                        if (_game.status == ScrambleGameStatus.scheduled &&
+                            _game.firstServerId != null) ...[
+                          const Icon(Icons.sports_volleyball_rounded,
+                              size: 12, color: _kOlive),
+                          const SizedBox(width: 4),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 100),
+                            child: Text(
+                              _t.getPlayer(_game.firstServerId!)?.name ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: _kOlive,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
                         optionsButton,
                       ],
                     ),
-                    if (_game.status == ScrambleGameStatus.scheduled &&
-                        _game.firstServerId != null) ...[
-                      const SizedBox(height: 4),
-                      _buildServesFirstBanner(),
-                    ],
                     if (_matchCompleted) ...[
                       const SizedBox(height: 4),
                       _buildLockBanner(),
@@ -1000,7 +1021,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       side: BorderSide(color: primary ? _kOlive : Colors.grey.shade300),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      minimumSize: Size.zero,
+      minimumSize: const Size(0, 30),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
   );
@@ -1012,7 +1033,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       side: BorderSide(color: Colors.grey.shade300),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      minimumSize: Size.zero,
+      minimumSize: const Size(0, 30),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
     child: Text(label, style: const TextStyle(fontSize: 12)),
@@ -1495,7 +1516,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         name: e.value.name,
         isServing: isServing,
         activeColor: activeColor,
-        compact: true,
+        fontSize: landscape ? 13 : 10,
         onTap: null,
       );
     }).toList();
@@ -2467,14 +2488,14 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     ),
                   ),
                   title: Text(sideANames,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
                       overflow: TextOverflow.ellipsis),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('vs $sideBNames',
                           style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black54),
+                              fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
                           overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 2),
                       Row(

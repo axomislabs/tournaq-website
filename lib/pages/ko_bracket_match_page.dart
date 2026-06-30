@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ko_bracket_tournament.dart';
-import '../services/ko_bracket_storage_service.dart';
+import '../scoring/ko_bracket_adapter.dart';
 import '../widgets/player_pill.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -51,12 +51,10 @@ class KoBracketMatchPage extends StatefulWidget {
 }
 
 class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
-  late KoBracketTournament _tournament;
-  late KoMatch _match;
-  late KoRoundFormat _fmt;
+  late KoBracketAdapter _adapter;
   bool _scheduleExpanded = false;
 
-  // ── Live scores for the active set ───────────────────────────────────────
+  // ── Live scores (ephemeral display state) ─────────────────────────────────
   int _score1 = 0;
   int _score2 = 0;
   bool _isSwapped = false;
@@ -69,13 +67,24 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   int _activePlayerIndex = 0;
   final List<_ScoreEvent> _scoreEvents = [];
 
+  // ── Adapter pass-through getters ──────────────────────────────────────────
+  KoBracketTournament get _tournament => _adapter.tournament;
+  KoMatch get _match => _adapter.match;
+  KoRoundFormat get _fmt => _adapter.fmt;
+  bool get _isMatchComplete => _adapter.isMatchComplete;
+  int get _currentSetIndex => _adapter.currentSetIndex;
+  bool get _currentSetDone => _adapter.isCurrentSetCompleted;
+
   @override
   void initState() {
     super.initState();
-    _tournament = widget.tournament;
-    _match = _tournament.matches.firstWhere((m) => m.id == widget.matchId);
-    _fmt = _tournament.formatForRound(_match.round);
-    _initScores();
+    _adapter = KoBracketAdapter(
+      tournament: widget.tournament,
+      matchId: widget.matchId,
+      onChanged: widget.onChanged,
+    );
+    _score1 = _adapter.currentScore1;
+    _score2 = _adapter.currentScore2;
     _now = DateTime.now();
     _startTimer();
     _assignSuggestionsIfNeeded();
@@ -84,6 +93,9 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   @override
   void dispose() {
     _timer?.cancel();
+    final s1 = _isSwapped ? _score2 : _score1;
+    final s2 = _isSwapped ? _score1 : _score2;
+    _adapter.flushLiveScoreToStorage(s1, s2);
     super.dispose();
   }
 
@@ -99,28 +111,14 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   bool get _isLeftLeading => _leftScore > _rightScore;
   bool get _isRightLeading => _rightScore > _leftScore;
 
-  bool get _isMatchComplete => _match.isComplete;
-  int get _currentSetIndex => _match.sets.where((s) => s.isCompleted).length;
-  bool get _currentSetDone {
-    if (_match.sets.isEmpty) return false;
-    final last = _match.sets.last;
-    return last.isCompleted;
-  }
-
   int get _team1SetsWon => _match.sets.where((s) => s.isCompleted && s.score1 > s.score2).length;
   int get _team2SetsWon => _match.sets.where((s) => s.isCompleted && s.score2 > s.score1).length;
-
-  void _initScores() {
-    _score1 = 0;
-    _score2 = 0;
-  }
 
   // ── Suggestions (serve + referee) ────────────────────────────────────────
 
   void _assignSuggestionsIfNeeded() {
     if (_match.startedAt != null || _isMatchComplete) return;
     var match = _match;
-    var tournament = _tournament;
     bool changed = false;
 
     // Suggested server: random player from either team's roster.
@@ -157,12 +155,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     }
 
     if (changed) {
-      tournament = tournament.updateMatch(match);
-      KoBracketStorageService.save(tournament);
-      setState(() {
-        _tournament = tournament;
-        _match = match;
-      });
+      _adapter.updateMatch((_) => match);
+      setState(() {});
     }
   }
 
@@ -291,10 +285,21 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     });
   }
 
+  // ── Navigation ────────────────────────────────────────────────────────────
+
+  void _saveAndBack() {
+    if (!_currentSetDone && !_isMatchComplete) {
+      final s1 = _isSwapped ? _score2 : _score1;
+      final s2 = _isSwapped ? _score1 : _score2;
+      _adapter.onLiveScoreChanged(s1, s2);
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
   // ── Set & match completion ────────────────────────────────────────────────
 
   void _completeSet() {
-    if (_isMatchComplete) return;
+    if (_isMatchComplete || _currentSetDone) return;
     final s1 = _isSwapped ? _score2 : _score1;
     final s2 = _isSwapped ? _score1 : _score2;
     if (s1 == s2) {
@@ -304,133 +309,79 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       ));
       return;
     }
-    final newSet = KoSet(score1: s1, score2: s2, isCompleted: true);
-    final updatedSets = [..._match.sets, newSet];
-    var updatedMatch = _match.copyWith(sets: updatedSets);
-
-    // Determine winner if sets are decided.
-    final setsToWin = (_fmt.setsPerGame / 2).ceil();
-    final t1Sets = updatedSets.where((s) => s.isCompleted && s.score1 > s.score2).length;
-    final t2Sets = updatedSets.where((s) => s.isCompleted && s.score2 > s.score1).length;
-
-    if (t1Sets >= setsToWin || t2Sets >= setsToWin) {
-      final winnerId = t1Sets >= setsToWin ? _match.team1Id : _match.team2Id;
-      updatedMatch = updatedMatch.copyWith(
-        winnerId: winnerId,
-        status: KoMatchStatus.completed,
-        completedAt: DateTime.now(),
-      );
-      _persist(updatedMatch, isComplete: true);
-    } else {
-      _persist(updatedMatch, isComplete: false);
-    }
-
+    _adapter.onSetCompleted(s1, s2);
+    if (_adapter.isMatchComplete) _timer?.cancel();
     setState(() {
+      _score1 = _adapter.currentScore1;
+      _score2 = _adapter.currentScore2;
       _activePlayerIndex = 0;
-      _initScores();
+    });
+  }
+
+  void _switchToSet(int i) {
+    if (i == _adapter.currentSetIndex) return;
+    if (i > _match.sets.length) return;
+    final s1 = _isSwapped ? _score2 : _score1;
+    final s2 = _isSwapped ? _score1 : _score2;
+    _adapter.onSetActivated(i, s1, s2);
+    setState(() {
+      _score1 = _adapter.currentScore1;
+      _score2 = _adapter.currentScore2;
+      _activePlayerIndex = 0;
     });
   }
 
   void _undoSetCompletion() {
-    if (_match.sets.isEmpty) return;
-    final last = _match.sets.last;
-    if (!last.isCompleted) return;
-    final updatedSets = _match.sets.sublist(0, _match.sets.length - 1);
-    final updatedMatch = _match.copyWith(
-      sets: updatedSets,
-      winnerId: null,
-      status: _match.sets.length == 1 ? KoMatchStatus.inProgress : _match.status,
-    );
+    _adapter.onSetUndone(_adapter.currentSetIndex);
     setState(() {
-      _score1 = last.score1;
-      _score2 = last.score2;
+      _score1 = _adapter.currentScore1;
+      _score2 = _adapter.currentScore2;
       _activePlayerIndex = 0;
     });
-    _persist(updatedMatch, isComplete: false);
   }
 
   void _completeMatch() {
     if (_isMatchComplete) return;
-    // Save current live scores as the final set if not yet done.
     final s1 = _isSwapped ? _score2 : _score1;
     final s2 = _isSwapped ? _score1 : _score2;
-    List<KoSet> sets = _match.sets;
-    if (!_currentSetDone && (s1 > 0 || s2 > 0)) {
-      if (s1 == s2) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context)!.matchScoresTiedMatch),
-          duration: const Duration(seconds: 2),
-        ));
-        return;
-      }
-      sets = [...sets, KoSet(score1: s1, score2: s2, isCompleted: true)];
+    if (!_currentSetDone && (s1 > 0 || s2 > 0) && s1 == s2) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context)!.matchScoresTiedMatch),
+        duration: const Duration(seconds: 2),
+      ));
+      return;
     }
-
-    final t1Sets = sets.where((s) => s.isCompleted && s.score1 > s.score2).length;
-    final t2Sets = sets.where((s) => s.isCompleted && s.score2 > s.score1).length;
-    if (t1Sets == t2Sets) {
+    // Pre-validate that sets won won't be tied after including current scores.
+    var checkSets = _match.sets;
+    if (!_currentSetDone && (s1 > 0 || s2 > 0)) {
+      checkSets = [...checkSets, KoSet(score1: s1, score2: s2, isCompleted: true)];
+    }
+    final t1 = checkSets.where((s) => s.isCompleted && s.score1 > s.score2).length;
+    final t2 = checkSets.where((s) => s.isCompleted && s.score2 > s.score1).length;
+    if (t1 == t2) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(AppLocalizations.of(context)!.matchSetsTied),
         duration: const Duration(seconds: 2),
       ));
       return;
     }
-    final winnerId = t1Sets > t2Sets ? _match.team1Id : _match.team2Id;
-
-    final updatedMatch = _match.copyWith(
-      sets: sets,
-      winnerId: winnerId,
-      status: KoMatchStatus.completed,
-      completedAt: DateTime.now(),
-    );
+    _adapter.onMatchCompleted(s1, s2);
     _timer?.cancel();
-    _persist(updatedMatch, isComplete: true);
+    setState(() {
+      _score1 = _adapter.currentScore1;
+      _score2 = _adapter.currentScore2;
+      _activePlayerIndex = 0;
+    });
   }
 
   void _undoMatchCompletion() {
-    if (_match.sets.isEmpty) return;
-    final last = _match.sets.last;
-    final updatedSets = _match.sets.sublist(0, _match.sets.length - 1);
-    final updatedMatch = _match.copyWith(
-      sets: updatedSets,
-      winnerId: null,
-      status: KoMatchStatus.inProgress,
-      completedAt: null,
-    );
+    _adapter.onMatchCompletionUndone();
     setState(() {
-      _score1 = last.score1;
-      _score2 = last.score2;
+      _score1 = _adapter.currentScore1;
+      _score2 = _adapter.currentScore2;
       _activePlayerIndex = 0;
     });
-    _persist(updatedMatch, isComplete: false);
     _startTimer();
-  }
-
-  // ── Persist ───────────────────────────────────────────────────────────────
-
-  void _persist(KoMatch updatedMatch, {required bool isComplete}) {
-    var updated = _tournament.updateMatch(updatedMatch);
-
-    if (isComplete && updatedMatch.winnerId != null) {
-      final propagated = updatedMatch.round == 0
-          ? KoBracketGenerator.propagatePlayInWinner(updated.matches, updatedMatch.id)
-          : KoBracketGenerator.propagateWinner(updated.matches, updatedMatch.id);
-      updated = updated.copyWith(matches: propagated);
-    }
-
-    if (updated.allMatchesComplete) {
-      updated = updated.copyWith(status: KoBracketStatus.completed);
-    } else if (updated.status == KoBracketStatus.setup) {
-      updated = updated.copyWith(status: KoBracketStatus.inProgress);
-    }
-
-    KoBracketStorageService.save(updated);
-    setState(() {
-      _tournament = updated;
-      _match = updated.matches.firstWhere((m) => m.id == widget.matchId);
-      _fmt = updated.formatForRound(_match.round);
-    });
-    widget.onChanged(updated);
   }
 
   // ── History ───────────────────────────────────────────────────────────────
@@ -504,7 +455,12 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       onPressed: _showOptions,
     );
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _saveAndBack();
+      },
+      child: Scaffold(
       appBar: TournaQAppBar(
         title: 'Single Elimination',
         subtitle: l10n.matchScorecard,
@@ -679,7 +635,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           },
         ),
       ),
-    );
+    ), // Scaffold
+    ); // PopScope
   }
 
   // ── Section header ────────────────────────────────────────────────────────
@@ -846,10 +803,13 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     Widget startChip;
     if ((inProgress || _isMatchComplete) && _match.startedAt != null) {
       final actualStart = _match.startedAt!;
-      final deltaMin    = actualStart.difference(start).inMinutes;
+      final deltaMin    = _isMatchComplete
+          ? actualStart.difference(start).inMinutes
+          : now.difference(start).inMinutes;
       final isLate      = deltaMin > 1;
+      final chipTime    = _isMatchComplete ? _fmtTime(actualStart) : _fmtTime(now);
       startChip = _scheduleChip(
-        '${_fmtTime(actualStart)} (${delta(deltaMin)})',
+        '$chipTime (${delta(deltaMin)})',
         isLate ? Colors.orange.shade700 : _kOlive,
         isLate ? Colors.orange.withValues(alpha: 0.12) : _kOliveLight,
       );
@@ -1110,11 +1070,21 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       children: List.generate(maxSets, (i) {
         final hasSet = i < sets.length;
         final set = hasSet ? sets[i] : null;
-        final isActive = i == _currentSetIndex && !_isMatchComplete;
+        final isActive = i == _adapter.currentSetIndex;
         final isCompleted = set?.isCompleted ?? false;
-
-        final displayScore1 = isActive && !isCompleted ? (_isSwapped ? _score2 : _score1) : (set?.score1 ?? 0);
-        final displayScore2 = isActive && !isCompleted ? (_isSwapped ? _score1 : _score2) : (set?.score2 ?? 0);
+        // The pending set tile (not yet a completed set entry) shows live scores
+        // even when not the active view, so it doesn't flash "–" during navigation.
+        final isPendingTile = !hasSet && i == sets.length;
+        final displayScore1 = isActive && !isCompleted
+            ? (_isSwapped ? _score2 : _score1)
+            : isPendingTile
+                ? (_isSwapped ? _adapter.pendingScore2 : _adapter.pendingScore1)
+                : (set?.score1 ?? 0);
+        final displayScore2 = isActive && !isCompleted
+            ? (_isSwapped ? _score1 : _score2)
+            : isPendingTile
+                ? (_isSwapped ? _adapter.pendingScore1 : _adapter.pendingScore2)
+                : (set?.score2 ?? 0);
 
         Color borderColor;
         Color bgColor;
@@ -1129,35 +1099,66 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           bgColor = Colors.grey.shade100;
         }
 
+        String? winnerLabel;
+        if (isCompleted && set != null) {
+          final winnerName = set.score1 > set.score2
+              ? (_team1?.name ?? '')
+              : (_team2?.name ?? '');
+          final short = winnerName.length > 7
+              ? '${winnerName.substring(0, 7)}… ✓'
+              : '$winnerName ✓';
+          winnerLabel = short;
+        }
+
+        final card = Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor, width: isActive ? 2 : 1),
+          ),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Text(
+              '${isCompleted ? '● ' : ''}Set ${i + 1} · ${_fmt.pointsPerSet}',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: isCompleted ? AppColors.inverseSurface : isActive ? _kGold : Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              set == null && !isActive && !isPendingTile ? '–'
+                  : isPendingTile && displayScore1 == 0 && displayScore2 == 0 ? '–'
+                  : '$displayScore1–$displayScore2',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: isActive ? _kGold : isCompleted ? _kOlive : Colors.grey.shade400,
+              ),
+            ),
+            if (winnerLabel != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                winnerLabel,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: _kOlive,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ]),
+        );
+
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(right: i < maxSets - 1 ? 6 : 0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: borderColor, width: isActive ? 2 : 1),
-              ),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text(
-                  '${isCompleted ? '● ' : ''}Set ${i + 1} · ${_fmt.pointsPerSet}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: isCompleted ? AppColors.inverseSurface : isActive ? _kGold : Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  set == null && !isActive ? '–' : '$displayScore1–$displayScore2',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: isActive ? _kGold : isCompleted ? _kOlive : Colors.grey.shade400,
-                  ),
-                ),
-              ]),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _switchToSet(i),
+              child: card,
             ),
           ),
         );
@@ -1586,17 +1587,11 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   // ── Match actions ─────────────────────────────────────────────────────────
 
   void _startMatch() {
-    final started = _match.copyWith(
+    _adapter.updateMatch((m) => m.copyWith(
       startedAt: DateTime.now(),
       status: KoMatchStatus.inProgress,
-    );
-    final t = _tournament.updateMatch(started);
-    KoBracketStorageService.save(t);
-    setState(() {
-      _tournament = t;
-      _match = started;
-    });
-    widget.onChanged(t);
+    ));
+    setState(() {});
   }
 
   String _fmtTime(DateTime dt) {
@@ -1676,7 +1671,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           const SizedBox(height: 8),
         ],
 
-        // Complete Set (multi-set, shown once started)
+        // Complete Set / Undo Set (multi-set, always visible once started)
         if (!isOneSet && !notStarted) ...[
           ElevatedButton.icon(
             onPressed: _isMatchComplete
@@ -1690,10 +1685,12 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                   : Icons.check_circle_outline_rounded,
               size: 18,
             ),
-            label: Text(_currentSetDone
-                    ? AppLocalizations.of(context)!.matchUndoSet
-                    : AppLocalizations.of(context)!.matchCompleteSet,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              _currentSetDone
+                  ? AppLocalizations.of(context)!.matchUndoSet
+                  : AppLocalizations.of(context)!.matchCompleteSet,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: _isMatchComplete
                   ? null

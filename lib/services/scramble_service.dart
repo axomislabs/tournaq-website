@@ -195,7 +195,6 @@ class ScrambleService {
       courtCount: courtCount,
       playersPerTeam: playersPerTeam,
       startTime: startTime,
-      status: ScrambleTournamentStatus.setup,
       players: players,
       rounds: rounds,
       games: games,
@@ -823,15 +822,16 @@ class ScrambleService {
 
     for (var i = 0; i < updated.length; i++) {
       final r = updated[i];
-      if (r.actualEndTime != null) continue; // completed — leave untouched
+      if (r.actualEndTime != null) {
+        // Completed anchor: ensure chain never falls behind this round's actual break end.
+        final actualBreakEnd = r.actualEndTime!.add(r.breakDuration);
+        if (actualBreakEnd.isAfter(next)) next = actualBreakEnd;
+        continue;
+      }
 
-      if (next.isAfter(r.scheduledStartTime)) {
-        // Pending round is behind the chain — push it forward.
+      if (next != r.scheduledStartTime) {
         updated[i] = r.copyWith(scheduledStartTime: next);
         changed = true;
-      } else {
-        // Already scheduled later — advance the chain to after this round.
-        next = r.scheduledStartTime;
       }
       next = updated[i].scheduledStartTime.add(r.matchDuration + r.breakDuration);
     }

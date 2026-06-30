@@ -170,92 +170,101 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'Social Scrambles'),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+      body: CustomScrollView(
+        slivers: [
           // ── Start card ───────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildStartCard(l10n),
-          ),
-          const SizedBox(height: 20),
-
-          // ── History header ───────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.history_rounded,
-                    size: 20, color: AppColors.oliveMedium),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.doghouseTournamentHistory(_scrambles.length),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                if (_scrambles.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: _deleteAll,
-                    icon: const Icon(Icons.delete_outline, size: 16),
-                    label: Text(l10n.btnDeleteAll,
-                        style: const TextStyle(fontSize: 12)),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.red.shade400),
-                  ),
-              ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildStartCard(l10n),
             ),
           ),
-          const SizedBox(height: 8),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // ── History header ───────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.history_rounded,
+                      size: 20, color: AppColors.oliveMedium),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.doghouseTournamentHistory(_scrambles.length),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  if (_scrambles.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: _deleteAll,
+                      icon: const Icon(Icons.delete_outline, size: 16),
+                      label: Text(l10n.btnDeleteAll,
+                          style: const TextStyle(fontSize: 12)),
+                      style: TextButton.styleFrom(
+                          foregroundColor: Colors.red.shade400),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
           // ── Tournament list ──────────────────────────────────────────
-          Expanded(
-            child: _scrambles.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.shuffle_rounded,
-                            size: 48, color: Colors.grey.shade300),
-                        const SizedBox(height: 12),
-                        Text(l10n.doghouseNoTournamentsYet,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.black45)),
-                        const SizedBox(height: 4),
-                        Text(l10n.doghouseNoTournamentsHint,
-                            style: const TextStyle(
-                                color: Colors.black38, fontSize: 13)),
+          if (_scrambles.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shuffle_rounded,
+                        size: 48, color: Colors.grey.shade300),
+                    const SizedBox(height: 12),
+                    Text(l10n.doghouseNoTournamentsYet,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.black45)),
+                    const SizedBox(height: 4),
+                    Text(l10n.doghouseNoTournamentsHint,
+                        style: const TextStyle(
+                            color: Colors.black38, fontSize: 13)),
+                  ],
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) {
+                    final t = _scrambles[i];
+                    return TournamentHistoryCard(
+                      name:        t.name,
+                      typeLabel:   'Social Scrambles',
+                      typeColor:   AppColors.gold,
+                      typeIcon:    Icons.shuffle_rounded,
+                      dateLabel:   _dateLabel(l10n, t),
+                      statusLabel: _statusLabel(l10n, t),
+                      isActive:
+                          t.status != ScrambleTournamentStatus.completed,
+                      stats: [
+                        l10n.doghouseStatsPlayers(t.playerCount),
+                        l10n.statsRounds(t.roundCount),
+                        l10n.statsGamesOf(t.completedGames, t.totalGames),
                       ],
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                    itemCount: _scrambles.length,
-                    itemBuilder: (_, i) {
-                      final t = _scrambles[i];
-                      return TournamentHistoryCard(
-                        name:        t.name,
-                        typeLabel:   'Social Scrambles',
-                        typeColor:   AppColors.gold,
-                        typeIcon:    Icons.shuffle_rounded,
-                        dateLabel:   _dateLabel(l10n, t),
-                        statusLabel: _statusLabel(l10n, t),
-                        isActive:
-                            t.status != ScrambleTournamentStatus.completed,
-                        stats: [
-                          l10n.doghouseStatsPlayers(t.playerCount),
-                          l10n.statsRounds(t.roundCount),
-                          l10n.statsGamesOf(t.completedGames, t.totalGames),
-                        ],
-                        onTap:       () => _openOverview(t),
-                        onDeleteTap: () => _deleteOne(t),
-                      );
-                    },
-                  ),
-          ),
+                      onTap:       () => _openOverview(t),
+                      onDeleteTap: () => _deleteOne(t),
+                    );
+                  },
+                  childCount: _scrambles.length,
+                ),
+              ),
+            ),
         ],
       ),
     );

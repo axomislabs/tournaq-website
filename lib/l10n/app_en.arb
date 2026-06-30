@@ -1213,6 +1213,15 @@
   "statusInProgress": "In Progress",
   "@statusInProgress": {},
 
+  "statusDue": "Due",
+  "@statusDue": {},
+
+  "statusOverdue": "Overdue",
+  "@statusOverdue": {},
+
+  "statusUpcoming": "Upcoming",
+  "@statusUpcoming": {},
+
   "dateToday": "Today",
   "@dateToday": {},
 
@@ -1784,6 +1793,50 @@
   "overviewSectionOverview": "Overview",
   "@overviewSectionOverview": {},
 
+  "overviewSectionTimeline": "Schedule preview",
+  "@overviewSectionTimeline": {},
+
+  "timelineStart": "Start: {time}",
+  "@timelineStart": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelinePredictedEnd": "Predicted end: {time}",
+  "@timelinePredictedEnd": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelineRound": "Round {number}",
+  "@timelineRound": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "timelineBreakUntil": "Break until {time}",
+  "@timelineBreakUntil": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "timelineScheduleTitle": "Tournament schedule",
+  "@timelineScheduleTitle": {},
+
+  "timelineTournamentStart": "Tournament start",
+  "@timelineTournamentStart": {},
+
+  "timelineGameDuration": "Game duration (pending rounds)",
+  "@timelineGameDuration": {},
+
+  "timelineBreakDurationPending": "Break duration (pending rounds)",
+  "@timelineBreakDurationPending": {},
+
+  "timelineEditStartTime": "Start time",
+  "@timelineEditStartTime": {},
+
+  "timelineMatchDuration": "Match duration",
+  "@timelineMatchDuration": {},
+
+  "timelineBreakAfterRound": "Break after round",
+  "@timelineBreakAfterRound": {},
+
   "overviewSectionSchedule": "Schedule",
   "@overviewSectionSchedule": {},
 
@@ -1976,7 +2029,7 @@
   "matchComplete": "Match complete",
   "@matchComplete": {},
 
-  "matchSetCompleteBanner": "Set complete — confirm before next set",
+  "matchSetCompleteBanner": "Set complete — undo set to edit score",
   "@matchSetCompleteBanner": {},
 
   "matchSuggestedToServe": "{name} suggested to start serving",
@@ -2087,6 +2140,12 @@
 
   "bracketTournamentWinner": "Tournament Winner",
   "@bracketTournamentWinner": {},
+
+  "bracketRunnerUp": "Runner-up",
+  "@bracketRunnerUp": {},
+
+  "bracketThirdPlace": "3rd place",
+  "@bracketThirdPlace": {},
 
   "bracketSectionTeams": "Teams ({count})",
   "@bracketSectionTeams": {

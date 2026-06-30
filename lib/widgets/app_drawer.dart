@@ -36,7 +36,10 @@ class AppDrawer extends StatelessWidget {
           _buildHeader(context, topPadding),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.only(
+                top: 12,
+                bottom: MediaQuery.of(context).padding.bottom + 12,
+              ),
               children: [
                 _buildNavItem(
                   context,
