@@ -180,9 +180,9 @@
 
     <!-- Overview -->
     <section class="card">
-      <div class="completed-status phase-status">Available</div>
-      <h2>Match Scoring</h2>
-      <p>TournaQ's scorecard is the core of every game and tournament. It works the same way regardless of mode — two large team cards with + and − buttons, a serving player indicator, match context chips, and an undo option for corrections. The scorecard adapts to each format's rules: a countdown timer for Social Scramble, set tabs for Best of Three matches, escape and loss counters for Doghouse, and a session timer for King of the Court and Doghouse. Every scorecard is also available in landscape orientation for table-side or net-post use.</p>
+      <div class="completed-status phase-status" data-i18n="features.scoring.status">Available</div>
+      <h2 data-i18n="features.scoring.feature.title">Match Scoring</h2>
+      <p data-i18n="features.scoring.intro">TournaQ's scorecard is the core of every game and tournament. It works the same way regardless of mode — two large team cards with + and − buttons, a serving player indicator, match context chips, and an undo option for corrections. The scorecard adapts to each format's rules: a countdown timer for Social Scramble, set tabs for Best of Three matches, escape and loss counters for Doghouse, and a session timer for King of the Court and Doghouse. Every scorecard is also available in landscape orientation for table-side or net-post use.</p>
 
       <img src="../../assets/screenshots/quickgames_scorecard_0.png" alt="Quick Game scorecard showing two teams with player names large score digits serving indicator and plus minus buttons"
         style="width:100%; max-width:320px; display:block; margin: 20px auto 4px; border-radius:12px; border:1px solid var(--border);">
@@ -190,32 +190,32 @@
       <div class="card-nav">
         <div class="card-nav-label">Jump to section</div>
         <div class="card-nav-links">
-          <a href="#scorecards">Scorecards by Mode</a>
-          <a href="#landscape">Landscape Mode</a>
-          <a href="#features">Scoring Features</a>
+          <a href="#scorecards" data-i18n="features.scoring.cardnav.scorecards">Scorecards by Mode</a>
+          <a href="#landscape" data-i18n="features.scoring.cardnav.landscape">Landscape Mode</a>
+          <a href="#features" data-i18n="features.scoring.cardnav.features">Scoring Features</a>
         </div>
       </div>
     </section>
 
     <!-- Scorecards by Mode -->
     <section id="scorecards" style="margin-top: 40px;">
-      <h2 class="section-title">Scorecards Across Modes</h2>
-      <p class="section-text">Each mode has a scorecard tailored to its format. The core layout is consistent — team cards, score buttons, player names, match context — but the additional controls, timers, and counters adapt to what that mode needs.</p>
+      <h2 class="section-title" data-i18n="features.scoring.scorecards.title">Scorecards Across Modes</h2>
+      <p class="section-text" data-i18n="features.scoring.scorecards.text">Each mode has a scorecard tailored to its format. The core layout is consistent — team cards, score buttons, player names, match context — but the additional controls, timers, and counters adapt to what that mode needs.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3>Timer-Based Scoring</h3>
-          <p>Social Scramble scorecards run a countdown timer for each match. The timer shows time remaining at the top. Both team cards show player names and scores. The schedule status (Overdue / Due / Upcoming) is shown inline. A suggested referee appears in the Match Controls section below. Tap Start Match to begin, or Manually Set Score to skip the timer.</p>
+          <h3 data-i18n="features.scoring.scorecards.card1.title">Timer-Based Scoring</h3>
+          <p data-i18n="features.scoring.scorecards.card1.text">Social Scramble scorecards run a countdown timer for each match. The timer shows time remaining at the top. Both team cards show player names and scores. The schedule status (Overdue / Due / Upcoming) is shown inline. A suggested referee appears in the Match Controls section below. Tap Start Match to begin, or Manually Set Score to skip the timer.</p>
           <img class="vertical" src="../../assets/screenshots/scramble_scorecard_ingame.png" alt="Social Scramble in-game scorecard with countdown timer team cards and match status">
         </div>
         <div class="guide-card">
-          <h3>Multi-Set Scoring</h3>
-          <p>Bracket tournament scorecards (e.g. Single Elimination) support Best of Three Sets. Set tabs run across the top — completed sets are greyed out with the final score, the active set is highlighted in gold, and the third tab is inactive until needed. The serving team's card is highlighted in gold; the leading team's card turns green. Tap Complete Set after each set.</p>
+          <h3 data-i18n="features.scoring.scorecards.card2.title">Multi-Set Scoring</h3>
+          <p data-i18n="features.scoring.scorecards.card2.text">Bracket tournament scorecards (e.g. Single Elimination) support Best of Three Sets. Set tabs run across the top — completed sets are greyed out with the final score, the active set is highlighted in gold, and the third tab is inactive until needed. The serving team's card is highlighted in gold; the leading team's card turns green. Tap Complete Set after each set.</p>
           <img class="vertical" src="../../assets/screenshots/singleko_tournament_scorecard_3set.png" alt="Single Elimination multi-set scorecard with set tabs serving indicator and match controls">
         </div>
         <div class="guide-card">
-          <h3>Counter-Based Scoring</h3>
-          <p>Session modes like Doghouse show additional counters alongside the score. The team card displays the escape progress counter (e.g. 1/3 escape points) and the loss counter (e.g. 0/3 losses) inline. A separate Game Lost panel on the right tracks cumulative losses with an Undo button. The session timer counts down in parallel across all games.</p>
+          <h3 data-i18n="features.scoring.scorecards.card3.title">Counter-Based Scoring</h3>
+          <p data-i18n="features.scoring.scorecards.card3.text">Session modes like Doghouse show additional counters alongside the score. The team card displays the escape progress counter (e.g. 1/3 escape points) and the loss counter (e.g. 0/3 losses) inline. A separate Game Lost panel on the right tracks cumulative losses with an Undo button. The session timer counts down in parallel across all games.</p>
           <img class="vertical" src="../../assets/screenshots/dog_scorecard_manual_score1.png" alt="Doghouse scorecard showing team card with escape counter loss counter and Game Lost panel">
         </div>
       </div>
@@ -223,36 +223,36 @@
 
     <!-- Landscape Mode -->
     <section id="landscape" style="margin-top: 40px;">
-      <h2 class="section-title">Landscape Mode</h2>
-      <p class="section-text">Every scorecard in TournaQ supports landscape orientation. Rotating the device rearranges the layout to suit a device placed flat on a table, mounted to a net post, or held sideways courtside. Controls move to the left column and team cards expand on the right. The layout varies slightly by mode to surface the most relevant information.</p>
+      <h2 class="section-title" data-i18n="features.scoring.landscape.title">Landscape Mode</h2>
+      <p class="section-text" data-i18n="features.scoring.landscape.text">Every scorecard in TournaQ supports landscape orientation. Rotating the device rearranges the layout to suit a device placed flat on a table, mounted to a net post, or held sideways courtside. Controls move to the left column and team cards expand on the right. The layout varies slightly by mode to surface the most relevant information.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3>Quick Game</h3>
-          <p>In landscape, the Quick Game scorecard shows the current set info and player names on the left, with large score digits and +/- buttons for each team on the right. The active server is highlighted. Useful for a flat net-post setup where portrait orientation is hard to read from the side.</p>
+          <h3 data-i18n="features.scoring.landscape.card1.title">Quick Game</h3>
+          <p data-i18n="features.scoring.landscape.card1.text">In landscape, the Quick Game scorecard shows the current set info and player names on the left, with large score digits and +/- buttons for each team on the right. The active server is highlighted. Useful for a flat net-post setup where portrait orientation is hard to read from the side.</p>
           <img src="../../assets/screenshots/quickgames_scorecard_landscape.png" alt="Quick Game landscape scorecard with team scores and serving indicator">
         </div>
         <div class="guide-card">
-          <h3>Social Scramble</h3>
-          <p>The Scramble landscape view moves the timer and timer controls to the left column. Both team cards stack vertically on the right with player names and score buttons. The schedule status and match context remain visible without scrolling. Well suited for placing the device alongside the court during timed matches.</p>
+          <h3 data-i18n="features.scoring.landscape.card2.title">Social Scramble</h3>
+          <p data-i18n="features.scoring.landscape.card2.text">The Scramble landscape view moves the timer and timer controls to the left column. Both team cards stack vertically on the right with player names and score buttons. The schedule status and match context remain visible without scrolling. Well suited for placing the device alongside the court during timed matches.</p>
           <img src="../../assets/screenshots/scramble_scorecard_landscape.png" alt="Social Scramble landscape scorecard with timer on left and team cards on right">
         </div>
         <div class="guide-card">
-          <h3>Single Elimination</h3>
-          <p>The Single Elimination landscape scorecard places set tabs in the left column — showing completed set results and the active set score side by side. Team cards appear on the right. A schedule panel at the bottom shows the planned start time, actual start (with a delay indicator), estimated end, and minutes remaining in the schedule slot.</p>
+          <h3 data-i18n="features.scoring.landscape.card3.title">Single Elimination</h3>
+          <p data-i18n="features.scoring.landscape.card3.text">The Single Elimination landscape scorecard places set tabs in the left column — showing completed set results and the active set score side by side. Team cards appear on the right. A schedule panel at the bottom shows the planned start time, actual start (with a delay indicator), estimated end, and minutes remaining in the schedule slot.</p>
           <img src="../../assets/screenshots/singleko_tournament_scorecard_3set_landscape.png" alt="Single Elimination landscape scorecard with set tabs on left and team cards on right">
         </div>
       </div>
 
       <div class="guide-grid-2" style="margin-top: 18px;">
         <div class="guide-card">
-          <h3>King of the Court</h3>
-          <p>In King of the Court landscape, the session timer and controls (Stop / Start-Restart / +30s / −30s) appear in the left column. The Up Next and Challengers queue rows sit below. The defending team's card fills the right side with the score, player names, strike counter, and +/− buttons. The Team Ejected and Undo Eject buttons remain accessible at the top.</p>
+          <h3 data-i18n="features.scoring.landscape.card4.title">King of the Court</h3>
+          <p data-i18n="features.scoring.landscape.card4.text">In King of the Court landscape, the session timer and controls (Stop / Start-Restart / +30s / −30s) appear in the left column. The Up Next and Challengers queue rows sit below. The defending team's card fills the right side with the score, player names, strike counter, and +/− buttons. The Team Ejected and Undo Eject buttons remain accessible at the top.</p>
           <img src="../../assets/screenshots/kotc_scorecard_automated_ingamequeue_landscape.png" alt="King of the Court landscape scorecard with session timer queue rows and defending team card">
         </div>
         <div class="guide-card">
-          <h3>Doghouse</h3>
-          <p>The Doghouse landscape layout shows the session timer and controls on the left. The In Doghouse team card occupies the right with the current score, player names, time on court, and escape/loss counters. The Game Lost panel appears above the team card on the right side. The layout keeps all critical information visible without scrolling during active play.</p>
+          <h3 data-i18n="features.scoring.landscape.card5.title">Doghouse</h3>
+          <p data-i18n="features.scoring.landscape.card5.text">The Doghouse landscape layout shows the session timer and controls on the left. The In Doghouse team card occupies the right with the current score, player names, time on court, and escape/loss counters. The Game Lost panel appears above the team card on the right side. The layout keeps all critical information visible without scrolling during active play.</p>
           <img src="../../assets/screenshots/dog_scorecard_manual_landscape.png" alt="Doghouse landscape scorecard with session timer on left and team card with Game Lost panel on right">
         </div>
       </div>
@@ -260,71 +260,71 @@
 
     <!-- Scoring Features -->
     <section id="features" style="margin-top: 40px;">
-      <h2 class="section-title">Scoring Features</h2>
-      <p class="section-text">Core point tracking, set management, and score correction are live across all modes. Completed matches are saved automatically with full history.</p>
+      <h2 class="section-title" data-i18n="features.scoring.features.title">Scoring Features</h2>
+      <p class="section-text" data-i18n="features.scoring.features.text">Core point tracking, set management, and score correction are live across all modes. Completed matches are saved automatically with full history.</p>
 
       <ul class="feature-list">
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Live point-by-point scoring</strong>
-            <p>Tap + or − to award or remove points for either team in real time. Large buttons are optimised for one-handed use during active play without looking away from the court.</p>
+            <strong data-i18n="features.scoring.features.li1.title">Live point-by-point scoring</strong>
+            <p data-i18n="features.scoring.features.li1.text">Tap + or − to award or remove points for either team in real time. Large buttons are optimised for one-handed use during active play without looking away from the court.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Set management</strong>
-            <p>Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets — including third-set activation in Best of Three matches — without manual input.</p>
+            <strong data-i18n="features.scoring.features.li2.title">Set management</strong>
+            <p data-i18n="features.scoring.features.li2.text">Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets — including third-set activation in Best of Three matches — without manual input.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Serving player tracking</strong>
-            <p>The active server is highlighted within the team card. Service changes when the non-serving team scores. The serving player indicator updates automatically on every point.</p>
+            <strong data-i18n="features.scoring.features.li3.title">Serving player tracking</strong>
+            <p data-i18n="features.scoring.features.li3.text">The active server is highlighted within the team card. Service changes when the non-serving team scores. The serving player indicator updates automatically on every point.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Score correction</strong>
-            <p>Undo the last point at any time using the Undo button on the scorecard or Game Lost panel. Mistakes during fast play can be corrected immediately without losing match state.</p>
+            <strong data-i18n="features.scoring.features.li4.title">Score correction</strong>
+            <p data-i18n="features.scoring.features.li4.text">Undo the last point at any time using the Undo button on the scorecard or Game Lost panel. Mistakes during fast play can be corrected immediately without losing match state.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Side change alerts</strong>
-            <p>When the combined score reaches the halfway point within a set, a Side Change dialog appears automatically. Confirm the physical switch and scoring continues with the updated court layout.</p>
+            <strong data-i18n="features.scoring.features.li5.title">Side change alerts</strong>
+            <p data-i18n="features.scoring.features.li5.text">When the combined score reaches the halfway point within a set, a Side Change dialog appears automatically. Confirm the physical switch and scoring continues with the updated court layout.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Match result &amp; history</strong>
-            <p>Completed matches are saved locally with full score history per set. Quick Games, tournament brackets, and session modes all log results to their respective hubs.</p>
+            <strong data-i18n="features.scoring.features.li6.title">Match result &amp; history</strong>
+            <p data-i18n="features.scoring.features.li6.text">Completed matches are saved locally with full score history per set. Quick Games, tournament brackets, and session modes all log results to their respective hubs.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-available">Available</span>
+          <span class="pill pill-available" data-i18n="features.scoring.features.pill.available">Available</span>
           <div class="feature-text">
-            <strong>Landscape scorecard</strong>
-            <p>Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring.</p>
+            <strong data-i18n="features.scoring.features.li7.title">Landscape scorecard</strong>
+            <p data-i18n="features.scoring.features.li7.text">Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-planned">Planned</span>
+          <span class="pill pill-planned" data-i18n="features.scoring.features.pill.planned">Planned</span>
           <div class="feature-text">
-            <strong>Timeout tracking</strong>
-            <p>Record timeouts per team per set, in line with standard beach volleyball rules.</p>
+            <strong data-i18n="features.scoring.features.li8.title">Timeout tracking</strong>
+            <p data-i18n="features.scoring.features.li8.text">Record timeouts per team per set, in line with standard beach volleyball rules.</p>
           </div>
         </li>
         <li>
-          <span class="pill pill-planned">Planned</span>
+          <span class="pill pill-planned" data-i18n="features.scoring.features.pill.planned">Planned</span>
           <div class="feature-text">
-            <strong>Player point statistics</strong>
-            <p>Track individual player contributions within a match — points won, errors, and serve effectiveness.</p>
+            <strong data-i18n="features.scoring.features.li9.title">Player point statistics</strong>
+            <p data-i18n="features.scoring.features.li9.text">Track individual player contributions within a match — points won, errors, and serve effectiveness.</p>
           </div>
         </li>
       </ul>
@@ -333,7 +333,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p>Have a question about match scoring, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="features.scoring.feedback.text">Have a question about match scoring, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

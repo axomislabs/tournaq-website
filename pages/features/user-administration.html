@@ -145,9 +145,9 @@
 
     <!-- Overview -->
     <section class="card">
-      <div class="completed-status phase-status">Available</div>
-      <h2>Player &amp; Team Administration</h2>
-      <p>The Administration section is TournaQ's persistent data layer. Players, teams, and groups saved here are available across every mode — Quick Games, Social Scrambles, Doghouse, Single Elimination, and all others. Instead of re-entering names every session, an organiser can build up a library of players and teams once and import them in seconds when setting up a new game or tournament. Groups let you organise players and teams by club, venue, or event series so they can be filtered when adding to a tournament.</p>
+      <div class="completed-status phase-status" data-i18n="features.user-administration.status">Available</div>
+      <h2 data-i18n="features.user-administration.hero.title">Player &amp; Team Administration</h2>
+      <p data-i18n="features.user-administration.intro">The Administration section is TournaQ's persistent data layer. Players, teams, and groups saved here are available across every mode — Quick Games, Social Scrambles, Doghouse, Single Elimination, and all others. Instead of re-entering names every session, an organiser can build up a library of players and teams once and import them in seconds when setting up a new game or tournament. Groups let you organise players and teams by club, venue, or event series so they can be filtered when adding to a tournament.</p>
 
       <img src="../../assets/screenshots/administration.png" alt="Administration hub showing Players Teams and Groups sections"
         style="width:100%; border-radius:12px; border:1px solid var(--border); margin: 20px 0 4px;">
@@ -155,33 +155,33 @@
       <div class="card-nav">
         <div class="card-nav-label">Jump to section</div>
         <div class="card-nav-links">
-          <a href="#players">Players</a>
-          <a href="#teams">Teams</a>
-          <a href="#groups">Groups</a>
-          <a href="#ingame">In-Game Import</a>
+          <a href="#players" data-i18n="features.user-administration.cardnav.players">Players</a>
+          <a href="#teams" data-i18n="features.user-administration.cardnav.teams">Teams</a>
+          <a href="#groups" data-i18n="features.user-administration.cardnav.groups">Groups</a>
+          <a href="#ingame" data-i18n="features.user-administration.cardnav.ingame">In-Game Import</a>
         </div>
       </div>
     </section>
 
     <!-- Players -->
     <section id="players" style="margin-top: 40px;">
-      <h2 class="section-title">Players</h2>
-      <p class="section-text">The Players hub is a searchable, filterable list of every player saved on the device. Each entry shows the player's name and how many teams, groups, and tournaments they have been part of. Players can be searched by name, filtered by team, or filtered by tournament. New players can be created at any time and are immediately available across all modes.</p>
+      <h2 class="section-title" data-i18n="features.user-administration.players.title">Players</h2>
+      <p class="section-text" data-i18n="features.user-administration.players.text">The Players hub is a searchable, filterable list of every player saved on the device. Each entry shows the player's name and how many teams, groups, and tournaments they have been part of. Players can be searched by name, filtered by team, or filtered by tournament. New players can be created at any time and are immediately available across all modes.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3>Players Hub</h3>
-          <p>The Players hub shows the full player count (e.g. 99 players) and a searchable list. Filter tabs let you switch between Name, Team, and Tournament views. Each player entry shows their initial badge, full name, and a summary of how many teams and tournaments they belong to. Tap the three-dot menu on any entry to edit or delete.</p>
+          <h3 data-i18n="features.user-administration.players.card1.title">Players Hub</h3>
+          <p data-i18n="features.user-administration.players.card1.text">The Players hub shows the full player count (e.g. 99 players) and a searchable list. Filter tabs let you switch between Name, Team, and Tournament views. Each player entry shows their initial badge, full name, and a summary of how many teams and tournaments they belong to. Tap the three-dot menu on any entry to edit or delete.</p>
           <img class="vertical" src="../../assets/screenshots/admin_players.png" alt="Players hub showing 99 players searchable by Name Team and Tournament with player entries">
         </div>
         <div class="guide-card">
-          <h3>Create Player</h3>
-          <p>Tap Create Player to open the creation sheet. Enter the player's name — a Suggest button generates a random name for testing. Optionally assign the new player to one or more existing teams and groups at the point of creation. Tap Create Player to save. The player is immediately available in the Add Existing Players list in all modes.</p>
+          <h3 data-i18n="features.user-administration.players.card2.title">Create Player</h3>
+          <p data-i18n="features.user-administration.players.card2.text">Tap Create Player to open the creation sheet. Enter the player's name — a Suggest button generates a random name for testing. Optionally assign the new player to one or more existing teams and groups at the point of creation. Tap Create Player to save. The player is immediately available in the Add Existing Players list in all modes.</p>
           <img class="vertical" src="../../assets/screenshots/admin_player_create.png" alt="Create Player sheet showing Name field with Suggest option and Assign to Teams and Groups dropdowns">
         </div>
         <div class="guide-card">
-          <h3>Add Existing Players In-Game</h3>
-          <p>During tournament setup (e.g. Social Scramble), tap "Add Existing Players" to open the player import panel. It shows the full saved player list (103 players here) with a search bar and a Group filter — so you can filter to only the players from a specific club or event. Tap the + button next to any player to add them to the tournament instantly.</p>
+          <h3 data-i18n="features.user-administration.players.card3.title">Add Existing Players In-Game</h3>
+          <p data-i18n="features.user-administration.players.card3.text">During tournament setup (e.g. Social Scramble), tap "Add Existing Players" to open the player import panel. It shows the full saved player list (103 players here) with a search bar and a Group filter — so you can filter to only the players from a specific club or event. Tap the + button next to any player to add them to the tournament instantly.</p>
           <img class="vertical" src="../../assets/screenshots/scramble_setup_playersadd.png" alt="Add Existing Players panel during Social Scramble setup showing searchable player list with Group filter">
         </div>
       </div>
@@ -189,23 +189,23 @@
 
     <!-- Teams -->
     <section id="teams" style="margin-top: 40px;">
-      <h2 class="section-title">Teams</h2>
-      <p class="section-text">The Teams hub stores pre-formed teams with their player rosters. Teams saved here can be loaded into any tournament bracket or game setup in one tap — player names are included automatically. A team can belong to one or more groups, making it easy to filter when setting up a tournament with a specific club or pool of participants.</p>
+      <h2 class="section-title" data-i18n="features.user-administration.teams.title">Teams</h2>
+      <p class="section-text" data-i18n="features.user-administration.teams.text">The Teams hub stores pre-formed teams with their player rosters. Teams saved here can be loaded into any tournament bracket or game setup in one tap — player names are included automatically. A team can belong to one or more groups, making it easy to filter when setting up a tournament with a specific club or pool of participants.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3>Teams Hub</h3>
-          <p>The Teams hub lists all saved teams (e.g. 43 teams) with a searchable list. Filter tabs let you browse by Name, Player, or Tournament. Each entry shows the team initial badge, team name, player count, and group membership. Tap a team to view or edit its roster. Teams marked with multiple groups appear in each group's filtered list.</p>
+          <h3 data-i18n="features.user-administration.teams.card1.title">Teams Hub</h3>
+          <p data-i18n="features.user-administration.teams.card1.text">The Teams hub lists all saved teams (e.g. 43 teams) with a searchable list. Filter tabs let you browse by Name, Player, or Tournament. Each entry shows the team initial badge, team name, player count, and group membership. Tap a team to view or edit its roster. Teams marked with multiple groups appear in each group's filtered list.</p>
           <img class="vertical" src="../../assets/screenshots/admin_teams.png" alt="Teams hub showing 43 teams searchable by Name Player and Tournament with team entries">
         </div>
         <div class="guide-card">
-          <h3>Create Team</h3>
-          <p>Tap Create Team to open the creation sheet. Enter a team name — a Suggest button generates a random name. Assign the team to existing players (linking it to player profiles) and to one or more groups. Tap Create Team to save. The team is immediately available in the Add Existing Teams list in all bracket modes.</p>
+          <h3 data-i18n="features.user-administration.teams.card2.title">Create Team</h3>
+          <p data-i18n="features.user-administration.teams.card2.text">Tap Create Team to open the creation sheet. Enter a team name — a Suggest button generates a random name. Assign the team to existing players (linking it to player profiles) and to one or more groups. Tap Create Team to save. The team is immediately available in the Add Existing Teams list in all bracket modes.</p>
           <img class="vertical" src="../../assets/screenshots/admin_teams_create.png" alt="Create Team sheet showing Name field with Suggest and Assign to Players and Groups dropdowns">
         </div>
         <div class="guide-card">
-          <h3>Add Existing Teams In-Game</h3>
-          <p>During bracket tournament setup (e.g. Single Elimination), expanding "Add Existing Teams" shows all 45 saved teams with their player counts. A Group filter lets you narrow the list to a specific club or affiliation. Tap + on any team to add it to the bracket — player names are loaded automatically, ready to appear on scorecards.</p>
+          <h3 data-i18n="features.user-administration.teams.card3.title">Add Existing Teams In-Game</h3>
+          <p data-i18n="features.user-administration.teams.card3.text">During bracket tournament setup (e.g. Single Elimination), expanding "Add Existing Teams" shows all 45 saved teams with their player counts. A Group filter lets you narrow the list to a specific club or affiliation. Tap + on any team to add it to the bracket — player names are loaded automatically, ready to appear on scorecards.</p>
           <img class="vertical" src="../../assets/screenshots/singleko_tournament_addteams_existing.png" alt="Add Existing Teams panel during Single Elimination setup showing saved teams with Group filter and add buttons">
         </div>
       </div>
@@ -213,18 +213,18 @@
 
     <!-- Groups -->
     <section id="groups" style="margin-top: 40px;">
-      <h2 class="section-title">Groups</h2>
-      <p class="section-text">Groups are collections of players and teams — typically representing a club, venue, or regular event series. Assigning players and teams to a group means that when setting up a new tournament, you can filter the import panel to only show members of that group. This is especially useful when running events for a specific club or when managing multiple different leagues or groups of regulars.</p>
+      <h2 class="section-title" data-i18n="features.user-administration.groups.title">Groups</h2>
+      <p class="section-text" data-i18n="features.user-administration.groups.text">Groups are collections of players and teams — typically representing a club, venue, or regular event series. Assigning players and teams to a group means that when setting up a new tournament, you can filter the import panel to only show members of that group. This is especially useful when running events for a specific club or when managing multiple different leagues or groups of regulars.</p>
 
       <div class="guide-grid-2">
         <div class="guide-card">
-          <h3>Groups Hub</h3>
-          <p>The Groups hub shows all saved groups with a searchable list and Name / Player / Team filter tabs. Each group entry shows its name and a summary of how many players and teams it contains. For example, Royal Phoenix (3 players, 6 teams), Iron Club (5 players), and Cheeky Cheesis (10 players, 3 teams). Tap any group to view its members or edit it.</p>
+          <h3 data-i18n="features.user-administration.groups.card1.title">Groups Hub</h3>
+          <p data-i18n="features.user-administration.groups.card1.text">The Groups hub shows all saved groups with a searchable list and Name / Player / Team filter tabs. Each group entry shows its name and a summary of how many players and teams it contains. For example, Royal Phoenix (3 players, 6 teams), Iron Club (5 players), and Cheeky Cheesis (10 players, 3 teams). Tap any group to view its members or edit it.</p>
           <img class="vertical" src="../../assets/screenshots/admin_groups.png" alt="Groups hub showing 3 groups with player and team counts and Name Player Team filter tabs">
         </div>
         <div class="guide-card">
-          <h3>Create Group</h3>
-          <p>Tap Create Group to open the creation sheet. Enter a group name — a Suggest button generates a name. Assign existing players and teams to the group at creation time. Tap Create Group to save. Once saved, the group appears as a filter option in all player and team import panels throughout the app, across every mode.</p>
+          <h3 data-i18n="features.user-administration.groups.card2.title">Create Group</h3>
+          <p data-i18n="features.user-administration.groups.card2.text">Tap Create Group to open the creation sheet. Enter a group name — a Suggest button generates a name. Assign existing players and teams to the group at creation time. Tap Create Group to save. Once saved, the group appears as a filter option in all player and team import panels throughout the app, across every mode.</p>
           <img class="vertical" src="../../assets/screenshots/admin_groups_create.png" alt="Create Group sheet showing Name field with Suggest and Assign Players and Assign Teams dropdowns">
         </div>
       </div>
@@ -232,23 +232,23 @@
 
     <!-- In-Game Import -->
     <section id="ingame" style="margin-top: 40px;">
-      <h2 class="section-title">In-Game Import</h2>
-      <p class="section-text">Administration data is available everywhere in TournaQ — not just in the Administration hub. Any game or tournament setup screen that requires players or teams provides direct access to the saved library. This means a recurring club session can be set up in seconds: pick the mode, open the import panel, filter by group, and add everyone with a few taps.</p>
+      <h2 class="section-title" data-i18n="features.user-administration.ingame.title">In-Game Import</h2>
+      <p class="section-text" data-i18n="features.user-administration.ingame.text">Administration data is available everywhere in TournaQ — not just in the Administration hub. Any game or tournament setup screen that requires players or teams provides direct access to the saved library. This means a recurring club session can be set up in seconds: pick the mode, open the import panel, filter by group, and add everyone with a few taps.</p>
 
       <div class="guide-grid">
         <div class="guide-card">
-          <h3>Import Player — Quick Game</h3>
-          <p>When creating a team for a Quick Game, each player slot has a search icon. Tap it to open the Players Hub inline — search for an existing player by name and tap to add them directly to the team slot. No switching screens. The player's saved name is loaded into the team setup immediately.</p>
+          <h3 data-i18n="features.user-administration.ingame.card1.title">Import Player — Quick Game</h3>
+          <p data-i18n="features.user-administration.ingame.card1.text">When creating a team for a Quick Game, each player slot has a search icon. Tap it to open the Players Hub inline — search for an existing player by name and tap to add them directly to the team slot. No switching screens. The player's saved name is loaded into the team setup immediately.</p>
           <img class="vertical" src="../../assets/screenshots/quickgames_setup_createteams_importplayer.png" alt="Quick Game team setup showing player import from Players Hub with search">
         </div>
         <div class="guide-card">
-          <h3>Add Players — Tournament Setup</h3>
-          <p>In any player-based mode (Social Scramble, King of the Court, Doghouse), the player panel during setup shows Create Player and Add Existing Players options. Expanding Add Existing Players opens the full player list with a Group filter and search — tap + on each name to add them. The counter (e.g. 0/8) tracks how many spots remain.</p>
+          <h3 data-i18n="features.user-administration.ingame.card2.title">Add Players — Tournament Setup</h3>
+          <p data-i18n="features.user-administration.ingame.card2.text">In any player-based mode (Social Scramble, King of the Court, Doghouse), the player panel during setup shows Create Player and Add Existing Players options. Expanding Add Existing Players opens the full player list with a Group filter and search — tap + on each name to add them. The counter (e.g. 0/8) tracks how many spots remain.</p>
           <img class="vertical" src="../../assets/screenshots/scramble_setup_playersadd.png" alt="Social Scramble setup player panel showing Add Existing Players with Group filter and searchable list">
         </div>
         <div class="guide-card">
-          <h3>Add Teams — Tournament Setup</h3>
-          <p>In bracket modes (Single Elimination and others), the Teams panel shows Create Team and Add Existing Teams options. Add Existing Teams lists all saved teams with player counts and a Group filter. Tap + to add any team to the bracket. The counter tracks how many of the required teams have been filled — once complete, "Ready to start!" appears.</p>
+          <h3 data-i18n="features.user-administration.ingame.card3.title">Add Teams — Tournament Setup</h3>
+          <p data-i18n="features.user-administration.ingame.card3.text">In bracket modes (Single Elimination and others), the Teams panel shows Create Team and Add Existing Teams options. Add Existing Teams lists all saved teams with player counts and a Group filter. Tap + to add any team to the bracket. The counter tracks how many of the required teams have been filled — once complete, "Ready to start!" appears.</p>
           <img class="vertical" src="../../assets/screenshots/singleko_tournament_addteams_existing.png" alt="Single Elimination setup showing Add Existing Teams with Group filter and saved team list">
         </div>
       </div>
@@ -257,7 +257,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p>Have a question about player and team administration, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="features.user-administration.feedback.text">Have a question about player and team administration, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
