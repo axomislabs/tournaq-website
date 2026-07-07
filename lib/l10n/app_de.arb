@@ -799,6 +799,12 @@
   "timelineBreakDurationPending": "Pausendauer (ausstehende Runden)",
   "@timelineBreakDurationPending": {},
 
+  "timelinePaceAlertsTitle": "Tempo-Hinweise",
+  "@timelinePaceAlertsTitle": {},
+
+  "timelinePaceAlertsSubtitle": "Runden als im Zeitplan, fällig oder überfällig kennzeichnen",
+  "@timelinePaceAlertsSubtitle": {},
+
   "timelineEditStartTime": "Startzeit",
   "@timelineEditStartTime": {},
 

@@ -152,7 +152,6 @@ final _scrambleTournament = ScrambleTournament(
   courtCount: 1,
   playersPerTeam: 2,
   startTime: _now,
-  status: ScrambleTournamentStatus.inProgress,
   players: _scramblePlayers,
   rounds: [_scrambleRound],
   games: [_scrambleGame],
@@ -725,6 +724,11 @@ void main() {
 
   // ScrambleSetupPage — no external services in initState
   group('ScrambleSetupPage', () {
+    // Note: the page defaults to "Now" for start time, so the Schedule
+    // Preview's computed end time is real-clock-dependent and drifts by a
+    // minute between captures — expect to periodically regenerate this
+    // golden (same pre-existing characteristic as the scorecard's
+    // pace_alerts_on golden below).
     testGoldens('default', (tester) async {
       await tester.pumpWidgetBuilder(
         ScrambleSetupPage(
@@ -755,6 +759,19 @@ void main() {
       await tester.pumpAndSettle();
       await screenMatchesGolden(tester, 'scramble_overview__in_progress');
     });
+
+    testGoldens('pace_alerts_on', (tester) async {
+      await tester.pumpWidgetBuilder(
+        ScrambleOverviewPage(
+          tournament: _scrambleTournament.copyWith(paceAlertsEnabled: true),
+          onChanged: (_) {},
+        ),
+        wrapper: _wrap,
+        surfaceSize: _pageSz,
+      );
+      await tester.pumpAndSettle();
+      await screenMatchesGolden(tester, 'scramble_overview__pace_alerts_on');
+    });
   });
 
   group('ScrambleStatsPage', () {
@@ -783,6 +800,25 @@ void main() {
       );
       await tester.pumpAndSettle();
       await screenMatchesGolden(tester, 'scramble_scorecard__in_progress');
+    });
+
+    // Note: with pace alerts on, this renders a live "Xm late" delta computed
+    // against the fixed mock `_now`, which drifts further from DateTime.now()
+    // every day — expect to periodically regenerate this golden (the same
+    // pre-existing characteristic the old always-on scorecard golden had).
+    testGoldens('pace_alerts_on', (tester) async {
+      await tester.pumpWidgetBuilder(
+        ScrambleScorecardPage(
+          tournament: _scrambleTournament.copyWith(paceAlertsEnabled: true),
+          game: _scrambleGame,
+          round: _scrambleRound,
+          onChanged: (_) {},
+        ),
+        wrapper: _wrap,
+        surfaceSize: _pageSz,
+      );
+      await tester.pumpAndSettle();
+      await screenMatchesGolden(tester, 'scramble_scorecard__pace_alerts_on');
     });
   });
 
@@ -947,6 +983,19 @@ void main() {
         surfaceSize: const Size(390, 140),
       );
       await screenMatchesGolden(tester, 'scramble_game_tile__in_progress');
+    });
+
+    testGoldens('pace_alerts_on', (tester) async {
+      await tester.pumpWidgetBuilder(
+        ScrambleGameTile(
+          game: _scrambleGame,
+          round: _scrambleRound,
+          tournament: _scrambleTournament.copyWith(paceAlertsEnabled: true),
+        ),
+        wrapper: _wrap,
+        surfaceSize: const Size(390, 140),
+      );
+      await screenMatchesGolden(tester, 'scramble_game_tile__pace_alerts_on');
     });
   });
 

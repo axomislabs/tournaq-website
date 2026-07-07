@@ -1828,6 +1828,12 @@
   "timelineBreakDurationPending": "Break duration (pending rounds)",
   "@timelineBreakDurationPending": {},
 
+  "timelinePaceAlertsTitle": "Pace alerts",
+  "@timelinePaceAlertsTitle": {},
+
+  "timelinePaceAlertsSubtitle": "Flag rounds as on track, due, or overdue",
+  "@timelinePaceAlertsSubtitle": {},
+
   "timelineEditStartTime": "Start time",
   "@timelineEditStartTime": {},
 

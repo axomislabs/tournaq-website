@@ -3376,6 +3376,18 @@ abstract class AppLocalizations {
   /// **'Break duration (pending rounds)'**
   String get timelineBreakDurationPending;
 
+  /// No description provided for @timelinePaceAlertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pace alerts'**
+  String get timelinePaceAlertsTitle;
+
+  /// No description provided for @timelinePaceAlertsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flag rounds as on track, due, or overdue'**
+  String get timelinePaceAlertsSubtitle;
+
   /// No description provided for @timelineEditStartTime.
   ///
   /// In en, this message translates to:

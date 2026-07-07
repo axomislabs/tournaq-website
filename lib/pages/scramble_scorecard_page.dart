@@ -743,11 +743,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            flex: 2,
-                            child: _buildScheduleCard(compact: true),
-                          ),
-                          const SizedBox(width: 8),
+                          if (_t.paceAlertsEnabled) ...[
+                            Expanded(
+                              flex: 2,
+                              child: _buildScheduleCard(compact: true),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           Expanded(
                             flex: 5,
                             child: _buildScoreCard(
@@ -812,8 +814,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     Icons.sports_volleyball_rounded,
                     trailing: optionsButton,
                   ),
-                  const SizedBox(height: 10),
-                  _buildScheduleCard(),
+                  if (_t.paceAlertsEnabled) ...[
+                    const SizedBox(height: 10),
+                    _buildScheduleCard(),
+                  ],
                   const SizedBox(height: 10),
                   _buildGameplayTimerRow(
                     timerState: timerState,

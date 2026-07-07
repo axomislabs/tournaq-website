@@ -1846,6 +1846,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timelineBreakDurationPending => 'Pausendauer (ausstehende Runden)';
 
   @override
+  String get timelinePaceAlertsTitle => 'Tempo-Hinweise';
+
+  @override
+  String get timelinePaceAlertsSubtitle =>
+      'Runden als im Zeitplan, fällig oder überfällig kennzeichnen';
+
+  @override
   String get timelineEditStartTime => 'Startzeit';
 
   @override

@@ -426,28 +426,30 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: allDone ? 1.0 : 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      allDone
-                          ? l10n.statusCompleted
-                          : isOverdue
-                              ? l10n.statusOverdue
-                              : hasStarted
-                                  ? l10n.statusDue
-                                  : l10n.statusUpcoming,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: allDone ? Colors.white : statusColor,
+                  if (_t.paceAlertsEnabled) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: allDone ? 1.0 : 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        allDone
+                            ? l10n.statusCompleted
+                            : isOverdue
+                                ? l10n.statusOverdue
+                                : hasStarted
+                                    ? l10n.statusDue
+                                    : l10n.statusUpcoming,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: allDone ? Colors.white : statusColor,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
+                    const SizedBox(width: 6),
+                  ],
                   const Icon(Icons.edit_rounded, size: 13, color: Colors.black26),
                 ],
               ),
@@ -473,6 +475,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         (firstPending ?? _t.rounds.first).matchDuration.inMinutes;
     int breakMinutes =
         (firstPending ?? _t.rounds.first).breakDuration.inMinutes;
+    bool paceAlertsEnabled = _t.paceAlertsEnabled;
 
     showModalBottomSheet<void>(
       context: context,
@@ -498,7 +501,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _applyOverallEdit(startTime, matchMinutes, breakMinutes);
+                        _applyOverallEdit(startTime, matchMinutes, breakMinutes,
+                            paceAlertsEnabled);
                         Navigator.of(ctx).pop();
                       },
                       style: TextButton.styleFrom(
@@ -545,6 +549,19 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     min: 0,
                     onChanged: (v) => setSheet(() => breakMinutes = v),
                   ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: paceAlertsEnabled,
+                    onChanged: (v) => setSheet(() => paceAlertsEnabled = v),
+                    activeThumbColor: AppColors.gold,
+                    title: Text(l10n.timelinePaceAlertsTitle,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600)),
+                    subtitle: Text(l10n.timelinePaceAlertsSubtitle,
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black54)),
+                  ),
                 ],
               ),
             ),
@@ -554,7 +571,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
-  void _applyOverallEdit(TimeOfDay newTime, int matchMinutes, int breakMinutes) {
+  void _applyOverallEdit(TimeOfDay newTime, int matchMinutes, int breakMinutes,
+      bool paceAlertsEnabled) {
     final old = _t.startTime;
     final newStart =
         DateTime(old.year, old.month, old.day, newTime.hour, newTime.minute);
@@ -586,7 +604,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       cursor = cursor.add(Duration(minutes: matchMinutes + breakMinutes));
     }
 
-    _update(_t.copyWith(startTime: newStart, rounds: rounds));
+    _update(_t.copyWith(
+      startTime: newStart,
+      rounds: rounds,
+      paceAlertsEnabled: paceAlertsEnabled,
+    ));
   }
 
   void _showRoundEditSheet(ScrambleRound round) {

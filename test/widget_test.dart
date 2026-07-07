@@ -6,8 +6,8 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tournamaster/main.dart';
-import 'package:tournamaster/state/app_state.dart';
+import 'package:tournaq/main.dart';
+import 'package:tournaq/state/app_state.dart';
 
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {

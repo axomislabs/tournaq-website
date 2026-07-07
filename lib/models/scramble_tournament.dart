@@ -17,7 +17,7 @@ class ScramblePlayer {
   final String name;
   final ScramblePlayerSource source;
   final String? appUserId;
-  final PlayerStatus status;
+  final PlayerStatus status
 
   const ScramblePlayer({
     required this.id,
@@ -308,6 +308,10 @@ class ScrambleTournament {
   final int courtCount;
   /// Players per side: 2 → 2v2, 3 → 3v3.
   final int playersPerTeam;
+  /// Whether rounds/matches are flagged as on track/due/overdue. Off by
+  /// default — the schedule itself (and its reflow) is unaffected either
+  /// way, this only controls whether pace-status is displayed.
+  final bool paceAlertsEnabled;
   final DateTime startTime;
   final List<ScramblePlayer> players;
   final List<ScrambleRound> rounds;
@@ -323,6 +327,7 @@ class ScrambleTournament {
     required this.breakDuration,
     required this.courtCount,
     this.playersPerTeam = 2,
+    this.paceAlertsEnabled = false,
     required this.startTime,
     required this.players,
     required this.rounds,
@@ -376,6 +381,7 @@ class ScrambleTournament {
     List<ScrambleRound>? rounds,
     List<ScrambleGame>? games,
     DateTime? startTime,
+    bool? paceAlertsEnabled,
   }) =>
       ScrambleTournament(
         id: id,
@@ -385,6 +391,7 @@ class ScrambleTournament {
         breakDuration: breakDuration,
         courtCount: courtCount,
         playersPerTeam: playersPerTeam,
+        paceAlertsEnabled: paceAlertsEnabled ?? this.paceAlertsEnabled,
         startTime: startTime ?? this.startTime,
         players: players ?? this.players,
         rounds: rounds ?? this.rounds,
@@ -411,6 +418,7 @@ class ScrambleTournament {
         'breakDurationSeconds': breakDuration.inSeconds,
         'courtCount': courtCount,
         'playersPerTeam': playersPerTeam,
+        'paceAlertsEnabled': paceAlertsEnabled,
         'startTime': startTime.toIso8601String(),
         'status': status.name,
         'players': players.map((p) => p.toJson()).toList(),
@@ -432,6 +440,7 @@ class ScrambleTournament {
             Duration(seconds: j['breakDurationSeconds'] as int),
         courtCount: j['courtCount'] as int,
         playersPerTeam: j['playersPerTeam'] as int? ?? 2,
+        paceAlertsEnabled: j['paceAlertsEnabled'] as bool? ?? false,
         startTime: DateTime.parse(j['startTime'] as String),
         players: (j['players'] as List)
             .map((e) => ScramblePlayer.fromJson(
@@ -455,13 +464,13 @@ class ScrambleTournament {
 // ── Setup Suggestion ──────────────────────────────────────────────────────────
 
 enum ScrambleSuggestionType {
-  increaseTotalTime,
+  tooFewRounds,
   reduceBreakDuration,
   adjustMatchDuration,
   adjustPlayerCount,
   adjustCourtCount,
-  repeatedTeammates,
   largeGroup,
+  capRoundsForFreshPartners,
 }
 
 class ScrambleSuggestion {
@@ -469,11 +478,15 @@ class ScrambleSuggestion {
   final String message;
   final String? actionLabel;
   final bool isBlocking;
+  /// Exact round-count value this suggestion's action applies, when a
+  /// precise value is known (rather than a generic "+N" nudge).
+  final int? suggestedRoundCount;
 
   const ScrambleSuggestion({
     required this.type,
     required this.message,
     this.actionLabel,
     this.isBlocking = false,
+    this.suggestedRoundCount,
   });
 }

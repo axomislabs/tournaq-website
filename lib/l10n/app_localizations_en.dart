@@ -1830,6 +1830,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timelineBreakDurationPending => 'Break duration (pending rounds)';
 
   @override
+  String get timelinePaceAlertsTitle => 'Pace alerts';
+
+  @override
+  String get timelinePaceAlertsSubtitle =>
+      'Flag rounds as on track, due, or overdue';
+
+  @override
   String get timelineEditStartTime => 'Start time';
 
   @override

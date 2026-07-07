@@ -799,6 +799,12 @@
   "timelineBreakDurationPending": "Duración del descanso (rondas pendientes)",
   "@timelineBreakDurationPending": {},
 
+  "timelinePaceAlertsTitle": "Alertas de ritmo",
+  "@timelinePaceAlertsTitle": {},
+
+  "timelinePaceAlertsSubtitle": "Marcar rondas como al día, pendientes o atrasadas",
+  "@timelinePaceAlertsSubtitle": {},
+
   "timelineEditStartTime": "Hora de inicio",
   "@timelineEditStartTime": {},
 

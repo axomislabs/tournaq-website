@@ -37,7 +37,7 @@ class ScrambleGameTile extends StatelessWidget {
     final schedEnd = round.scheduledMatchEndTime;
     Color? schedDotColor;
     String? schedLabel;
-    if (!isComplete) {
+    if (!isComplete && tournament.paceAlertsEnabled) {
       final now = DateTime.now();
       if (now.isAfter(schedEnd)) {
         schedDotColor = Colors.red.shade600;

@@ -1844,6 +1844,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Duración del descanso (rondas pendientes)';
 
   @override
+  String get timelinePaceAlertsTitle => 'Alertas de ritmo';
+
+  @override
+  String get timelinePaceAlertsSubtitle =>
+      'Marcar rondas como al día, pendientes o atrasadas';
+
+  @override
   String get timelineEditStartTime => 'Hora de inicio';
 
   @override

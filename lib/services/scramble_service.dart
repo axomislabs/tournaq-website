@@ -23,6 +23,25 @@ class ScrambleService {
   // attempts are used and repeats are naturally rare at scale.
   static const _exhaustivePlayerLimit = 32;
 
+  // Whole-tournament attempts made when searching for a zero-teammate-repeat
+  // schedule (only used when the requested round count is within the safe
+  // no-repeat threshold — see [_repeatThresholds]). A single scheduling pass
+  // only reaches zero repeats a fraction of the time, since sit-out rotation
+  // has no look-ahead and can back itself into a corner a few rounds in;
+  // retrying the whole build with fresh randomness reliably finds one.
+  static const _zeroRepeatSearchAttempts = 24;
+
+  // The theoretical round count at which repeats become mathematically
+  // forced (see [_repeatThresholds]) assumes a perfectly efficient schedule —
+  // reaching it in practice would require the randomized search to stumble
+  // onto a near-perfect combinatorial design, which it reliably does not.
+  // Empirically calibrated (see scramble_service_test.dart): backing the
+  // recommended cap off to this percentage of the raw ceiling is reliably
+  // achievable across a wide range of player/court/format combinations,
+  // whereas the raw ceiling itself often is not — this applies broadly, not
+  // just to exact-fit ("zero-slack") configurations.
+  static const _repeatSafetyPercent = 65;
+
   static const _randomFirstNames = [
     'Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery',
     'Quinn', 'Drew', 'Reese', 'Blake', 'Skyler', 'Peyton', 'Jamie', 'Rowan',
@@ -41,15 +60,60 @@ class ScrambleService {
   /// [playersPerTeam] determines game format: 2 → 2v2, 3 → 3v3.
   /// [courtCount] is the physical cap; actual active courts each round may be
   /// fewer if player count < courtCount × playersPerTeam × 2.
+
+  /// Coverage/repeat round-count thresholds shared by [validate] and
+  /// [buildTournament].
+  ///
+  /// [coverageTargetRounds] is the unpadded theoretical minimum for every
+  /// player to partner with every other at least once.
+  /// [maxNoRepeatRounds] is the round count (snapped to [fairUnit]) at/below
+  /// which zero teammate repeats should be reliably achievable — backed off
+  /// from the raw mathematical ceiling by [_repeatSafetyPercent], since
+  /// hitting that ceiling exactly would require the randomized search to
+  /// stumble onto a near-perfect combinatorial design.
+  static ({int coverageTargetRounds, int maxNoRepeatRounds}) _repeatThresholds({
+    required int playerCount,
+    required int playersActive,
+    required int playersPerTeam,
+    required int fairUnit,
+  }) {
+    final coverageNumerator   = playerCount * (playerCount - 1);
+    final coverageDenominator = playersActive * (playersPerTeam - 1);
+
+    final minCoverageRoundsRaw =
+        (coverageNumerator + coverageDenominator - 1) ~/ coverageDenominator;
+    final maxNoRepeatRaw = coverageNumerator ~/ coverageDenominator;
+
+    final coverageTargetRounds =
+        ((minCoverageRoundsRaw + fairUnit - 1) ~/ fairUnit) * fairUnit;
+
+    // Apply the safety percentage in units of whole fair-unit cycles, not
+    // raw rounds — applying it to the raw value first can floor-divide away
+    // to 0 whenever fairUnit is a large fraction of maxNoRepeatRaw (e.g. only
+    // 1 natural cycle fits at all), even though that single natural cycle is
+    // itself typically still safe. Never recommend fewer than 1 cycle when at
+    // least 1 fits under the raw ceiling.
+    final naturalMultiples = maxNoRepeatRaw ~/ fairUnit;
+    final safeMultiples = (maxNoRepeatRaw * _repeatSafetyPercent) ~/ 100 ~/ fairUnit;
+    final multiples = naturalMultiples > 0 ? max(1, safeMultiples) : 0;
+    final maxNoRepeatRounds = multiples * fairUnit;
+
+    return (
+      coverageTargetRounds: coverageTargetRounds,
+      maxNoRepeatRounds: maxNoRepeatRounds,
+    );
+  }
+
   static ScrambleTournament buildTournament({
     required String name,
-    required Duration totalAvailableTime,
+    required int roundCount,
     required Duration matchDuration,
     required Duration breakDuration,
     required int courtCount,
     required int playersPerTeam,
     required List<ScramblePlayer> players,
     required DateTime startTime,
+    bool paceAlertsEnabled = false,
   }) {
     final roundDuration   = matchDuration + breakDuration;
     final playersPerCourt = playersPerTeam * 2;
@@ -57,20 +121,87 @@ class ScrambleService {
     final activeCourtsMax = min(courtCount, n ~/ playersPerCourt);
     final activePlayers   = activeCourtsMax * playersPerCourt;
 
-    final rawRounds = roundDuration.inSeconds > 0
-        ? totalAvailableTime.inSeconds ~/ roundDuration.inSeconds
-        : 0;
+    // fairUnit still feeds the coverage/repeat math in _repeatThresholds — it
+    // no longer caps roundCount itself, which is now used exactly as given.
+    final fairUnit = (activePlayers > 0 && activePlayers < n)
+        ? n ~/ _gcd(n, activePlayers)
+        : 1;
 
-    // Snap to the largest multiple of the fair-unit that fits in available time.
-    // Fair-unit = smallest R where every player has played equally often.
-    int roundCount;
-    if (activePlayers > 0 && activePlayers < n && rawRounds > 1) {
-      final fairUnit = n ~/ _gcd(n, activePlayers);
-      final snapped  = (rawRounds ~/ fairUnit) * fairUnit;
-      roundCount = snapped > 0 ? snapped : rawRounds;
-    } else {
-      roundCount = rawRounds;
+    // When the round count is within the safe no-repeat threshold, search
+    // across several whole-tournament attempts for a zero-teammate-repeat
+    // schedule (a single attempt isn't reliable enough — see
+    // [_zeroRepeatSearchAttempts]). Beyond that threshold repeats are
+    // mathematically forced regardless of schedule quality, so a single pass
+    // is used as before.
+    final attemptsAllowed = (playersPerTeam > 1 && activePlayers > 0)
+        ? () {
+            final t = _repeatThresholds(
+              playerCount: n,
+              playersActive: activePlayers,
+              playersPerTeam: playersPerTeam,
+              fairUnit: fairUnit,
+            );
+            return roundCount > 0 && roundCount <= t.maxNoRepeatRounds
+                ? _zeroRepeatSearchAttempts
+                : 1;
+          }()
+        : 1;
+
+    (List<ScrambleRound>, List<ScrambleGame>, int)? best;
+    for (var attempt = 0; attempt < attemptsAllowed; attempt++) {
+      final result = _buildScheduleAttempt(
+        roundCount: roundCount,
+        courtCount: courtCount,
+        playersPerTeam: playersPerTeam,
+        playersPerCourt: playersPerCourt,
+        players: players,
+        startTime: startTime,
+        matchDuration: matchDuration,
+        breakDuration: breakDuration,
+        roundDuration: roundDuration,
+      );
+      if (best == null || result.$3 < best.$3) {
+        best = result;
+        if (best.$3 == 0) break; // perfect — no teammate repeats anywhere
+      }
     }
+
+    final (rounds, games, _) = best!;
+
+    return ScrambleTournament(
+      id: ScrambleTournament.generateId(),
+      name: name,
+      totalAvailableTime: roundDuration * roundCount,
+      matchDuration: matchDuration,
+      breakDuration: breakDuration,
+      courtCount: courtCount,
+      playersPerTeam: playersPerTeam,
+      paceAlertsEnabled: paceAlertsEnabled,
+      startTime: startTime,
+      players: players,
+      rounds: rounds,
+      games: games,
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Builds one candidate schedule attempt: [roundCount] rounds of games for
+  /// [players], plus the resulting [teammateExcess] — the sum, over every
+  /// pair of players, of how many times beyond their first they ended up as
+  /// teammates. Zero means no teammate ever repeated. Opponent repeats are
+  /// deliberately not counted — only teammate uniqueness is prioritised.
+  static (List<ScrambleRound>, List<ScrambleGame>, int) _buildScheduleAttempt({
+    required int roundCount,
+    required int courtCount,
+    required int playersPerTeam,
+    required int playersPerCourt,
+    required List<ScramblePlayer> players,
+    required DateTime startTime,
+    required Duration matchDuration,
+    required Duration breakDuration,
+    required Duration roundDuration,
+  }) {
+    final n = players.length;
 
     // Pair-encounter matrices for mixing optimisation.
     final teammateCount = List.generate(n, (_) => List.filled(n, 0));
@@ -106,12 +237,12 @@ class ScrambleService {
 
       // Select active players: prioritise those who have played fewer games
       // so sit-outs are shared as evenly as possible.
-      final sortedByGames = List<int>.generate(n, (i) => i)
-        ..sort((a, b) => gamesPlayed[a].compareTo(gamesPlayed[b]));
-      final activeIndices =
-          sortedByGames.take(activeCourts * playersPerCourt).toSet();
-      final sittingOutIndices =
-          sortedByGames.skip(activeCourts * playersPerCourt).toSet();
+      final (activeIndices, sittingOutIndices) = _selectActiveIndices(
+        n: n,
+        gamesPlayed: gamesPlayed,
+        activeCourts: activeCourts,
+        playersPerCourt: playersPerCourt,
+      );
 
       final activePlayers = players
           .where((p) => activeIndices.contains(playerIndex[p.id]))
@@ -186,20 +317,36 @@ class ScrambleService {
       }
     }
 
-    return ScrambleTournament(
-      id: ScrambleTournament.generateId(),
-      name: name,
-      totalAvailableTime: totalAvailableTime,
-      matchDuration: matchDuration,
-      breakDuration: breakDuration,
-      courtCount: courtCount,
-      playersPerTeam: playersPerTeam,
-      startTime: startTime,
-      players: players,
-      rounds: rounds,
-      games: games,
-      createdAt: DateTime.now(),
-    );
+    var teammateExcess = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = i + 1; j < n; j++) {
+        final c = teammateCount[i][j];
+        if (c > 1) teammateExcess += c - 1;
+      }
+    }
+
+    return (rounds, games, teammateExcess);
+  }
+
+  /// Selects which player indices are active this round vs. sitting out.
+  ///
+  /// Prioritises fewest games played, same as a plain sort by [gamesPlayed]
+  /// would — but shuffles first so that ties (very common, since players
+  /// frequently have equal games played) don't always resolve to the same
+  /// fixed index order. Without this, a stable/deterministic sort applied to
+  /// an all-tied list reproduces the exact same active/sitting-out partition
+  /// every time the group re-ties, permanently locking two subsets of
+  /// players out of ever sharing a round together.
+  static (Set<int> active, Set<int> sittingOut) _selectActiveIndices({
+    required int n,
+    required List<int> gamesPlayed,
+    required int activeCourts,
+    required int playersPerCourt,
+  }) {
+    final order = List<int>.generate(n, (i) => i)..shuffle(_rng);
+    order.sort((a, b) => gamesPlayed[a].compareTo(gamesPlayed[b]));
+    final cut = activeCourts * playersPerCourt;
+    return (order.take(cut).toSet(), order.skip(cut).toSet());
   }
 
   // ── Mixing Algorithm ────────────────────────────────────────────────────────
@@ -228,13 +375,20 @@ class ScrambleService {
 
     for (var attempt = 0; attempt < attempts; attempt++) {
       final shuffled = List<ScramblePlayer>.from(activePlayers)..shuffle(_rng);
+      final courts = _formCourts(
+        shuffled: shuffled,
+        activeCourts: activeCourts,
+        playersPerCourt: playersPerCourt,
+        playerIndex: playerIndex,
+        teammateCount: teammateCount,
+        opponentCount: opponentCount,
+      );
 
       final candidate = <(List<ScramblePlayer>, List<ScramblePlayer>)>[];
       var candidateScore = 0.0;
 
       for (var c = 0; c < activeCourts; c++) {
-        final court =
-            shuffled.sublist(c * playersPerCourt, (c + 1) * playersPerCourt);
+        final court = courts[c];
         final (split, splitScore) = _bestSplit(
           court: court,
           playersPerTeam: playersPerTeam,
@@ -254,6 +408,58 @@ class ScrambleService {
     }
 
     return best!;
+  }
+
+  /// Partitions [shuffled] into [activeCourts] groups of [playersPerCourt].
+  ///
+  /// Unlike a plain consecutive slice of the shuffle, each court is filled
+  /// greedily: after seeding with the next unplaced (shuffled) player, the
+  /// remaining seats are filled with whichever unplaced players have the
+  /// least prior teammate/opponent exposure to those already placed on that
+  /// court. This actively steers court *membership* itself toward fresh
+  /// pairings — a plain slice only ever gets that "for free" by luck, and
+  /// leaves it to [_bestSplit] to optimise within a group it had no say in
+  /// forming. Ties fall back to shuffle order, keeping attempt-to-attempt
+  /// diversity across the caller's search loop.
+  static List<List<ScramblePlayer>> _formCourts({
+    required List<ScramblePlayer> shuffled,
+    required int activeCourts,
+    required int playersPerCourt,
+    required Map<String, int> playerIndex,
+    required List<List<int>> teammateCount,
+    required List<List<int>> opponentCount,
+  }) {
+    final remaining = List<ScramblePlayer>.from(shuffled);
+    final courts = <List<ScramblePlayer>>[];
+
+    for (var c = 0; c < activeCourts; c++) {
+      final court = <ScramblePlayer>[remaining.removeAt(0)];
+
+      while (court.length < playersPerCourt) {
+        ScramblePlayer? bestCandidate;
+        var bestExposure = -1;
+
+        for (final candidate in remaining) {
+          final b = playerIndex[candidate.id]!;
+          var exposure = 0;
+          for (final placed in court) {
+            final a = playerIndex[placed.id]!;
+            exposure += teammateCount[a][b] + opponentCount[a][b];
+          }
+          if (bestCandidate == null || exposure < bestExposure) {
+            bestCandidate = candidate;
+            bestExposure = exposure;
+          }
+        }
+
+        court.add(bestCandidate!);
+        remaining.remove(bestCandidate);
+      }
+
+      courts.add(court);
+    }
+
+    return courts;
   }
 
   /// Evaluates all valid even splits of [court] into two sides of [playersPerTeam]
@@ -322,7 +528,10 @@ class ScrambleService {
   /// Scores a single court assignment.
   ///
   /// Repeated teammates are penalised count² (strongly discourages repeats).
-  /// Repeated opponents are penalised count×0.5 (mildly discourages repeats).
+  /// Repeated opponents are penalised count²×0.5 (discourages repeats too,
+  /// just less aggressively than teammates — but still superlinearly, so a
+  /// second/third repeat against the same opponent isn't treated as nearly
+  /// free the way a flat per-repeat cost would).
   static double _scoreCourtAssignment({
     required List<ScramblePlayer> sideA,
     required List<ScramblePlayer> sideB,
@@ -350,7 +559,8 @@ class ScrambleService {
       for (final pb in sideB) {
         final a = playerIndex[pa.id]!;
         final b = playerIndex[pb.id]!;
-        score += opponentCount[a][b] * 0.5;
+        final c = opponentCount[a][b];
+        score += c * c.toDouble() * 0.5;
       }
     }
 
@@ -393,7 +603,7 @@ class ScrambleService {
   // ── Validation & Suggestions ──────────────────────────────────────────────
 
   static List<ScrambleSuggestion> validate({
-    required Duration totalAvailableTime,
+    required int roundCount,
     required Duration matchDuration,
     required Duration breakDuration,
     required int courtCount,
@@ -403,6 +613,17 @@ class ScrambleService {
     final suggestions     = <ScrambleSuggestion>[];
     final roundDuration   = matchDuration + breakDuration;
     final playersPerCourt = playersPerTeam * 2;
+
+    if (roundCount <= 0) {
+      // Defensive only — the Rounds field is clamped to a minimum of 1 in
+      // the UI, so this should be unreachable in practice.
+      suggestions.add(const ScrambleSuggestion(
+        type: ScrambleSuggestionType.tooFewRounds,
+        message: 'At least 1 round is needed to build a schedule.',
+        isBlocking: true,
+      ));
+      return suggestions;
+    }
 
     if (roundDuration.inSeconds <= 0) {
       suggestions.add(const ScrambleSuggestion(
@@ -437,87 +658,51 @@ class ScrambleService {
 
     // Fair-unit: smallest round count where every player has played equally.
     // When nobody sits out, every round count is already fair (unit = 1).
+    // Only feeds the coverage/repeat math below — it no longer caps
+    // roundCount itself, which is used exactly as given.
     final fairUnit = sittingOut > 0
         ? playerCount ~/ _gcd(playerCount, playersActive)
         : 1;
 
-    final rawRounds  = totalAvailableTime.inSeconds ~/ roundDuration.inSeconds;
-    final roundCount = (rawRounds ~/ fairUnit) * fairUnit;
-
-    if (roundCount == 0) {
-      // Available time is either shorter than one round, or shorter than the
-      // minimum fair-unit of rounds — suggest how much extra time is needed.
-      final neededSecs = fairUnit * roundDuration.inSeconds;
-      final shortfall  = Duration(seconds: neededSecs - totalAvailableTime.inSeconds);
-      final neededStr  = _fmtDuration(Duration(seconds: neededSecs));
-      suggestions.add(ScrambleSuggestion(
-        type: ScrambleSuggestionType.increaseTotalTime,
-        message: sittingOut > 0
-            ? 'Not every player can play the same amount of games with this '
-              'setup. The minimum is $fairUnit rounds ($neededStr). '
-              'Set available time to $neededStr — or adjust match/break duration.'
-            : 'Available time is too short for even one round '
-              '(${_fmtDuration(roundDuration)} per round). '
-              'Increase available time — or adjust match/break duration.',
-        actionLabel: '+${_fmtDuration(shortfall)}',
-        isBlocking: true,
-      ));
-      return suggestions;
-    }
-
-    // Coverage & repeated-teammate checks.
-    // Both only apply when N > 1 (there are teammates to consider).
+    // Repeat-avoidance & coverage checks. Both only apply when N > 1 (there
+    // are teammates to consider). Avoiding any teammate repeat is prioritised
+    // over full coverage — when a player/court combination can't have both,
+    // the schedule stays within the no-repeat threshold even if that means
+    // some players won't meet every other player.
     if (playersPerTeam > 1) {
-      // ── Coverage ────────────────────────────────────────────────────────────
-      // Minimum rounds for every player to partner with every other at least once
-      // = ceil((P-1) / (N-1)), rounded up to the next fair-unit multiple.
-      final minCoverage  = ((playerCount - 1) / (playersPerTeam - 1)).ceil();
-      final targetRounds = ((minCoverage + fairUnit - 1) ~/ fairUnit) * fairUnit;
+      final t = _repeatThresholds(
+        playerCount: playerCount,
+        playersActive: playersActive,
+        playersPerTeam: playersPerTeam,
+        fairUnit: fairUnit,
+      );
 
-      // ── Repeated teammates ───────────────────────────────────────────────────
-      // A player partners with N-1 teammates per game.
-      // Over R rounds each player plays gamesPerPlayer = R × activePlayers / P games.
-      // Repeats start when gamesPerPlayer × (N-1) > P-1
-      //   → R > P×(P-1) / (activePlayers×(N-1))
-      final maxNoRepeatRaw   = (playerCount * (playerCount - 1)) ~/
-          (playersActive * (playersPerTeam - 1));
-      // Snap down to the largest fair-unit multiple that avoids repeats.
-      final maxNoRepeatRounds = (maxNoRepeatRaw ~/ fairUnit) * fairUnit;
-
-      if (roundCount < targetRounds) {
-        final extraRounds  = targetRounds - roundCount;
-        final extraSecs    = extraRounds * roundDuration.inSeconds;
-        final targetSecs   = targetRounds * roundDuration.inSeconds;
-        final targetTimeStr = _fmtDuration(Duration(seconds: targetSecs));
+      if (roundCount > t.maxNoRepeatRounds) {
+        final coverageNote = t.maxNoRepeatRounds < t.coverageTargetRounds
+            ? ' Full coverage (everyone partners with everyone) would take '
+                '${t.coverageTargetRounds} rounds, but then some players '
+                'would repeat partners.'
+            : '';
         suggestions.add(ScrambleSuggestion(
-          type: ScrambleSuggestionType.increaseTotalTime,
-          message: 'With $roundCount rounds, not every player will partner with '
-              'each other ($targetRounds rounds needed). Set available time to '
-              '$targetTimeStr — or adjust match/break duration.',
-          actionLabel: '+${_fmtDuration(Duration(seconds: extraSecs))}',
+          type: ScrambleSuggestionType.capRoundsForFreshPartners,
+          message: 'With $roundCount rounds, some partnerships will repeat. '
+              'Up to ${t.maxNoRepeatRounds} rounds keeps every partnership '
+              'unique.$coverageNote',
+          actionLabel: t.maxNoRepeatRounds > 0
+              ? 'Cap at ${t.maxNoRepeatRounds} rounds'
+              : null,
+          suggestedRoundCount:
+              t.maxNoRepeatRounds > 0 ? t.maxNoRepeatRounds : null,
         ));
-      } else if (roundCount > maxNoRepeatRaw) {
-        // Repeats are happening — tell the user the threshold.
-        if (maxNoRepeatRounds > 0) {
-          final maxTimeSecs   = maxNoRepeatRounds * roundDuration.inSeconds;
-          final maxTimeStr    = _fmtDuration(Duration(seconds: maxTimeSecs));
-          suggestions.add(ScrambleSuggestion(
-            type: ScrambleSuggestionType.repeatedTeammates,
-            message: 'With $roundCount rounds, players will partner with each '
-                'other more than once (repeats from round ${maxNoRepeatRaw + 1}). '
-                'To keep all partnerships unique: $maxTimeStr available time '
-                '($maxNoRepeatRounds rounds) — or adjust match/break duration.',
-          ));
-        } else {
-          // Even the minimum fair cycle exceeds the no-repeat threshold.
-          suggestions.add(ScrambleSuggestion(
-            type: ScrambleSuggestionType.repeatedTeammates,
-            message: 'With this setup, repeated partners cannot be avoided — '
-                'the minimum fair schedule ($fairUnit rounds) already exceeds '
-                'the no-repeat threshold. Adjust match/break duration to reduce '
-                'the number of games per player.',
-          ));
-        }
+      } else if (t.maxNoRepeatRounds < t.coverageTargetRounds) {
+        suggestions.add(ScrambleSuggestion(
+          type: ScrambleSuggestionType.capRoundsForFreshPartners,
+          message: 'This setup keeps every partnership unique for all '
+              '$roundCount rounds. Full coverage (everyone partners with '
+              'everyone) isn\'t possible without repeats for this '
+              'player/court combination — it would need '
+              '${t.coverageTargetRounds} rounds.',
+        ));
       }
     }
 
@@ -671,11 +856,11 @@ class ScrambleService {
       for (var i = 0; i < n; i++) activePlayers[i].id: i
     };
 
-    final teammateCount = List.generate(n, (_) => List.filled(n, 0));
-    final opponentCount = List.generate(n, (_) => List.filled(n, 0));
-    final gamesPlayed = List.filled(n, 0);
-    final serveCount = List.filled(n, 0);
-    final arbCount = List.filled(n, 0);
+    final baseTeammateCount = List.generate(n, (_) => List.filled(n, 0));
+    final baseOpponentCount = List.generate(n, (_) => List.filled(n, 0));
+    final baseGamesPlayed = List.filled(n, 0);
+    final baseServeCount = List.filled(n, 0);
+    final baseArbCount = List.filled(n, 0);
 
     // Seed matrices from completed/in-progress history, restricted to active players.
     for (final game in pastGames) {
@@ -693,33 +878,111 @@ class ScrambleService {
           sideA: sideA,
           sideB: sideB,
           playerIndex: playerIndex,
-          teammateCount: teammateCount,
-          opponentCount: opponentCount,
-          gamesPlayed: gamesPlayed,
+          teammateCount: baseTeammateCount,
+          opponentCount: baseOpponentCount,
+          gamesPlayed: baseGamesPlayed,
         );
       }
       if (game.firstServerId != null &&
           playerIndex.containsKey(game.firstServerId)) {
-        serveCount[playerIndex[game.firstServerId]!]++;
+        baseServeCount[playerIndex[game.firstServerId]!]++;
       }
       if (game.arbitratorId != null &&
           playerIndex.containsKey(game.arbitratorId)) {
-        arbCount[playerIndex[game.arbitratorId]!]++;
+        baseArbCount[playerIndex[game.arbitratorId]!]++;
       }
     }
+
+    // Decide, same as buildTournament, whether the remaining schedule is
+    // within the safe no-repeat threshold — if so, search across several
+    // whole-rebuild attempts for a zero-teammate-repeat result.
+    final activeCourts = min(tournament.courtCount, n ~/ playersPerCourt);
+    final playersActivePerRound = activeCourts * playersPerCourt;
+    final totalRoundCount = sortedRounds.length;
+    final fairUnit = (playersActivePerRound > 0 && playersActivePerRound < n)
+        ? n ~/ _gcd(n, playersActivePerRound)
+        : 1;
+    final attemptsAllowed =
+        (tournament.playersPerTeam > 1 && playersActivePerRound > 0)
+            ? () {
+                final t = _repeatThresholds(
+                  playerCount: n,
+                  playersActive: playersActivePerRound,
+                  playersPerTeam: tournament.playersPerTeam,
+                  fairUnit: fairUnit,
+                );
+                return totalRoundCount > 0 &&
+                        totalRoundCount <= t.maxNoRepeatRounds
+                    ? _zeroRepeatSearchAttempts
+                    : 1;
+              }()
+            : 1;
+
+    (List<ScrambleGame>, int)? best;
+    for (var attempt = 0; attempt < attemptsAllowed; attempt++) {
+      final result = _rebuildScheduleAttempt(
+        futureRounds: futureRounds,
+        courtCount: tournament.courtCount,
+        playersPerTeam: tournament.playersPerTeam,
+        playersPerCourt: playersPerCourt,
+        activePlayers: activePlayers,
+        playerIndex: playerIndex,
+        seedTeammateCount: baseTeammateCount,
+        seedOpponentCount: baseOpponentCount,
+        seedGamesPlayed: baseGamesPlayed,
+        seedServeCount: baseServeCount,
+        seedArbCount: baseArbCount,
+      );
+      if (best == null || result.$2 < best.$2) {
+        best = result;
+        if (best.$2 == 0) break;
+      }
+    }
+
+    final (newGames, _) = best!;
+
+    return tournament.copyWith(
+      players: newPlayers,
+      games: [...pastGames, ...newGames],
+    );
+  }
+
+  /// Builds one candidate rebuild attempt for [futureRounds], starting from
+  /// the given seed matrices (copied, never mutated) reconstructed from
+  /// completed history. Returns the new games plus the resulting
+  /// [teammateExcess] (see [_buildScheduleAttempt]).
+  static (List<ScrambleGame>, int) _rebuildScheduleAttempt({
+    required List<ScrambleRound> futureRounds,
+    required int courtCount,
+    required int playersPerTeam,
+    required int playersPerCourt,
+    required List<ScramblePlayer> activePlayers,
+    required Map<String, int> playerIndex,
+    required List<List<int>> seedTeammateCount,
+    required List<List<int>> seedOpponentCount,
+    required List<int> seedGamesPlayed,
+    required List<int> seedServeCount,
+    required List<int> seedArbCount,
+  }) {
+    final n = activePlayers.length;
+    final teammateCount = seedTeammateCount.map(List<int>.from).toList();
+    final opponentCount = seedOpponentCount.map(List<int>.from).toList();
+    final gamesPlayed = List<int>.from(seedGamesPlayed);
+    final serveCount = List<int>.from(seedServeCount);
+    final arbCount = List<int>.from(seedArbCount);
 
     final newGames = <ScrambleGame>[];
 
     for (final round in futureRounds) {
-      final activeCourts = min(tournament.courtCount, n ~/ playersPerCourt);
+      final activeCourts = min(courtCount, n ~/ playersPerCourt);
       if (activeCourts == 0) continue;
 
-      final sortedByGames = List<int>.generate(n, (i) => i)
-        ..sort((a, b) => gamesPlayed[a].compareTo(gamesPlayed[b]));
-      final activeIndices =
-          sortedByGames.take(activeCourts * playersPerCourt).toSet();
-      final sittingOutIndices =
-          sortedByGames.skip(activeCourts * playersPerCourt).toSet();
+      final (activeIndices, sittingOutIndices) = _selectActiveIndices(
+        n: n,
+        gamesPlayed: gamesPlayed,
+        activeCourts: activeCourts,
+        playersPerCourt: playersPerCourt,
+      );
 
       final roundActivePlayers = activePlayers
           .where((p) => activeIndices.contains(playerIndex[p.id]))
@@ -732,7 +995,7 @@ class ScrambleService {
       final courtAssignments = _optimiseAssignments(
         activePlayers: roundActivePlayers,
         activeCourts: activeCourts,
-        playersPerTeam: tournament.playersPerTeam,
+        playersPerTeam: playersPerTeam,
         teammateCount: teammateCount,
         opponentCount: opponentCount,
         playerIndex: playerIndex,
@@ -787,10 +1050,15 @@ class ScrambleService {
       }
     }
 
-    return tournament.copyWith(
-      players: newPlayers,
-      games: [...pastGames, ...newGames],
-    );
+    var teammateExcess = 0;
+    for (var i = 0; i < n; i++) {
+      for (var j = i + 1; j < n; j++) {
+        final c = teammateCount[i][j];
+        if (c > 1) teammateExcess += c - 1;
+      }
+    }
+
+    return (newGames, teammateExcess);
   }
 
   // ── Schedule Reflow ───────────────────────────────────────────────────────

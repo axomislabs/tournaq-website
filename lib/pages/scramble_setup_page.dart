@@ -36,15 +36,16 @@ class ScrambleSetupPage extends StatefulWidget {
 class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   // ── Config ints ──────────────────────────────────────────────────────────────
   int _targetPlayerCount = 8;
-  int _totalMinutes = 60;
+  int _rounds = 12;
   int _matchMinutes = 4;
   int _courtCount = 1;
   int _playersPerTeam = 2;
   int _breakMinutes = 1;
+  bool _paceAlertsEnabled = false;
 
   // ── Config text controllers (combo fields) ───────────────────────────────────
   late final TextEditingController _targetPlayerCtrl;
-  late final TextEditingController _totalMinCtrl;
+  late final TextEditingController _roundsCtrl;
   late final TextEditingController _matchMinCtrl;
   late final TextEditingController _courtCtrl;
   late final TextEditingController _breakMinCtrl;
@@ -90,7 +91,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     super.initState();
     _startTime        = TimeOfDay.now();
     _targetPlayerCtrl = TextEditingController(text: '$_targetPlayerCount');
-    _totalMinCtrl     = TextEditingController(text: '$_totalMinutes');
+    _roundsCtrl       = TextEditingController(text: '$_rounds');
     _matchMinCtrl     = TextEditingController(text: '$_matchMinutes');
     _courtCtrl        = TextEditingController(text: '$_courtCount');
     _breakMinCtrl     = TextEditingController(text: '$_breakMinutes');
@@ -100,7 +101,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   @override
   void dispose() {
     _targetPlayerCtrl.dispose();
-    _totalMinCtrl.dispose();
+    _roundsCtrl.dispose();
     _matchMinCtrl.dispose();
     _courtCtrl.dispose();
     _breakMinCtrl.dispose();
@@ -117,7 +118,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     return '${t.$1} ${t.$2}';
   }
 
-  Duration get _totalTime     => Duration(minutes: _totalMinutes);
   Duration get _matchDuration => Duration(minutes: _matchMinutes);
   Duration get _breakDuration => Duration(minutes: _breakMinutes);
 
@@ -125,12 +125,12 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       min(_courtCount, _players.length ~/ (_playersPerTeam * 2));
 
   List<ScrambleSuggestion> get _suggestions => ScrambleService.validate(
-        totalAvailableTime: _totalTime,
-        matchDuration:      _matchDuration,
-        breakDuration:      _breakDuration,
-        courtCount:         _courtCount,
-        playerCount:        _targetPlayerCount,
-        playersPerTeam:     _playersPerTeam,
+        roundCount:     _rounds,
+        matchDuration:  _matchDuration,
+        breakDuration:  _breakDuration,
+        courtCount:     _courtCount,
+        playerCount:    _targetPlayerCount,
+        playersPerTeam: _playersPerTeam,
       );
 
   // ── Time helpers ─────────────────────────────────────────────────────────────
@@ -164,27 +164,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     });
   }
 
-  Future<void> _pickEndTime() async {
-    final start  = _resolveStart();
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _addMinutesToTime(start, _totalMinutes),
-    );
-    if (picked == null) return;
-    final startMins = start.hour * 60 + start.minute;
-    var   endMins   = picked.hour * 60 + picked.minute;
-    if (endMins <= startMins) endMins += 24 * 60; // handle overnight
-    final newTotal = endMins - startMins;
-    setState(() {
-      _totalMinutes      = newTotal;
-      _totalMinCtrl.text = '$newTotal';
-    });
-  }
-
   bool get _canCreate =>
       _nameCtrl.text.trim().isNotEmpty &&
       _matchMinutes > 0 &&
-      _totalMinutes > 0 &&
+      _rounds > 0 &&
       _players.length == _targetPlayerCount &&
       !_suggestions.any((s) => s.isBlocking);
 
@@ -192,14 +175,15 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
   void _create() {
     final tournament = ScrambleService.buildTournament(
-      name:               _nameCtrl.text.trim(),
-      totalAvailableTime: _totalTime,
-      matchDuration:      _matchDuration,
-      breakDuration:      _breakDuration,
-      courtCount:         _courtCount,
-      playersPerTeam:     _playersPerTeam,
-      players:            _players,
-      startTime:          _resolveStartDateTime(),
+      name:           _nameCtrl.text.trim(),
+      roundCount:     _rounds,
+      matchDuration:  _matchDuration,
+      breakDuration:  _breakDuration,
+      courtCount:     _courtCount,
+      playersPerTeam: _playersPerTeam,
+      players:        _players,
+      startTime:      _resolveStartDateTime(),
+      paceAlertsEnabled: _paceAlertsEnabled,
     );
     widget.onCreated(tournament);
     Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -216,16 +200,18 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   void _applySuggestion(ScrambleSuggestion s) {
     setState(() {
       switch (s.type) {
-        case ScrambleSuggestionType.increaseTotalTime:
-          _totalMinutes += (_matchMinutes + _breakMinutes) * 3;
-          _totalMinCtrl.text = '$_totalMinutes';
         case ScrambleSuggestionType.reduceBreakDuration:
           _breakMinutes = max(0, _breakMinutes - 2);
           _breakMinCtrl.text = '$_breakMinutes';
         case ScrambleSuggestionType.adjustCourtCount:
           _courtCount = _activeCourts;
           _courtCtrl.text = '$_courtCount';
-        case ScrambleSuggestionType.repeatedTeammates:
+        case ScrambleSuggestionType.capRoundsForFreshPartners:
+          if (s.suggestedRoundCount != null) {
+            _rounds = s.suggestedRoundCount!;
+            _roundsCtrl.text = '$_rounds';
+          }
+        case ScrambleSuggestionType.tooFewRounds:
         case ScrambleSuggestionType.adjustMatchDuration:
         case ScrambleSuggestionType.adjustPlayerCount:
         case ScrambleSuggestionType.largeGroup:
@@ -779,7 +765,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             _sectionHeader(l10n.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
-            // Row 1 — target players / available time
+            // Row 1 — target players / rounds
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -797,14 +783,14 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _comboField(
-                    label:    l10n.setupAvailableTime,
-                    ctrl:     _totalMinCtrl,
-                    presets:  [30, 45, 60, 90, 120, 180, 240],
-                    onParsed: (v) => _totalMinutes = v.clamp(1, 999),
-                    unit:     'min',
-                    helpText: 'Total time available for the session. '
-                        'The schedule is built to fit as many complete rounds '
-                        'as possible within this window.',
+                    label:    l10n.setupRoundsLabel,
+                    ctrl:     _roundsCtrl,
+                    presets:  [6, 8, 10, 12, 16, 20, 24, 30],
+                    onParsed: (v) => _rounds = v.clamp(1, 999),
+                    caption:  '= ${_matchMinutes + _breakMinutes} min/round',
+                    helpText: 'How many rounds to play. The suggestions below '
+                        'help balance fresh partnerships against the total '
+                        'round count.',
                   ),
                 ),
               ],
@@ -865,37 +851,21 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             ),
             const SizedBox(height: 14),
 
-            // Row 4 — start time / end time
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _tapField(
-                  label:    l10n.setupPlannedStartTime,
-                  value:    _startIsNow ? 'Now' : _fmtTod(_startTime),
-                  onTap:    _pickStartTime,
-                  trailing: _startIsNow
-                      ? const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45)
-                      : GestureDetector(
-                          onTap: () => setState(() => _startIsNow = true),
-                          child: const Icon(Icons.refresh_rounded, size: 18, color: Colors.black45),
-                        ),
-                  help: 'When the session is scheduled to begin. '
-                      'Used to calculate the projected end time in the '
-                      'schedule preview. Tap the refresh icon to reset to Now.',
-                )),
-                const SizedBox(width: 12),
-                Expanded(child: _tapField(
-                  label: l10n.setupPlannedEndTime,
-                  value: _fmtTod(_addMinutesToTime(_resolveStart(), _totalMinutes)),
-                  onTap: _pickEndTime,
-                  trailing: const Icon(Icons.access_time_rounded, size: 18, color: Colors.black45),
-                  help: 'The projected finish time based on start time and '
-                      'available time. Tap to set a specific end time and '
-                      'the available time will be calculated automatically.',
-                )),
-              ],
+            // Start time editing now lives in the Schedule Preview card
+            // below (mirrors the Overview page's start/end row + pencil).
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _paceAlertsEnabled,
+              onChanged: (v) => setState(() => _paceAlertsEnabled = v),
+              activeThumbColor: AppColors.gold,
+              title: Text(l10n.timelinePaceAlertsTitle,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
+              subtitle: Text(l10n.timelinePaceAlertsSubtitle,
+                  style:
+                      const TextStyle(fontSize: 12, color: Colors.black54)),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 4),
 
             // Schedule preview (live)
             _schedulePreview(),
@@ -1000,25 +970,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
   // ── Schedule Preview ─────────────────────────────────────────────────────────
 
-  // Inline gcd so the preview doesn't depend on the private ScrambleService._gcd.
-  static int _gcd(int a, int b) => b == 0 ? a : _gcd(b, a % b);
-
   Widget _schedulePreview() {
-    final roundMin        = _matchMinutes + _breakMinutes;
-    final playersPerCourt = _playersPerTeam * 2;
-    final activePlayers   =
-        min(_courtCount, _targetPlayerCount ~/ playersPerCourt) * playersPerCourt;
-    final sittingOut      = _targetPlayerCount - activePlayers;
-    final rawRounds       = roundMin > 0 ? _totalMinutes ~/ roundMin : 0;
-
-    int rounds;
-    if (sittingOut > 0 && activePlayers > 0 && rawRounds > 0) {
-      final fairUnit = _targetPlayerCount ~/ _gcd(_targetPlayerCount, activePlayers);
-      final snapped  = (rawRounds ~/ fairUnit) * fairUnit;
-      rounds = snapped > 0 ? snapped : rawRounds;
-    } else {
-      rounds = rawRounds;
-    }
+    final roundMin = _matchMinutes + _breakMinutes;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1027,6 +980,12 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       ),
       child: Builder(builder: (ctx) {
         final l10n = AppLocalizations.of(ctx)!;
+        final scheduledMins = _rounds * roundMin;
+        final h = scheduledMins ~/ 60;
+        final m = scheduledMins % 60;
+        final durationStr = h > 0 ? '${h}h ${m}m' : '${m}m';
+        final endTime = _addMinutesToTime(_resolveStart(), scheduledMins);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1037,26 +996,64 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   fontSize: 13,
                   color: AppColors.olive),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
+            _buildStartAndEndRow(l10n, endTime),
+            const SizedBox(height: 4),
+            const Divider(height: 1, thickness: 0.5, color: AppColors.gold),
+            const SizedBox(height: 6),
             _previewRow(l10n.setupRoundDuration,
                 '${_matchMinutes}m match + ${_breakMinutes}m break = ${roundMin}m'),
-            _previewRow(l10n.setupRoundsLabel, '$rounds'),
-            () {
-              final scheduledMins = rounds * roundMin;
-              final h = scheduledMins ~/ 60;
-              final m = scheduledMins % 60;
-              final durationStr = h > 0 ? '${h}h ${m}m' : '${m}m';
-              final endTime     = _addMinutesToTime(_resolveStart(), scheduledMins);
-              return Column(
-                children: [
-                  _previewRow(l10n.setupScheduledDuration, durationStr),
-                  _previewRow(l10n.setupScheduledEndTime, _fmtTod(endTime)),
-                ],
-              );
-            }(),
+            _previewRow(l10n.setupRoundsLabel, '$_rounds'),
+            _previewRow(l10n.setupScheduledDuration, durationStr),
           ],
         );
       }),
+    );
+  }
+
+  // Mirrors the Overview page's _buildStartAndEndRow so the two feel
+  // consistent — tap anywhere to edit the start time.
+  Widget _buildStartAndEndRow(AppLocalizations l10n, TimeOfDay endTime) {
+    final startText = _startIsNow ? 'Now' : _fmtTod(_startTime);
+    return InkWell(
+      onTap: _pickStartTime,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    const Icon(Icons.play_circle_outline_rounded,
+                        size: 13, color: Colors.black38),
+                    const SizedBox(width: 5),
+                    Text(
+                      l10n.timelineStart(startText),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ]),
+                  const SizedBox(height: 2),
+                  Row(children: [
+                    const Icon(Icons.flag_outlined,
+                        size: 13, color: Colors.black38),
+                    const SizedBox(width: 5),
+                    Text(
+                      l10n.timelinePredictedEnd(_fmtTod(endTime)),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+            const Icon(Icons.edit_rounded, size: 14, color: AppColors.olive),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1083,6 +1080,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     required void Function(int) onParsed,
     String? unit,
     String? helpText,
+    String? caption,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1131,6 +1129,11 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             if (v != null) setState(() => onParsed(v));
           },
         ),
+        if (caption != null) ...[
+          const SizedBox(height: 4),
+          Text(caption,
+              style: const TextStyle(fontSize: 11, color: Colors.black45)),
+        ],
       ],
     );
   }
@@ -1229,39 +1232,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
       ],
     );
   }
-
-  Widget _tapField({
-    required String label,
-    required String value,
-    required VoidCallback onTap,
-    Widget? trailing,
-    String? help,
-  }) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _fieldLabel(label, help: help),
-          const SizedBox(height: 6),
-          InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade600),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Expanded(child: Text(value)),
-                  if (trailing case final Widget t) t,
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,
