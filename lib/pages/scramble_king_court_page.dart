@@ -451,51 +451,8 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   // _reflowIfRoundComplete pattern) ────────────────────────────────────────
 
   void _onMatchTimerFinished() {
-    final l10n = AppLocalizations.of(context)!;
     setState(() => _timerRunning = false);
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        title: Row(children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-                color: AppColors.goldCream, borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.timer_off_rounded, color: _kGold, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Text(l10n.kotcTimeIsUp,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-        ]),
-        content: Text(l10n.scrambleKingRoundEndedBody,
-            style: const TextStyle(fontSize: 14, height: 1.5)),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                _completeCourt();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _kGold,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text(l10n.scrambleKingCompleteRound,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
-            ),
-          ),
-        ],
-      ),
-    );
+    _completeCourt();
   }
 
   void _completeCourt() {
