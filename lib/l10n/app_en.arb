@@ -2309,6 +2309,12 @@
   "kotcWaitingForPlayers": "Waiting for players...",
   "@kotcWaitingForPlayers": {},
 
+  "kotcEjectChallenger": "Eject challenger",
+  "@kotcEjectChallenger": {},
+
+  "kotcUndoEjectChallenger": "Undo",
+  "@kotcUndoEjectChallenger": {},
+
   "kotcStrikePoints": "{n} pt strike",
   "@kotcStrikePoints": {
     "placeholders": { "n": { "type": "int" } }
@@ -2628,5 +2634,238 @@
   "@modeKotcHelp": {},
 
   "modeDoghouseHelp": "Doghouse is a fast, competitive tournament where the action never stops. One team battles from the doghouse — score enough points to escape and make way for the next challengers. Hit your loss limit first and you're out.\n\nShort format, high intensity — great as a session warm-up or a standalone competition.\n\nFair by design. TournaQ's Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of how each player performed — not just who got the easier draw.\n\nHow a game works:\n• Win a rally → score a point\n• Lose a rally → game lost, point score resets\n• Reach your Escape Points target → escaped, back to the queue\n• Hit the Loss Limit → ejected, next team steps in\n\nBefore you start, agree on:\n• Which team serves each rally\n• Escape Points and Loss Limit settings\n\nAdd your players, set a session timer, and go.",
-  "@modeDoghouseHelp": {}
+  "@modeDoghouseHelp": {},
+
+  "btnEject": "Eject",
+  "@btnEject": {},
+
+  "modeScrambleKingName": "Scramble King",
+  "@modeScrambleKingName": {},
+
+  "modeScrambleKingDesc": "Scramble mixing meets King of the Court",
+  "@modeScrambleKingDesc": {},
+
+  "modeScrambleKingHelp": "Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round's duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round's timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it's their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don't have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.",
+  "@modeScrambleKingHelp": {},
+
+  "scrambleKingStatsRounds": "{completed}/{total} rounds",
+  "@scrambleKingStatsRounds": {
+    "placeholders": { "completed": { "type": "int" }, "total": { "type": "int" } }
+  },
+
+  "scrambleKingSetupPlayersHelp": "How many players you plan to have. Used to size the \"fill random\" quick-add and to check your court/round settings make sense.",
+  "@scrambleKingSetupPlayersHelp": {},
+
+  "scrambleKingSetupRoundsHelp": "How many times the whole player pool gets mixed into new courts and teams.",
+  "@scrambleKingSetupRoundsHelp": {},
+
+  "scrambleKingSetupDurationHelp": "How long each round runs before everyone is reshuffled into new courts and teams.",
+  "@scrambleKingSetupDurationHelp": {},
+
+  "scrambleKingSetupCourtsHelp": "How many courts run at once, each with its own independent King of the Court queue for the round.",
+  "@scrambleKingSetupCourtsHelp": {},
+
+  "scrambleKingOddPlayerLabel": "Odd player handling",
+  "@scrambleKingOddPlayerLabel": {},
+
+  "scrambleKingOddPlayerHelp": "When a court can't be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.",
+  "@scrambleKingOddPlayerHelp": {},
+
+  "scrambleKingOddPlayerPlaceholderLabel": "Placeholder",
+  "@scrambleKingOddPlayerPlaceholderLabel": {},
+
+  "scrambleKingOddPlayerJumperLabel": "Jumper",
+  "@scrambleKingOddPlayerJumperLabel": {},
+
+  "scrambleKingJumperPartner": "Jumper: {name}",
+  "@scrambleKingJumperPartner": { "placeholders": { "name": { "type": "String" } } },
+
+  "scrambleKingJumperAwaiting": "Jumper · awaiting ejection",
+  "@scrambleKingJumperAwaiting": {},
+
+  "scrambleKingRoundLabel": "Round {n}",
+  "@scrambleKingRoundLabel": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingRoundsProgress": "{completed} / {total} rounds complete",
+  "@scrambleKingRoundsProgress": {
+    "placeholders": { "completed": { "type": "int" }, "total": { "type": "int" } }
+  },
+
+  "scrambleKingOverallRanking": "Overall Ranking",
+  "@scrambleKingOverallRanking": {},
+
+  "scrambleKingNoResultsYet": "No results yet.\nRankings will appear here as rounds are played.",
+  "@scrambleKingNoResultsYet": {},
+
+  "scrambleKingRoundsPlayed": "{n} rounds played",
+  "@scrambleKingRoundsPlayed": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingCourtLabel": "Court",
+  "@scrambleKingCourtLabel": {},
+
+  "scrambleKingFloaterBadge": "{name} floats in as needed",
+  "@scrambleKingFloaterBadge": { "placeholders": { "name": { "type": "String" } } },
+
+  "scrambleKingRoundEndedBody": "Round complete — head back to see the results.",
+  "@scrambleKingRoundEndedBody": {},
+
+  "scrambleKingCompleteRound": "Complete round",
+  "@scrambleKingCompleteRound": {},
+
+  "scrambleKingCourtPageTitle": "Court {n}",
+  "@scrambleKingCourtPageTitle": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingEjectCourt": "Eject\nCourt",
+  "@scrambleKingEjectCourt": {},
+
+  "scrambleKingEjectChallenger": "Eject\nChallenger",
+  "@scrambleKingEjectChallenger": {},
+
+  "scrambleKingPickStartingTeam": "Pick a team below to start on court.",
+  "@scrambleKingPickStartingTeam": {},
+
+  "scrambleKingSendToCourt": "Send to court",
+  "@scrambleKingSendToCourt": {},
+
+  "scrambleKingQueueLabel": "Queue",
+  "@scrambleKingQueueLabel": {},
+
+  "scrambleKingRefereeBanner": "{name} is refereeing this court",
+  "@scrambleKingRefereeBanner": { "placeholders": { "name": { "type": "String" } } },
+
+  "scrambleKingPickFloaterPartner": "Pick a partner for the floater",
+  "@scrambleKingPickFloaterPartner": {},
+
+  "scrambleKingScorecard": "Scorecard",
+  "@scrambleKingScorecard": {},
+
+  "scrambleKingManuallyEdited": "Manually edited",
+  "@scrambleKingManuallyEdited": {},
+
+  "scrambleKingEditTeamResult": "Edit result",
+  "@scrambleKingEditTeamResult": {},
+
+  "scrambleKingGamesWonLabel": "Games Won",
+  "@scrambleKingGamesWonLabel": {},
+
+  "scrambleKingPointsLabel": "Points",
+  "@scrambleKingPointsLabel": {},
+
+  "scrambleKingTeamsLabel": "Teams",
+  "@scrambleKingTeamsLabel": {},
+
+  "scrambleKingStatRounds": "Rounds",
+  "@scrambleKingStatRounds": {},
+
+  "scrambleKingTeamsSummary": "{teams} teams · {pts} pts total",
+  "@scrambleKingTeamsSummary": {
+    "placeholders": {
+      "teams": { "type": "int" },
+      "pts": { "type": "int" }
+    }
+  },
+
+  "scrambleKingEditScore": "Edit Score",
+  "@scrambleKingEditScore": {},
+
+  "scrambleKingUndoFinishCourt": "Undo Finish",
+  "@scrambleKingUndoFinishCourt": {},
+
+  "scrambleKingRoundTimer": "Round Timer",
+  "@scrambleKingRoundTimer": {},
+
+  "scrambleKingFloaterTag": "Floater",
+  "@scrambleKingFloaterTag": {},
+
+  "scrambleKingFinishCourt": "Finish court",
+  "@scrambleKingFinishCourt": {},
+
+  "scrambleKingFinishCourtTitle": "Finish this court?",
+  "@scrambleKingFinishCourtTitle": {},
+
+  "scrambleKingFinishCourtBody": "Record this court's results now and end its round.",
+  "@scrambleKingFinishCourtBody": {},
+
+  "scrambleKingBackToSchedule": "Back to schedule",
+  "@scrambleKingBackToSchedule": {},
+
+  "scrambleExportScorecard": "Export scorecard",
+  "@scrambleExportScorecard": {},
+
+  "scrambleExportResult": "Export result",
+  "@scrambleExportResult": {},
+
+  "scrambleExportGame": "Export game",
+  "@scrambleExportGame": {},
+
+  "scrambleImportResult": "Import result",
+  "@scrambleImportResult": {},
+
+  "scrambleQrScanHint": "Scan this code on the other device.",
+  "@scrambleQrScanHint": {},
+
+  "scrambleQrTooLarge": "This scorecard is too large to fit in a QR code.",
+  "@scrambleQrTooLarge": {},
+
+  "scrambleScanTitle": "Scan QR code",
+  "@scrambleScanTitle": {},
+
+  "scrambleScanScorecardHint": "Point the camera at a scorecard QR code.",
+  "@scrambleScanScorecardHint": {},
+
+  "scrambleScanResultHint": "Point the camera at a result QR code.",
+  "@scrambleScanResultHint": {},
+
+  "scrambleScanCameraDenied": "Camera access is needed to scan QR codes. Enable it in Settings.",
+  "@scrambleScanCameraDenied": {},
+
+  "scrambleOpenSettings": "Open settings",
+  "@scrambleOpenSettings": {},
+
+  "scrambleScanToImport": "Scan to import",
+  "@scrambleScanToImport": {},
+
+  "scrambleScanNotScorecard": "This QR code is not a scorecard.",
+  "@scrambleScanNotScorecard": {},
+
+  "scrambleScanNotResult": "This QR code is not a result.",
+  "@scrambleScanNotResult": {},
+
+  "scrambleResultImported": "Result imported.",
+  "@scrambleResultImported": {},
+
+  "scrambleResultMismatch": "This result is for a different tournament.",
+  "@scrambleResultMismatch": {},
+
+  "scrambleImportSuccess": "Imported scorecard from “{name}”.",
+  "@scrambleImportSuccess": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "scrambleImportedTitle": "Imported Scorecards ({count})",
+  "@scrambleImportedTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedFilterHint": "Filter by tournament",
+  "@scrambleImportedFilterHint": {},
+
+  "scrambleImportedEmpty": "No imported scorecards match.",
+  "@scrambleImportedEmpty": {},
+
+  "scrambleImportedDeleteAllTitle": "Delete all imported?",
+  "@scrambleImportedDeleteAllTitle": {},
+
+  "scrambleImportedDeleteAllBody": "This will remove all {count} imported scorecard(s).",
+  "@scrambleImportedDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedCourt": "Court {number}",
+  "@scrambleImportedCourt": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scrambleStatusScheduled": "Scheduled",
+  "@scrambleStatusScheduled": {}
 }

@@ -4198,6 +4198,18 @@ abstract class AppLocalizations {
   /// **'Waiting for players...'**
   String get kotcWaitingForPlayers;
 
+  /// No description provided for @kotcEjectChallenger.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject challenger'**
+  String get kotcEjectChallenger;
+
+  /// No description provided for @kotcUndoEjectChallenger.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get kotcUndoEjectChallenger;
+
   /// No description provided for @kotcStrikePoints.
   ///
   /// In en, this message translates to:
@@ -4761,6 +4773,438 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Doghouse is a fast, competitive tournament where the action never stops. One team battles from the doghouse — score enough points to escape and make way for the next challengers. Hit your loss limit first and you\'re out.\n\nShort format, high intensity — great as a session warm-up or a standalone competition.\n\nFair by design. TournaQ\'s Automated assignment ensures everyone plays with and against different people, keeping wait times low and avoiding repeat pairings. Because matchups stay balanced throughout the session, the final standings are a genuine reflection of how each player performed — not just who got the easier draw.\n\nHow a game works:\n• Win a rally → score a point\n• Lose a rally → game lost, point score resets\n• Reach your Escape Points target → escaped, back to the queue\n• Hit the Loss Limit → ejected, next team steps in\n\nBefore you start, agree on:\n• Which team serves each rally\n• Escape Points and Loss Limit settings\n\nAdd your players, set a session timer, and go.'**
   String get modeDoghouseHelp;
+
+  /// No description provided for @btnEject.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject'**
+  String get btnEject;
+
+  /// No description provided for @modeScrambleKingName.
+  ///
+  /// In en, this message translates to:
+  /// **'Scramble King'**
+  String get modeScrambleKingName;
+
+  /// No description provided for @modeScrambleKingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Scramble mixing meets King of the Court'**
+  String get modeScrambleKingDesc;
+
+  /// No description provided for @modeScrambleKingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it\'s their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don\'t have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.'**
+  String get modeScrambleKingHelp;
+
+  /// No description provided for @scrambleKingStatsRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed}/{total} rounds'**
+  String scrambleKingStatsRounds(int completed, int total);
+
+  /// No description provided for @scrambleKingSetupPlayersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many players you plan to have. Used to size the \"fill random\" quick-add and to check your court/round settings make sense.'**
+  String get scrambleKingSetupPlayersHelp;
+
+  /// No description provided for @scrambleKingSetupRoundsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many times the whole player pool gets mixed into new courts and teams.'**
+  String get scrambleKingSetupRoundsHelp;
+
+  /// No description provided for @scrambleKingSetupDurationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How long each round runs before everyone is reshuffled into new courts and teams.'**
+  String get scrambleKingSetupDurationHelp;
+
+  /// No description provided for @scrambleKingSetupCourtsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many courts run at once, each with its own independent King of the Court queue for the round.'**
+  String get scrambleKingSetupCourtsHelp;
+
+  /// No description provided for @scrambleKingOddPlayerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd player handling'**
+  String get scrambleKingOddPlayerLabel;
+
+  /// No description provided for @scrambleKingOddPlayerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'When a court can\'t be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.'**
+  String get scrambleKingOddPlayerHelp;
+
+  /// No description provided for @scrambleKingOddPlayerPlaceholderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholder'**
+  String get scrambleKingOddPlayerPlaceholderLabel;
+
+  /// No description provided for @scrambleKingOddPlayerJumperLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumper'**
+  String get scrambleKingOddPlayerJumperLabel;
+
+  /// No description provided for @scrambleKingJumperPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumper: {name}'**
+  String scrambleKingJumperPartner(String name);
+
+  /// No description provided for @scrambleKingJumperAwaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumper · awaiting ejection'**
+  String get scrambleKingJumperAwaiting;
+
+  /// No description provided for @scrambleKingRoundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {n}'**
+  String scrambleKingRoundLabel(int n);
+
+  /// No description provided for @scrambleKingRoundsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{completed} / {total} rounds complete'**
+  String scrambleKingRoundsProgress(int completed, int total);
+
+  /// No description provided for @scrambleKingOverallRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Ranking'**
+  String get scrambleKingOverallRanking;
+
+  /// No description provided for @scrambleKingNoResultsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No results yet.\nRankings will appear here as rounds are played.'**
+  String get scrambleKingNoResultsYet;
+
+  /// No description provided for @scrambleKingRoundsPlayed.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} rounds played'**
+  String scrambleKingRoundsPlayed(int n);
+
+  /// No description provided for @scrambleKingCourtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Court'**
+  String get scrambleKingCourtLabel;
+
+  /// No description provided for @scrambleKingFloaterBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} floats in as needed'**
+  String scrambleKingFloaterBadge(String name);
+
+  /// No description provided for @scrambleKingRoundEndedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Round complete — head back to see the results.'**
+  String get scrambleKingRoundEndedBody;
+
+  /// No description provided for @scrambleKingCompleteRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete round'**
+  String get scrambleKingCompleteRound;
+
+  /// No description provided for @scrambleKingCourtPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Court {n}'**
+  String scrambleKingCourtPageTitle(int n);
+
+  /// No description provided for @scrambleKingEjectCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject\nCourt'**
+  String get scrambleKingEjectCourt;
+
+  /// No description provided for @scrambleKingEjectChallenger.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject\nChallenger'**
+  String get scrambleKingEjectChallenger;
+
+  /// No description provided for @scrambleKingPickStartingTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a team below to start on court.'**
+  String get scrambleKingPickStartingTeam;
+
+  /// No description provided for @scrambleKingSendToCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to court'**
+  String get scrambleKingSendToCourt;
+
+  /// No description provided for @scrambleKingQueueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get scrambleKingQueueLabel;
+
+  /// No description provided for @scrambleKingRefereeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is refereeing this court'**
+  String scrambleKingRefereeBanner(String name);
+
+  /// No description provided for @scrambleKingPickFloaterPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a partner for the floater'**
+  String get scrambleKingPickFloaterPartner;
+
+  /// No description provided for @scrambleKingScorecard.
+  ///
+  /// In en, this message translates to:
+  /// **'Scorecard'**
+  String get scrambleKingScorecard;
+
+  /// No description provided for @scrambleKingManuallyEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually edited'**
+  String get scrambleKingManuallyEdited;
+
+  /// No description provided for @scrambleKingEditTeamResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit result'**
+  String get scrambleKingEditTeamResult;
+
+  /// No description provided for @scrambleKingGamesWonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Games Won'**
+  String get scrambleKingGamesWonLabel;
+
+  /// No description provided for @scrambleKingPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get scrambleKingPointsLabel;
+
+  /// No description provided for @scrambleKingTeamsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get scrambleKingTeamsLabel;
+
+  /// No description provided for @scrambleKingStatRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds'**
+  String get scrambleKingStatRounds;
+
+  /// No description provided for @scrambleKingTeamsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{teams} teams · {pts} pts total'**
+  String scrambleKingTeamsSummary(int teams, int pts);
+
+  /// No description provided for @scrambleKingEditScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Score'**
+  String get scrambleKingEditScore;
+
+  /// No description provided for @scrambleKingUndoFinishCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo Finish'**
+  String get scrambleKingUndoFinishCourt;
+
+  /// No description provided for @scrambleKingRoundTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Round Timer'**
+  String get scrambleKingRoundTimer;
+
+  /// No description provided for @scrambleKingFloaterTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Floater'**
+  String get scrambleKingFloaterTag;
+
+  /// No description provided for @scrambleKingFinishCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish court'**
+  String get scrambleKingFinishCourt;
+
+  /// No description provided for @scrambleKingFinishCourtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish this court?'**
+  String get scrambleKingFinishCourtTitle;
+
+  /// No description provided for @scrambleKingFinishCourtBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Record this court\'s results now and end its round.'**
+  String get scrambleKingFinishCourtBody;
+
+  /// No description provided for @scrambleKingBackToSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to schedule'**
+  String get scrambleKingBackToSchedule;
+
+  /// No description provided for @scrambleExportScorecard.
+  ///
+  /// In en, this message translates to:
+  /// **'Export scorecard'**
+  String get scrambleExportScorecard;
+
+  /// No description provided for @scrambleExportResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Export result'**
+  String get scrambleExportResult;
+
+  /// No description provided for @scrambleExportGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Export game'**
+  String get scrambleExportGame;
+
+  /// No description provided for @scrambleImportResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Import result'**
+  String get scrambleImportResult;
+
+  /// No description provided for @scrambleQrScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this code on the other device.'**
+  String get scrambleQrScanHint;
+
+  /// No description provided for @scrambleQrTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This scorecard is too large to fit in a QR code.'**
+  String get scrambleQrTooLarge;
+
+  /// No description provided for @scrambleScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR code'**
+  String get scrambleScanTitle;
+
+  /// No description provided for @scrambleScanScorecardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a scorecard QR code.'**
+  String get scrambleScanScorecardHint;
+
+  /// No description provided for @scrambleScanResultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a result QR code.'**
+  String get scrambleScanResultHint;
+
+  /// No description provided for @scrambleScanCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is needed to scan QR codes. Enable it in Settings.'**
+  String get scrambleScanCameraDenied;
+
+  /// No description provided for @scrambleOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get scrambleOpenSettings;
+
+  /// No description provided for @scrambleScanToImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to import'**
+  String get scrambleScanToImport;
+
+  /// No description provided for @scrambleScanNotScorecard.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code is not a scorecard.'**
+  String get scrambleScanNotScorecard;
+
+  /// No description provided for @scrambleScanNotResult.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code is not a result.'**
+  String get scrambleScanNotResult;
+
+  /// No description provided for @scrambleResultImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Result imported.'**
+  String get scrambleResultImported;
+
+  /// No description provided for @scrambleResultMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This result is for a different tournament.'**
+  String get scrambleResultMismatch;
+
+  /// No description provided for @scrambleImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported scorecard from “{name}”.'**
+  String scrambleImportSuccess(String name);
+
+  /// No description provided for @scrambleImportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported Scorecards ({count})'**
+  String scrambleImportedTitle(int count);
+
+  /// No description provided for @scrambleImportedFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by tournament'**
+  String get scrambleImportedFilterHint;
+
+  /// No description provided for @scrambleImportedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No imported scorecards match.'**
+  String get scrambleImportedEmpty;
+
+  /// No description provided for @scrambleImportedDeleteAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all imported?'**
+  String get scrambleImportedDeleteAllTitle;
+
+  /// No description provided for @scrambleImportedDeleteAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove all {count} imported scorecard(s).'**
+  String scrambleImportedDeleteAllBody(int count);
+
+  /// No description provided for @scrambleImportedCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Court {number}'**
+  String scrambleImportedCourt(int number);
+
+  /// No description provided for @scrambleStatusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get scrambleStatusScheduled;
 }
 
 class _AppLocalizationsDelegate

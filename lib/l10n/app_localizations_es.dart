@@ -2337,6 +2337,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kotcWaitingForPlayers => 'Esperando jugadores...';
 
   @override
+  String get kotcEjectChallenger => 'Eject challenger';
+
+  @override
+  String get kotcUndoEjectChallenger => 'Undo';
+
+  @override
   String kotcStrikePoints(int n) {
     return '$n pts strike';
   }
@@ -2663,4 +2669,263 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get modeDoghouseHelp =>
       'Doghouse es un torneo competitivo rápido donde la acción nunca se detiene. Un equipo lucha desde el doghouse — anota suficientes puntos para escapar y abrir paso a los próximos retadores.\n\nFormato corto, alta intensidad — genial como calentamiento o competición independiente.\n\nJusto por diseño. La asignación automática de TournaQ garantiza que todos jueguen con y contra personas distintas.\n\nCómo funciona un juego:\n• Ganar un rally → anotar un punto\n• Perder un rally → juego perdido, puntos reiniciados\n• Alcanzar el objetivo de Escape Points → escapado, de vuelta a la cola\n• Alcanzar el Límite de Derrotas → expulsado, entra el siguiente equipo\n\nAntes de empezar, acuerda:\n• Qué equipo saca cada rally\n• Configuración de Escape Points y Límite de Derrotas\n\nAgrega tus jugadores, configura el temporizador — y a jugar.';
+
+  @override
+  String get btnEject => 'Eject';
+
+  @override
+  String get modeScrambleKingName => 'Scramble King';
+
+  @override
+  String get modeScrambleKingDesc => 'Scramble mixing meets King of the Court';
+
+  @override
+  String get modeScrambleKingHelp =>
+      'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it\'s their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don\'t have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.';
+
+  @override
+  String scrambleKingStatsRounds(int completed, int total) {
+    return '$completed/$total rounds';
+  }
+
+  @override
+  String get scrambleKingSetupPlayersHelp =>
+      'How many players you plan to have. Used to size the \"fill random\" quick-add and to check your court/round settings make sense.';
+
+  @override
+  String get scrambleKingSetupRoundsHelp =>
+      'How many times the whole player pool gets mixed into new courts and teams.';
+
+  @override
+  String get scrambleKingSetupDurationHelp =>
+      'How long each round runs before everyone is reshuffled into new courts and teams.';
+
+  @override
+  String get scrambleKingSetupCourtsHelp =>
+      'How many courts run at once, each with its own independent King of the Court queue for the round.';
+
+  @override
+  String get scrambleKingOddPlayerLabel => 'Odd player handling';
+
+  @override
+  String get scrambleKingOddPlayerHelp =>
+      'When a court can\'t be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.';
+
+  @override
+  String get scrambleKingOddPlayerPlaceholderLabel => 'Placeholder';
+
+  @override
+  String get scrambleKingOddPlayerJumperLabel => 'Jumper';
+
+  @override
+  String scrambleKingJumperPartner(String name) {
+    return 'Jumper: $name';
+  }
+
+  @override
+  String get scrambleKingJumperAwaiting => 'Jumper · awaiting ejection';
+
+  @override
+  String scrambleKingRoundLabel(int n) {
+    return 'Round $n';
+  }
+
+  @override
+  String scrambleKingRoundsProgress(int completed, int total) {
+    return '$completed / $total rounds complete';
+  }
+
+  @override
+  String get scrambleKingOverallRanking => 'Overall Ranking';
+
+  @override
+  String get scrambleKingNoResultsYet =>
+      'No results yet.\nRankings will appear here as rounds are played.';
+
+  @override
+  String scrambleKingRoundsPlayed(int n) {
+    return '$n rounds played';
+  }
+
+  @override
+  String get scrambleKingCourtLabel => 'Court';
+
+  @override
+  String scrambleKingFloaterBadge(String name) {
+    return '$name floats in as needed';
+  }
+
+  @override
+  String get scrambleKingRoundEndedBody =>
+      'Round complete — head back to see the results.';
+
+  @override
+  String get scrambleKingCompleteRound => 'Complete round';
+
+  @override
+  String scrambleKingCourtPageTitle(int n) {
+    return 'Court $n';
+  }
+
+  @override
+  String get scrambleKingEjectCourt => 'Eject\nCourt';
+
+  @override
+  String get scrambleKingEjectChallenger => 'Eject\nChallenger';
+
+  @override
+  String get scrambleKingPickStartingTeam =>
+      'Pick a team below to start on court.';
+
+  @override
+  String get scrambleKingSendToCourt => 'Send to court';
+
+  @override
+  String get scrambleKingQueueLabel => 'Queue';
+
+  @override
+  String scrambleKingRefereeBanner(String name) {
+    return '$name is refereeing this court';
+  }
+
+  @override
+  String get scrambleKingPickFloaterPartner => 'Pick a partner for the floater';
+
+  @override
+  String get scrambleKingScorecard => 'Scorecard';
+
+  @override
+  String get scrambleKingManuallyEdited => 'Manually edited';
+
+  @override
+  String get scrambleKingEditTeamResult => 'Edit result';
+
+  @override
+  String get scrambleKingGamesWonLabel => 'Games Won';
+
+  @override
+  String get scrambleKingPointsLabel => 'Points';
+
+  @override
+  String get scrambleKingTeamsLabel => 'Teams';
+
+  @override
+  String get scrambleKingStatRounds => 'Rounds';
+
+  @override
+  String scrambleKingTeamsSummary(int teams, int pts) {
+    return '$teams teams · $pts pts total';
+  }
+
+  @override
+  String get scrambleKingEditScore => 'Edit Score';
+
+  @override
+  String get scrambleKingUndoFinishCourt => 'Undo Finish';
+
+  @override
+  String get scrambleKingRoundTimer => 'Round Timer';
+
+  @override
+  String get scrambleKingFloaterTag => 'Floater';
+
+  @override
+  String get scrambleKingFinishCourt => 'Finish court';
+
+  @override
+  String get scrambleKingFinishCourtTitle => 'Finish this court?';
+
+  @override
+  String get scrambleKingFinishCourtBody =>
+      'Record this court\'s results now and end its round.';
+
+  @override
+  String get scrambleKingBackToSchedule => 'Back to schedule';
+
+  @override
+  String get scrambleExportScorecard => 'Exportar planilla';
+
+  @override
+  String get scrambleExportResult => 'Exportar resultado';
+
+  @override
+  String get scrambleExportGame => 'Exportar juego';
+
+  @override
+  String get scrambleImportResult => 'Importar resultado';
+
+  @override
+  String get scrambleQrScanHint =>
+      'Escanea este código en el otro dispositivo.';
+
+  @override
+  String get scrambleQrTooLarge =>
+      'Esta planilla es demasiado grande para un código QR.';
+
+  @override
+  String get scrambleScanTitle => 'Escanear código QR';
+
+  @override
+  String get scrambleScanScorecardHint =>
+      'Apunta la cámara a un código QR de planilla.';
+
+  @override
+  String get scrambleScanResultHint =>
+      'Apunta la cámara a un código QR de resultado.';
+
+  @override
+  String get scrambleScanCameraDenied =>
+      'Se necesita acceso a la cámara para escanear códigos QR. Actívalo en Ajustes.';
+
+  @override
+  String get scrambleOpenSettings => 'Abrir ajustes';
+
+  @override
+  String get scrambleScanToImport => 'Escanear para importar';
+
+  @override
+  String get scrambleScanNotScorecard => 'Este código QR no es una planilla.';
+
+  @override
+  String get scrambleScanNotResult => 'Este código QR no es un resultado.';
+
+  @override
+  String get scrambleResultImported => 'Resultado importado.';
+
+  @override
+  String get scrambleResultMismatch => 'Este resultado es de otro torneo.';
+
+  @override
+  String scrambleImportSuccess(String name) {
+    return 'Planilla importada de «$name».';
+  }
+
+  @override
+  String scrambleImportedTitle(int count) {
+    return 'Planillas importadas ($count)';
+  }
+
+  @override
+  String get scrambleImportedFilterHint => 'Filtrar por torneo';
+
+  @override
+  String get scrambleImportedEmpty =>
+      'No hay planillas importadas que coincidan.';
+
+  @override
+  String get scrambleImportedDeleteAllTitle =>
+      '¿Eliminar todas las importadas?';
+
+  @override
+  String scrambleImportedDeleteAllBody(int count) {
+    return 'Esto eliminará las $count planillas importadas.';
+  }
+
+  @override
+  String scrambleImportedCourt(int number) {
+    return 'Cancha $number';
+  }
+
+  @override
+  String get scrambleStatusScheduled => 'Programado';
 }

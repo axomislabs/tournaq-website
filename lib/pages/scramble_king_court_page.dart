@@ -50,7 +50,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   String? _challengerSlotId;
   String? _lastEjectedChallengerSlotId;
   List<String> _pool = [];
-  final Map<String, String> _queuedFloaterPartners = {}; // floaterSlotId -> tempPartnerId
+  String? _floaterJumperPartnerId; // jumper mode: pre-assigned partner while the floater waits (null ⇒ awaiting ejection)
 
   String? _adminPlayerId;
   String? _nextAdminPlayerId;
@@ -144,7 +144,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
     _pool = List.from(ScrambleKingService.initialQueueOrder(_formation));
     if (_adminSlotId != null) _pool.remove(_adminSlotId);
-    _queuedFloaterPartners.clear();
+    _floaterJumperPartnerId = null;
 
     if (restoredStint != null) {
       _onCourtSlotId = restoredStint.turnSlotId;
@@ -180,15 +180,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   }
 
   /// The per-player names shown as chips for a queued slot (2 for a team,
-  /// 1-2 for the floater slot, including pre-picked temp partner if queued).
+  /// just the floater's own name for the floater slot — its rotating partner
+  /// is rendered separately as a token chip, see `_floaterPartnerChip`).
   List<String> _slotChipNames(String slotId) {
     if (slotId == _formation.floaterSlot?.slotId) {
-      final names = [_nameFor(_formation.floaterSlot!.playerId)];
-      final tempPartnerId = _queuedFloaterPartners[slotId];
-      if (tempPartnerId != null) {
-        names.add(_nameFor(tempPartnerId));
-      }
-      return names;
+      return [_nameFor(_formation.floaterSlot!.playerId)];
     }
     final team = _formation.teamSlots.firstWhere((s) => s.slotId == slotId);
     return team.playerIds.map(_nameFor).toList();
@@ -213,11 +209,18 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       if (explicitTempPartnerId != null) {
         tempPartner = explicitTempPartnerId;
       } else {
-        // Use pre-picked temp partner if available, otherwise pick one now
-        tempPartner = _queuedFloaterPartners[slotId];
-        if (tempPartner == null) {
-          final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
-          final pick = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
+        final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+        final jumper = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper;
+        // Prefer the pre-assigned jumper partner when still available; otherwise
+        // pick fresh (placeholder always; jumper only when there was no valid
+        // pre-pick — by now an ejection has freed a team to borrow from).
+        final preValid = jumper &&
+            _floaterJumperPartnerId != null &&
+            otherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
+        if (preValid) {
+          tempPartner = _floaterJumperPartnerId;
+        } else {
+          final pick = jumper
               ? ScrambleKingService.pickJumperPartner(
                   otherQueuedTeams: otherTeams, courtStints: _courtStints)
               : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
@@ -230,7 +233,8 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _onCourtTempPartnerId = tempPartner;
       _currentPoints = 0;
       _timerRunning = true;
-      _queuedFloaterPartners.remove(slotId);
+      // The floater (if it was the one started) is now on court, not waiting.
+      if (slotId == _formation.floaterSlot?.slotId) _floaterJumperPartnerId = null;
     });
     _matchTimerKey.currentState?.start();
     _stintWatch
@@ -245,9 +249,6 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     if (ranked.isEmpty) return;
     final first = ranked.first;
     _pool.remove(first);
-    if (first == _formation.floaterSlot?.slotId) {
-      _pickFloaterTempPartnerIfNeeded(first);
-    }
     _startSlot(first);
     _recomputeChallenger();
   }
@@ -309,24 +310,37 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
     setState(() {
       _challengerSlotId = ranked.isNotEmpty ? ranked.first : null;
-      if (_challengerSlotId != null) {
-        _pool.remove(_challengerSlotId);
-        _pickFloaterTempPartnerIfNeeded(_challengerSlotId);
-      }
+      if (_challengerSlotId != null) _pool.remove(_challengerSlotId);
+      _updateFloaterJumperAssignment();
     });
     _updateAdminHandoffCheck();
   }
 
-  void _pickFloaterTempPartnerIfNeeded(String? slotId) {
-    if (slotId == null || slotId != _formation.floaterSlot?.slotId) return;
-    final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
-    final pick = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
-        ? ScrambleKingService.pickJumperPartner(
-            otherQueuedTeams: otherTeams, courtStints: _courtStints)
-        : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
-    if (pick != null) {
-      setState(() => _queuedFloaterPartners[slotId] = pick.playerId);
+  /// Jumper mode only: while the floater is waiting (challenger or up-next),
+  /// pre-assign a specific borrowed partner from a queued team so it can be
+  /// shown ahead of time and stays stable. Leaves `_floaterJumperPartnerId`
+  /// null when no queued team is available (⇒ "awaiting ejection" in the UI)
+  /// or when the mode/state doesn't apply. Caller wraps this in `setState`.
+  void _updateFloaterJumperAssignment() {
+    final floaterSlot = _formation.floaterSlot?.slotId;
+    if (floaterSlot == null ||
+        !_isAutoMode ||
+        _t.oddPlayerMode != ScrambleKingOddPlayerMode.jumper) {
+      _floaterJumperPartnerId = null;
+      return;
     }
+    final waiting = _challengerSlotId == floaterSlot || _upNextSlotId == floaterSlot;
+    if (!waiting) {
+      _floaterJumperPartnerId = null;
+      return;
+    }
+    final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+    final stillValid = _floaterJumperPartnerId != null &&
+        otherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
+    if (stillValid) return;
+    final pick = ScrambleKingService.pickJumperPartner(
+        otherQueuedTeams: otherTeams, courtStints: _courtStints);
+    _floaterJumperPartnerId = pick?.playerId; // null ⇒ awaiting ejection
   }
 
   void _updateAdminHandoffCheck() {
@@ -428,7 +442,6 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     final ejectedSlot = _onCourtSlotId!;
     setState(() {
       _pool.add(ejectedSlot);
-      _queuedFloaterPartners.remove(ejectedSlot);
       _onCourtSlotId = null;
       _onCourtTempPartnerId = null;
       _currentPoints = 0;
@@ -469,7 +482,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _currentPoints = lastStint.points;
       _pool = List.from(ScrambleKingService.initialQueueOrder(_formation))..remove(restoredSlotId);
       if (_adminSlotId != null) _pool.remove(_adminSlotId);
-      _queuedFloaterPartners.clear();
+      _floaterJumperPartnerId = null;
       _challengerSlotId = null;
       _lastEjectedChallengerSlotId = null;
     });
@@ -1242,10 +1255,13 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: _slotChipNames(slotId)
-                    .map((n) => _nameChip(n, Colors.grey.shade600,
-                        bg: Colors.grey.shade200, border: null, compact: compact))
-                    .toList(),
+                children: [
+                  ..._slotChipNames(slotId).map((n) => _nameChip(n, Colors.grey.shade600,
+                      bg: Colors.grey.shade200, border: null, compact: compact)),
+                  if (slotId == _formation.floaterSlot?.slotId)
+                    _floaterPartnerChip(l10n, Colors.grey.shade600,
+                        bg: Colors.grey.shade200, border: Colors.grey.shade400, compact: compact),
+                ],
               ),
             ],
           ],
@@ -1288,12 +1304,17 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: _slotChipNames(_challengerSlotId!)
-                    .map((n) => _nameChip(n, _kOlive,
+                children: [
+                  ..._slotChipNames(_challengerSlotId!).map((n) => _nameChip(n, _kOlive,
+                      bg: _kOlive.withValues(alpha: 0.15),
+                      border: _kOlive.withValues(alpha: 0.4),
+                      compact: compact)),
+                  if (_challengerSlotId == _formation.floaterSlot?.slotId)
+                    _floaterPartnerChip(l10n, _kOlive,
                         bg: _kOlive.withValues(alpha: 0.15),
                         border: _kOlive.withValues(alpha: 0.4),
-                        compact: compact))
-                    .toList(),
+                        compact: compact),
+                ],
               ),
             ],
           ],
@@ -1325,6 +1346,15 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         child: Column(
           mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           children: [
+            // Tile header, mirroring the "UP NEXT" / "CHALLENGERS" tiles.
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.sports_volleyball_rounded, size: 15, color: _kGold),
+              const SizedBox(width: 6),
+              Text(l10n.scrambleKingCourtLabel.toUpperCase(),
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w700, color: _kGold, letterSpacing: 0.4)),
+            ]),
+            SizedBox(height: compact ? 4 : 8),
             if (teamName != null)
               _teamCaption(teamName, _kGold)
             else if (isFloaterTurn)
@@ -1780,6 +1810,41 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         child: Text(name,
             style: TextStyle(fontSize: compact ? 11 : 13, fontWeight: FontWeight.w700, color: fg)),
       );
+
+  /// The rotating-partner token shown beside the floater's name in a waiting
+  /// tile: a generic "Placeholder" in placeholder mode, or "Jumper: {name}"
+  /// (falling back to "Jumper · awaiting ejection") in jumper mode. Styled as
+  /// a lighter, icon-led chip so it reads as a slot still to be filled.
+  Widget _floaterPartnerChip(AppLocalizations l10n, Color fg,
+      {required Color bg, Color? border, bool compact = false}) {
+    final (IconData icon, String label) =
+        _t.oddPlayerMode == ScrambleKingOddPlayerMode.placeholder
+            ? (Icons.person_add_alt_1_rounded, l10n.scrambleKingOddPlayerPlaceholderLabel)
+            : _floaterJumperPartnerId != null
+                ? (Icons.move_up_rounded,
+                    l10n.scrambleKingJumperPartner(_nameFor(_floaterJumperPartnerId!)))
+                : (Icons.hourglass_empty_rounded, l10n.scrambleKingJumperAwaiting);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: bg.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: (border ?? fg).withValues(alpha: 0.5),
+            style: BorderStyle.solid),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(icon, size: compact ? 12 : 14, color: fg.withValues(alpha: 0.8)),
+        const SizedBox(width: 4),
+        Text(label,
+            style: TextStyle(
+                fontSize: compact ? 11 : 13,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                color: fg.withValues(alpha: 0.85))),
+      ]),
+    );
+  }
 
   Widget _sectionHeader(String title, IconData icon) => Row(children: [
         Icon(icon, size: 15, color: _kOlive),
