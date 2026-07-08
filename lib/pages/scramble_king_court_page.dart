@@ -50,6 +50,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   String? _challengerSlotId;
   String? _lastEjectedChallengerSlotId;
   List<String> _pool = [];
+  final Map<String, String> _queuedFloaterPartners = {}; // floaterSlotId -> tempPartnerId
 
   String? _adminPlayerId;
   String? _nextAdminPlayerId;
@@ -143,6 +144,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
     _pool = List.from(ScrambleKingService.initialQueueOrder(_formation));
     if (_adminSlotId != null) _pool.remove(_adminSlotId);
+    _queuedFloaterPartners.clear();
 
     if (restoredStint != null) {
       _onCourtSlotId = restoredStint.turnSlotId;
@@ -178,10 +180,15 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   }
 
   /// The per-player names shown as chips for a queued slot (2 for a team,
-  /// 1 for the floater slot).
+  /// 1-2 for the floater slot, including pre-picked temp partner if queued).
   List<String> _slotChipNames(String slotId) {
     if (slotId == _formation.floaterSlot?.slotId) {
-      return [_nameFor(_formation.floaterSlot!.playerId)];
+      final names = [_nameFor(_formation.floaterSlot!.playerId)];
+      final tempPartnerId = _queuedFloaterPartners[slotId];
+      if (tempPartnerId != null) {
+        names.add(_nameFor(tempPartnerId));
+      }
+      return names;
     }
     final team = _formation.teamSlots.firstWhere((s) => s.slotId == slotId);
     return team.playerIds.map(_nameFor).toList();
@@ -206,12 +213,16 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       if (explicitTempPartnerId != null) {
         tempPartner = explicitTempPartnerId;
       } else {
-        final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
-        final pick = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
-            ? ScrambleKingService.pickJumperPartner(
-                otherQueuedTeams: otherTeams, courtStints: _courtStints)
-            : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
-        tempPartner = pick?.playerId;
+        // Use pre-picked temp partner if available, otherwise pick one now
+        tempPartner = _queuedFloaterPartners[slotId];
+        if (tempPartner == null) {
+          final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+          final pick = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
+              ? ScrambleKingService.pickJumperPartner(
+                  otherQueuedTeams: otherTeams, courtStints: _courtStints)
+              : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
+          tempPartner = pick?.playerId;
+        }
       }
     }
     setState(() {
@@ -219,6 +230,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _onCourtTempPartnerId = tempPartner;
       _currentPoints = 0;
       _timerRunning = true;
+      _queuedFloaterPartners.remove(slotId);
     });
     _matchTimerKey.currentState?.start();
     _stintWatch
@@ -233,6 +245,9 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     if (ranked.isEmpty) return;
     final first = ranked.first;
     _pool.remove(first);
+    if (first == _formation.floaterSlot?.slotId) {
+      _pickFloaterTempPartnerIfNeeded(first);
+    }
     _startSlot(first);
     _recomputeChallenger();
   }
@@ -294,9 +309,24 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
     setState(() {
       _challengerSlotId = ranked.isNotEmpty ? ranked.first : null;
-      if (_challengerSlotId != null) _pool.remove(_challengerSlotId);
+      if (_challengerSlotId != null) {
+        _pool.remove(_challengerSlotId);
+        _pickFloaterTempPartnerIfNeeded(_challengerSlotId);
+      }
     });
     _updateAdminHandoffCheck();
+  }
+
+  void _pickFloaterTempPartnerIfNeeded(String? slotId) {
+    if (slotId == null || slotId != _formation.floaterSlot?.slotId) return;
+    final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+    final pick = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
+        ? ScrambleKingService.pickJumperPartner(
+            otherQueuedTeams: otherTeams, courtStints: _courtStints)
+        : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
+    if (pick != null) {
+      setState(() => _queuedFloaterPartners[slotId] = pick.playerId);
+    }
   }
 
   void _updateAdminHandoffCheck() {
@@ -398,6 +428,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     final ejectedSlot = _onCourtSlotId!;
     setState(() {
       _pool.add(ejectedSlot);
+      _queuedFloaterPartners.remove(ejectedSlot);
       _onCourtSlotId = null;
       _onCourtTempPartnerId = null;
       _currentPoints = 0;
@@ -438,6 +469,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _currentPoints = lastStint.points;
       _pool = List.from(ScrambleKingService.initialQueueOrder(_formation))..remove(restoredSlotId);
       if (_adminSlotId != null) _pool.remove(_adminSlotId);
+      _queuedFloaterPartners.clear();
       _challengerSlotId = null;
       _lastEjectedChallengerSlotId = null;
     });
