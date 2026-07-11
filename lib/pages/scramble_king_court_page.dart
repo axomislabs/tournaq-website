@@ -46,14 +46,35 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   String? _onCourtSlotId;
   String? _onCourtTempPartnerId;
+  /// Set alongside [_onCourtTempPartnerId] when the on-court slot is a
+  /// regular team (not the floater) short one member because that member is
+  /// currently the Auto-Allplay scorekeeper — the other named player is
+  /// actually on court, paired with [_onCourtTempPartnerId] as a substitute.
+  String? _onCourtBenchedPlayerId;
   int _currentPoints = 0;
   String? _challengerSlotId;
+  /// The slot displayed as "Up Next" — real stored state (not re-derived on
+  /// every read). The visible chain Up Next → Challengers → Court is only
+  /// ever shifted by exactly one step at a time; fairness ranking is only
+  /// ever consulted to fill the ONE newly-opened gap at the far end. See
+  /// `_topUpQueue`.
+  String? _upNextSlotId;
   String? _lastEjectedChallengerSlotId;
   List<String> _pool = [];
-  String? _floaterJumperPartnerId; // jumper mode: pre-assigned partner while the floater waits (null ⇒ awaiting ejection)
+  String? _floaterJumperPartnerId; // jumper mode: locked partner while the floater waits (null ⇒ awaiting ejection)
 
+  /// Auto-Allplay only: the single player currently keeping score instead of
+  /// playing. Their team stays a completely normal queue member — see
+  /// `_refreshScorekeeper` and the substitution branch in `_startSlot`.
   String? _adminPlayerId;
+  /// Auto-Allplay only: the previewed successor once the current admin's
+  /// slot reaches Up Next — shown in the banner ahead of the handoff so the
+  /// coach can prepare it, committed once the admin's slot reaches
+  /// Challengers. Mirrors King of the Court's admin-handoff preview.
   String? _nextAdminPlayerId;
+  /// Ephemeral per-court fairness counter (how many times each player has
+  /// been asked to keep score this round), used to balance the rotation.
+  final Map<String, int> _scorekeepCounts = {};
 
   final _matchTimerKey = GlobalKey<ScrambleTimerWidgetState>();
   final _stintWatch = Stopwatch();
@@ -65,6 +86,17 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   bool get _hasStarted => _formation.actualStartTime != null;
   bool get _isAutoMode => _t.assignmentMode != ScrambleKingAssignmentMode.manual;
   bool get _isAllPlay => _t.assignmentMode == ScrambleKingAssignmentMode.automatedAllPlay;
+
+  String _assignmentModeLabel(AppLocalizations l10n) => switch (_t.assignmentMode) {
+        ScrambleKingAssignmentMode.manual => l10n.doghouseAssignmentManual,
+        ScrambleKingAssignmentMode.automated => l10n.doghouseAssignmentAutomated,
+        ScrambleKingAssignmentMode.automatedAllPlay => l10n.setupFormatAutoAllplay,
+      };
+
+  String _oddPlayerModeLabel(AppLocalizations l10n) =>
+      _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper
+          ? l10n.scrambleKingOddPlayerJumperLabel
+          : l10n.scrambleKingOddPlayerPlaceholderLabel;
 
   /// The slot (team or floater) containing the current admin player.
   String? get _adminSlotId {
@@ -95,32 +127,41 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   /// team started immediately and can be safely discarded.
   bool get _canUndoEjectCourt => _courtStints.isNotEmpty && (!_hasCourt || _isAutoMode);
 
-  /// Next-best queued slot after the on-court + challenger slots (automated).
-  String? get _upNextSlotId {
-    if (!_isAutoMode || _pool.isEmpty) return null;
-    final ranked = ScrambleKingService.rankQueue(
-        queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
-    return ranked.isNotEmpty ? ranked.first : null;
-  }
-
   @override
   void initState() {
     super.initState();
     _t = widget.tournament;
-    if (!_hasStarted && !_formation.isCompleted) {
-      // Opening a court goes straight into live play — no separate "Start"
-      // confirmation screen. Stamp the start time directly (no setState:
-      // this runs before the first build) and persist after the first frame.
-      final updatedFormation = _formation.copyWith(actualStartTime: DateTime.now());
-      _t = _t.updateRound(_round.updateCourt(updatedFormation));
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScrambleKingStorageService.save(_t);
-        widget.onChanged(_t);
-      });
-    }
+    // Opening a court no longer auto-starts play — mirrors
+    // ScrambleScorecardPage: the court sits in a "ready" state (idle timer,
+    // no team on court) until the coach starts it manually via
+    // `_startCourt()`, either the dedicated button or the timer row's own
+    // Start control. If the court was already started in an earlier
+    // session, resume it (or finish it immediately if time already ran out
+    // while the app was closed).
     if (_hasStarted && !_formation.isCompleted) {
-      _resumeLiveState();
+      final elapsed = DateTime.now().difference(_formation.actualStartTime!);
+      final remaining = _round.matchDuration - elapsed;
+      if (remaining > Duration.zero) {
+        _resumeLiveState();
+      } else {
+        _timerInitialRemaining = Duration.zero;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _onMatchTimerFinished();
+        });
+      }
     }
+  }
+
+  /// Stamps the court's start time and drops it into live play — the "Start
+  /// Court" button and the timer row's Start/Restart control both funnel
+  /// here for a not-yet-started court, mirroring
+  /// `ScrambleScorecardPage._startMatch`.
+  void _startCourt() {
+    final updatedFormation = _formation.copyWith(actualStartTime: DateTime.now());
+    _t = _t.updateRound(_round.updateCourt(updatedFormation));
+    setState(() => _resumeLiveState());
+    ScrambleKingStorageService.save(_t);
+    widget.onChanged(_t);
   }
 
   /// Restores live-play state for an in-progress court — used both when
@@ -133,29 +174,51 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     final elapsed = DateTime.now().difference(_formation.actualStartTime!);
     final remaining = _round.matchDuration - elapsed;
     _timerInitialRemaining = remaining <= Duration.zero ? Duration.zero : remaining;
-
-    if (_isAllPlay && _adminPlayerId == null) {
-      final allIds = [
-        for (final s in _formation.teamSlots) ...s.playerIds,
-        if (_formation.floaterSlot != null) _formation.floaterSlot!.playerId,
-      ];
-      if (allIds.isNotEmpty) _adminPlayerId = allIds[Random().nextInt(allIds.length)];
-    }
+    final timerHasTimeLeft = _timerInitialRemaining! > Duration.zero;
 
     _pool = List.from(ScrambleKingService.initialQueueOrder(_formation));
-    if (_adminSlotId != null) _pool.remove(_adminSlotId);
     _floaterJumperPartnerId = null;
+    // Reset the chain explicitly — the pool was just rebuilt from scratch,
+    // so any slot these were still pointing at (stale, from before a
+    // Finish/Undo Finish round-trip) may no longer be a valid member of it.
+    _challengerSlotId = null;
+    _upNextSlotId = null;
 
     if (restoredStint != null) {
       _onCourtSlotId = restoredStint.turnSlotId;
-      _onCourtTempPartnerId = restoredStint.isFloaterStint ? restoredStint.playerIds[1] : null;
+      final (tempPartner, benched) = _resolveStintSubstitution(restoredStint);
+      _onCourtTempPartnerId = tempPartner;
+      _onCourtBenchedPlayerId = benched;
       _currentPoints = restoredStint.points;
-      _timerRunning = true;
+      _timerRunning = timerHasTimeLeft;
       _pool.remove(restoredStint.turnSlotId);
-      _recomputeChallenger();
+      _topUpQueue();
+      _lastEjectedChallengerSlotId = null;
+      _updateFloaterJumperAssignment();
+      _refreshScorekeeper();
     } else {
       _initStart();
     }
+  }
+
+  /// Recovers `(tempPartner, benchedPlayer)` for a stored stint — needed to
+  /// restore `_onCourtTempPartnerId`/`_onCourtBenchedPlayerId` on resume/undo,
+  /// since a stint's `playerIds` may differ from its slot's fixed roster (a
+  /// jumper-mode floater turn, or an Auto-Allplay scorekeeper's team playing
+  /// short). A placeholder-mode floater turn has no recorded partner at all
+  /// (`playerIds.length == 1`) — nothing to restore.
+  (String?, String?) _resolveStintSubstitution(ScrambleKingStint stint) {
+    if (stint.isFloaterStint) {
+      return (stint.playerIds.length > 1 ? stint.playerIds[1] : null, null);
+    }
+    final team = _formation.teamSlots
+        .where((s) => s.slotId == stint.turnSlotId)
+        .firstOrNull;
+    if (team == null) return (null, null);
+    final extra = stint.playerIds.where((p) => !team.playerIds.contains(p)).toList();
+    final missing = team.playerIds.where((p) => !stint.playerIds.contains(p)).toList();
+    if (extra.isEmpty || missing.isEmpty) return (null, null);
+    return (extra.first, missing.first);
   }
 
   @override
@@ -173,6 +236,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   String _nameFor(String playerId) => _t.getPlayer(playerId)?.name ?? '?';
 
   String? _teamNameForSlot(String slotId) {
+    if (slotId == _formation.floaterSlot?.slotId) return _formation.floaterSlot!.teamName;
     for (final s in _formation.teamSlots) {
       if (s.slotId == slotId) return s.teamName;
     }
@@ -198,6 +262,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         if (_onCourtTempPartnerId != null) _nameFor(_onCourtTempPartnerId!),
       ];
     }
+    if (_onCourtBenchedPlayerId != null && _onCourtTempPartnerId != null) {
+      final team = _formation.teamSlots.firstWhere((s) => s.slotId == _onCourtSlotId);
+      final activeMember = team.playerIds.firstWhere((p) => p != _onCourtBenchedPlayerId);
+      return [_nameFor(activeMember), _nameFor(_onCourtTempPartnerId!)];
+    }
     return _slotChipNames(_onCourtSlotId!);
   }
 
@@ -205,25 +274,41 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   void _startSlot(String slotId, {String? explicitTempPartnerId}) {
     String? tempPartner;
+    String? benchedPlayerId;
     if (slotId == _formation.floaterSlot?.slotId) {
       if (explicitTempPartnerId != null) {
         tempPartner = explicitTempPartnerId;
-      } else {
-        final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
-        final jumper = _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper;
-        // Prefer the pre-assigned jumper partner when still available; otherwise
-        // pick fresh (placeholder always; jumper only when there was no valid
-        // pre-pick — by now an ejection has freed a team to borrow from).
-        final preValid = jumper &&
-            _floaterJumperPartnerId != null &&
-            otherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
-        if (preValid) {
-          tempPartner = _floaterJumperPartnerId;
+      } else if (_t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper) {
+        // Use the lock verbatim — it was fixed the moment this team entered
+        // Up Next (see `_updateFloaterJumperAssignment`) and is never
+        // re-picked or re-validated here, however long ago that was. The
+        // fallback pick only covers a genuine bootstrap gap (this team
+        // became the very first one on court, with no prior waiting phase
+        // to lock a partner in) — see `_initStart`.
+        tempPartner = _floaterJumperPartnerId;
+      }
+      // Placeholder mode: tempPartner stays null, always — the app never
+      // assigns or displays a specific partner for that slot; see
+      // `_buildStint`/`_onCourtChipNames` for how a null partner is handled.
+    } else if (_isAllPlay && _adminPlayerId != null) {
+      // Auto-Allplay: if one of this team's two named players is currently
+      // the scorekeeper, the other plays with a borrowed stand-in instead —
+      // the same placeholder/jumper mechanism the floater uses. This is a
+      // fallback for the rare "tight court" case; `_refreshScorekeeper`
+      // normally hands scorekeeping off before a team is put on court.
+      final team = _formation.teamSlots.firstWhere((s) => s.slotId == slotId);
+      if (team.playerIds.contains(_adminPlayerId)) {
+        benchedPlayerId = _adminPlayerId;
+        if (explicitTempPartnerId != null) {
+          tempPartner = explicitTempPartnerId;
         } else {
-          final pick = jumper
-              ? ScrambleKingService.pickJumperPartner(
-                  otherQueuedTeams: otherTeams, courtStints: _courtStints)
-              : ScrambleKingService.pickPlaceholderPartner(otherQueuedTeams: otherTeams);
+          // This is a distinct mechanic from the odd-player floater — a real
+          // stand-in is unconditionally required here (the benched player's
+          // teammate needs someone to actually play with), independent of
+          // `oddPlayerMode`, so always use the fairness-based pick.
+          final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+          final pick = ScrambleKingService.pickJumperPartner(
+              otherQueuedTeams: otherTeams, courtStints: _courtStints);
           tempPartner = pick?.playerId;
         }
       }
@@ -231,6 +316,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     setState(() {
       _onCourtSlotId = slotId;
       _onCourtTempPartnerId = tempPartner;
+      _onCourtBenchedPlayerId = benchedPlayerId;
       _currentPoints = 0;
       _timerRunning = true;
       // The floater (if it was the one started) is now on court, not waiting.
@@ -249,12 +335,27 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     if (ranked.isEmpty) return;
     final first = ranked.first;
     _pool.remove(first);
+    if (first == _formation.floaterSlot?.slotId &&
+        _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper) {
+      // The floater is about to become the very first team on court, with
+      // no prior Up Next/Challenger phase to lock a partner in — lock one
+      // now, using the exact same rule, so `_startSlot` never has to pick.
+      _lockFloaterJumperPartnerIfNeeded();
+    }
     _startSlot(first);
-    _recomputeChallenger();
+    setState(() {
+      _topUpQueue();
+      _lastEjectedChallengerSlotId = null;
+      _updateFloaterJumperAssignment();
+    });
+    _refreshScorekeeper();
   }
 
   void _pickManualStart(String slotId) {
-    if (slotId == _formation.floaterSlot?.slotId) {
+    if (slotId == _formation.floaterSlot?.slotId &&
+        _t.oddPlayerMode == ScrambleKingOddPlayerMode.jumper) {
+      // Placeholder mode has no partner to pick — the coach just sends the
+      // floater to court directly, same as any other slot below.
       _showFloaterPartnerPicker((partnerId) {
         setState(() => _pool.remove(slotId));
         _startSlot(slotId, explicitTempPartnerId: partnerId);
@@ -302,25 +403,47 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     );
   }
 
-  // ── Automated challenger pipeline ────────────────────────────────────────
+  // ── Deterministic queue chain ─────────────────────────────────────────────
+  //
+  // The visible chain is Court → Challengers → Up Next → (pool). It is only
+  // ever advanced by exactly one step at a time (see `_ejectCourt`,
+  // `_ejectChallenger`): whatever is already shown as Challengers/Up Next is
+  // promoted verbatim, never re-ranked or displaced. `_topUpQueue` is the
+  // single place fairness ranking is consulted, and only to fill whichever
+  // one or two chain slots are currently empty (a fresh pick per empty
+  // slot). This replaces the previous re-rank-from-scratch-on-every-eject
+  // approach, which could silently promote a different team than the one
+  // the coach saw displayed as "Up Next".
 
-  void _recomputeChallenger() {
+  /// Fills any gap in the Challenger → Up Next chain from the pool, ranking
+  /// fresh for whichever position is empty. Never touches a slot that's
+  /// already filled. Used both for the initial fill (both positions empty)
+  /// and to top up after a vacancy shifts one slot out of the chain.
+  void _topUpQueue() {
     if (!_isAutoMode) return;
-    final ranked = ScrambleKingService.rankQueue(
-        queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
-    setState(() {
+    if (_challengerSlotId == null) {
+      final ranked = ScrambleKingService.rankQueue(
+          queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
       _challengerSlotId = ranked.isNotEmpty ? ranked.first : null;
       if (_challengerSlotId != null) _pool.remove(_challengerSlotId);
-      _updateFloaterJumperAssignment();
-    });
-    _updateAdminHandoffCheck();
+    }
+    if (_upNextSlotId == null) {
+      final ranked = ScrambleKingService.rankQueue(
+          queueSlotIds: _pool, onCourtSlotId: _onCourtSlotId, courtStints: _courtStints);
+      _upNextSlotId = ranked.isNotEmpty ? ranked.first : null;
+      if (_upNextSlotId != null) _pool.remove(_upNextSlotId);
+    }
   }
 
-  /// Jumper mode only: while the floater is waiting (challenger or up-next),
-  /// pre-assign a specific borrowed partner from a queued team so it can be
-  /// shown ahead of time and stays stable. Leaves `_floaterJumperPartnerId`
-  /// null when no queued team is available (⇒ "awaiting ejection" in the UI)
-  /// or when the mode/state doesn't apply. Caller wraps this in `setState`.
+  /// Jumper mode only: the moment the floater's slot enters the chain as
+  /// Challenger or Up Next, lock in a specific borrowed partner — chosen
+  /// fairly (least-played), preferring someone who isn't themselves about
+  /// to be pulled onto court as Up Next. Once locked, it is NEVER swapped or
+  /// re-validated (see `_startSlot`) — only cleared once the floater's own
+  /// stint ends, so the next trip locks in fresh. Leaves
+  /// `_floaterJumperPartnerId` null while no pool candidate exists yet (⇒
+  /// "awaiting ejection" in the UI); re-attempts on every subsequent chain
+  /// advance until one does.
   void _updateFloaterJumperAssignment() {
     final floaterSlot = _formation.floaterSlot?.slotId;
     if (floaterSlot == null ||
@@ -334,58 +457,145 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _floaterJumperPartnerId = null;
       return;
     }
-    final otherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
+    _lockFloaterJumperPartnerIfNeeded();
+  }
+
+  /// Locks `_floaterJumperPartnerId` if not already locked. Extracted so
+  /// `_initStart` can lock it before the floater's very first stint (when
+  /// there's no prior Up Next/Challenger phase to have triggered
+  /// `_updateFloaterJumperAssignment` already).
+  void _lockFloaterJumperPartnerIfNeeded() {
+    final allOtherTeams = _formation.teamSlots.where((s) => _pool.contains(s.slotId)).toList();
     final stillValid = _floaterJumperPartnerId != null &&
-        otherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
+        allOtherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
     if (stillValid) return;
+    // Prefer a partner from a team that isn't about to be pulled onto court
+    // itself (i.e. not the current Up Next) — falls back to including it
+    // if nothing else is available.
+    final preferredTeams = allOtherTeams.where((s) => s.slotId != _upNextSlotId).toList();
     final pick = ScrambleKingService.pickJumperPartner(
-        otherQueuedTeams: otherTeams, courtStints: _courtStints);
+        otherQueuedTeams: preferredTeams.isNotEmpty ? preferredTeams : allOtherTeams,
+        courtStints: _courtStints);
     _floaterJumperPartnerId = pick?.playerId; // null ⇒ awaiting ejection
   }
 
-  void _updateAdminHandoffCheck() {
-    if (!_isAllPlay || _adminPlayerId == null || _adminSlotId == null) return;
-    final needed = ScrambleKingService.wouldRankFirst(
-        slotId: _adminSlotId!,
-        queueSlotIds: _pool,
-        onCourtSlotId: _onCourtSlotId,
-        courtStints: _courtStints);
-    if (needed && _nextAdminPlayerId == null) {
-      final onCourtTeam = _formation.teamSlots
-          .where((s) => s.slotId == _onCourtSlotId)
-          .firstOrNull;
-      if (onCourtTeam != null) {
-        setState(() => _nextAdminPlayerId =
-            onCourtTeam.playerIds[Random().nextInt(onCourtTeam.playerIds.length)]);
+  /// The slot (team or floater) a given player currently belongs to.
+  String? _slotIdForPlayer(String playerId) {
+    if (_formation.floaterSlot?.playerId == playerId) return _formation.floaterSlot!.slotId;
+    return _formation.teamSlots.where((s) => s.playerIds.contains(playerId)).firstOrNull?.slotId;
+  }
+
+  /// Picks the least-scorekept-so-far candidate from [candidates], tie-break
+  /// random.
+  String? _pickFairestScorekeeper(Iterable<String> candidates) {
+    if (candidates.isEmpty) return null;
+    final sorted = candidates.toList()..shuffle(Random());
+    sorted.sort((a, b) => (_scorekeepCounts[a] ?? 0).compareTo(_scorekeepCounts[b] ?? 0));
+    return sorted.first;
+  }
+
+  /// Auto-Allplay only: keeps the rotating single-player scorekeeper
+  /// assignment fair and current, with a two-phase handoff mirroring King
+  /// of the Court: as soon as the scorekeeper's own slot reaches Up Next, a
+  /// successor is previewed (`_nextAdminPlayerId`) so the coach can prepare
+  /// the handover; the swap only actually commits once that slot reaches
+  /// Challengers. Called after every chain advance.
+  ///
+  /// Bootstraps from whoever's left waiting once on-court + challenger are
+  /// already seeded. If no eligible waiting player exists at commit time (a
+  /// tight court), the current scorekeeper is kept and their team plays
+  /// short instead, via the `_startSlot` substitute fallback.
+  void _refreshScorekeeper() {
+    if (!_isAllPlay) return;
+
+    final eligible = <String>[];
+    for (final slotId in _pool) {
+      if (slotId == _formation.floaterSlot?.slotId) {
+        eligible.add(_formation.floaterSlot!.playerId);
+      } else {
+        final team = _formation.teamSlots.firstWhere((s) => s.slotId == slotId);
+        eligible.addAll(team.playerIds);
       }
-    } else if (!needed && _nextAdminPlayerId != null) {
+    }
+    final upNext = _upNextSlotId;
+
+    if (_adminPlayerId == null) {
+      final preferred = eligible.where((pid) => _slotIdForPlayer(pid) != upNext).toList();
+      final pick = _pickFairestScorekeeper(preferred.isNotEmpty ? preferred : eligible);
+      if (pick != null) {
+        setState(() {
+          _adminPlayerId = pick;
+          _scorekeepCounts[pick] = (_scorekeepCounts[pick] ?? 0) + 1;
+        });
+      }
+      return;
+    }
+
+    final adminSlot = _adminSlotId;
+    if (adminSlot == null) return;
+
+    if (adminSlot == _challengerSlotId) {
+      // COMMIT: the previewed successor becomes real, right as the admin's
+      // slot is about to be promoted to court.
+      final candidates = eligible.where((pid) => pid != _adminPlayerId).toList();
+      final preferred = candidates.where((pid) => _slotIdForPlayer(pid) != upNext).toList();
+      final successor = _nextAdminPlayerId ??
+          _pickFairestScorekeeper(preferred.isNotEmpty ? preferred : candidates);
+      if (successor != null) {
+        setState(() {
+          _adminPlayerId = successor;
+          _nextAdminPlayerId = null;
+          _scorekeepCounts[successor] = (_scorekeepCounts[successor] ?? 0) + 1;
+        });
+      }
+      return;
+    }
+
+    if (adminSlot == upNext) {
+      // PREVIEW: one step away from being needed — compute (and hold) a
+      // successor so the coach can see the handoff coming.
+      if (_nextAdminPlayerId == null) {
+        final candidates = eligible.where((pid) => pid != _adminPlayerId).toList();
+        final preferred = candidates.where((pid) => _slotIdForPlayer(pid) != upNext).toList();
+        final pick = _pickFairestScorekeeper(preferred.isNotEmpty ? preferred : candidates);
+        if (pick != null) setState(() => _nextAdminPlayerId = pick);
+      }
+    } else if (_nextAdminPlayerId != null) {
+      // No longer imminent — clear the stale preview.
       setState(() => _nextAdminPlayerId = null);
     }
   }
 
   void _ejectChallenger() {
     if (!_canEjectChallenger) return;
-    // Promote exactly the slot already shown as "Up Next", rather than
-    // re-ranking the pool from scratch — a fresh rank can tie-break back to
-    // the slot we just ejected (e.g. neither has played yet this round), so
-    // re-ranking risks silently "ejecting" nobody.
-    final promoted = _upNextSlotId;
     setState(() {
       _lastEjectedChallengerSlotId = _challengerSlotId;
       _pool.add(_challengerSlotId!);
-      _challengerSlotId = promoted;
-      if (promoted != null) _pool.remove(promoted);
+      _challengerSlotId = _upNextSlotId; // promote exactly the visible Up Next
+      _upNextSlotId = null;
+      _topUpQueue();
+      _updateFloaterJumperAssignment();
     });
+    _refreshScorekeeper();
   }
 
   void _undoEjectChallenger() {
     if (_lastEjectedChallengerSlotId == null) return;
     setState(() {
+      // Soft undo: both currently-visible slots return to the pool, the old
+      // challenger is restored, and a fresh Up Next is revealed — mirrors
+      // `_undoEjectCourt`'s "reset the rest, let fairness re-derive it"
+      // philosophy rather than perfectly rewinding the reveal.
       if (_challengerSlotId != null) _pool.add(_challengerSlotId!);
+      if (_upNextSlotId != null) _pool.add(_upNextSlotId!);
       _pool.remove(_lastEjectedChallengerSlotId);
       _challengerSlotId = _lastEjectedChallengerSlotId;
+      _upNextSlotId = null;
       _lastEjectedChallengerSlotId = null;
+      _topUpQueue();
+      _updateFloaterJumperAssignment();
     });
+    _refreshScorekeeper();
   }
 
   // ── Scoring / ejection ────────────────────────────────────────────────────
@@ -406,21 +616,38 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   ScrambleKingStint _buildStint({required ScrambleKingStintEndReason reason}) {
     final isFloaterTurn = _onCourtSlotId == _formation.floaterSlot?.slotId;
-    final creditSlotId = isFloaterTurn
-        ? _formation.teamSlots
-            .firstWhere((s) => s.playerIds.contains(_onCourtTempPartnerId))
-            .slotId
-        : _onCourtSlotId!;
-    final playerIds = isFloaterTurn
-        ? [_formation.floaterSlot!.playerId, _onCourtTempPartnerId!]
-        : _formation.teamSlots.firstWhere((s) => s.slotId == _onCourtSlotId!).playerIds;
+    final List<String> playerIds;
+    if (isFloaterTurn) {
+      // Placeholder mode leaves _onCourtTempPartnerId null — the app never
+      // assigns or records a specific partner for that slot; only jumper
+      // mode (or a manual explicit pick) ever has one here.
+      playerIds = [
+        _formation.floaterSlot!.playerId,
+        ?_onCourtTempPartnerId,
+      ];
+    } else if (_onCourtBenchedPlayerId != null && _onCourtTempPartnerId != null) {
+      // Auto-Allplay tight-court fallback: this team played short a member
+      // (busy scorekeeping) — the stint's real playerIds substitute in the
+      // borrowed partner, even though the slot's fixed roster still
+      // includes the benched player (and is still credited normally below).
+      final team = _formation.teamSlots.firstWhere((s) => s.slotId == _onCourtSlotId!);
+      playerIds = [
+        for (final pid in team.playerIds)
+          if (pid != _onCourtBenchedPlayerId) pid,
+        _onCourtTempPartnerId!,
+      ];
+    } else {
+      playerIds = _formation.teamSlots.firstWhere((s) => s.slotId == _onCourtSlotId!).playerIds;
+    }
 
     return ScrambleKingStint(
       id: ScrambleKingStint.generateId(),
       roundId: _round.id,
       courtNumber: widget.courtNumber,
       turnSlotId: _onCourtSlotId!,
-      creditSlotId: creditSlotId,
+      // The on-court slot's own team is always credited — including the
+      // floater's own team, and a scorekeeper-short team playing with a sub.
+      creditSlotId: _onCourtSlotId!,
       playerIds: playerIds,
       isFloaterStint: isFloaterTurn,
       standInPlayerId: isFloaterTurn ? _formation.floaterSlot!.playerId : null,
@@ -444,29 +671,31 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _pool.add(ejectedSlot);
       _onCourtSlotId = null;
       _onCourtTempPartnerId = null;
+      _onCourtBenchedPlayerId = null;
       _currentPoints = 0;
-
-      if (_isAllPlay && _nextAdminPlayerId != null && _adminSlotId != null) {
-        _pool.add(_adminSlotId!);
-        _adminPlayerId = _nextAdminPlayerId;
-        _nextAdminPlayerId = null;
-        if (_adminSlotId != null) _pool.remove(_adminSlotId);
-      }
     });
     _updateTournament(_t.addStint(stint));
 
     if (_isAutoMode && _challengerSlotId != null) {
+      // Promote exactly the slot already shown as Challengers, and shift
+      // Up Next into its place — the chain never gets re-ranked, only the
+      // one freshly-opened gap at the end does (via `_topUpQueue` below).
       final next = _challengerSlotId!;
-      setState(() => _challengerSlotId = null);
-      _startSlot(next);
-      _recomputeChallenger();
+      _challengerSlotId = _upNextSlotId;
+      _upNextSlotId = null;
+      _startSlot(next); // its own setState flushes the two lines above too
+      setState(() {
+        _topUpQueue();
+        _updateFloaterJumperAssignment();
+      });
+      _refreshScorekeeper();
     }
   }
 
   /// Ported from KOTC's `_undoEjection` — a "soft" undo: restores the last
   /// ejected slot + their points, but resets everyone else to a flat pool
-  /// and lets the challenger be freshly recomputed, rather than reversing
-  /// the promotion chain step by step.
+  /// and lets the chain be freshly re-seeded, rather than reversing the
+  /// promotion step by step.
   void _undoEjectCourt() {
     if (!_canUndoEjectCourt) return;
     if (_hasCourt) {
@@ -476,20 +705,24 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     }
     final lastStint = _courtStints.last;
     final restoredSlotId = lastStint.turnSlotId;
+    final (tempPartner, benched) = _resolveStintSubstitution(lastStint);
     setState(() {
       _onCourtSlotId = restoredSlotId;
-      _onCourtTempPartnerId = lastStint.isFloaterStint ? lastStint.playerIds[1] : null;
+      _onCourtTempPartnerId = tempPartner;
+      _onCourtBenchedPlayerId = benched;
       _currentPoints = lastStint.points;
       _pool = List.from(ScrambleKingService.initialQueueOrder(_formation))..remove(restoredSlotId);
-      if (_adminSlotId != null) _pool.remove(_adminSlotId);
       _floaterJumperPartnerId = null;
       _challengerSlotId = null;
+      _upNextSlotId = null;
       _lastEjectedChallengerSlotId = null;
+      _topUpQueue();
+      _updateFloaterJumperAssignment();
     });
     _updateTournament(_t.copyWith(stints: _t.stints.where((s) => s.id != lastStint.id).toList()));
     _stintWatch.reset();
     if (_timerRunning) _stintWatch.start();
-    _recomputeChallenger();
+    _refreshScorekeeper();
   }
 
   // ── Round-end handling (mirrors ScrambleScorecardPage's timer-finished +
@@ -518,6 +751,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     setState(() {
       _onCourtSlotId = null;
       _onCourtTempPartnerId = null;
+      _onCourtBenchedPlayerId = null;
       _currentPoints = 0;
     });
     _updateTournament(updated);
@@ -589,6 +823,14 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       _t = updated;
       _resumeLiveState(restoredStint: restoredStint);
     });
+    if (_timerInitialRemaining == Duration.zero) {
+      // Match time had already elapsed when this court was finished —
+      // silently re-enter the finished state (no ticking, no re-firing
+      // onFinished) so we land on the live scorecard and STAY there,
+      // instead of the timer immediately re-counting down 0→amber→red and
+      // re-triggering completion on its own.
+      _matchTimerKey.currentState?.markFinished();
+    }
     ScrambleKingStorageService.save(_t);
     widget.onChanged(_t);
   }
@@ -727,53 +969,71 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 6),
                       child: Material(
-                        color: Colors.grey.shade50,
+                        color: pid == _adminPlayerId ? AppColors.goldCream : Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(10),
                         child: InkWell(
                           onTap: () {
                             Navigator.pop(ctx);
                             setState(() {
-                              if (_adminSlotId != null) _pool.add(_adminSlotId!);
                               _adminPlayerId = pid;
                               _nextAdminPlayerId = null;
-                              if (_adminSlotId != null) _pool.remove(_adminSlotId!);
+                              _scorekeepCounts[pid] = (_scorekeepCounts[pid] ?? 0) + 1;
                             });
+                            _refreshScorekeeper();
                           },
                           borderRadius: BorderRadius.circular(10),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             child: Text(name,
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)),
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: pid == _adminPlayerId
+                                        ? AppColors.goldDark
+                                        : Colors.black87)),
                           ),
                         ),
                       ),
                     ),
                   if (_nextAdminPlayerId != null) ...[
-                    const SizedBox(height: 16),
+                    const Divider(height: 24),
                     Text(l10n.kotcNextAdmin,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.black45)),
+                        style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black45,
+                            letterSpacing: 0.5)),
+                    const SizedBox(height: 4),
+                    Text(l10n.scrambleKingNextAdminNote,
+                        style: const TextStyle(fontSize: 12, color: Colors.black45)),
                     const SizedBox(height: 8),
-                    Text(l10n.kotcNextAdminNote,
-                        style: const TextStyle(fontSize: 12, color: Colors.black38)),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.goldCream,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(children: [
-                        const Icon(Icons.emoji_events_rounded, size: 14, color: AppColors.goldDark),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(_nameFor(_nextAdminPlayerId!),
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.goldDark)),
+                    for (final (pid, name) in poolPlayers.where((p) => p.$1 != _adminPlayerId))
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 6),
+                        child: Material(
+                          color: pid == _nextAdminPlayerId
+                              ? Colors.grey.shade200
+                              : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              setState(() => _nextAdminPlayerId = pid);
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              child: Text(name,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: pid == _nextAdminPlayerId
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: Colors.black87)),
+                            ),
+                          ),
                         ),
-                      ]),
-                    ),
+                      ),
                   ],
                 ],
               ),
@@ -811,7 +1071,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Icon(Icons.emoji_events_rounded, size: 11, color: Colors.black45),
                 const SizedBox(width: 2),
-                Text(l10n.kotcStatWins, style: headerStyle),
+                Flexible(
+                  child: Text(l10n.kotcStatWins,
+                      style: headerStyle, overflow: TextOverflow.ellipsis, maxLines: 1),
+                ),
               ]),
             ),
             SizedBox(
@@ -904,13 +1167,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         ],
       ),
       body: SafeArea(
-        child: _formation.isCompleted
-            ? _buildResultsBody(l10n)
-            : OrientationBuilder(
-                builder: (context, orientation) => orientation == Orientation.landscape
-                    ? _buildLandscapeBody(l10n)
-                    : _buildPortraitBody(l10n),
-              ),
+        child: OrientationBuilder(
+          builder: (context, orientation) => orientation == Orientation.landscape
+              ? _buildLandscapeBody(l10n)
+              : _buildPortraitBody(l10n),
+        ),
       ),
     );
   }
@@ -931,7 +1192,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           ],
           _buildRoundTimerRow(l10n),
           const SizedBox(height: 10),
-          if (_hasCourt && _isAutoMode) ...[
+          if (_formation.isCompleted) ...[
+            _buildRoundCompleteBanner(l10n),
+          ] else if (!_hasStarted) ...[
+            _buildStartCourtCard(l10n),
+          ] else if (_hasCourt && _isAutoMode) ...[
             _buildUpNextTile(l10n),
             const SizedBox(height: 8),
             IntrinsicHeight(
@@ -994,60 +1259,66 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           _buildRoundTimerRow(l10n, inline: true),
           const SizedBox(height: 6),
           Expanded(
-            child: _hasCourt && _isAutoMode
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(child: _buildUpNextTile(l10n, compact: true)),
-                            const SizedBox(height: 6),
-                            Expanded(child: _buildChallengersTile(l10n, compact: true)),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(width: 56, child: _buildChallengerEjectColumn(l10n)),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(child: _buildActiveScoringTile(l10n, compact: true)),
-                            if (_adminPlayerId != null) ...[
-                              const SizedBox(height: 6),
-                              _buildAdminBanner(l10n),
+            child: _formation.isCompleted
+                ? SingleChildScrollView(child: _buildRoundCompleteBanner(l10n))
+                : !_hasStarted
+                    ? SingleChildScrollView(child: _buildStartCourtCard(l10n))
+                    : _hasCourt && _isAutoMode
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(child: _buildUpNextTile(l10n, compact: true)),
+                                    const SizedBox(height: 6),
+                                    Expanded(child: _buildChallengersTile(l10n, compact: true)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              SizedBox(width: 56, child: _buildChallengerEjectColumn(l10n)),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                flex: 3,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(child: _buildActiveScoringTile(l10n, compact: true)),
+                                    if (_adminPlayerId != null) ...[
+                                      const SizedBox(height: 6),
+                                      _buildAdminBanner(l10n),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              SizedBox(width: 64, child: _buildCourtEjectColumn(l10n)),
                             ],
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      SizedBox(width: 64, child: _buildCourtEjectColumn(l10n)),
-                    ],
-                  )
-                : _hasCourt
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(flex: 4, child: _buildActiveScoringTile(l10n, compact: true)),
-                          const SizedBox(width: 8),
-                          SizedBox(width: 64, child: _buildCourtEjectColumn(l10n)),
-                        ],
-                      )
-                    : SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildPickOrWaitTile(l10n),
-                            const SizedBox(height: 10),
-                            _buildFullWidthCourtUndoButton(l10n),
-                          ],
-                        ),
-                      ),
+                          )
+                        : _hasCourt
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                      flex: 4,
+                                      child: _buildActiveScoringTile(l10n, compact: true)),
+                                  const SizedBox(width: 8),
+                                  SizedBox(width: 64, child: _buildCourtEjectColumn(l10n)),
+                                ],
+                              )
+                            : SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildPickOrWaitTile(l10n),
+                                    const SizedBox(height: 10),
+                                    _buildFullWidthCourtUndoButton(l10n),
+                                  ],
+                                ),
+                              ),
           ),
         ],
       ),
@@ -1129,9 +1400,22 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         setState(() => _timerRunning = false);
       }),
       _refBtn(Icons.replay_rounded, l10n.doghouseStartRestart, () {
-        _matchTimerKey.currentState?.restart();
+        if (!_hasStarted) {
+          _startCourt();
+          return;
+        }
+        // Always records the current time and resets the timer to the full
+        // match duration before starting — mirrors
+        // ScrambleScorecardPage._startOrRestart. `restart()` alone can't be
+        // trusted here since `_timerInitialRemaining` may be stale (e.g.
+        // zero, from a previous cold-open), so reset explicitly.
+        final updatedFormation = _formation.copyWith(actualStartTime: DateTime.now());
+        _t = _t.updateRound(_round.updateCourt(updatedFormation));
+        _matchTimerKey.currentState?.setRemaining(_round.matchDuration);
         _matchTimerKey.currentState?.start();
         setState(() => _timerRunning = true);
+        ScrambleKingStorageService.save(_t);
+        widget.onChanged(_t);
       }),
       _refTextBtn('+30s',
           () => _matchTimerKey.currentState?.addTime(const Duration(seconds: 30))),
@@ -1191,27 +1475,27 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                const Icon(Icons.gavel_rounded, size: 15, color: Colors.black45),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(l10n.scrambleKingRefereeBanner(_nameFor(_adminPlayerId!)),
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
-                ),
-              ]),
+            child: Row(children: [
+              const Icon(Icons.gavel_rounded, size: 15, color: Colors.black45),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(l10n.scrambleKingRefereeBanner(_nameFor(_adminPlayerId!)),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+              ),
               if (_nextAdminPlayerId != null) ...[
-                const SizedBox(height: 6),
-                Row(children: [
-                  const SizedBox(width: 23),
-                  Text('→ ${l10n.kotcNextAdmin}: ${_nameFor(_nextAdminPlayerId!)}',
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, size: 13, color: Colors.black38),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(_nameFor(_nextAdminPlayerId!),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w500, color: Colors.black38)),
-                ]),
+                      style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                ),
               ],
+              const SizedBox(width: 6),
+              const Icon(Icons.edit_rounded, size: 13, color: Colors.black38),
             ]),
           ),
         ),
@@ -1328,7 +1612,6 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   Widget _buildActiveScoringTile(AppLocalizations l10n, {bool compact = false}) {
     final nearStrike = _strikeEnabled &&
         _currentPoints >= (_t.strikePoints - 1).clamp(0, _t.strikePoints);
-    final isFloaterTurn = _onCourtSlotId == _formation.floaterSlot?.slotId;
     final teamName = _onCourtSlotId != null ? _teamNameForSlot(_onCourtSlotId!) : null;
     final clock = _fmtClock(_stintWatch.elapsed);
 
@@ -1347,7 +1630,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           children: [
             // Tile header, mirroring the "UP NEXT" / "CHALLENGERS" tiles.
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Row(children: [
               const Icon(Icons.sports_volleyball_rounded, size: 15, color: _kGold),
               const SizedBox(width: 6),
               Text(l10n.scrambleKingCourtLabel.toUpperCase(),
@@ -1355,21 +1638,29 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                       fontSize: 12, fontWeight: FontWeight.w700, color: _kGold, letterSpacing: 0.4)),
             ]),
             SizedBox(height: compact ? 4 : 8),
-            if (teamName != null)
-              _teamCaption(teamName, _kGold)
-            else if (isFloaterTurn)
-              _teamCaption(l10n.scrambleKingFloaterTag, _kGold),
+            if (teamName != null) _teamCaption(teamName, _kGold),
             // Player chips
             Wrap(
               spacing: 6,
               runSpacing: 4,
               alignment: WrapAlignment.center,
-              children: _onCourtChipNames()
-                  .map((n) => _nameChip(n, _kGold,
+              children: [
+                ..._onCourtChipNames().map((n) => _nameChip(n, _kGold,
+                    bg: _kGold.withValues(alpha: 0.15),
+                    border: _kGold.withValues(alpha: 0.5),
+                    compact: compact)),
+                // Placeholder mode has no partner name to show via
+                // _onCourtChipNames — surface the same generic token here
+                // as in the waiting tiles, so the pairing still reads as a
+                // complete team of two. Jumper mode already shows the real
+                // partner's name via the chips above, so no extra token.
+                if (_onCourtSlotId == _formation.floaterSlot?.slotId &&
+                    _t.oddPlayerMode == ScrambleKingOddPlayerMode.placeholder)
+                  _floaterPartnerChip(l10n, _kGold,
                       bg: _kGold.withValues(alpha: 0.15),
                       border: _kGold.withValues(alpha: 0.5),
-                      compact: compact))
-                  .toList(),
+                      compact: compact),
+              ],
             ),
             const SizedBox(height: 8),
             // Game clock + strike badge
@@ -1606,6 +1897,79 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     );
   }
 
+  // ── Ready-state card (not yet started) ───────────────────────────────────
+
+  Widget _buildStartCourtCard(AppLocalizations l10n) => Card(
+        color: _kGoldCardBg,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: _kGold, width: 2),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(children: [
+                const Icon(Icons.sports_volleyball_rounded, size: 16, color: _kGold),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(l10n.scrambleKingReadyToStart,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 14, color: _kGold)),
+                ),
+              ]),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: _startCourt,
+                icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                label: Text(l10n.scrambleKingStartCourt,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kGold,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  // ── Round-complete banner (replaces the live queue once finished) ────────
+
+  Widget _buildRoundCompleteBanner(AppLocalizations l10n) => Material(
+        color: _kOliveLight,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: _showRanking,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _kOlive.withValues(alpha: 0.3), width: 2),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.check_circle_rounded, size: 36, color: _kOlive),
+                const SizedBox(height: 8),
+                Text(l10n.scrambleKingCourtCompleteBanner,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 14, color: _kOlive)),
+                const SizedBox(height: 4),
+                Text(l10n.scrambleKingCourtCompleteHint,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: _kOlive.withValues(alpha: 0.8))),
+              ],
+            ),
+          ),
+        ),
+      );
+
   // ── Pick-a-team tile (manual) / waiting (automated) ──────────────────────
 
   Widget _buildPickOrWaitTile(AppLocalizations l10n) {
@@ -1695,83 +2059,43 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           children: [
             _chip(Icons.emoji_events_rounded, _t.name, _kOliveLight, _kOlive),
             _chip(Icons.grid_view_rounded, '2v2', Colors.grey.shade100, Colors.black45),
-            _chip(Icons.people_rounded, '${_formation.teamSlots.length} ${l10n.scrambleKingTeamsLabel.toLowerCase()}',
-                Colors.grey.shade100, Colors.black45),
+            _chip(Icons.tune_rounded, _assignmentModeLabel(l10n), Colors.grey.shade100,
+                Colors.black45),
+            if (_formation.floaterSlot != null)
+              _chip(Icons.swap_horiz_rounded, _oddPlayerModeLabel(l10n), Colors.grey.shade100,
+                  Colors.black45),
             if (_strikeEnabled)
               _chip(Icons.bolt_rounded, l10n.kotcStrikePoints(_t.strikePoints),
                   AppColors.goldCream, _kGold),
           ],
         ),
         const Divider(height: 20),
-        ElevatedButton.icon(
-          onPressed: _confirmFinishCourt,
-          icon: const Icon(Icons.emoji_events_rounded, size: 18),
-          label: Text(l10n.scrambleKingFinishCourt, style: const TextStyle(fontWeight: FontWeight.w700)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _kOlive,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        if (_formation.isCompleted)
+          OutlinedButton.icon(
+            onPressed: _undoFinishCourt,
+            icon: const Icon(Icons.undo_rounded, size: 18),
+            label: Text(l10n.scrambleKingUndoFinishCourt,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _kGold,
+              side: BorderSide(color: _kGold.withValues(alpha: 0.6)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          )
+        else
+          ElevatedButton.icon(
+            onPressed: _confirmFinishCourt,
+            icon: const Icon(Icons.emoji_events_rounded, size: 18),
+            label: Text(l10n.scrambleKingFinishCourt,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _kOlive,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: _showRanking,
-          icon: const Icon(Icons.edit_rounded, size: 18),
-          label: Text(l10n.scrambleKingEditScore),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.black54,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: () => Navigator.of(context).pop(_t),
-          icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: Text(l10n.scrambleKingBackToSchedule, style: const TextStyle(fontWeight: FontWeight.w600)),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.black54,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Results view (round complete) ────────────────────────────────────────
-
-  Widget _buildResultsBody(AppLocalizations l10n) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        _sectionHeader(l10n.scrambleKingScorecard, Icons.emoji_events_rounded),
-        const SizedBox(height: 12),
-        _buildRankingTable(l10n, onEdited: () {}),
-        const Divider(height: 24),
-        OutlinedButton.icon(
-          onPressed: _undoFinishCourt,
-          icon: const Icon(Icons.undo_rounded, size: 18),
-          label: Text(l10n.scrambleKingUndoFinishCourt, style: const TextStyle(fontWeight: FontWeight.w600)),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: _kGold,
-            side: BorderSide(color: _kGold.withValues(alpha: 0.6)),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: _showRanking,
-          icon: const Icon(Icons.edit_rounded, size: 18),
-          label: Text(l10n.scrambleKingEditScore),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: Colors.black54,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
         const SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: () => Navigator.of(context).pop(_t),
@@ -1811,10 +2135,14 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
             style: TextStyle(fontSize: compact ? 11 : 13, fontWeight: FontWeight.w700, color: fg)),
       );
 
-  /// The rotating-partner token shown beside the floater's name in a waiting
-  /// tile: a generic "Placeholder" in placeholder mode, or "Jumper: {name}"
-  /// (falling back to "Jumper · awaiting ejection") in jumper mode. Styled as
-  /// a lighter, icon-led chip so it reads as a slot still to be filled.
+  /// The partner token shown beside the floater's name, in every tile
+  /// (waiting or on court): in placeholder mode, always the generic
+  /// "Placeholder" label — the app never names, assigns, or substitutes a
+  /// specific person for that slot, so there's nothing else to show. In
+  /// jumper mode: "Jumper: {name}" once locked in (see
+  /// `_updateFloaterJumperAssignment` — never re-picked afterwards), else
+  /// "Jumper · awaiting ejection". Styled as a lighter, icon-led chip so it
+  /// reads as a slot filled by a role, not a fixed named player.
   Widget _floaterPartnerChip(AppLocalizations l10n, Color fg,
       {required Color bg, Color? border, bool compact = false}) {
     final (IconData icon, String label) =

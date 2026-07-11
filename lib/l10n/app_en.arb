@@ -264,6 +264,29 @@
   "sideChangeContinue": "Sides Switched — Continue",
   "@sideChangeContinue": {},
 
+  "targetReachedTitle": "Target Reached",
+  "@targetReachedTitle": {},
+
+  "targetReachedBody": "{team} reached the target.\n\nSet {set} is won.",
+  "@targetReachedBody": {
+    "placeholders": {
+      "team": { "type": "String" },
+      "set": { "type": "int" }
+    }
+  },
+
+  "targetReachedKeepPlaying": "Keep Playing",
+  "@targetReachedKeepPlaying": {},
+
+  "sideSwapLabel": "Side swap",
+  "@sideSwapLabel": {},
+
+  "sideSwapNone": "No side swap",
+  "@sideSwapNone": {},
+
+  "optionCustom": "Custom…",
+  "@optionCustom": {},
+
   "scoreGameOptions": "Game Options",
   "@scoreGameOptions": {},
 
@@ -1340,8 +1363,14 @@
   "labelEscapePoints": "Escape Points",
   "@labelEscapePoints": {},
 
+  "doghouseEscapePointsHelp": "Points the doghouse team must score to escape. A point is earned each time the serving (doghouse) team wins a rally. The score resets to zero after each game lost.",
+  "@doghouseEscapePointsHelp": {},
+
   "labelLossLimit": "Loss Limit",
   "@labelLossLimit": {},
+
+  "doghouseLossLimitHelp": "How many games the doghouse team can lose before being automatically ejected. Each time the court team wins a rally, one game is lost and the point score resets to zero.",
+  "@doghouseLossLimitHelp": {},
 
   "hintPlayerName": "Player name",
   "@hintPlayerName": {},
@@ -1469,6 +1498,9 @@
 
   "doghouseGameplayControls": "Gameplay Controls",
   "@doghouseGameplayControls": {},
+
+  "doghouseInDoghouseLabel": "In Doghouse",
+  "@doghouseInDoghouseLabel": {},
 
   "doghouseMatchControls": "Match Controls",
   "@doghouseMatchControls": {},
@@ -2306,11 +2338,23 @@
   "kotcChallengers": "Challengers",
   "@kotcChallengers": {},
 
+  "kotcCourtLabel": "Court",
+  "@kotcCourtLabel": {},
+
+  "kotcStrikeOff": "No strike",
+  "@kotcStrikeOff": {},
+
+  "kotcTeamSizeChangeNote": "Applies to new teams. The team on court keeps its size until it rotates out.",
+  "@kotcTeamSizeChangeNote": {},
+
   "kotcWaitingForPlayers": "Waiting for players...",
   "@kotcWaitingForPlayers": {},
 
   "kotcEjectChallenger": "Eject challenger",
   "@kotcEjectChallenger": {},
+
+  "kotcEjectChallengerShort": "Eject\nChallenger",
+  "@kotcEjectChallengerShort": {},
 
   "kotcUndoEjectChallenger": "Undo",
   "@kotcUndoEjectChallenger": {},
@@ -2645,7 +2689,7 @@
   "modeScrambleKingDesc": "Scramble mixing meets King of the Court",
   "@modeScrambleKingDesc": {},
 
-  "modeScrambleKingHelp": "Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round's duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round's timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it's their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don't have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.",
+  "modeScrambleKingHelp": "Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round's duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round's timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player still gets their own team and queues just like everyone else — only their partner is decided differently: a fixed random partner for the whole round (Placeholder), or a fresh fairness-balanced partner each time they're on court (Jumper).\n\nAdd your players, set the number of rounds and courts, and go.",
   "@modeScrambleKingHelp": {},
 
   "scrambleKingStatsRounds": "{completed}/{total} rounds",
@@ -2668,7 +2712,7 @@
   "scrambleKingOddPlayerLabel": "Odd player handling",
   "@scrambleKingOddPlayerLabel": {},
 
-  "scrambleKingOddPlayerHelp": "When a court can't be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.",
+  "scrambleKingOddPlayerHelp": "When a court can't be split evenly into teams of two, one player gets their own team and queues like everyone else — only their partner is decided by this setting. Placeholder picks a random free player the first time they take the court, then keeps that same partner for the rest of the round. Jumper re-picks a partner every time, using a fairness calculation so playing time stays balanced across the round. Either way, the odd player's own team earns the points, just like every other team.",
   "@scrambleKingOddPlayerHelp": {},
 
   "scrambleKingOddPlayerPlaceholderLabel": "Placeholder",
@@ -2680,6 +2724,9 @@
   "scrambleKingJumperPartner": "Jumper: {name}",
   "@scrambleKingJumperPartner": { "placeholders": { "name": { "type": "String" } } },
 
+  "scrambleKingNextAdminNote": "Suggested fairly from players not about to play.",
+  "@scrambleKingNextAdminNote": {},
+
   "scrambleKingJumperAwaiting": "Jumper · awaiting ejection",
   "@scrambleKingJumperAwaiting": {},
 
@@ -2690,6 +2737,24 @@
   "@scrambleKingRoundsProgress": {
     "placeholders": { "completed": { "type": "int" }, "total": { "type": "int" } }
   },
+
+  "scrambleKingRoundsPill": "{n} rounds",
+  "@scrambleKingRoundsPill": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingCourtsPill": "{n} courts",
+  "@scrambleKingCourtsPill": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingPlayersPill": "{n} players",
+  "@scrambleKingPlayersPill": { "placeholders": { "n": { "type": "int" } } },
+
+  "scrambleKingRoundsPillLabel": "Rounds",
+  "@scrambleKingRoundsPillLabel": {},
+
+  "scrambleKingCourtsPillLabel": "Courts",
+  "@scrambleKingCourtsPillLabel": {},
+
+  "scrambleKingInvalidCourtCount": "That many courts doesn't work for the current player count.",
+  "@scrambleKingInvalidCourtCount": {},
 
   "scrambleKingOverallRanking": "Overall Ranking",
   "@scrambleKingOverallRanking": {},
@@ -2703,8 +2768,11 @@
   "scrambleKingCourtLabel": "Court",
   "@scrambleKingCourtLabel": {},
 
-  "scrambleKingFloaterBadge": "{name} floats in as needed",
-  "@scrambleKingFloaterBadge": { "placeholders": { "name": { "type": "String" } } },
+  "scrambleKingReadyToStart": "Ready to start",
+  "@scrambleKingReadyToStart": {},
+
+  "scrambleKingStartCourt": "Start Court",
+  "@scrambleKingStartCourt": {},
 
   "scrambleKingRoundEndedBody": "Round complete — head back to see the results.",
   "@scrambleKingRoundEndedBody": {},
@@ -2754,6 +2822,15 @@
   "scrambleKingTeamsLabel": "Teams",
   "@scrambleKingTeamsLabel": {},
 
+  "scrambleKingTeamsFilterAll": "All",
+  "@scrambleKingTeamsFilterAll": {},
+
+  "scrambleKingTeamsEmpty": "No teams for this filter yet.",
+  "@scrambleKingTeamsEmpty": {},
+
+  "scrambleKingEditFormatTitle": "Format",
+  "@scrambleKingEditFormatTitle": {},
+
   "scrambleKingStatRounds": "Rounds",
   "@scrambleKingStatRounds": {},
 
@@ -2765,17 +2842,17 @@
     }
   },
 
-  "scrambleKingEditScore": "Edit Score",
-  "@scrambleKingEditScore": {},
-
   "scrambleKingUndoFinishCourt": "Undo Finish",
   "@scrambleKingUndoFinishCourt": {},
 
+  "scrambleKingCourtCompleteBanner": "This court's round is complete",
+  "@scrambleKingCourtCompleteBanner": {},
+
+  "scrambleKingCourtCompleteHint": "Tap here, or the ranking icon above, to view or edit results",
+  "@scrambleKingCourtCompleteHint": {},
+
   "scrambleKingRoundTimer": "Round Timer",
   "@scrambleKingRoundTimer": {},
-
-  "scrambleKingFloaterTag": "Floater",
-  "@scrambleKingFloaterTag": {},
 
   "scrambleKingFinishCourt": "Finish court",
   "@scrambleKingFinishCourt": {},
@@ -2867,5 +2944,58 @@
   },
 
   "scrambleStatusScheduled": "Scheduled",
-  "@scrambleStatusScheduled": {}
+  "@scrambleStatusScheduled": {},
+
+  "scrambleImportedUpcomingHint": "For other games, see the host device.",
+  "@scrambleImportedUpcomingHint": {},
+
+  "scrambleTabHistory": "History",
+  "@scrambleTabHistory": {},
+
+  "scrambleTabImported": "Imported",
+  "@scrambleTabImported": {},
+
+  "scrambleBackToHub": "Back to Hub",
+  "@scrambleBackToHub": {},
+
+  "scrambleImportedScorecard": "Imported Scorecard",
+  "@scrambleImportedScorecard": {},
+
+  "scrambleAdjustHint": "Tap Adjust final score to change the score, then Complete.",
+  "@scrambleAdjustHint": {},
+
+  "overviewSettingsTitle": "Tournament Settings",
+  "@overviewSettingsTitle": {},
+
+  "overviewSettingsLockedRounds": "Rounds 1–{count} are already underway and won't change.",
+  "@overviewSettingsLockedRounds": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsRemoved": "Rounds {from}–{to} will be removed.",
+  "@overviewSettingsRoundsRemoved": {
+    "placeholders": { "from": { "type": "int" }, "to": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsAdded": "{count} more round(s) will be added.",
+  "@overviewSettingsRoundsAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRemix": "The remaining schedule will be re-mixed as fairly as possible.",
+  "@overviewSettingsRemix": {},
+
+  "overviewSettingsModeLocked": "Mode can't be changed once a game has started.",
+  "@overviewSettingsModeLocked": {},
+
+  "overviewSettingsCourtsBlocked": "Only {count} court(s) can be filled with the current players — reduce courts or add players.",
+  "@overviewSettingsCourtsBlocked": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsConfirmTitle": "Apply these changes?",
+  "@overviewSettingsConfirmTitle": {},
+
+  "overviewSettingsConfirmBtn": "Apply",
+  "@overviewSettingsConfirmBtn": {}
 }

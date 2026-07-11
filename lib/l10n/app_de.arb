@@ -110,6 +110,16 @@
   },
   "sideChangeContinue": "Seiten gewechselt — Weiter",
 
+  "targetReachedTitle": "Ziel erreicht",
+  "targetReachedBody": "{team} hat das Ziel erreicht.\n\nSatz {set} ist gewonnen.",
+  "@targetReachedBody": {
+    "placeholders": { "team": { "type": "String" }, "set": { "type": "int" } }
+  },
+  "targetReachedKeepPlaying": "Weiterspielen",
+  "sideSwapLabel": "Seitenwechsel",
+  "sideSwapNone": "Kein Seitenwechsel",
+  "optionCustom": "Eigener…",
+
   "scoreGameOptions": "Spieloptionen",
   "scoreSwapTeams": "Teams tauschen",
   "scoreSwapSubtitle": "Links und rechts tauschen",
@@ -517,7 +527,9 @@
   "labelTime": "Zeit",
   "labelAssignment": "Zuweisung",
   "labelEscapePoints": "Ausstiegspunkte",
+  "doghouseEscapePointsHelp": "Punkte, die das Doghouse-Team erzielen muss, um zu entkommen. Ein Punkt wird jedes Mal vergeben, wenn das aufschlagende (Doghouse-)Team einen Ballwechsel gewinnt. Der Punktestand wird nach jedem verlorenen Spiel auf null zurückgesetzt.",
   "labelLossLimit": "Verlustlimit",
+  "doghouseLossLimitHelp": "Wie viele Spiele das Doghouse-Team verlieren darf, bevor es automatisch ausgeschlossen wird. Jedes Mal, wenn das Platzteam einen Ballwechsel gewinnt, geht ein Spiel verloren und der Punktestand wird auf null zurückgesetzt.",
   "hintPlayerName": "Spielername",
   "doghouseScoreboard": "Spielstand",
   "doghouseTimeUp": "Zeit abgelaufen",
@@ -559,6 +571,7 @@
   "doghousePlayerStats": "Spielerstatistiken",
   "doghouseSessionTimer": "SITZUNGS-TIMER",
   "doghouseGameplayControls": "Spielsteuerung",
+  "doghouseInDoghouseLabel": "Im Doghouse",
   "doghouseMatchControls": "Spielaktionen",
   "doghouseStartRestart": "Start / Neu starten",
   "doghouseTournamentCompleted": "Turnier abgeschlossen",
@@ -1277,6 +1290,21 @@
   "kotcChallengers": "Herausforderer",
   "@kotcChallengers": {},
 
+  "kotcCourtLabel": "Platz",
+  "@kotcCourtLabel": {},
+
+  "kotcStrikeOff": "Kein Strike",
+  "@kotcStrikeOff": {},
+
+  "kotcTeamSizeChangeNote": "Gilt für neue Teams. Das Team auf dem Platz behält seine Größe, bis es rotiert.",
+  "@kotcTeamSizeChangeNote": {},
+
+  "kotcEjectChallengerShort": "Gegner\nraus",
+  "@kotcEjectChallengerShort": {},
+
+  "kotcUndoEjectChallenger": "Rückgängig",
+  "@kotcUndoEjectChallenger": {},
+
   "kotcWaitingForPlayers": "Warte auf Spieler...",
   "@kotcWaitingForPlayers": {},
 
@@ -1596,5 +1624,138 @@
   "@modeKotcHelp": {},
 
   "modeDoghouseHelp": "Doghouse ist ein schnelles, kompetitives Turnier, bei dem die Action nie stoppt. Ein Team kämpft aus dem Doghouse heraus – erziele genug Punkte, um zu entkommen, und mach Platz für die nächsten Herausforderer. Wer zuerst das Niederlage-Limit erreicht, scheidet aus.\n\nKurzes Format, hohe Intensität – großartig als Aufwärmen oder eigenständiger Wettbewerb.\n\nFair by Design: TournaQs automatische Zuteilung sorgt dafür, dass alle mit und gegen verschiedene Personen spielen, Wartezeiten gering bleiben und Wiederholungen vermieden werden.\n\nWie ein Spiel funktioniert:\n• Ballwechsel gewinnen → Punkt erzielen\n• Ballwechsel verlieren → Spiel verloren, Punkte zurückgesetzt\n• Escape-Points-Ziel erreichen → entkommen, zurück in die Warteschlange\n• Niederlage-Limit erreichen → ausgeschlossen, nächstes Team tritt an\n\nVor dem Start einigen auf:\n• Welches Team jeden Ballwechsel aufschlägt\n• Escape-Points und Niederlage-Limit\n\nFüge deine Spieler hinzu, stell den Session-Timer ein – und los.",
-  "@modeDoghouseHelp": {}
+  "@modeDoghouseHelp": {},
+
+  "scrambleExportScorecard": "Spielblatt exportieren",
+  "@scrambleExportScorecard": {},
+
+  "scrambleExportResult": "Ergebnis exportieren",
+  "@scrambleExportResult": {},
+
+  "scrambleExportGame": "Spiel exportieren",
+  "@scrambleExportGame": {},
+
+  "scrambleImportResult": "Ergebnis importieren",
+  "@scrambleImportResult": {},
+
+  "scrambleQrScanHint": "Scanne diesen Code auf dem anderen Gerät.",
+  "@scrambleQrScanHint": {},
+
+  "scrambleQrTooLarge": "Dieses Spielblatt ist zu groß für einen QR-Code.",
+  "@scrambleQrTooLarge": {},
+
+  "scrambleScanTitle": "QR-Code scannen",
+  "@scrambleScanTitle": {},
+
+  "scrambleScanScorecardHint": "Richte die Kamera auf einen Spielblatt-QR-Code.",
+  "@scrambleScanScorecardHint": {},
+
+  "scrambleScanResultHint": "Richte die Kamera auf einen Ergebnis-QR-Code.",
+  "@scrambleScanResultHint": {},
+
+  "scrambleScanCameraDenied": "Kamerazugriff wird zum Scannen von QR-Codes benötigt. Aktiviere ihn in den Einstellungen.",
+  "@scrambleScanCameraDenied": {},
+
+  "scrambleOpenSettings": "Einstellungen öffnen",
+  "@scrambleOpenSettings": {},
+
+  "scrambleScanToImport": "Zum Importieren scannen",
+  "@scrambleScanToImport": {},
+
+  "scrambleScanNotScorecard": "Dieser QR-Code ist kein Spielblatt.",
+  "@scrambleScanNotScorecard": {},
+
+  "scrambleScanNotResult": "Dieser QR-Code ist kein Ergebnis.",
+  "@scrambleScanNotResult": {},
+
+  "scrambleResultImported": "Ergebnis importiert.",
+  "@scrambleResultImported": {},
+
+  "scrambleResultMismatch": "Dieses Ergebnis gehört zu einem anderen Turnier.",
+  "@scrambleResultMismatch": {},
+
+  "scrambleImportSuccess": "Spielblatt von „{name}“ importiert.",
+  "@scrambleImportSuccess": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "scrambleImportedTitle": "Importierte Spielblätter ({count})",
+  "@scrambleImportedTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedFilterHint": "Nach Turnier filtern",
+  "@scrambleImportedFilterHint": {},
+
+  "scrambleImportedEmpty": "Keine passenden importierten Spielblätter.",
+  "@scrambleImportedEmpty": {},
+
+  "scrambleImportedDeleteAllTitle": "Alle importierten löschen?",
+  "@scrambleImportedDeleteAllTitle": {},
+
+  "scrambleImportedDeleteAllBody": "Dadurch werden alle {count} importierten Spielblätter entfernt.",
+  "@scrambleImportedDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedCourt": "Feld {number}",
+  "@scrambleImportedCourt": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scrambleStatusScheduled": "Geplant",
+  "@scrambleStatusScheduled": {},
+
+  "scrambleImportedUpcomingHint": "Weitere Spiele siehst du auf dem Host-Gerät.",
+  "@scrambleImportedUpcomingHint": {},
+
+  "scrambleTabHistory": "Verlauf",
+  "@scrambleTabHistory": {},
+
+  "scrambleTabImported": "Importiert",
+  "@scrambleTabImported": {},
+
+  "scrambleBackToHub": "Zurück zur Übersicht",
+  "@scrambleBackToHub": {},
+
+  "scrambleImportedScorecard": "Importiertes Spielblatt",
+  "@scrambleImportedScorecard": {},
+
+  "scrambleAdjustHint": "Tippe auf „Endergebnis anpassen“, um den Stand zu ändern, dann auf „Spiel abschließen“.",
+  "@scrambleAdjustHint": {},
+
+  "overviewSettingsTitle": "Turniereinstellungen",
+  "@overviewSettingsTitle": {},
+
+  "overviewSettingsLockedRounds": "Runden 1–{count} laufen bereits und ändern sich nicht.",
+  "@overviewSettingsLockedRounds": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsRemoved": "Runden {from}–{to} werden entfernt.",
+  "@overviewSettingsRoundsRemoved": {
+    "placeholders": { "from": { "type": "int" }, "to": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsAdded": "{count} weitere Runde(n) werden hinzugefügt.",
+  "@overviewSettingsRoundsAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRemix": "Der verbleibende Spielplan wird so fair wie möglich neu gemischt.",
+  "@overviewSettingsRemix": {},
+
+  "overviewSettingsModeLocked": "Der Modus kann nicht mehr geändert werden, sobald ein Spiel begonnen hat.",
+  "@overviewSettingsModeLocked": {},
+
+  "overviewSettingsCourtsBlocked": "Mit den aktuellen Spielern können nur {count} Feld(er) belegt werden — reduziere die Felder oder füge Spieler hinzu.",
+  "@overviewSettingsCourtsBlocked": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsConfirmTitle": "Diese Änderungen übernehmen?",
+  "@overviewSettingsConfirmTitle": {},
+
+  "overviewSettingsConfirmBtn": "Übernehmen",
+  "@overviewSettingsConfirmBtn": {}
 }

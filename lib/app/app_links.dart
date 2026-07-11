@@ -40,6 +40,7 @@ abstract final class AppLinks {
   static const String modeDoghouse       = '$_modesBase/doghouse.html';
   static const String modeKingOfTheCourt = '$_modesBase/king-of-the-court.html';
   static const String modeKoSystem       = '$_modesBase/ko-system.html';
+  static const String modeScrambleKing   = '$_modesBase/scramble-king.html';
 
   // ── Individual legal docs (published under the current site root) ─────────
 

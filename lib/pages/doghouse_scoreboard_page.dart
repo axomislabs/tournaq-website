@@ -3,7 +3,14 @@ import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/doghouse_drill.dart';
 import '../models/player_status.dart';
+import '../services/fair_rotation_picker.dart';
+import '../services/challenger_eject_state.dart';
+import '../widgets/admin_rotation_tile.dart';
+import '../widgets/challenger_eject_column.dart';
+import '../widgets/editable_info_chip.dart';
+import '../widgets/info_chip_sheets.dart';
 import '../widgets/player_picker_sheet.dart';
+import '../widgets/session_timer_persistence_mixin.dart';
 import '../widgets/tournament_player_row.dart';
 import '../models/group.dart';
 import '../services/doghouse_storage_service.dart';
@@ -43,7 +50,8 @@ class DoghouseScoreboardPage extends StatefulWidget {
   State<DoghouseScoreboardPage> createState() => _DoghouseScoreboardState();
 }
 
-class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
+class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
+    with WidgetsBindingObserver, SessionTimerPersistenceMixin {
   late DoghouseTournament _t;
 
   // ── Scoring ───────────────────────────────────────────────────────────────
@@ -58,9 +66,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   int                        _candidateIndex = 0;
   List<DoghousePlayer>       _challengerTeam = [];
 
+  // ── Admin (automatedAllPlay only) ─────────────────────────────────────────
+  String? _adminPlayerId;
+  String? _nextAdminPlayerId;
+
+  // ── Challenger ejection undo (session-only; ejecting a challenger commits
+  // no DoghouseGame, so it can't ride the games-list-based undo below) ──────
+  final _challengerEject = ChallengerEjectState<DoghousePlayer>();
+
   // ── Session timer ─────────────────────────────────────────────────────────
   final _sessionTimerKey = GlobalKey<ScrambleTimerWidgetState>();
-  bool _timerRunning = false;
 
   // ── Game stopwatch ────────────────────────────────────────────────────────
   final _gameWatch = Stopwatch();
@@ -70,24 +85,77 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   bool get _canAddPlayer => _pendingSelection.length < _t.playersPerTeam;
   bool get _canStart     => _pendingSelection.length == _t.playersPerTeam;
   bool get _isCompleted  => _t.status == DoghouseTournamentStatus.completed;
-  bool get _canUndo => _t.games.isNotEmpty &&
-      (!_hasTeam || _t.assignmentMode == DoghouseAssignmentMode.automated);
+  bool get _isAllPlay  => _t.assignmentMode == DoghouseAssignmentMode.automatedAllPlay;
+  bool get _isAutoMode => _t.assignmentMode == DoghouseAssignmentMode.automated || _isAllPlay;
+  bool get _canUndo => _t.games.isNotEmpty && (!_hasTeam || _isAutoMode);
 
   bool get _escapeReached  => _currentSideOuts >= _t.escapePoints;
   bool get _ejectReached   => _currentGamesLost >= _t.lossLimit;
 
+  // Pool available for suggestions — excludes current admin in automatedAllPlay.
+  List<DoghousePlayer> get _activePool => _isAllPlay && _adminPlayerId != null
+      ? _pool.where((p) => p.id != _adminPlayerId).toList()
+      : _pool;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _t    = widget.tournament;
-    _pool = List.from(_t.players.where((p) => p.isActive));
+    final activePlayers = _t.players.where((p) => p.isActive).toList();
+    _pool = List.from(activePlayers);
+    if (_isAllPlay && activePlayers.isNotEmpty) {
+      _adminPlayerId = _pickFairestAdmin(activePlayers)?.id;
+    }
     _initSuggestion();
+    restoreTimer();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _gameWatch.stop();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) =>
+      handleTimerLifecycleChange(state);
+
+  // ── Session timer persistence adapter (SessionTimerPersistenceMixin) ──────
+
+  @override
+  GlobalKey<ScrambleTimerWidgetState> get sessionTimerKey => _sessionTimerKey;
+  @override
+  Duration get sessionTotalDuration => _t.totalTime;
+  @override
+  int? get sessionRemainingSecondsSnapshot => _t.remainingSeconds;
+  @override
+  DateTime? get sessionTimerAnchorSnapshot => _t.timerAnchor;
+  @override
+  bool get sessionIsCompleted => _isCompleted;
+
+  @override
+  void applySessionTimerSnapshot({
+    int? remainingSeconds,
+    DateTime? timerAnchor,
+    bool clearTimerAnchor = false,
+  }) {
+    _t = _t.copyWith(
+      remainingSeconds: remainingSeconds,
+      timerAnchor: timerAnchor,
+      clearTimerAnchor: clearTimerAnchor,
+    );
+    _persist();
+  }
+
+  @override
+  void onSessionTimerRunningChanged(bool running) {
+    if (running) {
+      if (_hasTeam) _gameWatch.start();
+    } else {
+      _gameWatch.stop();
+    }
   }
 
   // ── Persist ───────────────────────────────────────────────────────────────
@@ -101,28 +169,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _startOrRestart() {
     if (_isCompleted) return;
-    _sessionTimerKey.currentState?.restart();
-    _sessionTimerKey.currentState?.start();
     _gameWatch.reset();
-    if (_hasTeam) _gameWatch.start();
-    setState(() => _timerRunning = true);
-  }
-
-  void _resumeTimer() {
-    _sessionTimerKey.currentState?.resume();
-    if (_hasTeam) _gameWatch.start();
-    setState(() => _timerRunning = true);
-  }
-
-  void _pauseTimer() {
-    _sessionTimerKey.currentState?.pause();
-    _gameWatch.stop();
-    setState(() => _timerRunning = false);
+    startOrRestartTimer();
   }
 
   Future<void> _onSessionFinished() async {
-    _gameWatch.stop();
-    setState(() => _timerRunning = false);
+    markSessionTimerStopped();
+    applySessionTimerSnapshot(remainingSeconds: 0, clearTimerAnchor: true);
     if (!mounted) return;
 
     final end = await showDialog<bool>(
@@ -209,32 +262,88 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   // ── Automated assignment ──────────────────────────────────────────────────
 
   void _initSuggestion() {
-    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
-    _candidates     = _computeSuggestions();
+    if (!_isAutoMode) return;
+    _candidates     = _computeSuggestions(fromPool: _activePool);
     _candidateIndex = 0;
   }
 
+  // Picks the least-used scorekeeper from [candidates] so admin duty is shared
+  // evenly over the session; ties broken by longest-since-last, then random.
+  // Counts are derived from persisted DoghouseGame.adminPlayerId, so they
+  // survive navigation/restart and self-correct on undo.
+  DoghousePlayer? _pickFairestAdmin(Iterable<DoghousePlayer> candidates) {
+    final list = candidates.toList();
+    final id = FairRotationPicker.pickFairest(
+        list.map((p) => p.id), _t.games.map((g) => g.adminPlayerId).toList());
+    if (id == null) return null;
+    return list.firstWhere((p) => p.id == id);
+  }
+
+  // Checks whether the admin would appear in Up Next using the full pool (admin included).
+  // Only runs once Challengers are established. Sets or clears _nextAdminPlayerId accordingly.
+  void _updateAdminHandoffCheck() {
+    if (!_isAllPlay || _adminPlayerId == null) return;
+    if (_challengerTeam.length != _t.playersPerTeam) return;
+
+    final upNextPool = _pool
+        .where((p) => !_challengerTeam.any((c) => c.id == p.id))
+        .toList();
+    final fullUpNext = _computeSuggestions(fromPool: upNextPool);
+    final adminNeeded = fullUpNext.isNotEmpty &&
+        fullUpNext.first.any((p) => p.id == _adminPlayerId);
+
+    if (adminNeeded) {
+      if (_nextAdminPlayerId == null) {
+        // Successor = fairest off-court player who won't be pulled onto court
+        // next (exclude the incoming dogs team and the up-next challenger);
+        // fall back to any off-court player, then the just-played team.
+        final incomingDogs = _challengerTeam.map((p) => p.id).toSet();
+        final incomingChallenger = _currentSuggestion.map((p) => p.id).toSet();
+        final eligible = _pool
+            .where((p) => p.id != _adminPlayerId && !incomingDogs.contains(p.id))
+            .toList();
+        final preferred = eligible
+            .where((p) => !incomingChallenger.contains(p.id))
+            .toList();
+        final pick = _pickFairestAdmin(preferred.isNotEmpty
+            ? preferred
+            : (eligible.isNotEmpty ? eligible : _teamPlayers));
+        if (pick != null) {
+          setState(() => _nextAdminPlayerId = pick.id);
+        }
+      }
+    } else if (_nextAdminPlayerId != null) {
+      setState(() => _nextAdminPlayerId = null);
+    }
+  }
+
+  // Two-step compute: Challengers from active pool, then Up Next from pool minus Challengers.
+  // No-op outside auto modes or when no team is playing.
   void _recomputeChallenger() {
-    if (_t.assignmentMode != DoghouseAssignmentMode.automated || !_hasTeam) return;
-    final challengerCands = _computeSuggestions();
+    if (!_isAutoMode || !_hasTeam) return;
+    final active          = _activePool;
+    final challengerCands = _computeSuggestions(fromPool: active);
     final newChallenger   = challengerCands.isNotEmpty ? challengerCands.first : <DoghousePlayer>[];
-    final upNextPool      = _pool
+    final upNextPool      = active
         .where((p) => !newChallenger.any((c) => c.id == p.id))
         .toList();
     _candidates     = _computeSuggestions(fromPool: upNextPool);
     _candidateIndex = 0;
     setState(() => _challengerTeam = newChallenger);
+    _updateAdminHandoffCheck();
   }
 
+  // Updates Up Next candidates after the challenger team is already known.
   void _recomputeUpNext() {
-    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
-    final upNextPool = _pool
+    if (!_isAutoMode) return;
+    final upNextPool = _activePool
         .where((p) => !_challengerTeam.any((c) => c.id == p.id))
         .toList();
     setState(() {
       _candidates     = _computeSuggestions(fromPool: upNextPool);
       _candidateIndex = 0;
     });
+    _updateAdminHandoffCheck();
   }
 
   void _reroll() {
@@ -255,9 +364,11 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _startTeam(List<DoghousePlayer> players) {
     final s = _sessionTimerKey.currentState;
+    var startedTimer = false;
     if (s != null && s.timerState == ScrambleTimerState.idle) {
       s.start();
-      setState(() => _timerRunning = true);
+      startedTimer = true;
+      noteTimerStartedExternally();
     }
     _gameWatch
       ..reset()
@@ -272,6 +383,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       _currentGamesLost = 0;
       _challengerTeam   = [];
     });
+    if (startedTimer) persistTimerState();
   }
 
   // Returns all possible teams from pool, sorted by best mixup then longest wait.
@@ -364,10 +476,119 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   }
 
   void _rotateChallengers() {
-    if (_t.assignmentMode != DoghouseAssignmentMode.automated) return;
+    if (!_isAutoMode) return;
     if (_currentSuggestion.length != _t.playersPerTeam) return;
     setState(() => _challengerTeam = List.from(_currentSuggestion));
     _recomputeUpNext();
+  }
+
+  // ── Challenger ejection (queued, not-yet-on-court team) ───────────────────
+  // Distinct from _endGame: no DoghouseGame is recorded, since the challenger
+  // never actually played. We promote the already-displayed Up Next team into
+  // the Challenger slot (rather than re-ranking the pool, which would
+  // deterministically re-select the same team we just ejected).
+
+  bool get _canEjectChallenger =>
+      _isAutoMode &&
+      _challengerTeam.length == _t.playersPerTeam &&
+      _currentSuggestion.length == _t.playersPerTeam;
+
+  bool get _canUndoEjectChallenger => _challengerEject.canUndo;
+
+  void _ejectChallenger() {
+    if (!_canEjectChallenger) return;
+    final promoted = _challengerEject.eject(
+        current: _challengerTeam,
+        promoted: _currentSuggestion,
+        teamSize: _t.playersPerTeam);
+    if (promoted == null) return; // no full alternate to bring in
+    setState(() => _challengerTeam = promoted);
+    // Rebuild Up Next from the pool minus the new challenger. The ejected team
+    // stays in the pool and is eligible to reappear as Up Next, so repeated
+    // ejects cycle between teams (challengers can change at any time).
+    _recomputeUpNext();
+  }
+
+  void _undoEjectChallenger() {
+    final restored = _challengerEject.undo();
+    if (restored == null) return;
+    setState(() => _challengerTeam = restored);
+    _recomputeUpNext();
+  }
+
+  // ── Mid-game config edits (assignment mode / escape points / loss limit /
+  // team size) ────────────────────────────────────────────────────────────
+
+  void _changeAssignmentMode(DoghouseAssignmentMode mode) {
+    if (mode == _t.assignmentMode) return;
+    setState(() {
+      _t = _t.copyWith(assignmentMode: mode);
+      _challengerEject.clear();
+      _pendingSelection = [];
+      if (mode == DoghouseAssignmentMode.automatedAllPlay) {
+        // Scorekeeper must come from OFF-court players (the pool), never
+        // someone already on court — mirrors the admin/handoff design.
+        if (_adminPlayerId == null && _pool.isNotEmpty) {
+          _adminPlayerId = _pickFairestAdmin(_pool)?.id;
+        }
+      } else {
+        _adminPlayerId     = null;
+        _nextAdminPlayerId = null;
+      }
+      if (!_isAutoMode) {
+        _challengerTeam = [];
+        _candidates     = [];
+        _candidateIndex = 0;
+      }
+    });
+    // Rebuild suggestions now that _t (and the admin exclusion) reflect the
+    // new mode. Guards inside these helpers no-op outside auto mode.
+    if (_isAutoMode) {
+      if (_hasTeam) {
+        _recomputeChallenger();
+      } else {
+        setState(_initSuggestion);
+      }
+    }
+    _persist();
+  }
+
+  void _changeEscapePoints(int value) {
+    final v = value.clamp(1, 999);
+    if (v == _t.escapePoints) return;
+    setState(() => _t = _t.copyWith(escapePoints: v));
+    _persist();
+    if (_hasTeam && !_isCompleted && _escapeReached) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _showEscapeDialog());
+    }
+  }
+
+  void _changeLossLimit(int value) {
+    final v = value.clamp(1, 999);
+    if (v == _t.lossLimit) return;
+    setState(() => _t = _t.copyWith(lossLimit: v));
+    _persist();
+    if (_hasTeam && !_isCompleted && _ejectReached) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _showAutoEjectDialog());
+    }
+  }
+
+  void _changeTeamSize(int n) {
+    final v = n.clamp(2, 6);
+    if (v == _t.playersPerTeam) return;
+    setState(() => _t = _t.copyWith(playersPerTeam: v));
+    // Applies to future teams only: the team in the doghouse keeps its size
+    // until it next rotates out. Rebuild challenger / Up Next at the new size.
+    if (_isAutoMode) {
+      if (_hasTeam) {
+        _recomputeChallenger();
+      } else {
+        setState(_initSuggestion);
+      }
+    }
+    _persist();
   }
 
   void _addGameLost() {
@@ -395,7 +616,6 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
 
   void _endGame({required bool escaped}) {
     if (!_hasTeam) return;
-    final remaining = _sessionTimerKey.currentState?.remaining;
     final game = DoghouseGame(
       id:        DoghouseGame.generateId(),
       playerIds: _teamPlayers.map((p) => p.id).toList(),
@@ -404,30 +624,36 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       gamesWon:  escaped ? 1 : 0,
       startTime: DateTime.now().subtract(_gameWatch.elapsed),
       endTime:   DateTime.now(),
+      adminPlayerId: _isAllPlay ? _adminPlayerId : null,
     );
 
     _t = _t.copyWith(
-      status:           DoghouseTournamentStatus.inProgress,
-      games:            [..._t.games, game],
-      remainingSeconds: remaining?.inSeconds,
+      status: DoghouseTournamentStatus.inProgress,
+      games:  [..._t.games, game],
     );
-    _persist();
+    // Snapshot + re-anchor the session timer (it keeps running through an eject).
+    persistTimerState();
 
     _gameWatch
       ..stop()
       ..reset();
 
-    if (_t.assignmentMode == DoghouseAssignmentMode.automated &&
-        _challengerTeam.length == _t.playersPerTeam) {
+    if (_isAutoMode && _challengerTeam.length == _t.playersPerTeam) {
       // Transition: Challengers → Dogs, Up Next → Challengers, compute new Up Next.
       final nextDogs       = List<DoghousePlayer>.from(_challengerTeam);
       final nextChallenger = List<DoghousePlayer>.from(_currentSuggestion);
+      // Hand off admin before starting next team so _activePool excludes the new admin.
+      if (_isAllPlay && _nextAdminPlayerId != null) {
+        _adminPlayerId     = _nextAdminPlayerId;
+        _nextAdminPlayerId = null;
+      }
       setState(() {
         _teamPlayers      = [];
         _pendingSelection = [];
         _currentSideOuts  = 0;
         _currentGamesLost = 0;
         _challengerTeam   = [];
+        _challengerEject.clear();
       });
       _startTeam(nextDogs);
       if (nextChallenger.length == _t.playersPerTeam) {
@@ -446,6 +672,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         _currentSideOuts  = 0;
         _currentGamesLost = 0;
         _challengerTeam   = [];
+        _challengerEject.clear();
       });
       _initSuggestion();
     }
@@ -473,7 +700,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     _persist();
 
     _gameWatch.reset();
-    if (_timerRunning) _gameWatch.start();
+    if (timerRunning) _gameWatch.start();
 
     setState(() {
       _teamPlayers      = restoredPlayers;
@@ -484,6 +711,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       _currentSideOuts  = lastGame.points;
       _currentGamesLost = lastGame.gamesLost;
       _challengerTeam   = [];
+      _challengerEject.clear();
     });
     _recomputeChallenger();
   }
@@ -786,7 +1014,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               onPressed: () {
                 Navigator.of(ctx).pop();
                 _endGame(escaped: true);
-                if (_timerRunning) _gameWatch.start();
+                if (timerRunning) _gameWatch.start();
               },
             ),
           ),
@@ -857,7 +1085,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               onPressed: () {
                 Navigator.of(ctx).pop();
                 _endGame(escaped: false);
-                if (_timerRunning) _gameWatch.start();
+                if (timerRunning) _gameWatch.start();
               },
             ),
           ),
@@ -876,16 +1104,20 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     _t = _t.copyWith(
       status:           DoghouseTournamentStatus.completed,
       remainingSeconds: remaining?.inSeconds,
+      clearTimerAnchor: true,
     );
     _persist();
-    setState(() => _timerRunning = false);
+    markSessionTimerStopped();
     _showSummaryDialog().then((_) {
       if (mounted) Navigator.of(context).pop();
     });
   }
 
   void _undoCompletion() {
-    _t = _t.copyWith(status: DoghouseTournamentStatus.inProgress, clearRemainingSeconds: true);
+    _t = _t.copyWith(
+        status: DoghouseTournamentStatus.inProgress,
+        clearRemainingSeconds: true,
+        clearTimerAnchor: true);
     _persist();
     setState(() {});
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -925,9 +1157,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
       );
       if (ok != true) return;
     }
-    final remaining = _sessionTimerKey.currentState?.remaining;
-    _t = _t.copyWith(remainingSeconds: remaining?.inSeconds);
-    _persist();
+    persistTimerState();
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -1302,11 +1532,20 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           const SizedBox(height: 10),
           if (_isCompleted)
             _buildCompletedBanner()
-          else if (_hasTeam && _t.assignmentMode == DoghouseAssignmentMode.automated) ...[
+          else if (_hasTeam && _isAutoMode) ...[
             // Three-slot automated layout: Up Next → Challengers → Dogs
             _buildUpNextTile(),
             const SizedBox(height: 8),
-            _buildChallengersTile(),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 4, child: _buildChallengersTile()),
+                  const SizedBox(width: 8),
+                  Expanded(flex: 1, child: _buildChallengerEjectColumn()),
+                ],
+              ),
+            ),
             const SizedBox(height: 8),
             IntrinsicHeight(
               child: Row(
@@ -1318,6 +1557,10 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 ],
               ),
             ),
+            if (_isAllPlay) ...[
+              const SizedBox(height: 8),
+              _buildAdminTile(),
+            ],
           ] else if (_hasTeam)
             IntrinsicHeight(
               child: Row(
@@ -1329,8 +1572,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                 ],
               ),
             )
-          else
+          else ...[
             _buildSelectionTile(),
+            if (_isAllPlay) ...[
+              const SizedBox(height: 8),
+              _buildAdminTile(),
+            ],
+          ],
           if (_canUndo) ...[
             const SizedBox(height: 10),
             _buildUndoButton(),
@@ -1357,36 +1605,37 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               const SizedBox(width: 4),
               ScrambleTimerWidget(
                 key: _sessionTimerKey,
-                initial: Duration(
-                    seconds: _t.remainingSeconds ??
-                        _t.totalTime.inSeconds),
+                initial: timerInitialRemaining ??
+                    Duration(
+                        seconds: _t.remainingSeconds ??
+                            _t.totalTime.inSeconds),
                 mode: ScrambleTimerMode.countdown,
-                autoStart: false,
+                autoStart: timerRunning,
                 compact: true,
                 onTick: (_) => setState(() {}),
                 onFinished: _onSessionFinished,
               ),
               const SizedBox(width: 8),
-              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
+              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+                _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
+                    resumeTimer, primary: true),
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer),
               const SizedBox(width: 4),
               _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
-                  _startOrRestart,
-                  primary: true),
+                  _startOrRestart),
               const SizedBox(width: 4),
               _refTextBtn('+30s',
-                  () => _sessionTimerKey.currentState
-                      ?.addTime(const Duration(seconds: 30))),
+                  () => addSessionTime(const Duration(seconds: 30))),
               const SizedBox(width: 4),
               _refTextBtn('−30s',
-                  () => _sessionTimerKey.currentState
-                      ?.addTime(const Duration(seconds: -30))),
+                  () => addSessionTime(const Duration(seconds: -30))),
               const Spacer(),
               optionsButton,
             ],
           ),
           const SizedBox(height: 4),
           Expanded(
-            child: _hasTeam && _t.assignmentMode == DoghouseAssignmentMode.automated
+            child: _hasTeam && _isAutoMode
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -1403,10 +1652,22 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      // Column 2: Dogs + Score
+                      // Challenger eject (focal) + Undo (secondary)
+                      SizedBox(width: 56, child: _buildChallengerEjectColumn()),
+                      const SizedBox(width: 6),
+                      // Column 2: Dogs + Score, Admin tile below (allPlay only)
                       Expanded(
                         flex: 3,
-                        child: _buildActiveScoringTile(compact: true),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: _buildActiveScoringTile(compact: true)),
+                            if (_isAllPlay) ...[
+                              const SizedBox(height: 6),
+                              _buildAdminTile(),
+                            ],
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 6),
                       // Column 3: Game Lost (2/3) + Undo (1/3) when available
@@ -1603,6 +1864,60 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     );
   }
 
+  // ── Narrow challenger eject button + column (mirrors the game-lost column) ─
+
+  Widget _buildChallengerEjectColumn() {
+    final l10n = AppLocalizations.of(context)!;
+    return ChallengerEjectColumn(
+      canEject: _canEjectChallenger,
+      onEject: _ejectChallenger,
+      canUndo: _canUndoEjectChallenger,
+      onUndo: _undoEjectChallenger,
+      ejectLabel: l10n.kotcEjectChallengerShort,
+      undoLabel: l10n.kotcUndoEjectChallenger,
+    );
+  }
+
+  // ── Admin tile (automatedAllPlay only) ────────────────────────────────────
+
+  Widget _buildAdminTile() {
+    final admin     = _t.players.where((p) => p.id == _adminPlayerId).firstOrNull;
+    final nextAdmin = _t.players.where((p) => p.id == _nextAdminPlayerId).firstOrNull;
+    return AdminRotationTile(
+      adminName: admin?.name,
+      nextAdminName: nextAdmin?.name,
+      adminTag: AppLocalizations.of(context)!.kotcAdminTag,
+      onTap: _showAdminOverrideSheet,
+    );
+  }
+
+  void _showAdminOverrideSheet() {
+    if (!_isAllPlay) return;
+    final l10n = AppLocalizations.of(context)!;
+    showAdminOverrideSheet(
+      context: context,
+      title: l10n.kotcChangeAdmin,
+      subtitle: l10n.kotcChangeAdminSubtitle,
+      pool: _pool.map((p) => (id: p.id, name: p.name)).toList(),
+      currentAdminId: _adminPlayerId,
+      onSetAdmin: (id) {
+        setState(() => _adminPlayerId = id);
+        if (_hasTeam) {
+          _recomputeChallenger();
+        } else {
+          _initSuggestion();
+        }
+      },
+      onCourtTeam: _hasTeam
+          ? _teamPlayers.map((p) => (id: p.id, name: p.name)).toList()
+          : null,
+      nextAdminId: _hasTeam ? _nextAdminPlayerId : null,
+      nextAdminLabel: l10n.kotcNextAdmin,
+      nextAdminNote: l10n.kotcNextAdminNote,
+      onSetNextAdmin: (id) => setState(() => _nextAdminPlayerId = id),
+    );
+  }
+
   // ── Session timer row ─────────────────────────────────────────────────────
 
   Widget _buildSessionTimerRow() {
@@ -1631,11 +1946,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             const Spacer(),
             ScrambleTimerWidget(
               key: _sessionTimerKey,
-              initial: Duration(
-                  seconds: _t.remainingSeconds ??
-                      _t.totalTime.inSeconds),
+              initial: timerInitialRemaining ??
+                  Duration(
+                      seconds: _t.remainingSeconds ??
+                          _t.totalTime.inSeconds),
               mode: ScrambleTimerMode.countdown,
-              autoStart: false,
+              autoStart: timerRunning,
               compact: true,
               onTick: (_) => setState(() {}),
               onFinished: _onSessionFinished,
@@ -1649,16 +1965,14 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             children: [
               if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
                 _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
-                    _resumeTimer, primary: true),
-              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, _pauseTimer),
+                    resumeTimer, primary: true),
+              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer),
               _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
                   _startOrRestart),
               _refTextBtn('+30s',
-                  () => _sessionTimerKey.currentState
-                      ?.addTime(const Duration(seconds: 30))),
+                  () => addSessionTime(const Duration(seconds: 30))),
               _refTextBtn('−30s',
-                  () => _sessionTimerKey.currentState
-                      ?.addTime(const Duration(seconds: -30))),
+                  () => addSessionTime(const Duration(seconds: -30))),
             ],
           ),
         ],
@@ -1736,7 +2050,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               Icon(Icons.schedule_rounded,
                   size: 15, color: _kGold.withValues(alpha: 0.7)),
               const SizedBox(width: 6),
-              Text('Up Next',
+              Text(AppLocalizations.of(context)!.kotcUpNext,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -1747,8 +2061,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
               TextButton.icon(
                 onPressed: canReroll ? _reroll : null,
                 icon: const Icon(Icons.refresh_rounded, size: 13),
-                label: const Text('Re-roll',
-                    style: TextStyle(fontSize: 11)),
+                label: Text(AppLocalizations.of(context)!.quickStartReRoll,
+                    style: const TextStyle(fontSize: 11)),
                 style: TextButton.styleFrom(
                   foregroundColor: _kOlive,
                   disabledForegroundColor: Colors.black26,
@@ -1761,7 +2075,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             ]),
             const SizedBox(height: 8),
             if (!hasTeam)
-              Text('Not enough players in queue.',
+              Text(AppLocalizations.of(context)!.doghouseNotEnoughInQueue,
                   style: TextStyle(
                       color: _kGold.withValues(alpha: 0.5), fontSize: 12))
             else
@@ -1814,8 +2128,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             Row(children: [
               const Icon(Icons.groups_rounded, size: 15, color: _kGold),
               const SizedBox(width: 6),
-              const Text('Challengers',
-                  style: TextStyle(
+              Text(AppLocalizations.of(context)!.kotcChallengers,
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _kGold,
@@ -1824,7 +2138,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
             ]),
             const SizedBox(height: 8),
             if (!hasChallengers)
-              Text('Waiting for players...',
+              Text(AppLocalizations.of(context)!.kotcWaitingForPlayers,
                   style: TextStyle(
                       color: _kGold.withValues(alpha: 0.5), fontSize: 12))
             else
@@ -1959,7 +2273,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
   }
 
   Widget _buildSelectionTile({bool compact = false}) {
-    if (_t.assignmentMode == DoghouseAssignmentMode.automated) {
+    if (_isAutoMode) {
       return _buildAutomatedSuggestionTile(compact: compact);
     }
     final needed   = _t.playersPerTeam;
@@ -2128,12 +2442,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
           mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
           children: [
             // "In Doghouse" label — only shown in three-slot automated layout
-            if (_t.assignmentMode == DoghouseAssignmentMode.automated) ...[
+            if (_isAutoMode) ...[
               Row(children: [
                 const Icon(Icons.pets_rounded, size: 13, color: _kGold),
                 const SizedBox(width: 5),
-                const Text('In Doghouse',
-                    style: TextStyle(
+                Text(AppLocalizations.of(context)!.doghouseInDoghouseLabel,
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: _kGold,
@@ -2296,16 +2610,16 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   icon: const Icon(Icons.remove),
                   tooltip: '−1 side-out',
                   onPressed:
-                      (_timerRunning && _currentSideOuts > 0)
+                      (timerRunning && _currentSideOuts > 0)
                           ? _removeSideOut
                           : null,
                   style: IconButton.styleFrom(
                     backgroundColor:
-                        (_timerRunning && _currentSideOuts > 0)
+                        (timerRunning && _currentSideOuts > 0)
                             ? _kGold
                             : Colors.grey.shade300,
                     foregroundColor:
-                        (_timerRunning && _currentSideOuts > 0)
+                        (timerRunning && _currentSideOuts > 0)
                             ? Colors.white
                             : Colors.grey,
                     fixedSize: const Size(52, 52),
@@ -2315,12 +2629,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
                   icon: const Icon(Icons.add),
                   tooltip: '+1 side-out',
                   onPressed:
-                      _timerRunning ? _addSideOut : null,
+                      timerRunning ? _addSideOut : null,
                   style: IconButton.styleFrom(
-                    backgroundColor: _timerRunning
+                    backgroundColor: timerRunning
                         ? _kGold
                         : Colors.grey.shade300,
-                    foregroundColor: _timerRunning
+                    foregroundColor: timerRunning
                         ? Colors.white
                         : Colors.grey,
                     fixedSize: const Size(64, 64),
@@ -2340,44 +2654,50 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Info chips — tap to edit config mid-game
         Wrap(
           spacing: 8,
           runSpacing: 6,
           children: [
-            _chip(Icons.pets_rounded, _t.name, _kOliveLight, _kOlive),
-            _chip(Icons.grid_view_rounded,
-                '${_t.playersPerTeam}v${_t.playersPerTeam}',
-                Colors.grey.shade100, Colors.black45),
-            _chip(Icons.people_rounded,
-                AppLocalizations.of(context)!.doghouseStatsPlayers(_t.playerCount),
-                Colors.grey.shade100, Colors.black45),
-            _chip(Icons.celebration_rounded,
-                AppLocalizations.of(context)!.doghouseEscapePointsLabel(_t.escapePoints),
-                _kGoldLight, _kGold),
-            _chip(Icons.sentiment_very_dissatisfied_rounded,
-                AppLocalizations.of(context)!.doghouseLossLimitLabel(_t.lossLimit),
-                Colors.red.shade50, Colors.red.shade400),
+            InfoChip(
+                icon: Icons.pets_rounded,
+                label: _t.name,
+                bg: _kOliveLight,
+                fg: _kOlive),
+            InfoChip(
+                icon: Icons.tune_rounded,
+                label: _assignmentModeLabel(AppLocalizations.of(context)!),
+                bg: _kOliveLight,
+                fg: _kOlive,
+                onTap: _showModeEditSheet),
+            InfoChip(
+                icon: Icons.grid_view_rounded,
+                label: '${_t.playersPerTeam}v${_t.playersPerTeam}',
+                bg: Colors.grey.shade100,
+                fg: Colors.black45,
+                onTap: _showTeamSizeEditSheet),
+            InfoChip(
+                icon: Icons.people_rounded,
+                label: AppLocalizations.of(context)!.doghouseStatsPlayers(_t.playerCount),
+                bg: Colors.grey.shade100,
+                fg: Colors.black45,
+                onTap: _showPlayersSheet,
+                trailingIcon: Icons.chevron_right_rounded),
+            InfoChip(
+                icon: Icons.celebration_rounded,
+                label: AppLocalizations.of(context)!.doghouseEscapePointsLabel(_t.escapePoints),
+                bg: _kGoldLight,
+                fg: _kGold,
+                onTap: _showEscapePointsEditSheet),
+            InfoChip(
+                icon: Icons.sentiment_very_dissatisfied_rounded,
+                label: AppLocalizations.of(context)!.doghouseLossLimitLabel(_t.lossLimit),
+                bg: Colors.red.shade50,
+                fg: Colors.red.shade400,
+                onTap: _showLossLimitEditSheet),
           ],
         ),
-        const SizedBox(height: 12),
-
-        OutlinedButton.icon(
-          onPressed: _showPlayersSheet,
-          icon: const Icon(Icons.group_rounded, size: 18),
-          label: Text(
-            AppLocalizations.of(context)!.sectionPlayersCount(_t.players.length),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: _kOlive,
-            side: BorderSide(color: Colors.grey.shade300),
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-
-        const Divider(height: 20),
+        const Divider(height: 24),
 
         if (_isCompleted)
           OutlinedButton.icon(
@@ -2444,22 +2764,73 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage> {
         if (trailing != null) ...[const Spacer(), trailing],
       ]);
 
-  Widget _chip(IconData icon, String label, Color bg, Color fg) =>
-      Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-            color: bg, borderRadius: BorderRadius.circular(20)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 11, color: fg),
-          const SizedBox(width: 3),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: fg,
-                  fontWeight: FontWeight.w600)),
-        ]),
-      );
+  String _assignmentModeLabel(AppLocalizations l10n) =>
+      switch (_t.assignmentMode) {
+        DoghouseAssignmentMode.manual => l10n.doghouseAssignmentManual,
+        DoghouseAssignmentMode.automated => l10n.doghouseAssignmentAutomated,
+        DoghouseAssignmentMode.automatedAllPlay => l10n.setupFormatAutoAllplay,
+      };
+
+  // ── Mid-game config edit sheets ───────────────────────────────────────────
+
+  Future<void> _showModeEditSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final v = await showEnumPickerSheet<DoghouseAssignmentMode>(
+      context: context,
+      title: l10n.labelAssignment,
+      helpText: l10n.kotcSetupAssignmentHelp,
+      initialValue: _t.assignmentMode,
+      items: [
+        DropdownMenuItem(
+            value: DoghouseAssignmentMode.manual,
+            child: Text(l10n.doghouseAssignmentManual)),
+        DropdownMenuItem(
+            value: DoghouseAssignmentMode.automated,
+            child: Text(l10n.doghouseAssignmentAutomated)),
+        DropdownMenuItem(
+            value: DoghouseAssignmentMode.automatedAllPlay,
+            child: Text(l10n.setupFormatAutoAllplay)),
+      ],
+    );
+    if (v != null) _changeAssignmentMode(v);
+  }
+
+  Future<void> _showTeamSizeEditSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final v = await showTeamSizeSheet(
+      context: context,
+      title: l10n.kotcSetupStyleLabel,
+      helpText: l10n.kotcTeamSizeChangeNote,
+      initialValue: _t.playersPerTeam,
+    );
+    if (v != null) _changeTeamSize(v);
+  }
+
+  Future<void> _showEscapePointsEditSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final v = await showNumericStepperSheet(
+      context: context,
+      title: l10n.labelEscapePoints,
+      helpText: l10n.doghouseEscapePointsHelp,
+      initialValue: _t.escapePoints,
+      presets: const [1, 2, 3, 5, 7, 10],
+      min: 1,
+    );
+    if (v != null) _changeEscapePoints(v);
+  }
+
+  Future<void> _showLossLimitEditSheet() async {
+    final l10n = AppLocalizations.of(context)!;
+    final v = await showNumericStepperSheet(
+      context: context,
+      title: l10n.labelLossLimit,
+      helpText: l10n.doghouseLossLimitHelp,
+      initialValue: _t.lossLimit,
+      presets: const [1, 2, 3, 5, 7, 10],
+      min: 1,
+    );
+    if (v != null) _changeLossLimit(v);
+  }
 
   Widget _refBtn(
     IconData icon,

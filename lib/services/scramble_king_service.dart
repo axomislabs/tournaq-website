@@ -160,6 +160,73 @@ class ScrambleKingService {
     );
   }
 
+  /// Appends new rounds or drops trailing untouched rounds so the tournament
+  /// has exactly [newCount] rounds — mid-tournament editing of the round
+  /// count from the overview. Never drops a round that already has stints
+  /// or a started court; [newCount] is silently clamped up to at least that
+  /// many. Appended rounds reuse the tournament's configured match/break
+  /// duration, are scheduled back-to-back after the last existing round,
+  /// and are seeded from every existing round's fairness matrices (so
+  /// pairing continuity carries over exactly like [rebuildRemainingRounds]).
+  static ScrambleKingTournament setRoundCount(
+    ScrambleKingTournament tournament,
+    int newCount,
+  ) {
+    final sortedRounds = tournament.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+
+    var touchedCount = sortedRounds.length;
+    for (var i = 0; i < sortedRounds.length; i++) {
+      final round = sortedRounds[i];
+      final untouched = tournament.getStintsForRound(round.id).isEmpty &&
+          round.courts.every((c) => c.actualStartTime == null);
+      if (untouched) {
+        touchedCount = i;
+        break;
+      }
+    }
+    final clampedCount = max(newCount, touchedCount);
+
+    if (clampedCount <= sortedRounds.length) {
+      return tournament.copyWith(
+        roundCount: clampedCount,
+        rounds: sortedRounds.sublist(0, clampedCount),
+      );
+    }
+
+    final activePlayers = tournament.players.where((p) => p.isActive).toList();
+    final matrices = _Matrices(activePlayers);
+    for (final round in sortedRounds) {
+      matrices.applyCourts(round.courts);
+    }
+
+    var cursor =
+        sortedRounds.isNotEmpty ? sortedRounds.last.scheduledBreakEndTime : tournament.startTime;
+
+    final newRounds = <ScrambleKingRound>[];
+    for (var i = sortedRounds.length; i < clampedCount; i++) {
+      final courts = _buildCourtsForRound(
+        activePlayers: activePlayers,
+        courtCount: tournament.courtCount,
+        matrices: matrices,
+      );
+      newRounds.add(ScrambleKingRound(
+        id: ScrambleKingRound.generateId(),
+        roundNumber: i + 1,
+        scheduledStartTime: cursor,
+        matchDuration: tournament.matchDuration,
+        breakDuration: tournament.breakDuration,
+        courts: courts,
+      ));
+      cursor = cursor.add(tournament.matchDuration + tournament.breakDuration);
+    }
+
+    return tournament.copyWith(
+      roundCount: clampedCount,
+      rounds: [...sortedRounds, ...newRounds],
+    );
+  }
+
   // ── Schedule reflow ───────────────────────────────────────────────────────
   // Copies of ScrambleService's two reflow functions, adapted to
   // ScrambleKingRound's field names.
@@ -233,9 +300,14 @@ class ScrambleKingService {
         players: rest,
         matrices: matrices,
       )..shuffle(_rng);
-      // Fun, per-court-unique team names (reuses Social Scramble's word pool).
-      final names = ScrambleTeamNames.unique(
-          rawSlots.map((s) => s.playerIds).toList());
+      // Fun, per-court-unique team names (reuses Social Scramble's word
+      // pool) — the odd player gets one too, since they're a normal scoring
+      // team like everyone else.
+      final nameGroups = [
+        ...rawSlots.map((s) => s.playerIds),
+        if (floater != null) [floater.id],
+      ];
+      final names = ScrambleTeamNames.unique(nameGroups);
       final teamSlots = [
         for (var t = 0; t < rawSlots.length; t++)
           ScrambleKingTeamSlot(
@@ -248,6 +320,7 @@ class ScrambleKingService {
           ? ScrambleKingFloaterSlot(
               slotId: ScrambleKingFloaterSlot.generateId(),
               playerId: floater.id,
+              teamName: names.last,
             )
           : null;
       courts.add(ScrambleKingCourtFormation(
@@ -470,22 +543,6 @@ class ScrambleKingService {
     return ranked;
   }
 
-  /// Whether [slotId] would be the top-ranked pick if it were included among
-  /// [queueSlotIds] right now — used to tell whether a currently-excluded
-  /// referee slot needs to rotate back in to keep the queue fair.
-  static bool wouldRankFirst({
-    required String slotId,
-    required List<String> queueSlotIds,
-    required String? onCourtSlotId,
-    required List<ScrambleKingStint> courtStints,
-  }) {
-    final ranked = rankQueue(
-        queueSlotIds: [...queueSlotIds, slotId],
-        onCourtSlotId: onCourtSlotId,
-        courtStints: courtStints);
-    return ranked.isNotEmpty && ranked.first == slotId;
-  }
-
   static Map<String, int> _turnAdjacencyCounts(List<ScrambleKingStint> courtStints) {
     final counts = <String, int>{};
     for (var i = 0; i < courtStints.length - 1; i++) {
@@ -518,17 +575,6 @@ class ScrambleKingService {
 
   // ── Odd-player floater temp-partner resolution ───────────────────────────
 
-  /// Placeholder mode: a uniformly random member of a uniformly random
-  /// other queued team.
-  static ({String playerId, String teamSlotId})? pickPlaceholderPartner({
-    required List<ScrambleKingTeamSlot> otherQueuedTeams,
-  }) {
-    if (otherQueuedTeams.isEmpty) return null;
-    final team = otherQueuedTeams[_rng.nextInt(otherQueuedTeams.length)];
-    final playerId = team.playerIds[_rng.nextInt(team.playerIds.length)];
-    return (playerId: playerId, teamSlotId: team.slotId);
-  }
-
   /// Jumper mode: the eligible candidate with the fewest stints played this
   /// round so far (fairness), ties broken by shuffle order.
   static ({String playerId, String teamSlotId})? pickJumperPartner({
@@ -556,7 +602,8 @@ class ScrambleKingService {
 
   /// Derives the ranked scorecard for one (round, court): each team's
   /// auto-computed points (summed from stints crediting that team) with any
-  /// manual override applied, ranked highest-points first.
+  /// manual override applied, ranked highest-points first. The odd player's
+  /// team (if any) is included exactly like any other team.
   static ScrambleKingCourtRoundResult computeCourtRoundResult(
     ScrambleKingTournament tournament,
     String roundId,
@@ -566,15 +613,19 @@ class ScrambleKingService {
     final formation = round.getCourt(courtNumber)!;
     final stints = tournament.getStintsForCourt(roundId, courtNumber);
 
-    final autoPoints = <String, int>{
-      for (final slot in formation.teamSlots) slot.slotId: 0,
+    final slotIds = [
+      ...formation.teamSlots.map((s) => s.slotId),
+      if (formation.floaterSlot != null) formation.floaterSlot!.slotId,
+    ];
+    final slotPlayerIds = {
+      for (final s in formation.teamSlots) s.slotId: s.playerIds,
+      if (formation.floaterSlot != null)
+        formation.floaterSlot!.slotId: [formation.floaterSlot!.playerId],
     };
-    final autoGamesWon = <String, int>{
-      for (final slot in formation.teamSlots) slot.slotId: 0,
-    };
-    final gamesPlayed = <String, int>{
-      for (final slot in formation.teamSlots) slot.slotId: 0,
-    };
+
+    final autoPoints = <String, int>{for (final id in slotIds) id: 0};
+    final autoGamesWon = <String, int>{for (final id in slotIds) id: 0};
+    final gamesPlayed = <String, int>{for (final id in slotIds) id: 0};
     for (final stint in stints) {
       autoPoints[stint.creditSlotId] =
           (autoPoints[stint.creditSlotId] ?? 0) + stint.points;
@@ -583,15 +634,15 @@ class ScrambleKingService {
       gamesPlayed[stint.creditSlotId] = (gamesPlayed[stint.creditSlotId] ?? 0) + 1;
     }
 
-    final results = formation.teamSlots
-        .map((slot) => ScrambleKingTeamResult(
-              slotId: slot.slotId,
-              playerIds: slot.playerIds,
-              autoPoints: autoPoints[slot.slotId] ?? 0,
-              manualPoints: formation.manualTeamPoints[slot.slotId],
-              autoGamesWon: autoGamesWon[slot.slotId] ?? 0,
-              manualGamesWon: formation.manualGamesWon[slot.slotId],
-              gamesPlayed: gamesPlayed[slot.slotId] ?? 0,
+    final results = slotIds
+        .map((id) => ScrambleKingTeamResult(
+              slotId: id,
+              playerIds: slotPlayerIds[id]!,
+              autoPoints: autoPoints[id] ?? 0,
+              manualPoints: formation.manualTeamPoints[id],
+              autoGamesWon: autoGamesWon[id] ?? 0,
+              manualGamesWon: formation.manualGamesWon[id],
+              gamesPlayed: gamesPlayed[id] ?? 0,
             ))
         .toList()
       ..sort((a, b) {
@@ -612,10 +663,9 @@ class ScrambleKingService {
 
   // ── Stats ─────────────────────────────────────────────────────────────────
 
-  /// Cross-round individual ranking: every player is credited their fixed
-  /// team's round total for every round they had a named team (a floater
-  /// never appears in any team's playerIds, so they structurally never earn
-  /// individual credit — see the model's ScrambleKingStint.creditSlotId doc).
+  /// Cross-round individual ranking: every player is credited their team's
+  /// round total for every round they had a team — including the odd
+  /// player, whose team result row carries just their own id.
   static List<ScrambleKingPlayerStats> computeStats(ScrambleKingTournament t) {
     final statsMap = <String, ScrambleKingPlayerStats>{};
     for (final player in t.players) {

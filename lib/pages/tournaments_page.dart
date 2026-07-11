@@ -7,6 +7,7 @@ import '../utils/url_utils.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
+import '../services/scramble_king_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../models/player.dart';
 import '../models/team.dart';
@@ -18,6 +19,7 @@ import 'games_page.dart';
 import 'king_of_the_court_hub_page.dart';
 import 'ko_bracket_hub_page.dart';
 import 'scramble_hub_page.dart';
+import 'scramble_king_hub_page.dart';
 import 'tournament_history_page.dart';
 
 class TournamentsPage extends StatefulWidget {
@@ -36,19 +38,21 @@ class TournamentsPage extends StatefulWidget {
 
 class _TournamentsPageState extends State<TournamentsPage> {
   late AppState _localState;
-  int _scrambleCount  = 0;
-  int _kotcCount      = 0;
-  int _doghouseCount  = 0;
-  int _koBracketCount = 0;
+  int _scrambleCount    = 0;
+  int _kotcCount        = 0;
+  int _doghouseCount    = 0;
+  int _koBracketCount   = 0;
+  int _scrambleKingCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _localState      = widget.appState;
-    _scrambleCount   = ScrambleStorageService.loadAll().length;
-    _kotcCount       = KingOfTheCourtStorageService.loadAll().length;
-    _doghouseCount   = DoghouseStorageService.loadAll().length;
-    _koBracketCount  = KoBracketStorageService.loadAll().length;
+    _localState       = widget.appState;
+    _scrambleCount     = ScrambleStorageService.loadAll().length;
+    _kotcCount         = KingOfTheCourtStorageService.loadAll().length;
+    _doghouseCount     = DoghouseStorageService.loadAll().length;
+    _koBracketCount    = KoBracketStorageService.loadAll().length;
+    _scrambleKingCount = ScrambleKingStorageService.loadAll().length;
   }
 
   void _updateState(AppState s) {
@@ -86,11 +90,24 @@ class _TournamentsPageState extends State<TournamentsPage> {
 
   void _refreshCounts() {
     setState(() {
-      _scrambleCount  = ScrambleStorageService.loadAll().length;
-      _kotcCount      = KingOfTheCourtStorageService.loadAll().length;
-      _doghouseCount  = DoghouseStorageService.loadAll().length;
-      _koBracketCount = KoBracketStorageService.loadAll().length;
+      _scrambleCount     = ScrambleStorageService.loadAll().length;
+      _kotcCount         = KingOfTheCourtStorageService.loadAll().length;
+      _doghouseCount     = DoghouseStorageService.loadAll().length;
+      _koBracketCount    = KoBracketStorageService.loadAll().length;
+      _scrambleKingCount = ScrambleKingStorageService.loadAll().length;
     });
+  }
+
+  void _openScrambleKingHub() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+          builder: (_) => ScrambleKingHubPage(
+            existingPlayers: _localState.players,
+            existingGroups: _localState.groups,
+            onCreatePlayer: _createPlayer,
+          ),
+        ))
+        .then((_) => _refreshCounts());
   }
 
   void _openQuickGames() {
@@ -169,7 +186,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
   }
 
   Future<void> _deleteAllHistory() async {
-    final total = _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount;
+    final total = _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount + _scrambleKingCount;
     final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -206,6 +223,9 @@ class _TournamentsPageState extends State<TournamentsPage> {
     }
     for (final t in KoBracketStorageService.loadAll()) {
       await KoBracketStorageService.delete(t.id);
+    }
+    for (final t in ScrambleKingStorageService.loadAll()) {
+      await ScrambleKingStorageService.delete(t.id);
     }
     _refreshCounts();
   }
@@ -322,6 +342,17 @@ class _TournamentsPageState extends State<TournamentsPage> {
                 learnMoreUrl: AppLinks.modeDoghouse,
                 helpText:     l10n.modeDoghouseHelp,
               ),
+              _TypeTile(
+                icon:         Icons.military_tech_rounded,
+                color:        AppColors.gold,
+                gradientEnd:  AppColors.goldGradientEnd,
+                name:         l10n.modeScrambleKingName,
+                description:  l10n.modeScrambleKingDesc,
+                count:        _scrambleKingCount,
+                onTap:        _openScrambleKingHub,
+                learnMoreUrl: AppLinks.modeScrambleKing,
+                helpText:     l10n.modeScrambleKingHelp,
+              ),
             ]),
 
             // ── Team Competitions ──────────────────────────────────────
@@ -415,7 +446,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
               children: [
                 _sectionHeader(l10n.tournamentsSectionHistory, Icons.history_rounded),
                 const Spacer(),
-                if (_scrambleCount + _kotcCount + _doghouseCount + _koBracketCount > 0)
+                if (_scrambleCount + _kotcCount + _doghouseCount + _koBracketCount + _scrambleKingCount > 0)
                   TextButton(
                     onPressed: _deleteAllHistory,
                     style: TextButton.styleFrom(
@@ -429,7 +460,7 @@ class _TournamentsPageState extends State<TournamentsPage> {
             const SizedBox(height: 12),
             _HistoryShortcutTile(
               label: l10n.tournamentsAllLabel,
-              count: _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount,
+              count: _scrambleCount + _kotcCount + _doghouseCount + _koBracketCount + _scrambleKingCount,
               onTap: _openHistory,
             ),
             const SizedBox(height: 6),
@@ -463,6 +494,14 @@ class _TournamentsPageState extends State<TournamentsPage> {
               typeColor: AppColors.gold,
               typeIcon:  Icons.account_tree_rounded,
               onTap: () => _openHistory(filter: TournamentFilter.koBracket),
+            ),
+            const SizedBox(height: 6),
+            _HistoryShortcutTile(
+              label:     l10n.modeScrambleKingName,
+              count:     _scrambleKingCount,
+              typeColor: AppColors.gold,
+              typeIcon:  Icons.military_tech_rounded,
+              onTap: () => _openHistory(filter: TournamentFilter.scrambleKing),
             ),
           ],
         ),

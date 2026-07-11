@@ -77,6 +77,9 @@ class KotcGame {
   final int gamesWon;
   final DateTime startTime;
   final DateTime? endTime;
+  // Auto-All-Play only: the player who kept score for this game (null otherwise).
+  // Used to keep the admin/scorekeeper rotation fair across the session.
+  final String? adminPlayerId;
 
   const KotcGame({
     required this.id,
@@ -85,6 +88,7 @@ class KotcGame {
     this.gamesWon = 0,
     required this.startTime,
     this.endTime,
+    this.adminPlayerId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -94,6 +98,7 @@ class KotcGame {
         'gamesWon': gamesWon,
         'startTime': startTime.toIso8601String(),
         'endTime': endTime?.toIso8601String(),
+        'adminPlayerId': adminPlayerId,
       };
 
   factory KotcGame.fromJson(Map<String, dynamic> j) => KotcGame(
@@ -105,6 +110,7 @@ class KotcGame {
         endTime: j['endTime'] != null
             ? DateTime.parse(j['endTime'] as String)
             : null,
+        adminPlayerId: j['adminPlayerId'] as String?,
       );
 
   static String generateId() => _uuid.v4();
@@ -127,6 +133,10 @@ class KingOfTheCourtTournament {
   final String deviceId;
   // Persisted so the timer survives app restarts.
   final int? remainingSeconds;
+  // Wall-clock instant the countdown was last (re)started; non-null iff the
+  // timer is actively running. While running, [remainingSeconds] is the time
+  // left as of [timerAnchor], so the live value = remainingSeconds - (now - timerAnchor).
+  final DateTime? timerAnchor;
 
   KingOfTheCourtTournament({
     required this.id,
@@ -142,6 +152,7 @@ class KingOfTheCourtTournament {
     required this.createdAt,
     String? deviceId,
     this.remainingSeconds,
+    this.timerAnchor,
   }) : deviceId = deviceId ?? DeviceIdService.currentDeviceId;
 
   int get playerCount => players.where((p) => p.isActive).length;
@@ -179,27 +190,43 @@ class KingOfTheCourtTournament {
     return map;
   }
 
+  // How many games each player has kept score for (Auto-All-Play admin turns).
+  Map<String, int> get adminCountPerPlayer {
+    final map = <String, int>{};
+    for (final game in games) {
+      final admin = game.adminPlayerId;
+      if (admin != null) map[admin] = (map[admin] ?? 0) + 1;
+    }
+    return map;
+  }
+
   KingOfTheCourtTournament copyWith({
     KotcTournamentStatus? status,
     List<KotcPlayer>? players,
     List<KotcGame>? games,
     int? remainingSeconds,
     bool clearRemainingSeconds = false,
+    KotcAssignmentMode? assignmentMode,
+    int? strikePoints,
+    int? playersPerTeam,
+    DateTime? timerAnchor,
+    bool clearTimerAnchor = false,
   }) =>
       KingOfTheCourtTournament(
         id: id,
         name: name,
         totalTime: totalTime,
-        playersPerTeam: playersPerTeam,
+        playersPerTeam: playersPerTeam ?? this.playersPerTeam,
         courtCount: courtCount,
-        strikePoints: strikePoints,
-        assignmentMode: assignmentMode,
+        strikePoints: strikePoints ?? this.strikePoints,
+        assignmentMode: assignmentMode ?? this.assignmentMode,
         status: status ?? this.status,
         players: players ?? this.players,
         games: games ?? this.games,
         createdAt: createdAt,
         deviceId: deviceId,
         remainingSeconds: clearRemainingSeconds ? null : (remainingSeconds ?? this.remainingSeconds),
+        timerAnchor: clearTimerAnchor ? null : (timerAnchor ?? this.timerAnchor),
       );
 
   Map<String, dynamic> toJson() => {
@@ -216,6 +243,7 @@ class KingOfTheCourtTournament {
         'createdAt': createdAt.toIso8601String(),
         'deviceId': deviceId,
         'remainingSeconds': remainingSeconds,
+        'timerAnchor': timerAnchor?.toIso8601String(),
       };
 
   factory KingOfTheCourtTournament.fromJson(Map<String, dynamic> j) {
@@ -243,6 +271,9 @@ class KingOfTheCourtTournament {
       createdAt: DateTime.parse(j['createdAt'] as String),
       deviceId: j['deviceId'] as String? ?? '',
       remainingSeconds: j['remainingSeconds'] as int?,
+      timerAnchor: j['timerAnchor'] != null
+          ? DateTime.parse(j['timerAnchor'] as String)
+          : null,
     );
   }
 

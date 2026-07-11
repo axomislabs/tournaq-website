@@ -34,6 +34,28 @@ abstract final class ScrambleTeamNames {
     return (_names[idxA], _names[idxB]);
   }
 
+  /// Deterministic single-team name from a player-id list.
+  static String forTeam(List<String> ids) => _names[_hash(ids) % _names.length];
+
+  /// Assigns a distinct name to each team on a court. Names start from each
+  /// team's deterministic [forTeam] pick and linear-probe on collision so no
+  /// two teams in the same list share a name.
+  static List<String> unique(List<List<String>> teams) {
+    final used = <String>{};
+    final result = <String>[];
+    for (final ids in teams) {
+      var idx = _hash(ids) % _names.length;
+      var attempts = 0;
+      while (used.contains(_names[idx]) && attempts < _names.length) {
+        idx = (idx + 1) % _names.length;
+        attempts++;
+      }
+      used.add(_names[idx]);
+      result.add(_names[idx]);
+    }
+    return result;
+  }
+
   static int _hash(List<String> ids) {
     final key = ([...ids]..sort()).join(',');
     var h = 5381;

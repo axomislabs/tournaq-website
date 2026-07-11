@@ -5,11 +5,13 @@ import '../models/doghouse_drill.dart';
 import '../models/group.dart';
 import '../models/king_of_the_court_tournament.dart';
 import '../models/ko_bracket_tournament.dart';
+import '../models/scramble_king_tournament.dart';
 import '../models/scramble_tournament.dart';
 import '../models/team.dart';
 import '../services/doghouse_storage_service.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
+import '../services/scramble_king_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../models/player.dart';
 import '../widgets/tournament_history_card.dart';
@@ -17,11 +19,12 @@ import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'ko_bracket_bracket_page.dart';
+import 'scramble_king_overview_page.dart';
 import 'scramble_overview_page.dart';
 
 // ── Filter types ──────────────────────────────────────────────────────────────
 
-enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse, koBracket }
+enum TournamentFilter { all, scramble, kingOfTheCourt, doghouse, koBracket, scrambleKing }
 
 extension on TournamentFilter {
   String get label => switch (this) {
@@ -30,6 +33,7 @@ extension on TournamentFilter {
         TournamentFilter.kingOfTheCourt => 'King of the Court',
         TournamentFilter.doghouse       => 'Doghouse',
         TournamentFilter.koBracket      => 'Single Elimination',
+        TournamentFilter.scrambleKing   => 'Scramble King',
       };
 }
 
@@ -66,6 +70,7 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
   List<KingOfTheCourtTournament> _kotcTournaments = [];
   List<DoghouseTournament> _doghouseDrills = [];
   List<KoBracketTournament> _koBrackets = [];
+  List<ScrambleKingTournament> _scrambleKings = [];
 
   @override
   void initState() {
@@ -77,6 +82,17 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
     _kotcTournaments = KingOfTheCourtStorageService.loadAll();
     _doghouseDrills  = DoghouseStorageService.loadAll();
     _koBrackets      = KoBracketStorageService.loadAll();
+    _scrambleKings   = ScrambleKingStorageService.loadAll();
+  }
+
+  void _onScrambleKingChanged(ScrambleKingTournament t) {
+    ScrambleKingStorageService.save(t);
+    setState(() {
+      final idx = _scrambleKings.indexWhere((e) => e.id == t.id);
+      if (idx >= 0) {
+        _scrambleKings = List.from(_scrambleKings)..[idx] = t;
+      }
+    });
   }
 
   void _onScrambleChanged(ScrambleTournament t) {
@@ -154,6 +170,13 @@ class _TournamentHistoryPageState extends State<TournamentHistoryPage> {
           widget.onCreateTeam,
           widget.onUpdatePlayer,
         ));
+      }
+    }
+    if (_filter == TournamentFilter.all ||
+        _filter == TournamentFilter.scrambleKing) {
+      for (final t in _scrambleKings) {
+        entries.add(_HistoryEntry.fromScrambleKing(
+            t, _onScrambleKingChanged, widget.existingPlayers, widget.existingGroups, widget.onCreatePlayer));
       }
     }
     entries.sort((a, b) => b.date.compareTo(a.date));
@@ -446,6 +469,44 @@ class _HistoryEntry {
           onCreatePlayer:  onCreatePlayer ?? (name) => Player(id: '', name: name),
           onCreateTeam:    onCreateTeam   ?? (name, _) => name,
           onUpdatePlayer:  onUpdatePlayer,
+        ),
+      )),
+    );
+  }
+
+  factory _HistoryEntry.fromScrambleKing(
+    ScrambleKingTournament t,
+    void Function(ScrambleKingTournament) onChanged,
+    List<Player> existingPlayers,
+    List<Group> existingGroups,
+    Player Function(String name)? onCreatePlayer,
+  ) {
+    final statusLabel = switch (t.status) {
+      ScrambleKingTournamentStatus.completed  => 'Completed',
+      ScrambleKingTournamentStatus.inProgress => 'In Progress',
+      ScrambleKingTournamentStatus.setup      => 'Setup',
+    };
+
+    return _HistoryEntry(
+      name:        t.name,
+      typeLabel:   'Scramble King',
+      typeColor:   AppColors.gold,
+      typeIcon:    Icons.military_tech_rounded,
+      dateLabel:   _dateLabel(t.createdAt),
+      statusLabel: statusLabel,
+      isActive:    t.status != ScrambleKingTournamentStatus.completed,
+      date:        t.createdAt,
+      stats: [
+        '${t.playerCount} players',
+        '${t.completedRounds}/${t.roundCount} rounds',
+      ],
+      onTap: (ctx) => Navigator.of(ctx).push(MaterialPageRoute(
+        builder: (_) => ScrambleKingOverviewPage(
+          tournament:      t,
+          existingPlayers: existingPlayers,
+          existingGroups:  existingGroups,
+          onChanged:       onChanged,
+          onCreatePlayer:  onCreatePlayer ?? (name) => Player(id: '', name: name),
         ),
       )),
     );

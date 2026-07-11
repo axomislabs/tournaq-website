@@ -110,6 +110,16 @@
   },
   "sideChangeContinue": "Lados Cambiados — Continuar",
 
+  "targetReachedTitle": "Objetivo Alcanzado",
+  "targetReachedBody": "{team} alcanzó el objetivo.\n\nSe ganó el set {set}.",
+  "@targetReachedBody": {
+    "placeholders": { "team": { "type": "String" }, "set": { "type": "int" } }
+  },
+  "targetReachedKeepPlaying": "Seguir Jugando",
+  "sideSwapLabel": "Cambio de lado",
+  "sideSwapNone": "Sin cambio de lado",
+  "optionCustom": "Personalizado…",
+
   "scoreGameOptions": "Opciones de Partido",
   "scoreSwapTeams": "Cambiar Equipos",
   "scoreSwapSubtitle": "Intercambiar lados izquierdo y derecho",
@@ -517,7 +527,9 @@
   "labelTime": "Tiempo",
   "labelAssignment": "Asignación",
   "labelEscapePoints": "Puntos de escape",
+  "doghouseEscapePointsHelp": "Puntos que el equipo de la caseta debe anotar para escapar. Se gana un punto cada vez que el equipo que saca (caseta) gana un punto de juego. La puntuación vuelve a cero después de cada partido perdido.",
   "labelLossLimit": "Límite de pérdidas",
+  "doghouseLossLimitHelp": "Cuántos partidos puede perder el equipo de la caseta antes de ser expulsado automáticamente. Cada vez que el equipo de la pista gana un punto de juego, se pierde un partido y la puntuación vuelve a cero.",
   "hintPlayerName": "Nombre del jugador",
   "doghouseScoreboard": "Marcador",
   "doghouseTimeUp": "Tiempo agotado",
@@ -559,6 +571,7 @@
   "doghousePlayerStats": "Estadísticas de jugadores",
   "doghouseSessionTimer": "TEMPORIZADOR",
   "doghouseGameplayControls": "Controles",
+  "doghouseInDoghouseLabel": "En la caseta",
   "doghouseMatchControls": "Controles de partido",
   "doghouseStartRestart": "Iniciar / Reiniciar",
   "doghouseTournamentCompleted": "Torneo completado",
@@ -1277,6 +1290,21 @@
   "kotcChallengers": "Retadores",
   "@kotcChallengers": {},
 
+  "kotcCourtLabel": "Pista",
+  "@kotcCourtLabel": {},
+
+  "kotcStrikeOff": "Sin strike",
+  "@kotcStrikeOff": {},
+
+  "kotcTeamSizeChangeNote": "Se aplica a los equipos nuevos. El equipo en pista mantiene su tamaño hasta que rote.",
+  "@kotcTeamSizeChangeNote": {},
+
+  "kotcEjectChallengerShort": "Retador\nExpulsado",
+  "@kotcEjectChallengerShort": {},
+
+  "kotcUndoEjectChallenger": "Deshacer",
+  "@kotcUndoEjectChallenger": {},
+
   "kotcWaitingForPlayers": "Esperando jugadores...",
   "@kotcWaitingForPlayers": {},
 
@@ -1596,5 +1624,138 @@
   "@modeKotcHelp": {},
 
   "modeDoghouseHelp": "Doghouse es un torneo competitivo rápido donde la acción nunca se detiene. Un equipo lucha desde el doghouse — anota suficientes puntos para escapar y abrir paso a los próximos retadores.\n\nFormato corto, alta intensidad — genial como calentamiento o competición independiente.\n\nJusto por diseño. La asignación automática de TournaQ garantiza que todos jueguen con y contra personas distintas.\n\nCómo funciona un juego:\n• Ganar un rally → anotar un punto\n• Perder un rally → juego perdido, puntos reiniciados\n• Alcanzar el objetivo de Escape Points → escapado, de vuelta a la cola\n• Alcanzar el Límite de Derrotas → expulsado, entra el siguiente equipo\n\nAntes de empezar, acuerda:\n• Qué equipo saca cada rally\n• Configuración de Escape Points y Límite de Derrotas\n\nAgrega tus jugadores, configura el temporizador — y a jugar.",
-  "@modeDoghouseHelp": {}
+  "@modeDoghouseHelp": {},
+
+  "scrambleExportScorecard": "Exportar planilla",
+  "@scrambleExportScorecard": {},
+
+  "scrambleExportResult": "Exportar resultado",
+  "@scrambleExportResult": {},
+
+  "scrambleExportGame": "Exportar juego",
+  "@scrambleExportGame": {},
+
+  "scrambleImportResult": "Importar resultado",
+  "@scrambleImportResult": {},
+
+  "scrambleQrScanHint": "Escanea este código en el otro dispositivo.",
+  "@scrambleQrScanHint": {},
+
+  "scrambleQrTooLarge": "Esta planilla es demasiado grande para un código QR.",
+  "@scrambleQrTooLarge": {},
+
+  "scrambleScanTitle": "Escanear código QR",
+  "@scrambleScanTitle": {},
+
+  "scrambleScanScorecardHint": "Apunta la cámara a un código QR de planilla.",
+  "@scrambleScanScorecardHint": {},
+
+  "scrambleScanResultHint": "Apunta la cámara a un código QR de resultado.",
+  "@scrambleScanResultHint": {},
+
+  "scrambleScanCameraDenied": "Se necesita acceso a la cámara para escanear códigos QR. Actívalo en Ajustes.",
+  "@scrambleScanCameraDenied": {},
+
+  "scrambleOpenSettings": "Abrir ajustes",
+  "@scrambleOpenSettings": {},
+
+  "scrambleScanToImport": "Escanear para importar",
+  "@scrambleScanToImport": {},
+
+  "scrambleScanNotScorecard": "Este código QR no es una planilla.",
+  "@scrambleScanNotScorecard": {},
+
+  "scrambleScanNotResult": "Este código QR no es un resultado.",
+  "@scrambleScanNotResult": {},
+
+  "scrambleResultImported": "Resultado importado.",
+  "@scrambleResultImported": {},
+
+  "scrambleResultMismatch": "Este resultado es de otro torneo.",
+  "@scrambleResultMismatch": {},
+
+  "scrambleImportSuccess": "Planilla importada de «{name}».",
+  "@scrambleImportSuccess": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "scrambleImportedTitle": "Planillas importadas ({count})",
+  "@scrambleImportedTitle": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedFilterHint": "Filtrar por torneo",
+  "@scrambleImportedFilterHint": {},
+
+  "scrambleImportedEmpty": "No hay planillas importadas que coincidan.",
+  "@scrambleImportedEmpty": {},
+
+  "scrambleImportedDeleteAllTitle": "¿Eliminar todas las importadas?",
+  "@scrambleImportedDeleteAllTitle": {},
+
+  "scrambleImportedDeleteAllBody": "Esto eliminará las {count} planillas importadas.",
+  "@scrambleImportedDeleteAllBody": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "scrambleImportedCourt": "Cancha {number}",
+  "@scrambleImportedCourt": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scrambleStatusScheduled": "Programado",
+  "@scrambleStatusScheduled": {},
+
+  "scrambleImportedUpcomingHint": "Para ver otros juegos, consulta el dispositivo anfitrión.",
+  "@scrambleImportedUpcomingHint": {},
+
+  "scrambleTabHistory": "Historial",
+  "@scrambleTabHistory": {},
+
+  "scrambleTabImported": "Importados",
+  "@scrambleTabImported": {},
+
+  "scrambleBackToHub": "Volver al inicio",
+  "@scrambleBackToHub": {},
+
+  "scrambleImportedScorecard": "Planilla importada",
+  "@scrambleImportedScorecard": {},
+
+  "scrambleAdjustHint": "Toca «Ajustar resultado final» para cambiar el marcador y luego «Finalizar juego».",
+  "@scrambleAdjustHint": {},
+
+  "overviewSettingsTitle": "Ajustes del torneo",
+  "@overviewSettingsTitle": {},
+
+  "overviewSettingsLockedRounds": "Las rondas 1–{count} ya están en curso y no cambiarán.",
+  "@overviewSettingsLockedRounds": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsRemoved": "Se eliminarán las rondas {from}–{to}.",
+  "@overviewSettingsRoundsRemoved": {
+    "placeholders": { "from": { "type": "int" }, "to": { "type": "int" } }
+  },
+
+  "overviewSettingsRoundsAdded": "Se añadirán {count} ronda(s) más.",
+  "@overviewSettingsRoundsAdded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsRemix": "El resto del calendario se volverá a mezclar de la forma más justa posible.",
+  "@overviewSettingsRemix": {},
+
+  "overviewSettingsModeLocked": "El modo no se puede cambiar una vez que un juego ha comenzado.",
+  "@overviewSettingsModeLocked": {},
+
+  "overviewSettingsCourtsBlocked": "Con los jugadores actuales solo se pueden llenar {count} cancha(s) — reduce las canchas o añade jugadores.",
+  "@overviewSettingsCourtsBlocked": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "overviewSettingsConfirmTitle": "¿Aplicar estos cambios?",
+  "@overviewSettingsConfirmTitle": {},
+
+  "overviewSettingsConfirmBtn": "Aplicar",
+  "@overviewSettingsConfirmBtn": {}
 }

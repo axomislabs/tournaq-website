@@ -215,6 +215,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
         case ScrambleSuggestionType.adjustMatchDuration:
         case ScrambleSuggestionType.adjustPlayerCount:
         case ScrambleSuggestionType.largeGroup:
+        case ScrambleSuggestionType.noRefereeAvailable:
           break;
       }
     });

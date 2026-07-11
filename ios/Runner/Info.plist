@@ -30,6 +30,8 @@
 		<false/>
 		<key>NSUserTrackingUsageDescription</key>
 		<string>We use your data to show personalized ads and measure ad performance.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Used to scan QR codes when importing scorecards from another device.</string>
 		<key>SKAdNetworkItems</key>
 		<array>
 			<dict>

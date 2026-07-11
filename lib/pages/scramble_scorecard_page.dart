@@ -5,6 +5,8 @@ import '../models/scramble_tournament.dart';
 import '../pages/gameplay_history_page.dart';
 import '../services/scramble_service.dart';
 import '../services/scramble_storage_service.dart';
+import '../services/scramble_transfer_service.dart';
+import '../widgets/qr_export_sheet.dart';
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
@@ -49,12 +51,29 @@ class ScrambleScorecardPage extends StatefulWidget {
   final ScrambleRound round;
   final void Function(ScrambleTournament) onChanged;
 
+  /// True when this scorecard was received from another device. Enables the
+  /// "Export result" header action and routes persistence through [onChanged]
+  /// only (see [saveToStore]).
+  final bool isImported;
+
+  /// The host tournament id this scorecard belongs to — carried in the result
+  /// QR so the host can merge it back onto the correct game.
+  final String? parentTournamentId;
+
+  /// Whether to persist directly to the local Social Scramble store. Imported
+  /// scorecards set this false so they never pollute this device's own list —
+  /// they are saved via [onChanged] into the imported-scorecards store instead.
+  final bool saveToStore;
+
   const ScrambleScorecardPage({
     super.key,
     required this.tournament,
     required this.game,
     required this.round,
     required this.onChanged,
+    this.isImported = false,
+    this.parentTournamentId,
+    this.saveToStore = true,
   });
 
   @override
@@ -122,9 +141,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           if (mounted) _matchTimerKey.currentState?.start();
         });
       } else {
+        // Time already elapsed before this visit — quietly show the finished
+        // timer state instead of re-opening the "Time is up" dialog (which
+        // used to fire again on every re-entry and reset the countdown).
         _timerInitialRemaining = Duration.zero;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _onMatchTimerFinished();
+          if (mounted) _matchTimerKey.currentState?.markFinished();
         });
       }
     }
@@ -147,8 +169,77 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   void _persist(ScrambleTournament updated) {
     setState(() => _t = updated);
-    ScrambleStorageService.save(updated);
+    // Imported scorecards persist only via onChanged (into the imported store),
+    // never into this device's own Social Scramble list.
+    if (widget.saveToStore) {
+      ScrambleStorageService.save(updated);
+    }
     widget.onChanged(updated);
+  }
+
+  // ── QR export ─────────────────────────────────────────────────────────────
+
+  /// Adaptive header action: export the scorecard while scheduled, or export
+  /// the completed result on an imported scorecard. Hidden otherwise.
+  List<Widget>? _exportActions(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    if (_game.status == ScrambleGameStatus.scheduled) {
+      return [
+        IconButton(
+          icon: const Icon(Icons.qr_code_rounded),
+          tooltip: l10n.scrambleExportScorecard,
+          onPressed: _exportScorecard,
+        ),
+      ];
+    }
+    if (widget.isImported && _game.status == ScrambleGameStatus.completed) {
+      return [
+        IconButton(
+          icon: const Icon(Icons.qr_code_rounded),
+          tooltip: l10n.scrambleExportResult,
+          onPressed: _exportResult,
+        ),
+      ];
+    }
+    return null;
+  }
+
+  void _exportScorecard() {
+    final l10n = AppLocalizations.of(context)!;
+    final data = ScrambleTransferService.encodeGameExport(_t, _game, _round);
+    showQrExportSheet(
+      context,
+      title: l10n.scrambleExportScorecard,
+      subtitle: _gameContext(l10n),
+      data: data,
+    );
+  }
+
+  void _exportResult() {
+    final l10n = AppLocalizations.of(context)!;
+    final parentId = widget.parentTournamentId ?? _t.id;
+    final data = ScrambleTransferService.encodeResult(parentId, _game);
+    showQrExportSheet(
+      context,
+      title: l10n.scrambleExportResult,
+      subtitle: _gameContext(l10n),
+      data: data,
+    );
+  }
+
+  /// Imported scorecards pop back to the Social Scramble Hub, not a schedule.
+  String _backLabel(AppLocalizations l10n) => widget.isImported
+      ? l10n.scrambleBackToHub
+      : l10n.scorecardBackToSchedule;
+
+  String _gameContext(AppLocalizations l10n) {
+    final teamA = _game.sideAPlayerIds
+        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .join(' & ');
+    final teamB = _game.sideBPlayerIds
+        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .join(' & ');
+    return '${l10n.scrambleImportedCourt(_game.courtNumber)} · $teamA vs $teamB';
   }
 
   // ── Score actions (QuickGame pattern) ────────────────────────────────────
@@ -178,7 +269,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           serviceChanged: changedService,
         ),
       );
+      _game = _game.copyWith(sideAScore: _scoreA, sideBScore: _scoreB);
     });
+    // Persist immediately so the score survives leaving and returning to a
+    // still-in-progress scorecard (it used to only save on completion).
+    _persist(_t.updateGame(_game));
   }
 
   void _removeScore({required bool isLeft}) {
@@ -203,7 +298,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       }
       if (event.serviceChanged) _activeIndex = event.prevServingIndex;
       _scoreEvents.removeAt(eventIndex);
+      _game = _game.copyWith(sideAScore: _scoreA, sideBScore: _scoreB);
     });
+    _persist(_t.updateGame(_game));
   }
 
   void _rotateActivePlayer() {
@@ -211,6 +308,20 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   }
 
   void _swap() => setState(() => _isSwapped = !_isSwapped);
+
+  double _dragDelta = 0;
+
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    _dragDelta += details.delta.dx;
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    final threshold = 50.0; // pixels
+    if (_dragDelta.abs() > threshold) {
+      _swap();
+    }
+    _dragDelta = 0;
+  }
 
   // ── Game completion ───────────────────────────────────────────────────────
 
@@ -264,6 +375,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     _matchTimerKey.currentState?.pause();
     _persist(updated);
 
+    // Imported single-game scorecards don't belong to a full tournament on this
+    // device — skip the tournament-flow dialogs. The header "Export result"
+    // action becomes available so the score can be sent back to the host.
+    if (widget.isImported) return;
+
     final allDone = updated.games.every((g) => g.isCompleted);
     if (allDone) {
       await _showTournamentCompleteDialog(updated);
@@ -311,9 +427,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _adjusting = false;
     });
     _persist(_t.updateGame(updatedGame));
-    // restart() resets remaining to widget.initial (= _round.matchDuration)
-    // and sets state to idle; start() then begins the countdown.
-    _matchTimerKey.currentState?.restart();
+    // Restart to the FULL match duration (the timer's `initial` may hold a
+    // resumed partial remaining after a re-entry), then start the countdown.
+    _matchTimerKey.currentState?.restart(_round.matchDuration);
     _matchTimerKey.currentState?.start();
   }
 
@@ -401,8 +517,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     if (!mounted) return;
     if (adjust == false) {
       await _completeGame();
+    } else if (adjust == true) {
+      // Unlock scoring immediately instead of leaving the referee to find the
+      // separate "Adjust final score" toggle — that hidden second step was
+      // the main source of confusion in the field.
+      setState(() => _adjusting = true);
     }
-    // adjust == true → user stays on scorecard to fix score, then taps Complete Game
   }
 
   // ── Game options sheet (QuickGame pattern) ────────────────────────────────
@@ -550,20 +670,26 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Upcoming games helper ────────────────────────────────────────────────
 
-  /// Returns the next scheduled games after the current one, across all rounds.
+  /// Returns the next unfinished games, across all rounds — prioritising any
+  /// incomplete EARLIER rounds (skipped while jumping ahead) before later
+  /// ones, so this reflects what's actually still outstanding rather than
+  /// just "what comes next in round order".
   List<({ScrambleGame game, ScrambleRound round})> _upcomingGames({
     int limit = 4,
   }) {
     final result = <({ScrambleGame game, ScrambleRound round})>[];
-    for (final round in _t.rounds) {
+    final sortedRounds = _t.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    for (final round in sortedRounds) {
       for (final game in _t.getGamesForRound(round.id)) {
         if (game.id == _game.id) continue;
         if (game.isCompleted) continue;
         final roundObj = _t.getRound(game.roundId);
         if (roundObj == null) continue;
-        // Parallel games on other courts in the same round are assumed to be
-        // already ongoing — only show games from the next round onwards.
-        if (roundObj.roundNumber <= _round.roundNumber) continue;
+        // Parallel games on other courts in the CURRENT round are assumed to
+        // already be ongoing — skip only those. Incomplete earlier rounds
+        // (skipped games) are included, ahead of later rounds.
+        if (roundObj.roundNumber == _round.roundNumber) continue;
         result.add((game: game, round: roundObj));
         if (result.length >= limit) return result;
       }
@@ -610,7 +736,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     return Scaffold(
       appBar: TournaQAppBar(
           title: 'Social Scramble',
-          subtitle: AppLocalizations.of(context)!.matchScorecard),
+          subtitle: widget.isImported
+              ? AppLocalizations.of(context)!.scrambleImportedScorecard
+              : AppLocalizations.of(context)!.matchScorecard,
+          actions: _exportActions(context)),
       body: SafeArea(
         child: OrientationBuilder(
           builder: (context, orientation) {
@@ -654,7 +783,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                                   ? AppLocalizations.of(context)!.btnDone
                                   : AppLocalizations.of(context)!.btnAdjustFinalScore,
                               () => setState(() => _adjusting = !_adjusting),
-                              primary: _adjusting,
+                              // Emphasize the button while locked, so it's
+                              // obvious at a glance — this is the step users
+                              // most often miss when re-entering a finished
+                              // scorecard outside the Time's-up dialog flow.
+                              primary: !_adjusting,
                             ),
                             const SizedBox(width: 4),
                             _refBtn(
@@ -740,50 +873,55 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     const SizedBox(height: 4),
                     // Schedule + score cards — compact schedule on the left
                     Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (_t.paceAlertsEnabled) ...[
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+                        onHorizontalDragEnd: _handleHorizontalDragEnd,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (_t.paceAlertsEnabled) ...[
+                              Expanded(
+                                flex: 2,
+                                child: _buildScheduleCard(compact: true),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
                             Expanded(
-                              flex: 2,
-                              child: _buildScheduleCard(compact: true),
+                              flex: 5,
+                              child: _buildScoreCard(
+                                players: leftPlayers,
+                                score: _leftScore,
+                                isLeading: _leftScore > _rightScore,
+                                isA: leftIsA,
+                                onIncrement: scoreLocked
+                                    ? null
+                                    : () => _addScore(isLeft: true),
+                                onDecrement: scoreLocked
+                                    ? null
+                                    : () => _removeScore(isLeft: true),
+                                landscape: true,
+                              ),
                             ),
                             const SizedBox(width: 8),
+                            Expanded(
+                              flex: 5,
+                              child: _buildScoreCard(
+                                players: rightPlayers,
+                                score: _rightScore,
+                                isLeading: _rightScore > _leftScore,
+                                isA: !leftIsA,
+                                onIncrement: scoreLocked
+                                    ? null
+                                    : () => _addScore(isLeft: false),
+                                onDecrement: scoreLocked
+                                    ? null
+                                    : () => _removeScore(isLeft: false),
+                                landscape: true,
+                              ),
+                            ),
                           ],
-                          Expanded(
-                            flex: 5,
-                            child: _buildScoreCard(
-                              players: leftPlayers,
-                              score: _leftScore,
-                              isLeading: _leftScore > _rightScore,
-                              isA: leftIsA,
-                              onIncrement: scoreLocked
-                                  ? null
-                                  : () => _addScore(isLeft: true),
-                              onDecrement: scoreLocked
-                                  ? null
-                                  : () => _removeScore(isLeft: true),
-                              landscape: true,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 5,
-                            child: _buildScoreCard(
-                              players: rightPlayers,
-                              score: _rightScore,
-                              isLeading: _rightScore > _leftScore,
-                              isA: !leftIsA,
-                              onIncrement: scoreLocked
-                                  ? null
-                                  : () => _addScore(isLeft: false),
-                              onDecrement: scoreLocked
-                                  ? null
-                                  : () => _removeScore(isLeft: false),
-                              landscape: true,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
@@ -836,42 +974,47 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   ] else
                     const SizedBox(height: 10),
                   // Score cards side by side — pills stacked inside each card.
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: _buildScoreCard(
-                            players: leftPlayers,
-                            score: _leftScore,
-                            isLeading: _leftScore > _rightScore,
-                            isA: leftIsA,
-                            stackedPills: true,
-                            onIncrement: scoreLocked
-                                ? null
-                                : () => _addScore(isLeft: true),
-                            onDecrement: scoreLocked
-                                ? null
-                                : () => _removeScore(isLeft: true),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+                    onHorizontalDragEnd: _handleHorizontalDragEnd,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: _buildScoreCard(
+                              players: leftPlayers,
+                              score: _leftScore,
+                              isLeading: _leftScore > _rightScore,
+                              isA: leftIsA,
+                              stackedPills: true,
+                              onIncrement: scoreLocked
+                                  ? null
+                                  : () => _addScore(isLeft: true),
+                              onDecrement: scoreLocked
+                                  ? null
+                                  : () => _removeScore(isLeft: true),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _buildScoreCard(
-                            players: rightPlayers,
-                            score: _rightScore,
-                            isLeading: _rightScore > _leftScore,
-                            isA: !leftIsA,
-                            stackedPills: true,
-                            onIncrement: scoreLocked
-                                ? null
-                                : () => _addScore(isLeft: false),
-                            onDecrement: scoreLocked
-                                ? null
-                                : () => _removeScore(isLeft: false),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildScoreCard(
+                              players: rightPlayers,
+                              score: _rightScore,
+                              isLeading: _rightScore > _leftScore,
+                              isA: !leftIsA,
+                              stackedPills: true,
+                              onIncrement: scoreLocked
+                                  ? null
+                                  : () => _addScore(isLeft: false),
+                              onDecrement: scoreLocked
+                                  ? null
+                                  : () => _removeScore(isLeft: false),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -930,7 +1073,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               const Spacer(),
               ScrambleTimerWidget(
                 key: _matchTimerKey,
-                initial: _round.matchDuration,
+                // Resume from the elapsed-adjusted remaining time on re-entry
+                // (was hardcoded to the full duration, so the clock reset every
+                // time you left and came back). Mirrors the landscape timer.
+                initial: _timerInitialRemaining ?? _round.matchDuration,
                 mode: ScrambleTimerMode.countdown,
                 autoStart: false,
                 compact: true,
@@ -953,7 +1099,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         ? AppLocalizations.of(context)!.btnDone
                         : AppLocalizations.of(context)!.btnAdjustFinalScore,
                     () => setState(() => _adjusting = !_adjusting),
-                    primary: _adjusting,
+                    // Emphasize the button while locked, so it's obvious at a
+                    // glance — this is the step users most often miss when
+                    // re-entering a finished scorecard outside the Time's-up
+                    // dialog flow.
+                    primary: !_adjusting,
                   ),
                   _refBtn(
                     Icons.replay_rounded,
@@ -1004,6 +1154,14 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 ],
               ],
             ),
+            if (timerFinished && !_adjusting) ...[
+              const SizedBox(height: 6),
+              Text(
+                AppLocalizations.of(context)!.scrambleAdjustHint,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 11, color: Colors.black45),
+              ),
+            ],
           ],
         ],
       ),
@@ -1727,12 +1885,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               Colors.grey.shade100,
               Colors.black45,
             ),
-            _chip(
-              Icons.people_rounded,
-              AppLocalizations.of(context)!.scorecardPlayerCount(_t.playerCount),
-              Colors.grey.shade100,
-              Colors.black45,
-            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -1804,7 +1956,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         OutlinedButton.icon(
           onPressed: () => Navigator.of(context).pop(_t),
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: Text(AppLocalizations.of(context)!.scorecardBackToSchedule),
+          label: Text(_backLabel(AppLocalizations.of(context)!)),
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
@@ -2185,7 +2337,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                       Navigator.of(context).pop(_t);
                     },
                     icon: const Icon(Icons.calendar_today_rounded, size: 16),
-                    label: Text(AppLocalizations.of(ctx)!.scorecardBackToSchedule,
+                    label: Text(_backLabel(AppLocalizations.of(ctx)!),
                         style: const TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ),
@@ -2400,7 +2552,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 },
                 icon: const Icon(Icons.calendar_today_rounded, size: 16),
                 label: Text(
-                  AppLocalizations.of(ctx)!.scorecardBackToSchedule,
+                  _backLabel(AppLocalizations.of(ctx)!),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -2540,6 +2692,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   Widget _buildUpcomingGames() {
     final upcoming = _upcomingGames();
     if (upcoming.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -2547,9 +2700,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade200),
         ),
-        child: const Text(
-          'No upcoming games in this tournament.',
-          style: TextStyle(fontSize: 13, color: Colors.black38),
+        child: Text(
+          widget.isImported
+              ? l10n.scrambleImportedUpcomingHint
+              : 'No upcoming games in this tournament.',
+          style: const TextStyle(fontSize: 13, color: Colors.black38),
           textAlign: TextAlign.center,
         ),
       );

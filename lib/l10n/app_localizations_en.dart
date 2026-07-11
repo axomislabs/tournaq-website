@@ -264,6 +264,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sideChangeContinue => 'Sides Switched — Continue';
 
   @override
+  String get targetReachedTitle => 'Target Reached';
+
+  @override
+  String targetReachedBody(String team, int set) {
+    return '$team reached the target.\n\nSet $set is won.';
+  }
+
+  @override
+  String get targetReachedKeepPlaying => 'Keep Playing';
+
+  @override
+  String get sideSwapLabel => 'Side swap';
+
+  @override
+  String get sideSwapNone => 'No side swap';
+
+  @override
+  String get optionCustom => 'Custom…';
+
+  @override
   String get scoreGameOptions => 'Game Options';
 
   @override
@@ -1364,7 +1384,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelEscapePoints => 'Escape Points';
 
   @override
+  String get doghouseEscapePointsHelp =>
+      'Points the doghouse team must score to escape. A point is earned each time the serving (doghouse) team wins a rally. The score resets to zero after each game lost.';
+
+  @override
   String get labelLossLimit => 'Loss Limit';
+
+  @override
+  String get doghouseLossLimitHelp =>
+      'How many games the doghouse team can lose before being automatically ejected. Each time the court team wins a rally, one game is lost and the point score resets to zero.';
 
   @override
   String get hintPlayerName => 'Player name';
@@ -1485,6 +1513,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doghouseGameplayControls => 'Gameplay Controls';
+
+  @override
+  String get doghouseInDoghouseLabel => 'In Doghouse';
 
   @override
   String get doghouseMatchControls => 'Match Controls';
@@ -2315,10 +2346,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kotcChallengers => 'Challengers';
 
   @override
+  String get kotcCourtLabel => 'Court';
+
+  @override
+  String get kotcStrikeOff => 'No strike';
+
+  @override
+  String get kotcTeamSizeChangeNote =>
+      'Applies to new teams. The team on court keeps its size until it rotates out.';
+
+  @override
   String get kotcWaitingForPlayers => 'Waiting for players...';
 
   @override
   String get kotcEjectChallenger => 'Eject challenger';
+
+  @override
+  String get kotcEjectChallengerShort => 'Eject\nChallenger';
 
   @override
   String get kotcUndoEjectChallenger => 'Undo';
@@ -2662,7 +2706,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modeScrambleKingHelp =>
-      'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it\'s their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don\'t have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.';
+      'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player still gets their own team and queues just like everyone else — only their partner is decided differently: a fixed random partner for the whole round (Placeholder), or a fresh fairness-balanced partner each time they\'re on court (Jumper).\n\nAdd your players, set the number of rounds and courts, and go.';
 
   @override
   String scrambleKingStatsRounds(int completed, int total) {
@@ -2690,7 +2734,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scrambleKingOddPlayerHelp =>
-      'When a court can\'t be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.';
+      'When a court can\'t be split evenly into teams of two, one player gets their own team and queues like everyone else — only their partner is decided by this setting. Placeholder picks a random free player the first time they take the court, then keeps that same partner for the rest of the round. Jumper re-picks a partner every time, using a fairness calculation so playing time stays balanced across the round. Either way, the odd player\'s own team earns the points, just like every other team.';
 
   @override
   String get scrambleKingOddPlayerPlaceholderLabel => 'Placeholder';
@@ -2704,6 +2748,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get scrambleKingNextAdminNote =>
+      'Suggested fairly from players not about to play.';
+
+  @override
   String get scrambleKingJumperAwaiting => 'Jumper · awaiting ejection';
 
   @override
@@ -2715,6 +2763,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String scrambleKingRoundsProgress(int completed, int total) {
     return '$completed / $total rounds complete';
   }
+
+  @override
+  String scrambleKingRoundsPill(int n) {
+    return '$n rounds';
+  }
+
+  @override
+  String scrambleKingCourtsPill(int n) {
+    return '$n courts';
+  }
+
+  @override
+  String scrambleKingPlayersPill(int n) {
+    return '$n players';
+  }
+
+  @override
+  String get scrambleKingRoundsPillLabel => 'Rounds';
+
+  @override
+  String get scrambleKingCourtsPillLabel => 'Courts';
+
+  @override
+  String get scrambleKingInvalidCourtCount =>
+      'That many courts doesn\'t work for the current player count.';
 
   @override
   String get scrambleKingOverallRanking => 'Overall Ranking';
@@ -2732,9 +2805,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scrambleKingCourtLabel => 'Court';
 
   @override
-  String scrambleKingFloaterBadge(String name) {
-    return '$name floats in as needed';
-  }
+  String get scrambleKingReadyToStart => 'Ready to start';
+
+  @override
+  String get scrambleKingStartCourt => 'Start Court';
 
   @override
   String get scrambleKingRoundEndedBody =>
@@ -2791,6 +2865,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scrambleKingTeamsLabel => 'Teams';
 
   @override
+  String get scrambleKingTeamsFilterAll => 'All';
+
+  @override
+  String get scrambleKingTeamsEmpty => 'No teams for this filter yet.';
+
+  @override
+  String get scrambleKingEditFormatTitle => 'Format';
+
+  @override
   String get scrambleKingStatRounds => 'Rounds';
 
   @override
@@ -2799,16 +2882,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get scrambleKingEditScore => 'Edit Score';
-
-  @override
   String get scrambleKingUndoFinishCourt => 'Undo Finish';
 
   @override
-  String get scrambleKingRoundTimer => 'Round Timer';
+  String get scrambleKingCourtCompleteBanner =>
+      'This court\'s round is complete';
 
   @override
-  String get scrambleKingFloaterTag => 'Floater';
+  String get scrambleKingCourtCompleteHint =>
+      'Tap here, or the ranking icon above, to view or edit results';
+
+  @override
+  String get scrambleKingRoundTimer => 'Round Timer';
 
   @override
   String get scrambleKingFinishCourt => 'Finish court';
@@ -2906,4 +2991,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scrambleStatusScheduled => 'Scheduled';
+
+  @override
+  String get scrambleImportedUpcomingHint =>
+      'For other games, see the host device.';
+
+  @override
+  String get scrambleTabHistory => 'History';
+
+  @override
+  String get scrambleTabImported => 'Imported';
+
+  @override
+  String get scrambleBackToHub => 'Back to Hub';
+
+  @override
+  String get scrambleImportedScorecard => 'Imported Scorecard';
+
+  @override
+  String get scrambleAdjustHint =>
+      'Tap Adjust final score to change the score, then Complete.';
+
+  @override
+  String get overviewSettingsTitle => 'Tournament Settings';
+
+  @override
+  String overviewSettingsLockedRounds(int count) {
+    return 'Rounds 1–$count are already underway and won\'t change.';
+  }
+
+  @override
+  String overviewSettingsRoundsRemoved(int from, int to) {
+    return 'Rounds $from–$to will be removed.';
+  }
+
+  @override
+  String overviewSettingsRoundsAdded(int count) {
+    return '$count more round(s) will be added.';
+  }
+
+  @override
+  String get overviewSettingsRemix =>
+      'The remaining schedule will be re-mixed as fairly as possible.';
+
+  @override
+  String get overviewSettingsModeLocked =>
+      'Mode can\'t be changed once a game has started.';
+
+  @override
+  String overviewSettingsCourtsBlocked(int count) {
+    return 'Only $count court(s) can be filled with the current players — reduce courts or add players.';
+  }
+
+  @override
+  String get overviewSettingsConfirmTitle => 'Apply these changes?';
+
+  @override
+  String get overviewSettingsConfirmBtn => 'Apply';
 }

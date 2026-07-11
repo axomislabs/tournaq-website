@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/game.dart';
@@ -52,10 +53,12 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
   late int _score1;
   late int _score2;
   late int _targetPoints;
+  int? _sideChangeInterval;
 
   bool _isSwapped = false;
   int _activePlayerIndex = 0;
   final List<_ScoreEvent> _scoreEvents = [];
+  double _dragDelta = 0;
 
   // ── Display helpers ────────────────────────────────────────────────────────
 
@@ -75,9 +78,19 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
   @override
   void initState() {
     super.initState();
-    _score1       = widget.adapter.currentScore1;
-    _score2       = widget.adapter.currentScore2;
-    _targetPoints = widget.adapter.targetPoints;
+    _score1             = widget.adapter.currentScore1;
+    _score2             = widget.adapter.currentScore2;
+    _targetPoints       = widget.adapter.targetPoints;
+    _sideChangeInterval = _defaultInterval(_targetPoints);
+  }
+
+  /// Legacy defaults for the side-change interval, seeded from the target
+  /// score. Independent of [_targetPoints] afterwards — changing the target
+  /// dropdown does not retroactively change the side-swap interval.
+  int? _defaultInterval(int target) {
+    if (target == 15) return 5;
+    if (target == 21) return 7;
+    return null;
   }
 
   // ── State mutations ────────────────────────────────────────────────────────
@@ -103,6 +116,7 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
     final scoringIsTeam1 = isLeft ? !_isSwapped : _isSwapped;
     final changedService = scoringIsTeam1 != _isTeam1Serving;
     final perSide        = widget.adapter.playersPerSide;
+    final wonBefore       = _isSetWon(_score1, _score2);
     setState(() {
       _applyDelta(isLeft: isLeft, delta: 1);
       if (changedService) {
@@ -115,7 +129,11 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
         changedService: changedService,
       ));
     });
-    if (_shouldShowSideChangeReminder()) {
+    if (_isSetWon(_score1, _score2) && !wonBefore) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showTargetReachedDialog();
+      });
+    } else if (_shouldShowSideChangeReminder()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _showSideChangeDialog();
       });
@@ -168,6 +186,79 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
     if (mounted) setState(() => _isSwapped = !_isSwapped);
   }
 
+  Future<void> _showTargetReachedDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final isTeam1Winner = _score1 > _score2;
+    final winnerName =
+        isTeam1Winner ? widget.adapter.team1Name : widget.adapter.team2Name;
+    final setNumber = widget.adapter.currentSetIndex + 1;
+    final isOneSet = widget.adapter.matchFormat == MatchFormat.oneSet;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        title: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(color: _kGoldLight, borderRadius: BorderRadius.circular(10)),
+            child: const Icon(Icons.emoji_events_rounded, color: _kGold, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(l10n.targetReachedTitle,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          ),
+        ]),
+        content: Text(
+          l10n.targetReachedBody(winnerName, setNumber),
+          style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+        ),
+        actions: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kOlive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    if (isOneSet) {
+                      _doCompleteGame();
+                    } else {
+                      _toggleCompleteSet();
+                    }
+                  },
+                  child: Text(isOneSet ? l10n.completeGame : l10n.completeSet,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(l10n.targetReachedKeepPlaying),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _removeScore({required bool isLeft}) {
     final removeTeam1 = isLeft ? !_isSwapped : _isSwapped;
     final currentSet  = widget.adapter.currentSetIndex;
@@ -191,6 +282,16 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
 
   void _swap() => setState(() => _isSwapped = !_isSwapped);
 
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    _dragDelta += details.delta.dx;
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    const threshold = 50.0; // pixels
+    if (_dragDelta.abs() > threshold) _swap();
+    _dragDelta = 0;
+  }
+
   void _rotateActivePlayer() {
     final perSide = widget.adapter.playersPerSide;
     setState(() => _activePlayerIndex = (_activePlayerIndex + 1) % (2 * perSide));
@@ -202,9 +303,10 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
     final s2 = _isSwapped ? _score1 : _score2;
     setState(() {
       widget.adapter.onSetActivated(setIndex, s1, s2);
-      _score1       = widget.adapter.currentScore1;
-      _score2       = widget.adapter.currentScore2;
-      _targetPoints = widget.adapter.targetPoints;
+      _score1             = widget.adapter.currentScore1;
+      _score2             = widget.adapter.currentScore2;
+      _targetPoints       = widget.adapter.targetPoints;
+      _sideChangeInterval = _defaultInterval(_targetPoints);
       _activePlayerIndex = 0;
       // _scoreEvents intentionally not cleared — history accumulates across sets.
     });
@@ -249,11 +351,17 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
 
   bool _shouldShowSideChangeReminder() {
     if (widget.adapter.isCurrentSetCompleted) return false;
+    final interval = _sideChangeInterval;
+    if (interval == null || interval <= 0) return false;
     final total = _score1 + _score2;
     if (total == 0) return false;
-    if (_targetPoints == 15) return total % 5 == 0;
-    if (_targetPoints == 21) return total % 7 == 0;
-    return false;
+    return total % interval == 0;
+  }
+
+  bool _isSetWon(int s1, int s2) {
+    final hi = s1 > s2 ? s1 : s2;
+    final lo = s1 > s2 ? s2 : s1;
+    return hi >= _targetPoints && (hi - lo) >= 2;
   }
 
   void _saveAndBack() {
@@ -551,29 +659,34 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
                         ),
                       const SizedBox(height: 4),
                       Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(child: _buildScoreCard(
-                              isTeam1: _isLeftTeam1,
-                              teamName: leftName,
-                              score: _leftScore,
-                              isLeading: _isLeftLeading,
-                              onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
-                              onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
-                              landscape: true,
-                            )),
-                            const SizedBox(width: 10),
-                            Expanded(child: _buildScoreCard(
-                              isTeam1: !_isLeftTeam1,
-                              teamName: rightName,
-                              score: _rightScore,
-                              isLeading: _isRightLeading,
-                              onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
-                              onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
-                              landscape: true,
-                            )),
-                          ],
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+                          onHorizontalDragEnd: _handleHorizontalDragEnd,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(child: _buildScoreCard(
+                                isTeam1: _isLeftTeam1,
+                                teamName: leftName,
+                                score: _leftScore,
+                                isLeading: _isLeftLeading,
+                                onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                                onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+                                landscape: true,
+                              )),
+                              const SizedBox(width: 10),
+                              Expanded(child: _buildScoreCard(
+                                isTeam1: !_isLeftTeam1,
+                                teamName: rightName,
+                                score: _rightScore,
+                                isLeading: _isRightLeading,
+                                onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                                onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                                landscape: true,
+                              )),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -583,30 +696,35 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
             }
 
             // ── Portrait ──────────────────────────────────────────────────
-            final portraitScoreCards = IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: _buildScoreCard(
-                    isTeam1: _isLeftTeam1,
-                    teamName: leftName,
-                    score: _leftScore,
-                    isLeading: _isLeftLeading,
-                    fillHeight: true,
-                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
-                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
-                  )),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildScoreCard(
-                    isTeam1: !_isLeftTeam1,
-                    teamName: rightName,
-                    score: _rightScore,
-                    isLeading: _isRightLeading,
-                    fillHeight: true,
-                    onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
-                    onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
-                  )),
-                ],
+            final portraitScoreCards = GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+              onHorizontalDragEnd: _handleHorizontalDragEnd,
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: _buildScoreCard(
+                      isTeam1: _isLeftTeam1,
+                      teamName: leftName,
+                      score: _leftScore,
+                      isLeading: _isLeftLeading,
+                      fillHeight: true,
+                      onIncrement: scoreLocked ? null : () => _addScore(isLeft: true),
+                      onDecrement: scoreLocked ? null : () => _removeScore(isLeft: true),
+                    )),
+                    const SizedBox(width: 10),
+                    Expanded(child: _buildScoreCard(
+                      isTeam1: !_isLeftTeam1,
+                      teamName: rightName,
+                      score: _rightScore,
+                      isLeading: _isRightLeading,
+                      fillHeight: true,
+                      onIncrement: scoreLocked ? null : () => _addScore(isLeft: false),
+                      onDecrement: scoreLocked ? null : () => _removeScore(isLeft: false),
+                    )),
+                  ],
+                ),
               ),
             );
 
@@ -778,29 +896,198 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
     );
   }
 
-  Widget _buildTargetPoints({bool locked = false}) {
+  static const int _kCustomSentinel = -1;
+
+  Widget _buildScoreConfig({bool locked = false}) {
     final l10n = AppLocalizations.of(context)!;
-    final editable = widget.adapter.canEditTargetPoints && !locked;
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 6,
+    final targetEditable = widget.adapter.canEditTargetPoints && !locked;
+    final swapEditable = !locked;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.targetScore,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-        for (final v in [11, 15, 21])
-          ChoiceChip(
-            label: Text('$v'),
-            selected: _targetPoints == v,
-            onSelected: editable ? (_) => setState(() => _targetPoints = v) : null,
-            selectedColor: _kGoldLight,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: _targetPoints == v ? _kGold : null,
-            ),
+        Expanded(
+          child: _configDropdown(
+            label: l10n.targetScore,
+            valueText: '$_targetPoints',
+            enabled: targetEditable,
+            itemBuilder: (_) => [
+              for (final v in const [11, 15, 21])
+                PopupMenuItem<int>(value: v, child: Text('$v')),
+              PopupMenuItem<int>(
+                  value: _kCustomSentinel, child: Text(l10n.optionCustom)),
+            ],
+            onSelected: (v) async {
+              if (v == _kCustomSentinel) {
+                await _showCustomValueDialog(
+                  title: l10n.targetScore,
+                  initial: _targetPoints,
+                  minValue: 1,
+                  onConfirm: (value) => setState(() => _targetPoints = value),
+                );
+              } else {
+                setState(() => _targetPoints = v);
+              }
+            },
           ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _configDropdown(
+            label: l10n.sideSwapLabel,
+            valueText: _sideChangeInterval == null
+                ? l10n.sideSwapNone
+                : '$_sideChangeInterval',
+            enabled: swapEditable,
+            itemBuilder: (_) => [
+              PopupMenuItem<int>(value: 0, child: Text(l10n.sideSwapNone)),
+              const PopupMenuItem<int>(value: 5, child: Text('5')),
+              const PopupMenuItem<int>(value: 7, child: Text('7')),
+              PopupMenuItem<int>(
+                  value: _kCustomSentinel, child: Text(l10n.optionCustom)),
+            ],
+            onSelected: (v) async {
+              if (v == _kCustomSentinel) {
+                await _showCustomValueDialog(
+                  title: l10n.sideSwapLabel,
+                  initial: _sideChangeInterval ?? 5,
+                  minValue: 1,
+                  onConfirm: (value) =>
+                      setState(() => _sideChangeInterval = value),
+                );
+              } else if (v == 0) {
+                setState(() => _sideChangeInterval = null);
+              } else {
+                setState(() => _sideChangeInterval = v);
+              }
+            },
+          ),
+        ),
       ],
     );
+  }
+
+  Widget _configDropdown({
+    required String label,
+    required String valueText,
+    required bool enabled,
+    required List<PopupMenuEntry<int>> Function(BuildContext) itemBuilder,
+    required void Function(int) onSelected,
+  }) {
+    return PopupMenuButton<int>(
+      enabled: enabled,
+      itemBuilder: itemBuilder,
+      onSelected: onSelected,
+      padding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: enabled ? _kGold.withValues(alpha: 0.4) : Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600)),
+                  Text(valueText,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: enabled ? _kGold : Colors.grey)),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down,
+                color: enabled ? _kGold : Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCustomValueDialog({
+    required String title,
+    required int initial,
+    required int minValue,
+    required ValueChanged<int> onConfirm,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final ctrl = TextEditingController(text: '$initial');
+    try {
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Text(title,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          content: TextField(
+            controller: ctrl,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: Text(l10n.btnCancel),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _kOlive,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () {
+                      final v = int.tryParse(ctrl.text);
+                      Navigator.of(ctx).pop();
+                      if (v != null && v >= minValue) onConfirm(v);
+                    },
+                    child: Text(MaterialLocalizations.of(ctx).okButtonLabel,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } finally {
+      // Delay disposal until the dialog's exit animation is fully done —
+      // mirrors the pattern in scramble_scorecard_page.dart's manual-score dialog.
+      Future.delayed(const Duration(milliseconds: 300), ctrl.dispose);
+    }
   }
 
   Widget _buildLockBanner(
@@ -1097,7 +1384,7 @@ class _LiveScoringPageState extends State<LiveScoringPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildTargetPoints(locked: scoreLocked),
+          _buildScoreConfig(locked: scoreLocked),
           const SizedBox(height: 12),
           const Divider(height: 1, color: AppColors.divider),
           const SizedBox(height: 12),

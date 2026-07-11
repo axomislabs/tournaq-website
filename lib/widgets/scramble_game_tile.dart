@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../models/scramble_tournament.dart';
 
 /// Compact card showing one [ScrambleGame] in the overview list.
@@ -9,12 +10,20 @@ class ScrambleGameTile extends StatelessWidget {
   final ScrambleTournament tournament;
   final VoidCallback? onTap;
 
+  /// Export this game to another device via QR (scheduled games only).
+  final VoidCallback? onExport;
+
+  /// Scan a completed result back onto this game (scheduled games only).
+  final VoidCallback? onImportResult;
+
   const ScrambleGameTile({
     super.key,
     required this.game,
     required this.round,
     required this.tournament,
     this.onTap,
+    this.onExport,
+    this.onImportResult,
   });
 
   @override
@@ -26,36 +35,10 @@ class ScrambleGameTile extends StatelessWidget {
         .map((id) => tournament.getPlayer(id)?.name ?? id)
         .join(' & ');
 
-    final statusColor = switch (game.status) {
-      ScrambleGameStatus.completed => AppColors.olive,
-      ScrambleGameStatus.inProgress => AppColors.gold,
-      ScrambleGameStatus.scheduled => Colors.black38,
-    };
-
-    final isComplete = game.status == ScrambleGameStatus.completed;
-    final schedStart = round.scheduledStartTime;
-    final schedEnd = round.scheduledMatchEndTime;
-    Color? schedDotColor;
-    String? schedLabel;
-    if (!isComplete && tournament.paceAlertsEnabled) {
-      final now = DateTime.now();
-      if (now.isAfter(schedEnd)) {
-        schedDotColor = Colors.red.shade600;
-        schedLabel = 'overdue';
-      } else if (now.isAfter(schedStart)) {
-        schedDotColor = Colors.amber.shade700;
-        schedLabel = 'due';
-      } else {
-        schedDotColor = Colors.green.shade600;
-        schedLabel = 'upcoming';
-      }
-    }
-
-    final statusIcon = switch (game.status) {
-      ScrambleGameStatus.completed => Icons.check_circle_rounded,
-      ScrambleGameStatus.inProgress => Icons.sports_volleyball_rounded,
-      ScrambleGameStatus.scheduled => Icons.schedule_rounded,
-    };
+    // Game status is shown on the round header now; the card only carries the
+    // export/import action, which exists for not-yet-started games.
+    final showMenu = game.status == ScrambleGameStatus.scheduled &&
+        (onExport != null || onImportResult != null);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
@@ -117,36 +100,8 @@ class ScrambleGameTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        if (schedDotColor != null) ...[
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: schedDotColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                        ],
-                        Text(
-                          '${_fmtT(schedStart)} – ${_fmtT(schedEnd)}',
-                          style: const TextStyle(
-                              fontSize: 11, color: Colors.black38),
-                        ),
-                        if (schedLabel != null) ...[
-                          const SizedBox(width: 4),
-                          Text(
-                            schedLabel,
-                            style: TextStyle(
-                                fontSize: 10, color: schedDotColor),
-                          ),
-                        ],
-                      ],
-                    ),
                     const SizedBox(height: 3),
+                    // Bottom line: referee only.
                     Row(
                       children: [
                         const Icon(Icons.gavel_rounded,
@@ -167,8 +122,15 @@ class ScrambleGameTile extends StatelessWidget {
                   ],
                 ),
               ),
-              // Status icon
-              Icon(statusIcon, size: 18, color: statusColor),
+              // Export/import action on the card's right edge — a comfortable
+              // tap target. The slot is always reserved (even when empty) so the
+              // team/score rows keep an identical width on every card.
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: showMenu ? _buildMenu(context) : null,
+              ),
             ],
           ),
         ),
@@ -176,10 +138,43 @@ class ScrambleGameTile extends StatelessWidget {
     );
   }
 
-  static String _fmtT(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+  Widget _buildMenu(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, size: 20, color: Colors.black45),
+      padding: EdgeInsets.zero,
+      tooltip: '',
+      onSelected: (v) {
+        if (v == 'export') onExport?.call();
+        if (v == 'import') onImportResult?.call();
+      },
+      itemBuilder: (ctx) => [
+        if (onExport != null)
+          PopupMenuItem(
+            value: 'export',
+            child: Row(
+              children: [
+                const Icon(Icons.qr_code_rounded,
+                    size: 18, color: AppColors.olive),
+                const SizedBox(width: 8),
+                Text(l10n.scrambleExportGame),
+              ],
+            ),
+          ),
+        if (onImportResult != null)
+          PopupMenuItem(
+            value: 'import',
+            child: Row(
+              children: [
+                const Icon(Icons.qr_code_scanner_rounded,
+                    size: 18, color: AppColors.olive),
+                const SizedBox(width: 8),
+                Text(l10n.scrambleImportResult),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _teamRow(String name, int score, bool isWinner) {

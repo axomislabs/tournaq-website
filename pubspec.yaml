@@ -42,6 +42,9 @@ dependencies:
   url_launcher: ^6.3.0
   package_info_plus: ^8.0.0
   in_app_review: ^2.0.9
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
+  archive: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -55,9 +58,8 @@ flutter_native_splash:
   color: "#ffffff"
   image: assets/tournaq_logo_splash.png
   android_12:
-    image: assets/tournaq_icon.png
-    color: "#0E0C04"
-    icon_background_color: "#0E0C04"
+    color: "#ffffff"
+    image: assets/tournaq_logo_splash_android12.png
 
 flutter_launcher_icons:
   android: true
@@ -72,6 +74,9 @@ flutter_launcher_icons:
 # The following section is specific to Flutter packages.
 flutter:
   generate: true
+
+  config:
+    enable-lldb-debugging: false
 
   uses-material-design: true
 

@@ -342,4 +342,326 @@ void main() {
       expect(_hasAnyTeammateRepeat(rebuilt), isFalse);
     });
   });
+
+  group('ScrambleService.validate referee availability', () {
+    List<ScrambleSuggestion> validateFor({
+      required int playerCount,
+      required int courtCount,
+      int playersPerTeam = 2,
+    }) {
+      return ScrambleService.validate(
+        roundCount: 5,
+        matchDuration: const Duration(minutes: 1),
+        breakDuration: Duration.zero,
+        courtCount: courtCount,
+        playerCount: playerCount,
+        playersPerTeam: playersPerTeam,
+      );
+    }
+
+    test('warns when every player is needed on court, leaving no one to '
+        'referee (8 players, 2 courts, 2v2)', () {
+      final suggestions =
+          validateFor(playerCount: 8, courtCount: 2, playersPerTeam: 2);
+      expect(
+        suggestions
+            .any((s) => s.type == ScrambleSuggestionType.noRefereeAvailable),
+        isTrue,
+      );
+    });
+
+    test('does not warn when enough players sit out each round to referee '
+        '(10 players, 2 courts, 2v2)', () {
+      final suggestions =
+          validateFor(playerCount: 10, courtCount: 2, playersPerTeam: 2);
+      expect(
+        suggestions
+            .any((s) => s.type == ScrambleSuggestionType.noRefereeAvailable),
+        isFalse,
+      );
+    });
+
+    test('noRefereeAvailable is never blocking', () {
+      final suggestions =
+          validateFor(playerCount: 8, courtCount: 2, playersPerTeam: 2);
+      for (final s in suggestions
+          .where((s) => s.type == ScrambleSuggestionType.noRefereeAvailable)) {
+        expect(s.isBlocking, isFalse);
+      }
+    });
+  });
+
+  group('ScrambleService.lockedRoundCount', () {
+    test('is 0 for a fresh tournament where nothing has started', () {
+      final t = _build(n: 8, courtCount: 1, rounds: 5);
+      expect(ScrambleService.lockedRoundCount(t), 0);
+    });
+
+    test('counts the completed round once round 1 is finished', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 5);
+      final round1 = (t.rounds.toList()
+            ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber)))
+          .first;
+      for (final g in t.getGamesForRound(round1.id)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+      expect(ScrambleService.lockedRoundCount(t), 1);
+    });
+  });
+
+  group('ScrambleService.recomputePendingStartTimes', () {
+    test('is a no-op when nothing has started (already chained from '
+        'startTime)', () {
+      final t = _build(n: 8, courtCount: 1, rounds: 3);
+      final recomputed = ScrambleService.recomputePendingStartTimes(t);
+      final sorted = t.rounds.toList()
+        ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+      final recomputedSorted = recomputed.rounds.toList()
+        ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+      for (var i = 0; i < sorted.length; i++) {
+        expect(recomputedSorted[i].scheduledStartTime,
+            sorted[i].scheduledStartTime);
+      }
+    });
+
+    test('chains pending rounds from the last locked round\'s actual end '
+        'time', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 3);
+      final sorted = t.rounds.toList()
+        ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+      final round1 = sorted[0];
+
+      for (final g in t.getGamesForRound(round1.id)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+      // Round 1 ran 4 minutes over its scheduled end.
+      final actualEnd = round1.scheduledStartTime
+          .add(round1.matchDuration)
+          .add(const Duration(minutes: 4));
+      t = t.updateRound(round1.copyWith(actualEndTime: actualEnd));
+
+      final recomputed = ScrambleService.recomputePendingStartTimes(t);
+      final round2 =
+          recomputed.rounds.firstWhere((r) => r.roundNumber == 2);
+      final round3 =
+          recomputed.rounds.firstWhere((r) => r.roundNumber == 3);
+
+      expect(round2.scheduledStartTime, actualEnd.add(round1.breakDuration));
+      expect(round3.scheduledStartTime,
+          round2.scheduledStartTime.add(round2.matchDuration + round2.breakDuration));
+    });
+  });
+
+  group('ScrambleService.applySettingsChange', () {
+    test('reducing round count preserves completed rounds/games and drops '
+        'the trailing scheduled tail', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 10);
+      final round1 = (t.rounds.toList()
+            ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber)))
+          .first;
+      for (final g in t.getGamesForRound(round1.id)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+
+      final updated =
+          ScrambleService.applySettingsChange(t, roundCount: 5);
+
+      expect(updated.roundCount, 5);
+      final keptRound1 =
+          updated.rounds.firstWhere((r) => r.roundNumber == 1);
+      expect(keptRound1.id, round1.id);
+      final round1Games = updated.getGamesForRound(keptRound1.id);
+      expect(round1Games, isNotEmpty);
+      expect(round1Games.every((g) => g.isCompleted), isTrue);
+      expect(round1Games.every((g) => g.sideAScore == 21), isTrue);
+      expect(updated.rounds.any((r) => r.roundNumber > 5), isFalse);
+    });
+
+    test('increasing round count appends and populates the new rounds', () {
+      final t = _build(n: 8, courtCount: 1, rounds: 5);
+
+      final updated =
+          ScrambleService.applySettingsChange(t, roundCount: 8);
+
+      expect(updated.roundCount, 8);
+      final roundNumbers =
+          updated.rounds.map((r) => r.roundNumber).toList()..sort();
+      expect(roundNumbers, [1, 2, 3, 4, 5, 6, 7, 8]);
+      for (final r in updated.rounds) {
+        expect(updated.getGamesForRound(r.id), isNotEmpty,
+            reason: 'round ${r.roundNumber} should have been populated');
+      }
+    });
+
+    test('changing court count only regenerates future games — the locked '
+        'round is preserved verbatim', () {
+      var t = _build(n: 12, courtCount: 1, rounds: 6);
+      final round1 = (t.rounds.toList()
+            ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber)))
+          .first;
+      final originalRound1GameIds =
+          t.getGamesForRound(round1.id).map((g) => g.id).toSet();
+      for (final g in t.getGamesForRound(round1.id)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+
+      final updated =
+          ScrambleService.applySettingsChange(t, courtCount: 2);
+
+      expect(updated.courtCount, 2);
+      // Locked round untouched: same game ids, still 1 court's worth.
+      final round1GamesAfter = updated.getGamesForRound(round1.id);
+      expect(round1GamesAfter.map((g) => g.id).toSet(),
+          originalRound1GameIds);
+      expect(round1GamesAfter.length, 1);
+      // A future round regenerates at the new court count (12 players,
+      // 2v2, 2 courts → 2 games).
+      final round2 =
+          updated.rounds.firstWhere((r) => r.roundNumber == 2);
+      expect(updated.getGamesForRound(round2.id).length, 2);
+    });
+
+    test('changing mode (playersPerTeam) is ignored once a game has '
+        'started', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 5);
+      final round1 = (t.rounds.toList()
+            ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber)))
+          .first;
+      for (final g in t.getGamesForRound(round1.id)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+
+      final updated =
+          ScrambleService.applySettingsChange(t, playersPerTeam: 3);
+
+      expect(updated.playersPerTeam, 2,
+          reason: 'mode must not change once round 1 has started');
+    });
+
+    test('changing mode (playersPerTeam) is applied when nothing has '
+        'started yet', () {
+      final t = _build(n: 12, courtCount: 1, rounds: 5);
+
+      final updated =
+          ScrambleService.applySettingsChange(t, playersPerTeam: 3);
+
+      expect(updated.playersPerTeam, 3);
+      expect(updated.games, isNotEmpty);
+      expect(updated.games.first.sideAPlayerIds.length, 3);
+      expect(updated.games.first.sideBPlayerIds.length, 3);
+    });
+  });
+
+  group('ScrambleService.reorderRounds', () {
+    List<ScrambleRound> sortedRounds(ScrambleTournament t) =>
+        t.rounds.toList()
+          ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+
+    ScrambleTournament completeRound(ScrambleTournament t, String roundId) {
+      for (final g in t.getGamesForRound(roundId)) {
+        t = t.updateGame(g.copyWith(
+          status: ScrambleGameStatus.completed,
+          sideAScore: 21,
+          sideBScore: 15,
+        ));
+      }
+      return t;
+    }
+
+    test('moving an unstarted round earlier renumbers to contiguous play '
+        'order, and its games travel with it', () {
+      final t = _build(n: 8, courtCount: 1, rounds: 6);
+      final rounds = sortedRounds(t);
+      final movedRound = rounds[4]; // round 5
+      final movedGameIds =
+          t.getGamesForRound(movedRound.id).map((g) => g.id).toSet();
+
+      // Move round 5 (index 4) to the top (index 0).
+      final r = ScrambleService.reorderRounds(t, oldIndex: 4, newIndex: 0);
+
+      // Round numbers are contiguous 1..N.
+      final nums = r.rounds.map((x) => x.roundNumber).toList()..sort();
+      expect(nums, [1, 2, 3, 4, 5, 6]);
+
+      // The moved round is now round 1 and keeps its identity + games.
+      final now = r.rounds.firstWhere((x) => x.id == movedRound.id);
+      expect(now.roundNumber, 1);
+      expect(r.getGamesForRound(movedRound.id).map((g) => g.id).toSet(),
+          movedGameIds);
+
+      // No games gained/lost; every roundId still exists.
+      expect(r.games.length, t.games.length);
+      expect(r.games.map((g) => g.roundId).toSet(),
+          t.games.map((g) => g.roundId).toSet());
+    });
+
+    test('scheduled start times stay strictly increasing by round number', () {
+      final t = _build(n: 8, courtCount: 1, rounds: 6);
+      final r = ScrambleService.reorderRounds(t, oldIndex: 5, newIndex: 1);
+      final rounds = sortedRounds(r);
+      for (var i = 1; i < rounds.length; i++) {
+        expect(rounds[i].scheduledStartTime
+            .isAfter(rounds[i - 1].scheduledStartTime), isTrue);
+      }
+    });
+
+    test('a locked round never moves; an unstarted round dropped above it '
+        'clamps to the first unstarted slot', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 6);
+      final round1Id = sortedRounds(t).first.id;
+      t = completeRound(t, round1Id); // round 1 locked
+
+      // Try to drag round 5 (index 4) to the very top (index 0, in the
+      // locked region).
+      final r = ScrambleService.reorderRounds(t, oldIndex: 4, newIndex: 0);
+
+      // Locked round 1 is untouched and still first.
+      final stillRound1 = r.rounds.firstWhere((x) => x.id == round1Id);
+      expect(stillRound1.roundNumber, 1);
+      // The dragged round landed just after it — as round 2.
+      final movedRoundId = sortedRounds(t)[4].id;
+      final moved = r.rounds.firstWhere((x) => x.id == movedRoundId);
+      expect(moved.roundNumber, 2);
+    });
+
+    test('dragging a locked round is a no-op', () {
+      var t = _build(n: 8, courtCount: 1, rounds: 6);
+      t = completeRound(t, sortedRounds(t).first.id);
+
+      final before = sortedRounds(t).map((r) => r.id).toList();
+      final r = ScrambleService.reorderRounds(t, oldIndex: 0, newIndex: 3);
+      final after = sortedRounds(r).map((x) => x.id).toList();
+
+      expect(after, before);
+    });
+
+    test('reordering does not introduce a teammate repeat beyond what '
+        'already existed', () {
+      // 7 players, 1 court, within the safe cap → no repeats to begin with.
+      final t = _build(n: 7, courtCount: 1, rounds: 7);
+      expect(_hasAnyTeammateRepeat(t), isFalse);
+      final r = ScrambleService.reorderRounds(t, oldIndex: 6, newIndex: 0);
+      expect(_hasAnyTeammateRepeat(r), isFalse);
+    });
+  });
 }

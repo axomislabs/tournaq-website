@@ -586,6 +586,42 @@ abstract class AppLocalizations {
   /// **'Sides Switched — Continue'**
   String get sideChangeContinue;
 
+  /// No description provided for @targetReachedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Reached'**
+  String get targetReachedTitle;
+
+  /// No description provided for @targetReachedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{team} reached the target.\n\nSet {set} is won.'**
+  String targetReachedBody(String team, int set);
+
+  /// No description provided for @targetReachedKeepPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Playing'**
+  String get targetReachedKeepPlaying;
+
+  /// No description provided for @sideSwapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Side swap'**
+  String get sideSwapLabel;
+
+  /// No description provided for @sideSwapNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No side swap'**
+  String get sideSwapNone;
+
+  /// No description provided for @optionCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom…'**
+  String get optionCustom;
+
   /// No description provided for @scoreGameOptions.
   ///
   /// In en, this message translates to:
@@ -2584,11 +2620,23 @@ abstract class AppLocalizations {
   /// **'Escape Points'**
   String get labelEscapePoints;
 
+  /// No description provided for @doghouseEscapePointsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Points the doghouse team must score to escape. A point is earned each time the serving (doghouse) team wins a rally. The score resets to zero after each game lost.'**
+  String get doghouseEscapePointsHelp;
+
   /// No description provided for @labelLossLimit.
   ///
   /// In en, this message translates to:
   /// **'Loss Limit'**
   String get labelLossLimit;
+
+  /// No description provided for @doghouseLossLimitHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many games the doghouse team can lose before being automatically ejected. Each time the court team wins a rally, one game is lost and the point score resets to zero.'**
+  String get doghouseLossLimitHelp;
 
   /// No description provided for @hintPlayerName.
   ///
@@ -2787,6 +2835,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gameplay Controls'**
   String get doghouseGameplayControls;
+
+  /// No description provided for @doghouseInDoghouseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In Doghouse'**
+  String get doghouseInDoghouseLabel;
 
   /// No description provided for @doghouseMatchControls.
   ///
@@ -4192,6 +4246,24 @@ abstract class AppLocalizations {
   /// **'Challengers'**
   String get kotcChallengers;
 
+  /// No description provided for @kotcCourtLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Court'**
+  String get kotcCourtLabel;
+
+  /// No description provided for @kotcStrikeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No strike'**
+  String get kotcStrikeOff;
+
+  /// No description provided for @kotcTeamSizeChangeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to new teams. The team on court keeps its size until it rotates out.'**
+  String get kotcTeamSizeChangeNote;
+
   /// No description provided for @kotcWaitingForPlayers.
   ///
   /// In en, this message translates to:
@@ -4203,6 +4275,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Eject challenger'**
   String get kotcEjectChallenger;
+
+  /// No description provided for @kotcEjectChallengerShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Eject\nChallenger'**
+  String get kotcEjectChallengerShort;
 
   /// No description provided for @kotcUndoEjectChallenger.
   ///
@@ -4795,7 +4873,7 @@ abstract class AppLocalizations {
   /// No description provided for @modeScrambleKingHelp.
   ///
   /// In en, this message translates to:
-  /// **'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player floats in with a rotating temporary partner each time it\'s their turn — either randomly (Placeholder) or fairness-balanced (Jumper) — and never earns individual points themselves, since they don\'t have a fixed team.\n\nAdd your players, set the number of rounds and courts, and go.'**
+  /// **'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player still gets their own team and queues just like everyone else — only their partner is decided differently: a fixed random partner for the whole round (Placeholder), or a fresh fairness-balanced partner each time they\'re on court (Jumper).\n\nAdd your players, set the number of rounds and courts, and go.'**
   String get modeScrambleKingHelp;
 
   /// No description provided for @scrambleKingStatsRounds.
@@ -4837,7 +4915,7 @@ abstract class AppLocalizations {
   /// No description provided for @scrambleKingOddPlayerHelp.
   ///
   /// In en, this message translates to:
-  /// **'When a court can\'t be split evenly into teams of two, one player floats in as needed. Placeholder pairs them with a random free player each time. Jumper pairs them using a fairness calculation so playing time stays balanced across the round. Either way, the floater never earns individual points — points from their stints go to the named player they partner with.'**
+  /// **'When a court can\'t be split evenly into teams of two, one player gets their own team and queues like everyone else — only their partner is decided by this setting. Placeholder picks a random free player the first time they take the court, then keeps that same partner for the rest of the round. Jumper re-picks a partner every time, using a fairness calculation so playing time stays balanced across the round. Either way, the odd player\'s own team earns the points, just like every other team.'**
   String get scrambleKingOddPlayerHelp;
 
   /// No description provided for @scrambleKingOddPlayerPlaceholderLabel.
@@ -4858,6 +4936,12 @@ abstract class AppLocalizations {
   /// **'Jumper: {name}'**
   String scrambleKingJumperPartner(String name);
 
+  /// No description provided for @scrambleKingNextAdminNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested fairly from players not about to play.'**
+  String get scrambleKingNextAdminNote;
+
   /// No description provided for @scrambleKingJumperAwaiting.
   ///
   /// In en, this message translates to:
@@ -4875,6 +4959,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{completed} / {total} rounds complete'**
   String scrambleKingRoundsProgress(int completed, int total);
+
+  /// No description provided for @scrambleKingRoundsPill.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} rounds'**
+  String scrambleKingRoundsPill(int n);
+
+  /// No description provided for @scrambleKingCourtsPill.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} courts'**
+  String scrambleKingCourtsPill(int n);
+
+  /// No description provided for @scrambleKingPlayersPill.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} players'**
+  String scrambleKingPlayersPill(int n);
+
+  /// No description provided for @scrambleKingRoundsPillLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds'**
+  String get scrambleKingRoundsPillLabel;
+
+  /// No description provided for @scrambleKingCourtsPillLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Courts'**
+  String get scrambleKingCourtsPillLabel;
+
+  /// No description provided for @scrambleKingInvalidCourtCount.
+  ///
+  /// In en, this message translates to:
+  /// **'That many courts doesn\'t work for the current player count.'**
+  String get scrambleKingInvalidCourtCount;
 
   /// No description provided for @scrambleKingOverallRanking.
   ///
@@ -4900,11 +5020,17 @@ abstract class AppLocalizations {
   /// **'Court'**
   String get scrambleKingCourtLabel;
 
-  /// No description provided for @scrambleKingFloaterBadge.
+  /// No description provided for @scrambleKingReadyToStart.
   ///
   /// In en, this message translates to:
-  /// **'{name} floats in as needed'**
-  String scrambleKingFloaterBadge(String name);
+  /// **'Ready to start'**
+  String get scrambleKingReadyToStart;
+
+  /// No description provided for @scrambleKingStartCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Court'**
+  String get scrambleKingStartCourt;
 
   /// No description provided for @scrambleKingRoundEndedBody.
   ///
@@ -5002,6 +5128,24 @@ abstract class AppLocalizations {
   /// **'Teams'**
   String get scrambleKingTeamsLabel;
 
+  /// No description provided for @scrambleKingTeamsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get scrambleKingTeamsFilterAll;
+
+  /// No description provided for @scrambleKingTeamsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams for this filter yet.'**
+  String get scrambleKingTeamsEmpty;
+
+  /// No description provided for @scrambleKingEditFormatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get scrambleKingEditFormatTitle;
+
   /// No description provided for @scrambleKingStatRounds.
   ///
   /// In en, this message translates to:
@@ -5014,29 +5158,29 @@ abstract class AppLocalizations {
   /// **'{teams} teams · {pts} pts total'**
   String scrambleKingTeamsSummary(int teams, int pts);
 
-  /// No description provided for @scrambleKingEditScore.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Score'**
-  String get scrambleKingEditScore;
-
   /// No description provided for @scrambleKingUndoFinishCourt.
   ///
   /// In en, this message translates to:
   /// **'Undo Finish'**
   String get scrambleKingUndoFinishCourt;
 
+  /// No description provided for @scrambleKingCourtCompleteBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This court\'s round is complete'**
+  String get scrambleKingCourtCompleteBanner;
+
+  /// No description provided for @scrambleKingCourtCompleteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here, or the ranking icon above, to view or edit results'**
+  String get scrambleKingCourtCompleteHint;
+
   /// No description provided for @scrambleKingRoundTimer.
   ///
   /// In en, this message translates to:
   /// **'Round Timer'**
   String get scrambleKingRoundTimer;
-
-  /// No description provided for @scrambleKingFloaterTag.
-  ///
-  /// In en, this message translates to:
-  /// **'Floater'**
-  String get scrambleKingFloaterTag;
 
   /// No description provided for @scrambleKingFinishCourt.
   ///
@@ -5205,6 +5349,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scheduled'**
   String get scrambleStatusScheduled;
+
+  /// No description provided for @scrambleImportedUpcomingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For other games, see the host device.'**
+  String get scrambleImportedUpcomingHint;
+
+  /// No description provided for @scrambleTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get scrambleTabHistory;
+
+  /// No description provided for @scrambleTabImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get scrambleTabImported;
+
+  /// No description provided for @scrambleBackToHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Hub'**
+  String get scrambleBackToHub;
+
+  /// No description provided for @scrambleImportedScorecard.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported Scorecard'**
+  String get scrambleImportedScorecard;
+
+  /// No description provided for @scrambleAdjustHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Adjust final score to change the score, then Complete.'**
+  String get scrambleAdjustHint;
+
+  /// No description provided for @overviewSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tournament Settings'**
+  String get overviewSettingsTitle;
+
+  /// No description provided for @overviewSettingsLockedRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds 1–{count} are already underway and won\'t change.'**
+  String overviewSettingsLockedRounds(int count);
+
+  /// No description provided for @overviewSettingsRoundsRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounds {from}–{to} will be removed.'**
+  String overviewSettingsRoundsRemoved(int from, int to);
+
+  /// No description provided for @overviewSettingsRoundsAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more round(s) will be added.'**
+  String overviewSettingsRoundsAdded(int count);
+
+  /// No description provided for @overviewSettingsRemix.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining schedule will be re-mixed as fairly as possible.'**
+  String get overviewSettingsRemix;
+
+  /// No description provided for @overviewSettingsModeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode can\'t be changed once a game has started.'**
+  String get overviewSettingsModeLocked;
+
+  /// No description provided for @overviewSettingsCourtsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {count} court(s) can be filled with the current players — reduce courts or add players.'**
+  String overviewSettingsCourtsBlocked(int count);
+
+  /// No description provided for @overviewSettingsConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply these changes?'**
+  String get overviewSettingsConfirmTitle;
+
+  /// No description provided for @overviewSettingsConfirmBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get overviewSettingsConfirmBtn;
 }
 
 class _AppLocalizationsDelegate

@@ -58,10 +58,25 @@ class ScrambleTimerWidgetState extends State<ScrambleTimerWidget> {
   void start() => _start();
   void pause() => _pause();
   void resume() => _resume();
-  void restart() => _restart();
+
+  /// Resets the countdown and returns to idle. Defaults to [widget.initial];
+  /// pass [to] to reset to a specific duration (e.g. the full match length,
+  /// when [widget.initial] holds a resumed partial remaining).
+  void restart([Duration? to]) => _restart(to);
   Duration get elapsed => _elapsed;
   Duration get remaining => _remaining;
   ScrambleTimerState get timerState => _state;
+
+  /// Silently puts the timer in the finished state (0:00, ticker stopped)
+  /// without calling [onFinished] — used when re-entering a scorecard whose
+  /// match time already elapsed, so the "time's up" flow doesn't fire again.
+  void markFinished() {
+    _ticker?.cancel();
+    setState(() {
+      _remaining = Duration.zero;
+      _state = ScrambleTimerState.finished;
+    });
+  }
 
   void addTime(Duration delta) {
     setState(() {
@@ -98,10 +113,10 @@ class ScrambleTimerWidgetState extends State<ScrambleTimerWidget> {
     _ticker = Timer.periodic(const Duration(seconds: 1), _onTick);
   }
 
-  void _restart() {
+  void _restart([Duration? to]) {
     _ticker?.cancel();
     setState(() {
-      _remaining = widget.initial;
+      _remaining = to ?? widget.initial;
       _elapsed = Duration.zero;
       _state = ScrambleTimerState.idle;
     });

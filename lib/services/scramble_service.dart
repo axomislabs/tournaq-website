@@ -715,6 +715,20 @@ class ScrambleService {
       ));
     }
 
+    // Referees are drawn only from players sitting out that round. If fewer
+    // players sit out than there are active courts, some courts won't get a
+    // dedicated referee (arbitratorId stays null — scored manually).
+    if (sittingOut < activeCourts) {
+      suggestions.add(ScrambleSuggestion(
+        type: ScrambleSuggestionType.noRefereeAvailable,
+        message: 'With $playerCount players filling $activeCourts court'
+            '${activeCourts == 1 ? '' : 's'} in ${playersPerTeam}v$playersPerTeam, '
+            'only $sittingOut player${sittingOut == 1 ? '' : 's'} sit out each round — '
+            '${activeCourts - sittingOut} court${activeCourts - sittingOut == 1 ? '' : 's'} '
+            'won\'t have a dedicated referee and will need scores entered manually.',
+      ));
+    }
+
     if (breakDuration.inMinutes > matchDuration.inMinutes) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.reduceBreakDuration,
@@ -808,6 +822,34 @@ class ScrambleService {
 
   // ── Mid-Tournament Rebuild ────────────────────────────────────────────────
 
+  /// Number of rounds, from round 1, that already have at least one started
+  /// or completed game — i.e. rounds that [applySettingsChange] cannot remove
+  /// and that block a [playersPerTeam] (mode) change. Used by the edit UI to
+  /// bound the rounds stepper and to decide whether the mode chip is locked.
+  static int lockedRoundCount(ScrambleTournament tournament) =>
+      _rebuildFrontier(tournament) - 1;
+
+  /// The first round number whose games are ALL still `scheduled` — i.e. the
+  /// earliest point from which the schedule can safely be regenerated without
+  /// touching a started/completed game. A round with no games yet (e.g. one
+  /// just appended by [applySettingsChange]) counts as fully scheduled too,
+  /// since `List.every` on an empty list is vacuously true — so newly added
+  /// rounds are always rebuildable.
+  ///
+  /// Returns `rounds.length + 1` when every round has at least one
+  /// non-scheduled game (nothing is safely rebuildable).
+  static int _rebuildFrontier(ScrambleTournament tournament) {
+    final sortedRounds = tournament.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    for (final round in sortedRounds) {
+      final games = tournament.getGamesForRound(round.id);
+      if (games.every((g) => g.status == ScrambleGameStatus.scheduled)) {
+        return round.roundNumber;
+      }
+    }
+    return sortedRounds.length + 1;
+  }
+
   /// Regenerates all unstarted rounds after a player roster change (eject,
   /// swap, or late addition). Completed and in-progress games are preserved
   /// verbatim; pair-encounter history is reconstructed from those games so the
@@ -826,15 +868,7 @@ class ScrambleService {
     final sortedRounds = tournament.rounds.toList()
       ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
 
-    // First round whose games are all still scheduled (none started yet).
-    int rebuildFromNumber = sortedRounds.length + 1;
-    for (final round in sortedRounds) {
-      final games = tournament.getGamesForRound(round.id);
-      if (games.every((g) => g.status == ScrambleGameStatus.scheduled)) {
-        rebuildFromNumber = round.roundNumber;
-        break;
-      }
-    }
+    final rebuildFromNumber = _rebuildFrontier(tournament);
 
     if (rebuildFromNumber > sortedRounds.length) {
       return tournament.copyWith(players: newPlayers);
@@ -1059,6 +1093,151 @@ class ScrambleService {
     }
 
     return (newGames, teammateExcess);
+  }
+
+  /// Recomputes `scheduledStartTime` for every round at/after the rebuild
+  /// frontier (see [_rebuildFrontier]), chaining forward from either the last
+  /// locked round's end (its `actualEndTime` if it has one, otherwise its own
+  /// scheduled end) or [ScrambleTournament.startTime] when no round has
+  /// started yet. Rounds before the frontier are left completely untouched —
+  /// this never moves a round that has already started or completed.
+  static ScrambleTournament recomputePendingStartTimes(
+    ScrambleTournament tournament,
+  ) {
+    final sortedRounds = tournament.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    final frontier = _rebuildFrontier(tournament);
+
+    var next = tournament.startTime;
+    final updated = <ScrambleRound>[];
+    for (final r in sortedRounds) {
+      if (r.roundNumber < frontier) {
+        final end = r.actualEndTime != null
+            ? r.actualEndTime!.add(r.breakDuration)
+            : r.scheduledStartTime.add(r.matchDuration + r.breakDuration);
+        if (end.isAfter(next)) next = end;
+        updated.add(r);
+        continue;
+      }
+      updated.add(r.copyWith(scheduledStartTime: next));
+      next = next.add(r.matchDuration + r.breakDuration);
+    }
+
+    return tournament.copyWith(rounds: updated);
+  }
+
+  /// Applies a change to round count, court count, and/or mode
+  /// ([playersPerTeam]) to an existing tournament. Only the still-`scheduled`
+  /// tail (from [_rebuildFrontier] onward) is regenerated — completed and
+  /// in-progress rounds/games are preserved untouched, and pairing history is
+  /// re-seeded from them so mixing keeps avoiding prior pairings.
+  ///
+  /// The calling UI is expected to have already confirmed feasibility (via
+  /// [validate]) and to disable the mode edit once any game has started, but
+  /// both are enforced here too, defensively:
+  ///  - [playersPerTeam] is only applied while NO round is locked yet
+  ///    (silently ignored otherwise, rather than corrupting an in-progress
+  ///    game's side size).
+  ///  - [roundCount] is clamped to never drop below the number of already
+  ///    locked rounds — you cannot remove a round that's already underway.
+  static ScrambleTournament applySettingsChange(
+    ScrambleTournament t, {
+    int? roundCount,
+    int? courtCount,
+    int? playersPerTeam,
+  }) {
+    final frontier = _rebuildFrontier(t);
+    final lockedRoundCount = frontier - 1;
+
+    final newPlayersPerTeam = (playersPerTeam != null && lockedRoundCount == 0)
+        ? playersPerTeam
+        : t.playersPerTeam;
+    final newRoundCount = roundCount == null
+        ? t.roundCount
+        : max(roundCount, lockedRoundCount);
+
+    var rounds = t.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    var games = t.games.toList();
+
+    if (newRoundCount < rounds.length) {
+      // Only ever drops the trailing, still-scheduled tail — guaranteed by
+      // the newRoundCount >= lockedRoundCount clamp above.
+      final keepIds = rounds.sublist(0, newRoundCount).map((r) => r.id).toSet();
+      rounds = rounds.where((r) => keepIds.contains(r.id)).toList();
+      games = games.where((g) => keepIds.contains(g.roundId)).toList();
+    } else if (newRoundCount > rounds.length) {
+      // Append empty rounds; rebuildRemainingRounds (below) populates them —
+      // a round with no games is vacuously "fully scheduled" (see
+      // _rebuildFrontier), so it's always included in the regenerated tail.
+      final lastNumber = rounds.isEmpty ? 0 : rounds.last.roundNumber;
+      final toAdd = newRoundCount - rounds.length; // cache — rounds grows below
+      for (var i = 1; i <= toAdd; i++) {
+        rounds.add(ScrambleRound(
+          id: ScrambleRound.generateId(),
+          roundNumber: lastNumber + i,
+          scheduledStartTime: t.startTime, // placeholder, recomputed below
+          matchDuration: t.matchDuration,
+          breakDuration: t.breakDuration,
+        ));
+      }
+    }
+
+    var updated = t.copyWith(
+      rounds: rounds,
+      games: games,
+      courtCount: courtCount ?? t.courtCount,
+      playersPerTeam: newPlayersPerTeam,
+    );
+
+    updated = recomputePendingStartTimes(updated);
+
+    final roundDuration = updated.matchDuration + updated.breakDuration;
+    updated =
+        updated.copyWith(totalAvailableTime: roundDuration * updated.roundCount);
+
+    return rebuildRemainingRounds(updated, updated.players);
+  }
+
+  /// Moves an unstarted round to a new position in the schedule, renumbering
+  /// every round to its new play order and recomputing pending start times.
+  ///
+  /// [oldIndex]/[newIndex] index into the rounds sorted ascending by
+  /// `roundNumber`, following [ReorderableListView.onReorder] conventions.
+  /// Only the still-unstarted tail can move — a locked round never moves, and
+  /// an unstarted round dropped above the locked block clamps to the first
+  /// unstarted slot instead of jumping ahead of played rounds.
+  ///
+  /// Games travel with their round (they reference `roundId`, not
+  /// `roundNumber`), so pairings are preserved and nothing is regenerated —
+  /// resequencing can't create a new teammate repeat, since teammate counts
+  /// are symmetric across the whole schedule.
+  static ScrambleTournament reorderRounds(
+    ScrambleTournament t, {
+    required int oldIndex,
+    required int newIndex,
+  }) {
+    final rounds = t.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    final locked = lockedRoundCount(t);
+
+    if (oldIndex < locked || oldIndex >= rounds.length) return t;
+
+    // Standard ReorderableListView index adjustment, then keep the drop inside
+    // the unstarted tail.
+    var target = newIndex > oldIndex ? newIndex - 1 : newIndex;
+    target = target.clamp(locked, rounds.length - 1);
+    if (target == oldIndex) return t;
+
+    final moved = rounds.removeAt(oldIndex);
+    rounds.insert(target, moved);
+
+    final renumbered = <ScrambleRound>[
+      for (var i = 0; i < rounds.length; i++)
+        rounds[i].copyWith(roundNumber: i + 1),
+    ];
+
+    return recomputePendingStartTimes(t.copyWith(rounds: renumbered));
   }
 
   // ── Schedule Reflow ───────────────────────────────────────────────────────

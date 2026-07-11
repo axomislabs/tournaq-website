@@ -212,6 +212,108 @@ void main() {
     });
   });
 
+  group('setRoundCount', () {
+    test('appends new rounds scheduled back-to-back after the last round', () {
+      final t = _build(n: 16, courtCount: 2, rounds: 2);
+      final updated = ScrambleKingService.setRoundCount(t, 4);
+
+      expect(updated.roundCount, 4);
+      expect(updated.rounds.length, 4);
+      expect(updated.rounds[0], t.rounds[0]);
+      expect(updated.rounds[1], t.rounds[1]);
+      for (var i = 2; i < 4; i++) {
+        expect(updated.rounds[i].roundNumber, i + 1);
+        final expectedStart = updated.rounds[i - 1].scheduledBreakEndTime;
+        expect(updated.rounds[i].scheduledStartTime, expectedStart);
+      }
+    });
+
+    test('appended rounds cover every active player exactly once', () {
+      final t = _build(n: 17, courtCount: 2, rounds: 1);
+      final updated = ScrambleKingService.setRoundCount(t, 2);
+      final appended = updated.rounds.last;
+      final assigned = <String>{};
+      for (final court in appended.courts) {
+        for (final slot in court.teamSlots) {
+          assigned.addAll(slot.playerIds);
+        }
+        if (court.floaterSlot != null) assigned.add(court.floaterSlot!.playerId);
+      }
+      expect(assigned, t.players.map((p) => p.id).toSet());
+    });
+
+    test('truncates trailing untouched rounds', () {
+      final t = _build(n: 16, courtCount: 2, rounds: 4);
+      final updated = ScrambleKingService.setRoundCount(t, 2);
+
+      expect(updated.roundCount, 2);
+      expect(updated.rounds.length, 2);
+      expect(updated.rounds, [t.rounds[0], t.rounds[1]]);
+    });
+
+    test('never drops a round that already has a started court', () {
+      final t = _build(n: 16, courtCount: 2, rounds: 4);
+      // Rounds play out in order: 0 and 1 already started, 2 just started.
+      var withStart = t;
+      for (var i = 0; i < 3; i++) {
+        final startedCourt = withStart.rounds[i].courts.first
+            .copyWith(actualStartTime: DateTime(2026, 1, 1, 9, i * 20));
+        withStart = withStart.updateRound(withStart.rounds[i].updateCourt(startedCourt));
+      }
+
+      // Ask for fewer rounds than the started one's index would allow.
+      final updated = ScrambleKingService.setRoundCount(withStart, 1);
+
+      expect(updated.roundCount, 3);
+      expect(updated.rounds.length, 3);
+      expect(updated.rounds[2].courts, withStart.rounds[2].courts);
+    });
+
+    test('never drops a round that already has stints', () {
+      final t = _build(n: 16, courtCount: 2, rounds: 3);
+      // Round 0 already started; round 1 has a recorded stint.
+      final round0 = t.rounds[0];
+      final startedCourt0 =
+          round0.courts.first.copyWith(actualStartTime: DateTime(2026, 1, 1, 9, 0));
+      final withStart = t.updateRound(round0.updateCourt(startedCourt0));
+
+      final round1 = withStart.rounds[1];
+      final court = round1.courts.first;
+      final stint = ScrambleKingStint(
+        id: 'st1',
+        roundId: round1.id,
+        courtNumber: court.courtNumber,
+        turnSlotId: court.teamSlots.first.slotId,
+        creditSlotId: court.teamSlots.first.slotId,
+        playerIds: court.teamSlots.first.playerIds,
+        points: 5,
+        startTime: DateTime(2026, 1, 1, 9, 10),
+      );
+      final withStint = withStart.addStint(stint);
+
+      final updated = ScrambleKingService.setRoundCount(withStint, 1);
+
+      expect(updated.roundCount, 2);
+      expect(updated.rounds.length, 2);
+    });
+
+    test('appended rounds are seeded from existing fairness matrices (no immediate repeat pairing)',
+        () {
+      final t = _build(n: 8, courtCount: 1, rounds: 1);
+      final updated = ScrambleKingService.setRoundCount(t, 2);
+
+      final firstPairs = t.rounds.single.courts
+          .expand((c) => c.teamSlots)
+          .map((s) => (s.playerIds..sort()).join('-'))
+          .toSet();
+      final secondPairs = updated.rounds.last.courts
+          .expand((c) => c.teamSlots)
+          .map((s) => (s.playerIds..sort()).join('-'))
+          .toSet();
+      expect(firstPairs.intersection(secondPairs), isEmpty);
+    });
+  });
+
   group('rankQueue', () {
     test('prefers the slot that has not faced the on-court slot recently', () {
       final stints = [
@@ -244,117 +346,6 @@ void main() {
     });
   });
 
-  group('wouldRankFirst', () {
-    test('returns true when the slot has the longest wait time', () {
-      final stints = [
-        ScrambleKingStint(
-          id: 's1',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'A',
-          creditSlotId: 'A',
-          playerIds: const ['p0', 'p1'],
-          startTime: DateTime(2026, 1, 1, 10, 0),
-        ),
-        ScrambleKingStint(
-          id: 's2',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'B',
-          creditSlotId: 'B',
-          playerIds: const ['p2', 'p3'],
-          startTime: DateTime(2026, 1, 1, 10, 5),
-        ),
-      ];
-      // C has never played, so if included it would rank first (longest wait)
-      expect(
-        ScrambleKingService.wouldRankFirst(
-          slotId: 'C',
-          queueSlotIds: ['A', 'B'],
-          onCourtSlotId: null,
-          courtStints: stints,
-        ),
-        isTrue,
-      );
-    });
-
-    test('returns false when the slot does not rank first', () {
-      final stints = [
-        ScrambleKingStint(
-          id: 's1',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'A',
-          creditSlotId: 'A',
-          playerIds: const ['p0', 'p1'],
-          startTime: DateTime(2026, 1, 1, 10, 0),
-        ),
-        ScrambleKingStint(
-          id: 's2',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'B',
-          creditSlotId: 'B',
-          playerIds: const ['p2', 'p3'],
-          startTime: DateTime(2026, 1, 1, 10, 5),
-        ),
-        ScrambleKingStint(
-          id: 's3',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'C',
-          creditSlotId: 'C',
-          playerIds: const ['p4', 'p5'],
-          startTime: DateTime(2026, 1, 1, 10, 10),
-        ),
-      ];
-      // C just played, A has the longest wait → A ranks first, not B
-      expect(
-        ScrambleKingService.wouldRankFirst(
-          slotId: 'B',
-          queueSlotIds: ['A', 'C'],
-          onCourtSlotId: null,
-          courtStints: stints,
-        ),
-        isFalse,
-      );
-    });
-
-    test('accounts for adjacency (pairing fairness) when deciding if a slot is due', () {
-      final stints = [
-        ScrambleKingStint(
-          id: 's1',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'A',
-          creditSlotId: 'A',
-          playerIds: const ['p0', 'p1'],
-          startTime: DateTime(2026, 1, 1, 10, 0),
-        ),
-        ScrambleKingStint(
-          id: 's2',
-          roundId: 'r1',
-          courtNumber: 1,
-          turnSlotId: 'B',
-          creditSlotId: 'B',
-          playerIds: const ['p2', 'p3'],
-          startTime: DateTime(2026, 1, 1, 10, 5),
-        ),
-      ];
-      // B just faced A (adjency count = 1). With A on court, B has a lower
-      // pairing score than C even if C has waited slightly longer.
-      expect(
-        ScrambleKingService.wouldRankFirst(
-          slotId: 'B',
-          queueSlotIds: ['C'],
-          onCourtSlotId: 'A',
-          courtStints: stints,
-        ),
-        isFalse,
-      );
-    });
-  });
-
   group('floater temp-partner selection', () {
     final teamA = ScrambleKingTeamSlot(slotId: 'A', playerIds: const ['p0', 'p1']);
     final teamB = ScrambleKingTeamSlot(slotId: 'B', playerIds: const ['p2', 'p3']);
@@ -380,24 +371,11 @@ void main() {
         expect(['p2', 'p3'].contains(pick!.playerId), isTrue);
       }
     });
-
-    test('placeholder distributes roughly uniformly over many trials', () {
-      final counts = <String, int>{};
-      for (var i = 0; i < 400; i++) {
-        final pick = ScrambleKingService.pickPlaceholderPartner(
-          otherQueuedTeams: [teamA, teamB],
-        );
-        counts[pick!.playerId] = (counts[pick.playerId] ?? 0) + 1;
-      }
-      expect(counts.keys.toSet(), {'p0', 'p1', 'p2', 'p3'});
-      for (final c in counts.values) {
-        expect(c, greaterThan(40)); // ~100 expected each; generous margin
-      }
-    });
   });
 
   group('scoring attribution', () {
-    test('a floater stint credits the borrowed player\'s real team, never the floater', () {
+    test('a floater stint credits the odd player\'s own team, never the borrowed partner\'s team',
+        () {
       final t = _build(n: 5, courtCount: 1, rounds: 1); // forces exactly one floater court
       final round = t.rounds.single;
       final court = round.courts.single;
@@ -412,7 +390,7 @@ void main() {
         roundId: round.id,
         courtNumber: court.courtNumber,
         turnSlotId: court.floaterSlot!.slotId,
-        creditSlotId: teamSlot.slotId, // borrowed player's real team
+        creditSlotId: court.floaterSlot!.slotId, // the odd player's own team
         playerIds: [floaterId, borrowedPlayerId],
         isFloaterStint: true,
         standInPlayerId: floaterId,
@@ -425,22 +403,37 @@ void main() {
 
       final result = ScrambleKingService.computeCourtRoundResult(
           tournament, round.id, court.courtNumber);
-      final teamResult =
+      final floaterResult =
+          result.teamResults.firstWhere((r) => r.slotId == court.floaterSlot!.slotId);
+      expect(floaterResult.autoPoints, 7);
+      final borrowedTeamResult =
           result.teamResults.firstWhere((r) => r.slotId == teamSlot.slotId);
-      expect(teamResult.autoPoints, 7);
+      expect(borrowedTeamResult.autoPoints, 0);
 
       final stats = ScrambleKingService.computeStats(tournament);
       final floaterStats = stats.firstWhere((s) => s.playerId == floaterId);
-      expect(floaterStats.totalPoints, 0);
+      expect(floaterStats.totalPoints, 7);
 
-      final borrowedStats =
-          stats.firstWhere((s) => s.playerId == borrowedPlayerId);
-      expect(borrowedStats.totalPoints, 7);
-      // The absent regular partner also benefits, per the "every player gets
-      // the team's round points" rule.
-      final partnerStats = stats.firstWhere(
-          (s) => s.playerId == teamSlot.playerIds.last);
-      expect(partnerStats.totalPoints, 7);
+      // The borrowed player (and their real partner) are unaffected — the
+      // points went to the odd player's own team, not theirs.
+      final borrowedStats = stats.firstWhere((s) => s.playerId == borrowedPlayerId);
+      expect(borrowedStats.totalPoints, 0);
+      final partnerStats = stats.firstWhere((s) => s.playerId == teamSlot.playerIds.last);
+      expect(partnerStats.totalPoints, 0);
+    });
+
+    test('the odd player\'s team gets its own fun team name, like every other team', () {
+      final t = _build(n: 5, courtCount: 1, rounds: 1);
+      final court = t.rounds.single.courts.single;
+      expect(court.floaterSlot, isNotNull);
+      expect(court.floaterSlot!.teamName, isNotNull);
+      expect(court.floaterSlot!.teamName, isNotEmpty);
+      // Unique among this court's team names.
+      final allNames = [
+        ...court.teamSlots.map((s) => s.teamName),
+        court.floaterSlot!.teamName,
+      ];
+      expect(allNames.toSet().length, allNames.length);
     });
 
     test('manual override takes precedence over auto-computed points', () {

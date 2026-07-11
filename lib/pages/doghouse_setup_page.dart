@@ -727,10 +727,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     ctrl:     _escapeCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
                     onParsed: (v) => _escapePoints = v.clamp(1, 999),
-                    helpText: 'Points the doghouse team must score to escape. '
-                        'A point is earned each time the serving '
-                        '(doghouse) team wins a rally. '
-                        'The score resets to zero after each game lost.',
+                    helpText: AppLocalizations.of(context)!.doghouseEscapePointsHelp,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -740,10 +737,7 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
                     ctrl:     _lossLimitCtrl,
                     presets:  [1, 2, 3, 5, 7, 10],
                     onParsed: (v) => _lossLimit = v.clamp(1, 999),
-                    helpText: 'How many games the doghouse team can lose '
-                        'before being automatically ejected. '
-                        'Each time the court team wins a rally, '
-                        'one game is lost and the point score resets to zero.',
+                    helpText: AppLocalizations.of(context)!.doghouseLossLimitHelp,
                   ),
                 ),
               ],
@@ -889,6 +883,10 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
             DropdownMenuItem(
               value: DoghouseAssignmentMode.automated,
               child: Text(AppLocalizations.of(context)!.doghouseAssignmentAutomated),
+            ),
+            DropdownMenuItem(
+              value: DoghouseAssignmentMode.automatedAllPlay,
+              child: Text(AppLocalizations.of(context)!.setupFormatAutoAllplay),
             ),
           ],
           onChanged: (v) {

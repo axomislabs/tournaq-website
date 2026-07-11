@@ -8,7 +8,7 @@ enum DoghouseTournamentStatus { setup, inProgress, completed }
 
 enum DoghousePlayerSource { existing, created, random }
 
-enum DoghouseAssignmentMode { manual, automated }
+enum DoghouseAssignmentMode { manual, automated, automatedAllPlay }
 
 // ── Player ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +78,9 @@ class DoghouseGame {
   final int gamesWon;    // 1 if escaped, 0 if auto-ejected
   final DateTime startTime;
   final DateTime? endTime;
+  // Auto-All-Play only: the player who kept score for this game (null otherwise).
+  // Used to keep the admin/scorekeeper rotation fair across the session.
+  final String? adminPlayerId;
 
   const DoghouseGame({
     required this.id,
@@ -87,6 +90,7 @@ class DoghouseGame {
     this.gamesWon = 0,
     required this.startTime,
     this.endTime,
+    this.adminPlayerId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -97,6 +101,7 @@ class DoghouseGame {
         'gamesWon': gamesWon,
         'startTime': startTime.toIso8601String(),
         'endTime': endTime?.toIso8601String(),
+        'adminPlayerId': adminPlayerId,
       };
 
   factory DoghouseGame.fromJson(Map<String, dynamic> j) => DoghouseGame(
@@ -109,6 +114,7 @@ class DoghouseGame {
         endTime: j['endTime'] != null
             ? DateTime.parse(j['endTime'] as String)
             : null,
+        adminPlayerId: j['adminPlayerId'] as String?,
       );
 
   static String generateId() => _uuid.v4();
@@ -130,7 +136,12 @@ class DoghouseTournament {
   final List<DoghouseGame> games;
   final DateTime createdAt;
   final String deviceId;
+  // Persisted so the timer survives app restarts.
   final int? remainingSeconds;
+  // Wall-clock instant the countdown was last (re)started; non-null iff the
+  // timer is actively running. While running, [remainingSeconds] is the time
+  // left as of [timerAnchor], so the live value = remainingSeconds - (now - timerAnchor).
+  final DateTime? timerAnchor;
 
   DoghouseTournament({
     required this.id,
@@ -147,6 +158,7 @@ class DoghouseTournament {
     required this.createdAt,
     String? deviceId,
     this.remainingSeconds,
+    this.timerAnchor,
   }) : deviceId = deviceId ?? DeviceIdService.currentDeviceId;
 
   int get playerCount  => players.where((p) => p.isActive).length;
@@ -196,28 +208,45 @@ class DoghouseTournament {
     return map;
   }
 
+  // How many games each player has kept score for (Auto-All-Play admin turns).
+  Map<String, int> get adminCountPerPlayer {
+    final map = <String, int>{};
+    for (final game in games) {
+      final admin = game.adminPlayerId;
+      if (admin != null) map[admin] = (map[admin] ?? 0) + 1;
+    }
+    return map;
+  }
+
   DoghouseTournament copyWith({
     DoghouseTournamentStatus? status,
     List<DoghousePlayer>? players,
     List<DoghouseGame>? games,
     int? remainingSeconds,
     bool clearRemainingSeconds = false,
+    DoghouseAssignmentMode? assignmentMode,
+    int? escapePoints,
+    int? lossLimit,
+    int? playersPerTeam,
+    DateTime? timerAnchor,
+    bool clearTimerAnchor = false,
   }) =>
       DoghouseTournament(
         id: id,
         name: name,
         totalTime: totalTime,
-        playersPerTeam: playersPerTeam,
+        playersPerTeam: playersPerTeam ?? this.playersPerTeam,
         courtCount: courtCount,
-        escapePoints: escapePoints,
-        lossLimit: lossLimit,
-        assignmentMode: assignmentMode,
+        escapePoints: escapePoints ?? this.escapePoints,
+        lossLimit: lossLimit ?? this.lossLimit,
+        assignmentMode: assignmentMode ?? this.assignmentMode,
         status: status ?? this.status,
         players: players ?? this.players,
         games: games ?? this.games,
         createdAt: createdAt,
         deviceId: deviceId,
         remainingSeconds: clearRemainingSeconds ? null : (remainingSeconds ?? this.remainingSeconds),
+        timerAnchor: clearTimerAnchor ? null : (timerAnchor ?? this.timerAnchor),
       );
 
   Map<String, dynamic> toJson() => {
@@ -235,6 +264,7 @@ class DoghouseTournament {
         'createdAt': createdAt.toIso8601String(),
         'deviceId': deviceId,
         'remainingSeconds': remainingSeconds,
+        'timerAnchor': timerAnchor?.toIso8601String(),
       };
 
   factory DoghouseTournament.fromJson(Map<String, dynamic> j) => DoghouseTournament(
@@ -260,6 +290,9 @@ class DoghouseTournament {
         createdAt: DateTime.parse(j['createdAt'] as String),
         deviceId: j['deviceId'] as String? ?? '',
         remainingSeconds: j['remainingSeconds'] as int?,
+        timerAnchor: j['timerAnchor'] != null
+            ? DateTime.parse(j['timerAnchor'] as String)
+            : null,
       );
 
   static String generateId() => _uuid.v4();

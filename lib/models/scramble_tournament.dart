@@ -17,7 +17,7 @@ class ScramblePlayer {
   final String name;
   final ScramblePlayerSource source;
   final String? appUserId;
-  final PlayerStatus status
+  final PlayerStatus status;
 
   const ScramblePlayer({
     required this.id,
@@ -209,6 +209,7 @@ class ScrambleRound {
   Duration get totalDuration => matchDuration + breakDuration;
 
   ScrambleRound copyWith({
+    int? roundNumber,
     DateTime? scheduledStartTime,
     Duration? matchDuration,
     Duration? breakDuration,
@@ -217,7 +218,7 @@ class ScrambleRound {
   }) =>
       ScrambleRound(
         id: id,
-        roundNumber: roundNumber,
+        roundNumber: roundNumber ?? this.roundNumber,
         scheduledStartTime: scheduledStartTime ?? this.scheduledStartTime,
         matchDuration: matchDuration ?? this.matchDuration,
         breakDuration: breakDuration ?? this.breakDuration,
@@ -382,15 +383,18 @@ class ScrambleTournament {
     List<ScrambleGame>? games,
     DateTime? startTime,
     bool? paceAlertsEnabled,
+    int? courtCount,
+    int? playersPerTeam,
+    Duration? totalAvailableTime,
   }) =>
       ScrambleTournament(
         id: id,
         name: name ?? this.name,
-        totalAvailableTime: totalAvailableTime,
+        totalAvailableTime: totalAvailableTime ?? this.totalAvailableTime,
         matchDuration: matchDuration,
         breakDuration: breakDuration,
-        courtCount: courtCount,
-        playersPerTeam: playersPerTeam,
+        courtCount: courtCount ?? this.courtCount,
+        playersPerTeam: playersPerTeam ?? this.playersPerTeam,
         paceAlertsEnabled: paceAlertsEnabled ?? this.paceAlertsEnabled,
         startTime: startTime ?? this.startTime,
         players: players ?? this.players,
@@ -471,6 +475,7 @@ enum ScrambleSuggestionType {
   adjustCourtCount,
   largeGroup,
   capRoundsForFreshPartners,
+  noRefereeAvailable,
 }
 
 class ScrambleSuggestion {

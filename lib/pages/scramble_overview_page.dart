@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
@@ -5,14 +6,18 @@ import '../models/player.dart';
 import '../models/player_status.dart';
 import '../models/scramble_tournament.dart';
 import '../widgets/player_picker_sheet.dart';
+import '../widgets/scramble_suggestion_card.dart';
 import '../widgets/tournament_player_row.dart';
 import '../services/local_storage_service.dart';
 import '../services/scramble_service.dart';
 import '../services/scramble_storage_service.dart';
+import '../services/scramble_transfer_service.dart';
+import '../widgets/qr_export_sheet.dart';
 import '../widgets/scramble_game_tile.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
+import 'qr_scan_page.dart';
 import 'scramble_scorecard_page.dart';
 import 'scramble_stats_page.dart';
 
@@ -67,6 +72,70 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     if (updated != null) _update(updated);
   }
 
+  // ── QR export / import ────────────────────────────────────────────────────
+
+  void _exportGame(ScrambleGame game, ScrambleRound round) {
+    final l10n = AppLocalizations.of(context)!;
+    final data = ScrambleTransferService.encodeGameExport(_t, game, round);
+    final teamA = game.sideAPlayerIds
+        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .join(' & ');
+    final teamB = game.sideBPlayerIds
+        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .join(' & ');
+    showQrExportSheet(
+      context,
+      title: l10n.scrambleExportScorecard,
+      subtitle: '${l10n.scrambleImportedCourt(game.courtNumber)} · $teamA vs $teamB',
+      data: data,
+    );
+  }
+
+  Future<void> _importResult(ScrambleGame game) async {
+    final l10n = AppLocalizations.of(context)!;
+    final raw = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => QrScanPage(hint: l10n.scrambleScanResultHint),
+      ),
+    );
+    if (raw == null || !mounted) return;
+
+    ScrambleResultUpdate result;
+    try {
+      result = ScrambleTransferService.decodeResult(raw);
+    } catch (_) {
+      _showSnack(l10n.scrambleScanNotResult);
+      return;
+    }
+    if (result.parentTournamentId.isNotEmpty &&
+        result.parentTournamentId != _t.id) {
+      _showSnack(l10n.scrambleResultMismatch);
+      return;
+    }
+    final target = _t.games
+        .cast<ScrambleGame?>()
+        .firstWhere((g) => g?.id == result.gameId, orElse: () => null);
+    if (target == null) {
+      _showSnack(l10n.scrambleResultMismatch);
+      return;
+    }
+    final updatedGame = target.copyWith(
+      sideAScore: result.sideAScore,
+      sideBScore: result.sideBScore,
+      status: ScrambleGameStatus.completed,
+      actualStartTime: result.actualStartTime,
+      actualEndTime: result.actualEndTime,
+    );
+    _update(_t.updateGame(updatedGame));
+    _showSnack(l10n.scrambleResultImported);
+  }
+
+  void _showSnack(String msg) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
+  }
+
   void _openStats() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => ScrambleStatsPage(tournament: _t),
@@ -108,7 +177,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             const SizedBox(height: 20),
             _sectionDivider(l10n.overviewSectionSchedule, Icons.event_note_rounded),
             const SizedBox(height: 10),
-            ..._buildRoundSections(l10n),
+            _buildScheduleList(l10n),
           ],
         ),
       ),
@@ -186,15 +255,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 15),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      l10n.overviewStatsSummary(
-                          _t.roundCount, _t.courtCount, _t.playerCount),
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.black54),
-                    ),
+                    const SizedBox(height: 6),
+                    _buildStatChips(l10n),
                     if (estFinish != null) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         finished
                             ? l10n.overviewFinished(
@@ -248,6 +312,77 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Rounds / Courts / Mode / Players stats, as chips. Rounds, Courts and
+  /// Mode are tappable and open the settings edit sheet; Players is
+  /// display-only (the roster is edited from the Players section below).
+  Widget _buildStatChips(AppLocalizations l10n) {
+    final modeLocked = ScrambleService.lockedRoundCount(_t) > 0;
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        _statChip(Icons.event_repeat_rounded, l10n.statsRounds(_t.roundCount),
+            onTap: _showSettingsEditSheet),
+        _statChip(Icons.crop_square_rounded, l10n.statsCourts(_t.courtCount),
+            onTap: _showSettingsEditSheet),
+        _statChip(
+          Icons.grid_view_rounded,
+          '${_t.playersPerTeam}v${_t.playersPerTeam}',
+          onTap: _showSettingsEditSheet,
+          locked: modeLocked,
+        ),
+        _statChip(
+            Icons.people_rounded, l10n.doghouseStatsPlayers(_t.playerCount)),
+      ],
+    );
+  }
+
+  /// A small tappable/display-only pill for [_buildStatChips]. [locked] shows
+  /// a lock glyph instead of the edit pencil (used for the mode chip once any
+  /// game has started).
+  Widget _statChip(
+    IconData icon,
+    String label, {
+    VoidCallback? onTap,
+    bool locked = false,
+  }) {
+    final chip = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: AppColors.oliveMedium),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87),
+          ),
+          if (locked) ...[
+            const SizedBox(width: 3),
+            const Icon(Icons.lock_rounded, size: 10, color: Colors.black38),
+          ] else if (onTap != null) ...[
+            const SizedBox(width: 3),
+            const Icon(Icons.edit_rounded, size: 10, color: Colors.black38),
+          ],
+        ],
+      ),
+    );
+    if (onTap == null) return chip;
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: chip,
     );
   }
 
@@ -723,6 +858,225 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
+  /// Edit sheet for the Rounds / Courts / Mode chips. All three live together
+  /// (rather than one sheet per chip) because they're interdependent — a
+  /// warning about e.g. courts not fitting the player count needs the full
+  /// combination, not just the one field being edited.
+  void _showSettingsEditSheet() {
+    int rounds = _t.roundCount;
+    int courts = _t.courtCount;
+    int mode = _t.playersPerTeam;
+    final activePlayerCount = _t.players.where((p) => p.isActive).length;
+    final lockedRounds = ScrambleService.lockedRoundCount(_t);
+    final minRounds = max(1, lockedRounds);
+    final modeLocked = lockedRounds > 0;
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          final l10n = AppLocalizations.of(context)!;
+
+          final suggestions = ScrambleService.validate(
+            roundCount: rounds,
+            matchDuration: _t.matchDuration,
+            breakDuration: _t.breakDuration,
+            courtCount: courts,
+            playerCount: activePlayerCount,
+            playersPerTeam: mode,
+          );
+          final activeCourtsPossible =
+              min(courts, activePlayerCount ~/ (mode * 2));
+          final courtsBlocked = activeCourtsPossible < courts;
+          final roundsBlocked = rounds < minRounds;
+          final hasChange = rounds != _t.roundCount ||
+              courts != _t.courtCount ||
+              mode != _t.playersPerTeam;
+          final canSave = hasChange &&
+              !courtsBlocked &&
+              !roundsBlocked &&
+              !suggestions.any((s) => s.isBlocking);
+
+          final impactLines = <String>[];
+          if (lockedRounds > 0) {
+            impactLines
+                .add(l10n.overviewSettingsLockedRounds(lockedRounds));
+          }
+          if (rounds < _t.roundCount) {
+            impactLines.add(l10n.overviewSettingsRoundsRemoved(
+                rounds + 1, _t.roundCount));
+          } else if (rounds > _t.roundCount) {
+            impactLines.add(
+                l10n.overviewSettingsRoundsAdded(rounds - _t.roundCount));
+          }
+          if (hasChange) {
+            impactLines.add(l10n.overviewSettingsRemix);
+          }
+
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(children: [
+                    Expanded(
+                      child: Text(
+                        l10n.overviewSettingsTitle,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: canSave
+                          ? () {
+                              Navigator.of(ctx).pop();
+                              _confirmAndApplySettings(
+                                rounds: rounds,
+                                courts: courts,
+                                mode: mode,
+                                impactLines: impactLines,
+                              );
+                            }
+                          : null,
+                      style:
+                          TextButton.styleFrom(foregroundColor: AppColors.gold),
+                      child: Text(l10n.btnSave,
+                          style: const TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+
+                  Text(l10n.setupRoundsLabel,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: rounds,
+                    min: minRounds,
+                    max: 999,
+                    labelBuilder: (v) => l10n.statsRounds(v),
+                    onChanged: (v) => setSheet(() => rounds = v),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text(l10n.setupCourts,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  _buildMinutePicker(
+                    value: courts,
+                    min: 1,
+                    max: 32,
+                    labelBuilder: (v) => l10n.statsCourts(v),
+                    onChanged: (v) => setSheet(() => courts = v),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text(l10n.setupFormat,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54)),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<int>(
+                    // ignore: deprecated_member_use
+                    value: mode,
+                    isDense: true,
+                    decoration: InputDecoration(
+                      contentPadding:
+                          const EdgeInsets.fromLTRB(12, 10, 4, 10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    items: [2, 3, 4, 5, 6]
+                        .map((n) => DropdownMenuItem(
+                              value: n,
+                              child: Text('${n}v$n'),
+                            ))
+                        .toList(),
+                    onChanged: modeLocked
+                        ? null
+                        : (v) {
+                            if (v != null) setSheet(() => mode = v);
+                          },
+                  ),
+                  if (modeLocked) ...[
+                    const SizedBox(height: 4),
+                    Text(l10n.overviewSettingsModeLocked,
+                        style: const TextStyle(
+                            fontSize: 11, color: Colors.black38)),
+                  ],
+
+                  if (suggestions.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Text(l10n.setupSuggestions,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54)),
+                    const SizedBox(height: 6),
+                    ...suggestions.map((s) =>
+                        ScrambleSuggestionCard(suggestion: s, onAction: null)),
+                  ],
+
+                  if (courtsBlocked) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      l10n.overviewSettingsCourtsBlocked(activeCourtsPossible),
+                      style: TextStyle(fontSize: 12, color: Colors.red.shade700),
+                    ),
+                  ],
+
+                  if (impactLines.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ...impactLines.map((line) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(line,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.black54)),
+                        )),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _confirmAndApplySettings({
+    required int rounds,
+    required int courts,
+    required int mode,
+    required List<String> impactLines,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await _confirmReshuffle(
+      l10n.overviewSettingsConfirmTitle,
+      impactLines.isEmpty
+          ? l10n.overviewSettingsRemix
+          : impactLines.join('\n'),
+      confirmLabel: l10n.overviewSettingsConfirmBtn,
+    );
+    if (ok != true || !mounted) return;
+    _update(ScrambleService.applySettingsChange(
+      _t,
+      roundCount: rounds,
+      courtCount: courts,
+      playersPerTeam: mode,
+    ));
+  }
+
   Widget _buildTimeTile(String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -752,9 +1106,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   Widget _buildMinutePicker({
     required int value,
     required int min,
+    int? max,
     required void Function(int) onChanged,
+    String Function(int)? labelBuilder,
   }) {
-    final label = value == 1 ? '1 min' : '$value min';
+    final label = labelBuilder != null
+        ? labelBuilder(value)
+        : (value == 1 ? '1 min' : '$value min');
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black12),
@@ -774,7 +1132,8 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           ),
           IconButton(
             icon: const Icon(Icons.add_rounded, size: 20),
-            onPressed: () => onChanged(value + 1),
+            onPressed:
+                (max == null || value < max) ? () => onChanged(value + 1) : null,
           ),
         ],
       ),
@@ -1114,27 +1473,100 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Rounds / Schedule ─────────────────────────────────────────────────────
 
-  List<Widget> _buildRoundSections(AppLocalizations l10n) {
-    return _t.rounds.map((round) {
-      final games  = _t.getGamesForRound(round.id);
-      final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
+  /// The schedule as a drag-to-reorder list. Only the unstarted tail carries
+  /// drag handles; completed/in-progress rounds are pinned. Reordering an
+  /// unstarted round renumbers the schedule to the new play order and reflows
+  /// pending start times (see [ScrambleService.reorderRounds]).
+  Widget _buildScheduleList(AppLocalizations l10n) {
+    final rounds = _t.rounds.toList()
+      ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+    final locked = ScrambleService.lockedRoundCount(_t);
+    // Reordering only makes sense with at least two movable rounds.
+    final canReorder = rounds.length - locked >= 2;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _roundHeader(l10n, round, allDone, games),
-          const SizedBox(height: 6),
-          ...games.map((g) => ScrambleGameTile(
-                game:       g,
-                round:      round,
-                tournament: _t,
-                onTap:      () => _openScorecard(g),
-              )),
-          const SizedBox(height: 16),
-        ],
-      );
-    }).toList();
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      buildDefaultDragHandles: false,
+      itemCount: rounds.length,
+      proxyDecorator: (child, index, animation) => Material(
+        color: Colors.transparent,
+        elevation: 6,
+        borderRadius: BorderRadius.circular(12),
+        child: child,
+      ),
+      onReorder: (oldIndex, newIndex) => _update(
+          ScrambleService.reorderRounds(_t,
+              oldIndex: oldIndex, newIndex: newIndex)),
+      itemBuilder: (ctx, i) {
+        final round = rounds[i];
+        final games = _t.getGamesForRound(round.id);
+        final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
+        final draggable = canReorder && i >= locked;
+
+        // Sit-outs are stored on court 1's game and shared across the round.
+        final sitOutNames = games.isEmpty
+            ? const <String>[]
+            : games.first.sittingOutPlayerIds
+                .map((id) => _t.getPlayer(id)?.name ?? id)
+                .toList();
+
+        final section = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _roundHeader(l10n, round, allDone, games),
+            const SizedBox(height: 6),
+            ...games.map((g) => ScrambleGameTile(
+                  game:       g,
+                  round:      round,
+                  tournament: _t,
+                  onTap:      () => _openScorecard(g),
+                  onExport:   () => _exportGame(g, round),
+                  onImportResult: () => _importResult(g),
+                )),
+            if (sitOutNames.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              _buildScheduleSitOutRow(sitOutNames),
+            ],
+            const SizedBox(height: 16),
+          ],
+        );
+
+        // Hold (long-press) an unstarted round to reorder it. Locked rounds
+        // (and single-unstarted schedules) aren't draggable. buildDefault
+        // DragHandles is false, so taps on tiles / the ⋮ menu still work.
+        if (draggable) {
+          return ReorderableDelayedDragStartListener(
+            key: ValueKey(round.id),
+            index: i,
+            child: section,
+          );
+        }
+        return KeyedSubtree(key: ValueKey(round.id), child: section);
+      },
+    );
   }
+
+  Widget _buildScheduleSitOutRow(List<String> names) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        margin: const EdgeInsets.only(top: 2),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.chair_rounded, size: 13, color: Colors.black38),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                'Sitting out: ${names.join(', ')}',
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
+              ),
+            ),
+          ],
+        ),
+      );
 
   Widget _roundHeader(
       AppLocalizations l10n, ScrambleRound round, bool allDone, List<ScrambleGame> games) {
@@ -1147,6 +1579,41 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         : null;
     final actualEnd  = round.actualEndTime;
     final showActual = allDone && actualEnd != null;
+
+    // Round-level progress icon (moved off the game cards). Mirrors the game
+    // status colours: completed → olive check, any game running → gold ball,
+    // otherwise still scheduled → grey clock.
+    final anyInProgress =
+        games.any((g) => g.status == ScrambleGameStatus.inProgress);
+    final IconData statusIcon;
+    final Color statusColor;
+    if (allDone) {
+      statusIcon = Icons.check_circle_rounded;
+      statusColor = AppColors.olive;
+    } else if (anyInProgress) {
+      statusIcon = Icons.sports_volleyball_rounded;
+      statusColor = AppColors.gold;
+    } else {
+      statusIcon = Icons.schedule_rounded;
+      statusColor = Colors.black38;
+    }
+
+    // Pace status now lives on the round header (was duplicated per game card).
+    Color? paceColor;
+    String? paceLabel;
+    if (!allDone && _t.paceAlertsEnabled) {
+      final now = DateTime.now();
+      if (now.isAfter(round.scheduledMatchEndTime)) {
+        paceColor = Colors.red.shade600;
+        paceLabel = 'overdue';
+      } else if (now.isAfter(round.scheduledStartTime)) {
+        paceColor = Colors.amber.shade700;
+        paceLabel = 'due';
+      } else {
+        paceColor = Colors.green.shade600;
+        paceLabel = 'upcoming';
+      }
+    }
 
     return Row(
       children: [
@@ -1168,38 +1635,84 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           ),
         ),
         const SizedBox(width: 8),
-        if (showActual) ...[
-          Text(
-            actualStart != null
-                ? '${ScrambleService.formatTime(actualStart)} – '
-                    '${ScrambleService.formatTime(actualEnd)}'
-                : ScrambleService.formatTime(actualEnd),
-            style: const TextStyle(
-                fontSize: 12, color: Colors.black45),
+        Expanded(
+          child: Row(
+            children: [
+              if (showActual) ...[
+                Flexible(
+                  child: Text(
+                    actualStart != null
+                        ? '${ScrambleService.formatTime(actualStart)} – '
+                            '${ScrambleService.formatTime(actualEnd)}'
+                        : ScrambleService.formatTime(actualEnd),
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  l10n.overviewActual,
+                  style: const TextStyle(fontSize: 10, color: Colors.black38),
+                ),
+              ] else ...[
+                Flexible(
+                  child: Text(
+                    '${ScrambleService.formatTime(round.scheduledStartTime)} – '
+                    '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (round.breakDuration > Duration.zero) ...[
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      l10n.overviewBreakUntil(
+                          ScrambleService.formatTime(round.scheduledBreakEndTime)),
+                      style: const TextStyle(fontSize: 11, color: Colors.black38),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
+            ],
           ),
-          const SizedBox(width: 4),
-          Text(
-            l10n.overviewActual,
-            style: const TextStyle(fontSize: 10, color: Colors.black38),
-          ),
-        ] else ...[
-          Text(
-            '${ScrambleService.formatTime(round.scheduledStartTime)} – '
-            '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
-            style: const TextStyle(
-                fontSize: 12, color: Colors.black45),
-          ),
-          if (round.breakDuration > Duration.zero) ...[
-            const SizedBox(width: 4),
-            Text(
-              l10n.overviewBreakUntil(
-                  ScrambleService.formatTime(round.scheduledBreakEndTime)),
-              style: const TextStyle(
-                  fontSize: 11, color: Colors.black38),
-            ),
-          ],
+        ),
+        const SizedBox(width: 6),
+        Icon(statusIcon, size: 18, color: statusColor),
+        if (paceLabel != null) ...[
+          const SizedBox(width: 6),
+          _paceChip(paceColor!, paceLabel),
         ],
       ],
+    );
+  }
+
+  /// Small pace-status pill (overdue / due / upcoming) shown on the round
+  /// header. Colour-coded: red = overdue, amber = due, green = upcoming.
+  Widget _paceChip(Color color, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+                fontSize: 10, color: color, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 }
