@@ -571,7 +571,7 @@
   "doghousePlayerStats": "Spielerstatistiken",
   "doghouseSessionTimer": "SITZUNGS-TIMER",
   "doghouseGameplayControls": "Spielsteuerung",
-  "doghouseInDoghouseLabel": "Im Doghouse",
+  "doghouseInDoghouseLabel": "Doghouse",
   "doghouseMatchControls": "Spielaktionen",
   "doghouseStartRestart": "Start / Neu starten",
   "doghouseTournamentCompleted": "Turnier abgeschlossen",
@@ -590,6 +590,7 @@
   "doghouseUndoCompletion": "Abschluss rückgängig",
   "doghouseSaveAndReturn": "Speichern und zurück",
   "doghouseGameLost": "Spiel\nVerloren",
+  "doghouseUndoLoss": "Rückgängig\nVerlust",
   "doghouseUndoGame": "Rückgängig\nSpiel",
   "doghouseUndoLastGame": "Letztes Spiel rückgängig",
   "doghouseTournamentSetup": "Turnier-Einrichtung",
@@ -891,6 +892,30 @@
   "overviewEjectBtn": "Ausschließen",
   "@overviewEjectBtn": {},
 
+  "overviewEjectChoiceIntro": "{name} wird aus dem Line-up entfernt. Abgeschlossene Spiele bleiben in der Statistik. Wähle, wie mit den verbleibenden Spielen verfahren wird:",
+  "@overviewEjectChoiceIntro": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderReshuffleTitle": "Platzhalter & neu auslosen",
+  "@overviewEjectOptPlaceholderReshuffleTitle": {},
+
+  "overviewEjectOptPlaceholderReshuffleDesc": "Alle verbleibenden Runden werden ohne {name} neu gepaart. Läuft das Spiel dieser Runde auf einem anderen Feld schon, wird dieser Platz zu einem anonymen Platzhalter, damit die anderen drei weiterspielen können.",
+  "@overviewEjectOptPlaceholderReshuffleDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderThroughoutTitle": "Durchgehend Platzhalter",
+  "@overviewEjectOptPlaceholderThroughoutTitle": {},
+
+  "overviewEjectOptPlaceholderThroughoutDesc": "{name}s Platz wird stattdessen in jeder verbleibenden Runde zu einem anonymen Platzhalter. Die Paarungen und der Zeitplan aller anderen bleiben unverändert.",
+  "@overviewEjectOptPlaceholderThroughoutDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewPlaceholderName": "Platzhalter",
+  "@overviewPlaceholderName": {},
+
   "overviewEditPlayer": "Spieler bearbeiten",
   "@overviewEditPlayer": {},
 
@@ -900,6 +925,11 @@
   "overviewRound": "Runde {number}",
   "@overviewRound": {
     "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scorecardParallelCourts": "{count} Felder — werden parallel gespielt",
+  "@scorecardParallelCourts": {
+    "placeholders": { "count": { "type": "int" } }
   },
 
   "overviewActual": "tatsächlich",
@@ -1757,5 +1787,17 @@
   "@overviewSettingsConfirmTitle": {},
 
   "overviewSettingsConfirmBtn": "Übernehmen",
-  "@overviewSettingsConfirmBtn": {}
+  "@overviewSettingsConfirmBtn": {},
+
+  "overviewTeamsLabel": "Teams",
+  "@overviewTeamsLabel": {},
+
+  "overviewTeamsFilterAll": "Alle",
+  "@overviewTeamsFilterAll": {},
+
+  "overviewTeamsEmpty": "Für diesen Filter noch keine Teams.",
+  "@overviewTeamsEmpty": {},
+
+  "overviewScoreSaved": "Ergebnis gespeichert.",
+  "@overviewScoreSaved": {}
 }

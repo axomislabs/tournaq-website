@@ -1515,7 +1515,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get doghouseGameplayControls => 'Gameplay Controls';
 
   @override
-  String get doghouseInDoghouseLabel => 'In Doghouse';
+  String get doghouseInDoghouseLabel => 'Doghouse';
 
   @override
   String get doghouseMatchControls => 'Match Controls';
@@ -1567,6 +1567,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doghouseGameLost => 'Game\nLost';
+
+  @override
+  String get doghouseUndoLoss => 'Undo\nLoss';
 
   @override
   String get doghouseUndoGame => 'Undo\nGame';
@@ -1941,6 +1944,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get overviewEjectBtn => 'Eject';
 
   @override
+  String overviewEjectChoiceIntro(String name) {
+    return '$name will be removed from the lineup. Completed games remain in the stats. Choose how their remaining games are handled:';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderReshuffleTitle =>
+      'Placeholder & reshuffle';
+
+  @override
+  String overviewEjectOptPlaceholderReshuffleDesc(String name) {
+    return 'Every remaining round is re-paired without $name. If their game this round has already started elsewhere, that seat becomes an anonymous Placeholder so the other three can still play.';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderThroughoutTitle =>
+      'Placeholder throughout';
+
+  @override
+  String overviewEjectOptPlaceholderThroughoutDesc(String name) {
+    return '$name\'s seat becomes an anonymous Placeholder in every remaining round instead. Nobody else\'s pairings or schedule change.';
+  }
+
+  @override
+  String get overviewPlaceholderName => 'Placeholder';
+
+  @override
   String get overviewEditPlayer => 'Edit Player';
 
   @override
@@ -1950,6 +1979,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String overviewRound(int number) {
     return 'Round $number';
+  }
+
+  @override
+  String scorecardParallelCourts(int count) {
+    return '$count courts — played in parallel';
   }
 
   @override
@@ -3048,4 +3082,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overviewSettingsConfirmBtn => 'Apply';
+
+  @override
+  String get overviewTeamsLabel => 'Teams';
+
+  @override
+  String get overviewTeamsFilterAll => 'All';
+
+  @override
+  String get overviewTeamsEmpty => 'No teams for this filter yet.';
+
+  @override
+  String get overviewScoreSaved => 'Score saved.';
 }

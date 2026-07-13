@@ -257,10 +257,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   List<String> _onCourtChipNames() {
     if (_onCourtSlotId == null) return [];
     if (_onCourtSlotId == _formation.floaterSlot?.slotId) {
-      return [
-        _nameFor(_formation.floaterSlot!.playerId),
-        if (_onCourtTempPartnerId != null) _nameFor(_onCourtTempPartnerId!),
-      ];
+      // Just the floater's own name, exactly like the waiting tiles — the
+      // partner (if any) is always shown via the `_floaterPartnerChip` role
+      // badge instead, never as a second plain name chip.
+      return [_nameFor(_formation.floaterSlot!.playerId)];
     }
     if (_onCourtBenchedPlayerId != null && _onCourtTempPartnerId != null) {
       final team = _formation.teamSlots.firstWhere((s) => s.slotId == _onCourtSlotId);
@@ -841,6 +841,8 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     final gamesCtrl = TextEditingController(text: '${team.gamesWon}');
     final pointsCtrl = TextEditingController(text: '${team.points}');
     final l10n = AppLocalizations.of(context)!;
+    final playerNames = team.playerIds.map(_nameFor).join(' & ');
+    final teamName = _teamNameForSlot(team.slotId) ?? playerNames;
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -848,7 +850,13 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         title: Text(l10n.scrambleKingEditTeamResult),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(teamName,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            if (teamName != playerNames)
+              Text(playerNames, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            const SizedBox(height: 16),
             TextField(
               controller: gamesCtrl,
               keyboardType: TextInputType.number,
@@ -1544,7 +1552,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                       bg: Colors.grey.shade200, border: null, compact: compact)),
                   if (slotId == _formation.floaterSlot?.slotId)
                     _floaterPartnerChip(l10n, Colors.grey.shade600,
-                        bg: Colors.grey.shade200, border: Colors.grey.shade400, compact: compact),
+                        bg: Colors.grey.shade200,
+                        border: Colors.grey.shade400,
+                        compact: compact,
+                        partnerId: _floaterJumperPartnerId),
                 ],
               ),
             ],
@@ -1597,7 +1608,8 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                     _floaterPartnerChip(l10n, _kOlive,
                         bg: _kOlive.withValues(alpha: 0.15),
                         border: _kOlive.withValues(alpha: 0.4),
-                        compact: compact),
+                        compact: compact,
+                        partnerId: _floaterJumperPartnerId),
                 ],
               ),
             ],
@@ -1649,17 +1661,18 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                     bg: _kGold.withValues(alpha: 0.15),
                     border: _kGold.withValues(alpha: 0.5),
                     compact: compact)),
-                // Placeholder mode has no partner name to show via
-                // _onCourtChipNames — surface the same generic token here
-                // as in the waiting tiles, so the pairing still reads as a
-                // complete team of two. Jumper mode already shows the real
-                // partner's name via the chips above, so no extra token.
-                if (_onCourtSlotId == _formation.floaterSlot?.slotId &&
-                    _t.oddPlayerMode == ScrambleKingOddPlayerMode.placeholder)
+                // Same role badge as the waiting tiles, so the floater's
+                // team reads as a permanent [Name] + [role] pairing all
+                // round, on court included. Here the relevant partner is
+                // whoever is actually playing this stint
+                // (`_onCourtTempPartnerId`), not the waiting-phase lock —
+                // that was already cleared the moment this stint started.
+                if (_onCourtSlotId == _formation.floaterSlot?.slotId)
                   _floaterPartnerChip(l10n, _kGold,
                       bg: _kGold.withValues(alpha: 0.15),
                       border: _kGold.withValues(alpha: 0.5),
-                      compact: compact),
+                      compact: compact,
+                      partnerId: _onCourtTempPartnerId),
               ],
             ),
             const SizedBox(height: 8),
@@ -2135,22 +2148,25 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
             style: TextStyle(fontSize: compact ? 11 : 13, fontWeight: FontWeight.w700, color: fg)),
       );
 
-  /// The partner token shown beside the floater's name, in every tile
-  /// (waiting or on court): in placeholder mode, always the generic
-  /// "Placeholder" label — the app never names, assigns, or substitutes a
-  /// specific person for that slot, so there's nothing else to show. In
-  /// jumper mode: "Jumper: {name}" once locked in (see
-  /// `_updateFloaterJumperAssignment` — never re-picked afterwards), else
-  /// "Jumper · awaiting ejection". Styled as a lighter, icon-led chip so it
-  /// reads as a slot filled by a role, not a fixed named player.
+  /// The partner token shown beside the floater's name — in every tile
+  /// (Up Next, Challengers, **and** Court), never just some of them, so the
+  /// role reads as a permanent fixture of the floater's team all round, the
+  /// same way it does in placeholder mode. In placeholder mode it's always
+  /// the generic "Placeholder" label — the app never names, assigns, or
+  /// substitutes a specific person for that slot. In jumper mode it's
+  /// "Jumper: {name}" once someone is assigned, else "Jumper · awaiting
+  /// ejection"; [partnerId] is the caller's job to supply, since who that
+  /// is depends on context — the still-waiting lock (`_floaterJumperPartnerId`)
+  /// while queued, or the partner actually on court with them
+  /// (`_onCourtTempPartnerId`) once playing. Styled as a lighter, icon-led
+  /// chip so it reads as a slot filled by a role, not a fixed named player.
   Widget _floaterPartnerChip(AppLocalizations l10n, Color fg,
-      {required Color bg, Color? border, bool compact = false}) {
+      {required Color bg, Color? border, bool compact = false, required String? partnerId}) {
     final (IconData icon, String label) =
         _t.oddPlayerMode == ScrambleKingOddPlayerMode.placeholder
             ? (Icons.person_add_alt_1_rounded, l10n.scrambleKingOddPlayerPlaceholderLabel)
-            : _floaterJumperPartnerId != null
-                ? (Icons.move_up_rounded,
-                    l10n.scrambleKingJumperPartner(_nameFor(_floaterJumperPartnerId!)))
+            : partnerId != null
+                ? (Icons.move_up_rounded, l10n.scrambleKingJumperPartner(_nameFor(partnerId)))
                 : (Icons.hourglass_empty_rounded, l10n.scrambleKingJumperAwaiting);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

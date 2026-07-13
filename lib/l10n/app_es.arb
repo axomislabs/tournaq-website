@@ -571,7 +571,7 @@
   "doghousePlayerStats": "Estadísticas de jugadores",
   "doghouseSessionTimer": "TEMPORIZADOR",
   "doghouseGameplayControls": "Controles",
-  "doghouseInDoghouseLabel": "En la caseta",
+  "doghouseInDoghouseLabel": "Doghouse",
   "doghouseMatchControls": "Controles de partido",
   "doghouseStartRestart": "Iniciar / Reiniciar",
   "doghouseTournamentCompleted": "Torneo completado",
@@ -590,6 +590,7 @@
   "doghouseUndoCompletion": "Deshacer finalización",
   "doghouseSaveAndReturn": "Guardar y volver",
   "doghouseGameLost": "Partido\nPerdido",
+  "doghouseUndoLoss": "Deshacer\nPérdida",
   "doghouseUndoGame": "Deshacer\nPartido",
   "doghouseUndoLastGame": "Deshacer último partido",
   "doghouseTournamentSetup": "Configuración del torneo",
@@ -891,6 +892,30 @@
   "overviewEjectBtn": "Expulsar",
   "@overviewEjectBtn": {},
 
+  "overviewEjectChoiceIntro": "{name} será eliminado de la alineación. Los partidos completados permanecen en las estadísticas. Elige cómo gestionar sus partidos restantes:",
+  "@overviewEjectChoiceIntro": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderReshuffleTitle": "Suplente y reorganizar",
+  "@overviewEjectOptPlaceholderReshuffleTitle": {},
+
+  "overviewEjectOptPlaceholderReshuffleDesc": "Todas las rondas restantes se remezclan sin {name}. Si su partido de esta ronda ya empezó en otra pista, ese puesto se convierte en un Suplente anónimo para que los otros tres puedan seguir jugando.",
+  "@overviewEjectOptPlaceholderReshuffleDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderThroughoutTitle": "Suplente en todas las rondas",
+  "@overviewEjectOptPlaceholderThroughoutTitle": {},
+
+  "overviewEjectOptPlaceholderThroughoutDesc": "El puesto de {name} se convierte en un Suplente anónimo en cada ronda restante. Los emparejamientos y el horario de los demás no cambian.",
+  "@overviewEjectOptPlaceholderThroughoutDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewPlaceholderName": "Suplente",
+  "@overviewPlaceholderName": {},
+
   "overviewEditPlayer": "Editar jugador",
   "@overviewEditPlayer": {},
 
@@ -900,6 +925,11 @@
   "overviewRound": "Ronda {number}",
   "@overviewRound": {
     "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scorecardParallelCourts": "{count} pistas — se juegan en paralelo",
+  "@scorecardParallelCourts": {
+    "placeholders": { "count": { "type": "int" } }
   },
 
   "overviewActual": "real",
@@ -1757,5 +1787,17 @@
   "@overviewSettingsConfirmTitle": {},
 
   "overviewSettingsConfirmBtn": "Aplicar",
-  "@overviewSettingsConfirmBtn": {}
+  "@overviewSettingsConfirmBtn": {},
+
+  "overviewTeamsLabel": "Equipos",
+  "@overviewTeamsLabel": {},
+
+  "overviewTeamsFilterAll": "Todos",
+  "@overviewTeamsFilterAll": {},
+
+  "overviewTeamsEmpty": "Aún no hay equipos para este filtro.",
+  "@overviewTeamsEmpty": {},
+
+  "overviewScoreSaved": "Resultado guardado.",
+  "@overviewScoreSaved": {}
 }

@@ -6,6 +6,7 @@ import '../pages/gameplay_history_page.dart';
 import '../services/scramble_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../services/scramble_transfer_service.dart';
+import '../utils/scramble_names.dart';
 import '../widgets/qr_export_sheet.dart';
 import '../widgets/scramble_timer_widget.dart';
 import '../widgets/sheet_helpers.dart';
@@ -234,10 +235,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   String _gameContext(AppLocalizations l10n) {
     final teamA = _game.sideAPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     final teamB = _game.sideBPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     return '${l10n.scrambleImportedCourt(_game.courtNumber)} · $teamA vs $teamB';
   }
@@ -326,31 +327,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Game completion ───────────────────────────────────────────────────────
 
   /// Stamps the round's actualEndTime and reflows ALL pending round times
-  /// once every game in the current round is complete.
-  /// Uses the global reflow so out-of-order completions (a later round done
-  /// while an earlier round is still pending) are handled correctly.
-  ScrambleTournament _reflowIfRoundComplete(ScrambleTournament updated) {
-    final roundGames = updated.getGamesForRound(_round.id);
-    if (!roundGames.every((g) => g.isCompleted)) return updated;
-
-    final now = DateTime.now();
-    final actualEnd = roundGames
-        .map((g) => g.actualEndTime ?? now)
-        .reduce((a, b) => a.isAfter(b) ? a : b);
-
-    // Record actual end time on the round for display.
-    // Use the round from `updated` (not `_round`) to preserve any scheduledStartTime
-    // already adjusted by a previous reflow.
-    final liveRound = updated.getRound(_round.id) ?? _round;
-    updated = updated.updateRound(liveRound.copyWith(actualEndTime: actualEnd));
-
-    // Only reflow when the round finished ahead of schedule.
-    // Late rounds show an overdue warning; the admin adjusts manually.
-    if (actualEnd.isBefore(liveRound.scheduledMatchEndTime)) {
-      return ScrambleService.reflowAllPending(updated);
-    }
-    return updated;
-  }
+  /// once every game in the current round is complete. See
+  /// [ScrambleService.reflowIfRoundComplete] (shared with the overview
+  /// page's manual-score action).
+  ScrambleTournament _reflowIfRoundComplete(ScrambleTournament updated) =>
+      ScrambleService.reflowIfRoundComplete(updated, _round);
 
   Future<void> _completeGame() async {
     final now = DateTime.now();
@@ -624,11 +605,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── History ───────────────────────────────────────────────────────────────
 
   void _openHistory() {
+    final l10n = AppLocalizations.of(context)!;
     final sideANames = _game.sideAPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .toList();
     final sideBNames = _game.sideBPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .toList();
 
     Navigator.of(context).push(
@@ -697,25 +679,58 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     return result;
   }
 
+  /// Groups a flat [_upcomingGames] list into round sections. Entries for the
+  /// same round are always contiguous (the source list is round-ordered), so
+  /// this is a single pass. A round with more than one game in the group is
+  /// courts running in parallel, not games to play one after another — the
+  /// callers surface that explicitly instead of listing them as a flat
+  /// sequence.
+  List<({ScrambleRound round, List<ScrambleGame> games})>
+      _groupUpcomingByRound(
+    List<({ScrambleGame game, ScrambleRound round})> entries,
+  ) {
+    final groups = <({ScrambleRound round, List<ScrambleGame> games})>[];
+    for (final e in entries) {
+      if (groups.isNotEmpty && groups.last.round.id == e.round.id) {
+        groups.last.games.add(e.game);
+      } else {
+        groups.add((round: e.round, games: [e.game]));
+      }
+    }
+    return groups;
+  }
+
+  /// The small "N courts — played in parallel" note shown under a round
+  /// header when that round's group has more than one game.
+  Widget _parallelCourtsNote(AppLocalizations l10n, int count) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.call_split_rounded, size: 11, color: Colors.black38),
+          const SizedBox(width: 3),
+          Text(
+            l10n.scorecardParallelCourts(count),
+            style: const TextStyle(
+              fontSize: 11,
+              color: Colors.black38,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      );
+
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final sideAPlayers = _game.sideAPlayerIds
-        .map((id) => _t.getPlayer(id))
-        .whereType<ScramblePlayer>()
-        .toList();
-    final sideBPlayers = _game.sideBPlayerIds
-        .map((id) => _t.getPlayer(id))
-        .whereType<ScramblePlayer>()
-        .toList();
     final sittingOut = _game.sittingOutPlayerIds
         .map((id) => _t.getPlayer(id)?.name ?? id)
         .toList();
 
     // Left/right display assignments (swap does not touch stored data).
-    final leftPlayers = _isSwapped ? sideBPlayers : sideAPlayers;
-    final rightPlayers = _isSwapped ? sideAPlayers : sideBPlayers;
+    // Pill labels (and the placeholder styling) are resolved per-id inside
+    // _buildScoreCard, so these stay raw ids here.
+    final leftPlayers = _isSwapped ? _game.sideBPlayerIds : _game.sideAPlayerIds;
+    final rightPlayers = _isSwapped ? _game.sideAPlayerIds : _game.sideBPlayerIds;
     final leftIsA = !_isSwapped;
     final timerState = _matchTimerKey.currentState?.timerState ??
         ScrambleTimerState.idle;
@@ -852,7 +867,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                           ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 100),
                             child: Text(
-                              _t.getPlayer(_game.firstServerId!)?.name ?? '',
+                              scramblePlayerLabel(
+                                _t,
+                                _game.firstServerId!,
+                                AppLocalizations.of(context)!,
+                              ),
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 12,
@@ -890,7 +909,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                             Expanded(
                               flex: 5,
                               child: _buildScoreCard(
-                                players: leftPlayers,
+                                playerIds: leftPlayers,
                                 score: _leftScore,
                                 isLeading: _leftScore > _rightScore,
                                 isA: leftIsA,
@@ -907,7 +926,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                             Expanded(
                               flex: 5,
                               child: _buildScoreCard(
-                                players: rightPlayers,
+                                playerIds: rightPlayers,
                                 score: _rightScore,
                                 isLeading: _rightScore > _leftScore,
                                 isA: !leftIsA,
@@ -984,7 +1003,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                         children: [
                           Expanded(
                             child: _buildScoreCard(
-                              players: leftPlayers,
+                              playerIds: leftPlayers,
                               score: _leftScore,
                               isLeading: _leftScore > _rightScore,
                               isA: leftIsA,
@@ -1000,7 +1019,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildScoreCard(
-                              players: rightPlayers,
+                              playerIds: rightPlayers,
                               score: _rightScore,
                               isLeading: _rightScore > _leftScore,
                               isA: !leftIsA,
@@ -1506,7 +1525,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Serves-first banner ───────────────────────────────────────────────────
 
   Widget _buildServesFirstBanner() {
-    final serverName = _t.getPlayer(_game.firstServerId!)?.name ?? '';
+    final serverName = scramblePlayerLabel(
+      _t,
+      _game.firstServerId!,
+      AppLocalizations.of(context)!,
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -1570,14 +1593,15 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Lock banner ───────────────────────────────────────────────────────────
 
   Widget _buildLockBanner() {
+    final l10n = AppLocalizations.of(context)!;
     final winner = _game.winningSide;
     final winnerNames = winner == 'A'
         ? _game.sideAPlayerIds
-              .map((id) => _t.getPlayer(id)?.name ?? id)
+              .map((id) => scramblePlayerLabel(_t, id, l10n))
               .join(' & ')
         : winner == 'B'
         ? _game.sideBPlayerIds
-              .map((id) => _t.getPlayer(id)?.name ?? id)
+              .map((id) => scramblePlayerLabel(_t, id, l10n))
               .join(' & ')
         : null;
     final winnerColor = winner == 'A' ? _kGold : _kOlive;
@@ -1654,7 +1678,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Score card (pills inside — stacked in portrait, side by side in landscape)
 
   Widget _buildScoreCard({
-    required List<ScramblePlayer> players,
+    required List<String> playerIds,
     required int score,
     required bool isLeading,
     required bool isA,
@@ -1663,6 +1687,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     bool landscape = false,
     bool stackedPills = false,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     final teamName = isA
         ? (_game.teamNameA ?? 'Side A')
         : (_game.teamNameB ?? 'Side B');
@@ -1672,11 +1697,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         : (isLeading ? _kOliveCardLeading : _kOliveCardBg);
     final disabled = onIncrement == null;
     final activeColor = isA ? _kGold : _kOlive;
-    final pillWidgets = players.asMap().entries.map((e) {
+    final pillWidgets = playerIds.asMap().entries.map((e) {
       final isServing = (_isSideAServing == isA) && (_activePlayerOnTeam == e.key);
       return PlayerPill(
-        name: e.value.name,
+        name: scramblePlayerLabel(_t, e.value, l10n),
         isServing: isServing,
+        isPlaceholder: ScrambleGame.isPlaceholder(e.value),
         activeColor: activeColor,
         fontSize: landscape ? 13 : 10,
         onTap: null,
@@ -1997,11 +2023,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   }
 
   Future<void> _showManualScoreDialog({bool showPostDialog = true}) async {
+    final l10n = AppLocalizations.of(context)!;
     final sideALabel = _game.sideAPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     final sideBLabel = _game.sideBPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     final ctrlA = TextEditingController(text: '0');
     final ctrlB = TextEditingController(text: '0');
@@ -2572,6 +2599,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     List<({ScrambleGame game, ScrambleRound round})> upcoming,
   ) async {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     await showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -2605,81 +2633,91 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              ...upcoming.map((entry) {
-                final g = entry.game;
-                final r = entry.round;
-                final sideANames = g.sideAPlayerIds
-                    .map((id) => _t.getPlayer(id)?.name ?? id)
-                    .join(' & ');
-                final sideBNames = g.sideBPlayerIds
-                    .map((id) => _t.getPlayer(id)?.name ?? id)
-                    .join(' & ');
-                final refName = g.arbitratorId != null
-                    ? _t.getPlayer(g.arbitratorId!)?.name
-                    : null;
-                return ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  leading: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _kOliveLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('R${r.roundNumber}',
-                            style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w400,
-                                color: _kOlive)),
-                        Text('C${g.courtNumber}',
-                            style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w400,
-                                color: _kOlive)),
-                      ],
-                    ),
-                  ),
-                  title: Text(sideANames,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
-                      overflow: TextOverflow.ellipsis),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              for (final group in _groupUpcomingByRound(upcoming)) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 6, 4, 2),
+                  child: Row(
                     children: [
-                      Text('vs $sideBNames',
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
-                          overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.gavel_rounded, size: 9, color: Colors.blueGrey.shade400),
-                          const SizedBox(width: 2),
-                          Flexible(
-                            child: Text(
-                              refName != null ? '$refName refs' : 'Assign ref manually',
-                              style: TextStyle(fontSize: 10, color: Colors.blueGrey.shade400),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        l10n.overviewRound(group.round.roundNumber),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black54,
+                        ),
                       ),
+                      if (group.games.length > 1) ...[
+                        const SizedBox(width: 8),
+                        _parallelCourtsNote(l10n, group.games.length),
+                      ],
                     ],
                   ),
-                  trailing: Text(
-                    ScrambleService.formatTime(r.scheduledStartTime),
-                    style: const TextStyle(
-                        fontSize: 12, color: Colors.black45),
-                  ),
-                  onTap: () {
-                    Navigator.of(ctx).pop();
-                    _openUpcomingGame(g, r);
-                  },
-                );
-              }),
+                ),
+                ...group.games.map((g) {
+                  final r = group.round;
+                  final sideANames = g.sideAPlayerIds
+                      .map((id) => scramblePlayerLabel(_t, id, l10n))
+                      .join(' & ');
+                  final sideBNames = g.sideBPlayerIds
+                      .map((id) => scramblePlayerLabel(_t, id, l10n))
+                      .join(' & ');
+                  final refName = g.arbitratorId != null
+                      ? _t.getPlayer(g.arbitratorId!)?.name
+                      : null;
+                  return ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    leading: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _kOliveLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text('C${g.courtNumber}',
+                          style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w400,
+                              color: _kOlive)),
+                    ),
+                    title: Text(sideANames,
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
+                        overflow: TextOverflow.ellipsis),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('vs $sideBNames',
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black87),
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.gavel_rounded, size: 9, color: Colors.blueGrey.shade400),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                refName != null ? '$refName refs' : 'Assign ref manually',
+                                style: TextStyle(fontSize: 10, color: Colors.blueGrey.shade400),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    trailing: Text(
+                      ScrambleService.formatTime(r.scheduledStartTime),
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.black45),
+                    ),
+                    onTap: () {
+                      Navigator.of(ctx).pop();
+                      _openUpcomingGame(g, r);
+                    },
+                  );
+                }),
+              ],
             ],
           ),
         ),
@@ -2690,9 +2728,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
   // ── Upcoming Games section ────────────────────────────────────────────────
 
   Widget _buildUpcomingGames() {
+    final l10n = AppLocalizations.of(context)!;
     final upcoming = _upcomingGames();
     if (upcoming.isEmpty) {
-      final l10n = AppLocalizations.of(context)!;
       return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -2711,52 +2749,64 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     }
 
     return Column(
-      children: upcoming.map((entry) {
-        final g = entry.game;
-        final r = entry.round;
-        final sideANames = g.sideAPlayerIds
-            .map((id) => _t.getPlayer(id)?.name ?? id)
-            .join(' & ');
-        final sideBNames = g.sideBPlayerIds
-            .map((id) => _t.getPlayer(id)?.name ?? id)
-            .join(' & ');
-        final refName = g.arbitratorId != null
-            ? _t.getPlayer(g.arbitratorId!)?.name
-            : null;
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Material(
-            color: Colors.white,
-            child: InkWell(
-              onTap: () => _openUpcomingGame(g, r),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade200),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final group in _groupUpcomingByRound(upcoming)) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
+            child: Row(
+              children: [
+                Text(
+                  l10n.overviewRound(group.round.roundNumber),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black54,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _kOliveLight,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'R${r.roundNumber}',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              color: _kOlive,
-                            ),
+                if (group.games.length > 1) ...[
+                  const SizedBox(width: 8),
+                  _parallelCourtsNote(l10n, group.games.length),
+                ],
+              ],
+            ),
+          ),
+          ...group.games.map((g) {
+            final r = group.round;
+            final sideANames = g.sideAPlayerIds
+                .map((id) => scramblePlayerLabel(_t, id, l10n))
+                .join(' & ');
+            final sideBNames = g.sideBPlayerIds
+                .map((id) => scramblePlayerLabel(_t, id, l10n))
+                .join(' & ');
+            final refName = g.arbitratorId != null
+                ? _t.getPlayer(g.arbitratorId!)?.name
+                : null;
+
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Material(
+                color: Colors.white,
+                child: InkWell(
+                  onTap: () => _openUpcomingGame(g, r),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: _kOliveLight,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          Text(
+                          child: Text(
                             'C${g.courtNumber}',
                             style: const TextStyle(
                               fontSize: 10,
@@ -2764,74 +2814,74 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                               color: _kOlive,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            sideANames,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            'vs $sideBNames',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.gavel_rounded,
-                                  size: 9, color: Colors.blueGrey.shade400),
-                              const SizedBox(width: 2),
-                              Flexible(
-                                child: Text(
-                                  refName != null
-                                      ? '$refName refs'
-                                      : 'Assign ref manually',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.blueGrey.shade400),
-                                  overflow: TextOverflow.ellipsis,
+                              Text(
+                                sideANames,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black87,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                'vs $sideBNames',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Icon(Icons.gavel_rounded,
+                                      size: 9, color: Colors.blueGrey.shade400),
+                                  const SizedBox(width: 2),
+                                  Flexible(
+                                    child: Text(
+                                      refName != null
+                                          ? '$refName refs'
+                                          : 'Assign ref manually',
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.blueGrey.shade400),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Text(
+                          ScrambleService.formatTime(r.scheduledStartTime),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black45,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Icons.chevron_right_rounded,
+                            size: 16, color: Colors.grey.shade400),
+                      ],
                     ),
-                    Text(
-                      ScrambleService.formatTime(r.scheduledStartTime),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 16, color: Colors.grey.shade400),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }),
+        ],
+      ],
     );
   }
 

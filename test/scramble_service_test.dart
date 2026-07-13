@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tournaq/models/player_status.dart';
 import 'package:tournaq/models/scramble_tournament.dart';
 import 'package:tournaq/services/scramble_service.dart';
 
@@ -662,6 +663,155 @@ void main() {
       expect(_hasAnyTeammateRepeat(t), isFalse);
       final r = ScrambleService.reorderRounds(t, oldIndex: 6, newIndex: 0);
       expect(_hasAnyTeammateRepeat(r), isFalse);
+    });
+  });
+
+  group('ScrambleService eject placeholder options', () {
+    /// 8 players / 2 courts / 2v2 → round 1 has two games, both full (no
+    /// sit-outs). Completes court 1's game only, leaving court 2 scheduled —
+    /// a "mixed" round that rebuildRemainingRounds alone can't reach.
+    ({ScrambleTournament t, ScrambleGame stuckGame, String ejectedId})
+        mixedRoundFixture() {
+      var t = _build(n: 8, courtCount: 2, playersPerTeam: 2, rounds: 5);
+      final round1 = (t.rounds.toList()
+            ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber)))
+          .first;
+      final round1Games = t.getGamesForRound(round1.id)
+        ..sort((a, b) => a.courtNumber.compareTo(b.courtNumber));
+      final court1 = round1Games[0];
+      final court2 = round1Games[1];
+      t = t.updateGame(court1.copyWith(
+        status: ScrambleGameStatus.completed,
+        sideAScore: 21,
+        sideBScore: 15,
+      ));
+      final ejectedId = court2.sideAPlayerIds.first;
+      return (t: t, stuckGame: court2, ejectedId: ejectedId);
+    }
+
+    List<ScramblePlayer> ejectedPlayers(ScrambleTournament t, String id) => t
+        .players
+        .map((p) => p.id == id ? p.copyWith(status: PlayerStatus.ejected) : p)
+        .toList();
+
+    test('placeholderAndReshuffle patches the stuck game and reshuffles '
+        'everything from the frontier onward', () {
+      final fx = mixedRoundFixture();
+      final result = ScrambleService.placeholderAndReshuffle(
+        fx.t,
+        fx.ejectedId,
+        ejectedPlayers(fx.t, fx.ejectedId),
+      );
+
+      // The stuck game: still scheduled, ejected player's seat replaced with
+      // the placeholder, other three seats untouched.
+      final patchedStuck =
+          result.games.firstWhere((g) => g.id == fx.stuckGame.id);
+      expect(patchedStuck.status, ScrambleGameStatus.scheduled);
+      expect(
+        [...patchedStuck.sideAPlayerIds, ...patchedStuck.sideBPlayerIds],
+        isNot(contains(fx.ejectedId)),
+      );
+      expect(
+        [...patchedStuck.sideAPlayerIds, ...patchedStuck.sideBPlayerIds],
+        contains(ScrambleGame.placeholderId),
+      );
+      expect(
+        patchedStuck.sideBPlayerIds,
+        fx.stuckGame.sideBPlayerIds,
+      );
+
+      // The already-completed court-1 game is untouched.
+      final completedGame = fx.t.games.firstWhere((g) =>
+          g.roundId == fx.stuckGame.roundId && g.id != fx.stuckGame.id);
+      final resultCompleted =
+          result.games.firstWhere((g) => g.id == completedGame.id);
+      expect(resultCompleted.status, ScrambleGameStatus.completed);
+      expect(resultCompleted.sideAPlayerIds, completedGame.sideAPlayerIds);
+
+      // Every fully-future round is reshuffled without the ejected player.
+      final round1Id = fx.stuckGame.roundId;
+      for (final g in result.games.where((g) => g.roundId != round1Id)) {
+        expect(
+          [...g.sideAPlayerIds, ...g.sideBPlayerIds],
+          isNot(contains(fx.ejectedId)),
+        );
+      }
+    });
+
+    test('placeholderThroughout placeholders every remaining scheduled game '
+        'and reshuffles nothing else', () {
+      final fx = mixedRoundFixture();
+      final result = ScrambleService.placeholderThroughout(
+        fx.t,
+        fx.ejectedId,
+        ejectedPlayers(fx.t, fx.ejectedId),
+      );
+
+      expect(result.games.length, fx.t.games.length);
+      expect(result.rounds.length, fx.t.rounds.length);
+
+      for (final original in fx.t.games) {
+        final patched = result.games.firstWhere((g) => g.id == original.id);
+        final wasInGame = original.sideAPlayerIds.contains(fx.ejectedId) ||
+            original.sideBPlayerIds.contains(fx.ejectedId);
+
+        if (!wasInGame) {
+          // Untouched — identical ids, unchanged status.
+          expect(patched.sideAPlayerIds, original.sideAPlayerIds);
+          expect(patched.sideBPlayerIds, original.sideBPlayerIds);
+          expect(patched.status, original.status);
+          continue;
+        }
+
+        if (original.status != ScrambleGameStatus.scheduled) {
+          // Already completed/in-progress — left alone even though the
+          // ejected player was in it.
+          expect(patched.sideAPlayerIds, original.sideAPlayerIds);
+          expect(patched.sideBPlayerIds, original.sideBPlayerIds);
+          continue;
+        }
+
+        // Every remaining scheduled game with the ejected player gets the
+        // placeholder in their exact seat, nobody else moves.
+        expect(
+          [...patched.sideAPlayerIds, ...patched.sideBPlayerIds],
+          isNot(contains(fx.ejectedId)),
+        );
+        expect(
+          [...patched.sideAPlayerIds, ...patched.sideBPlayerIds],
+          contains(ScrambleGame.placeholderId),
+        );
+      }
+    });
+
+    test('computeStats never scores the placeholder and excludes it from '
+        'teammate/opponent variety for the real player who shared the game',
+        () {
+      var t = _build(n: 4, courtCount: 1, playersPerTeam: 2, rounds: 1);
+      final onlyGame = t.games.first;
+      final patched = onlyGame.copyWith(
+        sideAPlayerIds: [onlyGame.sideAPlayerIds.first, ScrambleGame.placeholderId],
+        status: ScrambleGameStatus.completed,
+        sideAScore: 21,
+        sideBScore: 15,
+      );
+      t = t.updateGame(patched);
+
+      final stats = ScrambleService.computeStats(t);
+
+      // No stats row for the placeholder — only the 4 real players.
+      expect(stats.map((s) => s.playerId),
+          isNot(contains(ScrambleGame.placeholderId)));
+      expect(stats.length, 4);
+
+      final realTeammate =
+          stats.firstWhere((s) => s.playerId == patched.sideAPlayerIds.first);
+      expect(realTeammate.gamesPlayed, 1);
+      expect(realTeammate.totalPoints, 21);
+      // Their only "teammate" was the placeholder — never counted.
+      expect(realTeammate.uniqueTeammateIds, isEmpty);
+      expect(realTeammate.uniqueOpponentIds, patched.sideBPlayerIds.toSet());
     });
   });
 }

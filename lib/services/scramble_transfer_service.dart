@@ -60,7 +60,11 @@ class ScrambleTransferService {
     ScrambleGame game,
     ScrambleRound round,
   ) {
-    String nameOf(String id) => t.getPlayer(id)?.name ?? id;
+    // No l10n available in this wire-format encoder (the receiving device
+    // may have a different locale) — 'Placeholder' is sent as plain text,
+    // same as other hardcoded strings in this payload.
+    String nameOf(String id) =>
+        ScrambleGame.isPlaceholder(id) ? 'Placeholder' : t.getPlayer(id)?.name ?? id;
     final aNames = game.sideAPlayerIds.map(nameOf).toList();
     final bNames = game.sideBPlayerIds.map(nameOf).toList();
 

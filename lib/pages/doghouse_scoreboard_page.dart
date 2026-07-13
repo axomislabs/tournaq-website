@@ -295,12 +295,12 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
     if (adminNeeded) {
       if (_nextAdminPlayerId == null) {
         // Successor = fairest off-court player who won't be pulled onto court
-        // next (exclude the incoming dogs team and the up-next challenger);
+        // next (exclude the incoming doghouse team and the up-next challenger);
         // fall back to any off-court player, then the just-played team.
-        final incomingDogs = _challengerTeam.map((p) => p.id).toSet();
+        final incomingDoghouse = _challengerTeam.map((p) => p.id).toSet();
         final incomingChallenger = _currentSuggestion.map((p) => p.id).toSet();
         final eligible = _pool
-            .where((p) => p.id != _adminPlayerId && !incomingDogs.contains(p.id))
+            .where((p) => p.id != _adminPlayerId && !incomingDoghouse.contains(p.id))
             .toList();
         final preferred = eligible
             .where((p) => !incomingChallenger.contains(p.id))
@@ -475,13 +475,6 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
     setState(() => _currentSideOuts--);
   }
 
-  void _rotateChallengers() {
-    if (!_isAutoMode) return;
-    if (_currentSuggestion.length != _t.playersPerTeam) return;
-    setState(() => _challengerTeam = List.from(_currentSuggestion));
-    _recomputeUpNext();
-  }
-
   // ── Challenger ejection (queued, not-yet-on-court team) ───────────────────
   // Distinct from _endGame: no DoghouseGame is recorded, since the challenger
   // never actually played. We promote the already-displayed Up Next team into
@@ -601,9 +594,6 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
     if (_ejectReached) {
       WidgetsBinding.instance
           .addPostFrameCallback((_) => _showAutoEjectDialog());
-    } else {
-      // Rotate challengers on every non-ejecting game lost.
-      _rotateChallengers();
     }
   }
 
@@ -639,8 +629,8 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
       ..reset();
 
     if (_isAutoMode && _challengerTeam.length == _t.playersPerTeam) {
-      // Transition: Challengers → Dogs, Up Next → Challengers, compute new Up Next.
-      final nextDogs       = List<DoghousePlayer>.from(_challengerTeam);
+      // Transition: Challengers → Doghouse, Up Next → Challengers, compute new Up Next.
+      final nextDoghouse   = List<DoghousePlayer>.from(_challengerTeam);
       final nextChallenger = List<DoghousePlayer>.from(_currentSuggestion);
       // Hand off admin before starting next team so _activePool excludes the new admin.
       if (_isAllPlay && _nextAdminPlayerId != null) {
@@ -655,7 +645,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
         _challengerTeam   = [];
         _challengerEject.clear();
       });
-      _startTeam(nextDogs);
+      _startTeam(nextDoghouse);
       if (nextChallenger.length == _t.playersPerTeam) {
         // Enough players for a pre-defined Up Next — promote it to Challengers.
         setState(() => _challengerTeam = nextChallenger);
@@ -1533,7 +1523,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
           if (_isCompleted)
             _buildCompletedBanner()
           else if (_hasTeam && _isAutoMode) ...[
-            // Three-slot automated layout: Up Next → Challengers → Dogs
+            // Three-slot automated layout: Up Next → Challengers → Doghouse
             _buildUpNextTile(),
             const SizedBox(height: 8),
             IntrinsicHeight(
@@ -1553,7 +1543,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                 children: [
                   Expanded(flex: 4, child: _buildActiveScoringTile()),
                   const SizedBox(width: 8),
-                  Expanded(flex: 1, child: _buildNarrowGameLostButton()),
+                  Expanded(flex: 1, child: _buildGameLostColumn()),
                 ],
               ),
             ),
@@ -1568,7 +1558,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                 children: [
                   Expanded(flex: 4, child: _buildActiveScoringTile()),
                   const SizedBox(width: 8),
-                  Expanded(flex: 1, child: _buildNarrowGameLostButton()),
+                  Expanded(flex: 1, child: _buildGameLostColumn()),
                 ],
               ),
             )
@@ -1655,7 +1645,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                       // Challenger eject (focal) + Undo (secondary)
                       SizedBox(width: 56, child: _buildChallengerEjectColumn()),
                       const SizedBox(width: 6),
-                      // Column 2: Dogs + Score, Admin tile below (allPlay only)
+                      // Column 2: Doghouse + Score, Admin tile below (allPlay only)
                       Expanded(
                         flex: 3,
                         child: Column(
@@ -1678,7 +1668,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                           children: [
                             Expanded(
                               flex: _canUndo ? 2 : 1,
-                              child: _buildNarrowGameLostButton(),
+                              child: _buildGameLostColumn(),
                             ),
                             if (_canUndo) ...[
                               const SizedBox(height: 6),
@@ -1703,7 +1693,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                           Expanded(
                             flex: 1,
                             child: _hasTeam
-                                ? _buildNarrowGameLostButton()
+                                ? _buildGameLostColumn()
                                 : _buildNarrowUndoButton(),
                           ),
                         ],
@@ -1717,101 +1707,96 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
 
   // ── Narrow buttons ────────────────────────────────────────────────────────
 
-  Widget _buildNarrowGameLostButton() {
+  // Add-loss (focal) stacked over a self-disabling "Undo Loss" — mirrors the
+  // challenger eject column's shape (flex 2 primary / flex 1 secondary).
+  Widget _buildGameLostColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(flex: 2, child: _buildAddGameLostButton()),
+        const SizedBox(height: 6),
+        Expanded(flex: 1, child: _buildUndoLossButton()),
+      ],
+    );
+  }
+
+  Widget _buildAddGameLostButton() {
     final atCap    = _currentGamesLost >= _t.lossLimit;
     final nearEject = _currentGamesLost >=
         (_t.lossLimit - 1).clamp(0, _t.lossLimit);
     final canAdd   = _hasTeam && !_isCompleted && !atCap;
-    final canUndo  = _hasTeam && !_isCompleted && _currentGamesLost > 0;
     final bgColor  = nearEject ? Colors.red.shade600 : Colors.grey.shade700;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: Material(
         color: bgColor,
+        child: InkWell(
+          onTap: canAdd ? _addGameLost : null,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.sentiment_very_dissatisfied_rounded,
+                    size: 22,
+                    color: Colors.white.withValues(alpha: canAdd ? 1.0 : 0.5),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '$_currentGamesLost / ${_t.lossLimit}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                        color: Colors.white.withValues(alpha: canAdd ? 1.0 : 0.6),
+                        height: 1.2),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppLocalizations.of(context)!.doghouseGameLost,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        color: Colors.white.withValues(alpha: canAdd ? 0.85 : 0.45)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUndoLossButton() {
+    final canUndo = _hasTeam && !_isCompleted && _currentGamesLost > 0;
+    return OutlinedButton(
+      onPressed: canUndo ? _removeGameLost : null,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: _kGold,
+        side: BorderSide(color: _kGold.withValues(alpha: 0.6)),
+        padding: const EdgeInsets.all(8),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // ── Main area: tap to add game lost ──────────────────────────
-            Expanded(
-              child: InkWell(
-                onTap: canAdd ? _addGameLost : null,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.sentiment_very_dissatisfied_rounded,
-                          size: 26,
-                          color: Colors.white
-                              .withValues(alpha: canAdd ? 1.0 : 0.5),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '$_currentGamesLost / ${_t.lossLimit}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                              color: Colors.white
-                                  .withValues(alpha: canAdd ? 1.0 : 0.6),
-                              height: 1.2),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          AppLocalizations.of(context)!.doghouseGameLost,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                              color: Colors.white
-                                  .withValues(alpha: canAdd ? 0.85 : 0.45)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // ── Divider ──────────────────────────────────────────────────
-            Container(
-              height: 1,
-              color: Colors.white.withValues(alpha: 0.2),
-            ),
-
-            // ── Undo strip: tap to remove one game lost ──────────────────
-            InkWell(
-              onTap: canUndo ? _removeGameLost : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.undo_rounded,
-                      size: 16,
-                      color: Colors.white
-                          .withValues(alpha: canUndo ? 0.9 : 0.3),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.of(context)!.btnUndo,
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white
-                              .withValues(alpha: canUndo ? 0.9 : 0.3)),
-                    ),
-                  ],
-                  ),
-                ),
-              ),
+            const Icon(Icons.undo_rounded, size: 16),
+            const SizedBox(height: 4),
+            Text(
+              AppLocalizations.of(context)!.doghouseUndoLoss,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 10),
             ),
           ],
         ),
@@ -2169,7 +2154,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
     );
   }
 
-  // ── Initial suggested-team tile (shown before any Dogs team is on court) ────
+  // ── Initial suggested-team tile (shown before any team is in the doghouse) ──
 
   Widget _buildAutomatedSuggestionTile({bool compact = false}) {
     final suggested = _currentSuggestion;

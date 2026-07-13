@@ -177,6 +177,86 @@ void main() {
     });
   });
 
+  group('Game lost / undo loss (no more auto-rotation)', () {
+    testWidgets(
+        'losing a rally does not rotate the Challenger team, and the '
+        'Add Loss / Undo Loss buttons round-trip the counter',
+        (tester) async {
+      final players = [
+        _p('1', 'Alice'), _p('2', 'Bob'), _p('3', 'Charlie'),
+        _p('4', 'Diana'), _p('5', 'Eve'), _p('6', 'Frank'),
+      ];
+      final t = DoghouseTournament(
+        id: 'd8',
+        name: 'Test Drill',
+        totalTime: const Duration(hours: 1),
+        playersPerTeam: 2,
+        escapePoints: 5,
+        lossLimit: 3,
+        assignmentMode: DoghouseAssignmentMode.automated,
+        status: DoghouseTournamentStatus.inProgress,
+        players: players,
+        games: const [],
+        createdAt: _now,
+      );
+
+      await pumpPortrait(
+          tester,
+          DoghouseScoreboardPage(
+            tournament: t,
+            existingPlayers: const [],
+            existingGroups: const [],
+            onChanged: (_) {},
+          ));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Enter Doghouse'));
+      await tester.pumpAndSettle();
+
+      // "Doghouse" (not "In Doghouse") badge on the active tile. (The app
+      // bar/title also legitimately says "Doghouse", so just assert the old
+      // two-word label is gone and the new one-word label is present.)
+      expect(find.text('Doghouse'), findsWidgets);
+      expect(find.text('In Doghouse'), findsNothing);
+
+      Set<String?> challengerNames() {
+        final card = find.ancestor(
+            of: find.text('Challengers'), matching: find.byType(Card));
+        return tester
+            .widgetList<Text>(
+                find.descendant(of: card, matching: find.byType(Text)))
+            .map((w) => w.data)
+            .where((s) => s != 'Challengers')
+            .toSet();
+      }
+
+      // The "X / lossLimit" counter renders in two places (the narrow Add
+      // Loss button and a small badge on the active scoring tile) — assert
+      // presence/absence rather than an exact count.
+      expect(find.text('0 / 3'), findsWidgets);
+      final before = challengerNames();
+      expect(before, hasLength(2));
+
+      // Lose a rally, below the loss limit — must NOT touch the Challenger
+      // slot anymore (that auto-rotation was removed).
+      await tester.tap(find.text('Game\nLost'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 / 3'), findsWidgets);
+      expect(find.text('0 / 3'), findsNothing);
+      expect(challengerNames(), before,
+          reason: 'the Challenger team must stay fixed across a rally loss '
+              'that does not reach the loss limit');
+
+      // Undo Loss brings the counter back down.
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Undo\nLoss'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('0 / 3'), findsWidgets);
+      expect(find.text('1 / 3'), findsNothing);
+    });
+  });
+
   group('Editable Match Controls chips', () {
     testWidgets('escape points chip round-trips through its sheet',
         (tester) async {

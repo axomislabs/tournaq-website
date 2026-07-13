@@ -12,6 +12,7 @@ import '../services/local_storage_service.dart';
 import '../services/scramble_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../services/scramble_transfer_service.dart';
+import '../utils/scramble_names.dart';
 import '../widgets/qr_export_sheet.dart';
 import '../widgets/scramble_game_tile.dart';
 import '../widgets/scrollable_page.dart';
@@ -41,8 +42,26 @@ class ScrambleOverviewPage extends StatefulWidget {
 
 class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   late ScrambleTournament _t;
-  bool _playersExpanded = false;
-  bool _timelineExpanded = false;
+
+  // Set while the Players / Schedule Preview bottom sheets are open, so
+  // in-place mutations (add/eject/swap a player, edit the schedule) made via
+  // nested dialogs can force that sheet to redraw with fresh data instead of
+  // going stale until it's closed and reopened. Registered/unregistered from
+  // _RefreshableSheet's own dispose() (synchronous with unmount), NOT from
+  // showModalBottomSheet's returned Future — that Future can resolve after
+  // the sheet's element is already defunct, which would otherwise leave a
+  // stale callback here that crashes the next time it's invoked.
+  VoidCallback? _playersSheetRefresh;
+  VoidCallback? _scheduleSheetRefresh;
+  VoidCallback? _teamsSheetRefresh;
+
+  // Rounds collapsed to just their header — lets a long schedule with many
+  // rounds be scanned at a glance. Manual, per-round; all expanded by default.
+  final Set<String> _collapsedRoundIds = {};
+
+  // Teams sheet filters (tournament-wide, across every round).
+  int? _teamsRoundFilter; // round number; null ⇒ all rounds
+  int? _teamsCourtFilter; // court number; null ⇒ all courts
 
   @override
   void initState() {
@@ -54,6 +73,9 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     setState(() => _t = updated);
     ScrambleStorageService.save(updated);
     widget.onChanged(updated);
+    _playersSheetRefresh?.call();
+    _scheduleSheetRefresh?.call();
+    _teamsSheetRefresh?.call();
   }
 
   Future<void> _openScorecard(ScrambleGame game) async {
@@ -78,15 +100,16 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     final l10n = AppLocalizations.of(context)!;
     final data = ScrambleTransferService.encodeGameExport(_t, game, round);
     final teamA = game.sideAPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     final teamB = game.sideBPlayerIds
-        .map((id) => _t.getPlayer(id)?.name ?? id)
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
     showQrExportSheet(
       context,
       title: l10n.scrambleExportScorecard,
-      subtitle: '${l10n.scrambleImportedCourt(game.courtNumber)} · $teamA vs $teamB',
+      subtitle:
+          '${l10n.scrambleImportedCourt(game.courtNumber)} · $teamA vs $teamB',
       data: data,
     );
   }
@@ -112,9 +135,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       _showSnack(l10n.scrambleResultMismatch);
       return;
     }
-    final target = _t.games
-        .cast<ScrambleGame?>()
-        .firstWhere((g) => g?.id == result.gameId, orElse: () => null);
+    final target = _t.games.cast<ScrambleGame?>().firstWhere(
+      (g) => g?.id == result.gameId,
+      orElse: () => null,
+    );
     if (target == null) {
       _showSnack(l10n.scrambleResultMismatch);
       return;
@@ -126,28 +150,212 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       actualStartTime: result.actualStartTime,
       actualEndTime: result.actualEndTime,
     );
-    _update(_t.updateGame(updatedGame));
+    final round = _t.getRound(target.roundId);
+    final updated = round != null
+        ? ScrambleService.reflowIfRoundComplete(
+            _t.updateGame(updatedGame), round)
+        : _t.updateGame(updatedGame);
+    _update(updated);
     _showSnack(l10n.scrambleResultImported);
   }
 
+  /// Manually set the final score for a not-yet-started game and complete
+  /// it, without opening the scorecard. Opened from the game card's action
+  /// menu (the same one used for QR export/import).
+  Future<void> _showSetScoreDialog(
+    ScrambleGame game,
+    ScrambleRound round,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+    final sideALabel = game.sideAPlayerIds
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
+        .join(' & ');
+    final sideBLabel = game.sideBPlayerIds
+        .map((id) => scramblePlayerLabel(_t, id, l10n))
+        .join(' & ');
+    final ctrlA = TextEditingController(text: '0');
+    final ctrlB = TextEditingController(text: '0');
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          title: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.oliveLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.edit_rounded,
+                  color: AppColors.olive,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  l10n.scorecardManualScore,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  l10n.scorecardManualScoreDescription,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _setScoreInputRow(sideALabel, ctrlA, AppColors.gold),
+                const SizedBox(height: 10),
+                _setScoreInputRow(sideBLabel, ctrlB, AppColors.olive),
+              ],
+            ),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text(l10n.btnCancel),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.olive,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: Text(
+                      l10n.scorecardCompleteGame,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+
+      final now = DateTime.now();
+      final updatedGame = game.copyWith(
+        sideAScore: int.tryParse(ctrlA.text) ?? 0,
+        sideBScore: int.tryParse(ctrlB.text) ?? 0,
+        status: ScrambleGameStatus.completed,
+        actualStartTime: now,
+        actualEndTime: now,
+      );
+      _update(
+        ScrambleService.reflowIfRoundComplete(
+          _t.updateGame(updatedGame),
+          round,
+        ),
+      );
+      _showSnack(l10n.overviewScoreSaved);
+    } finally {
+      // Delay disposal until the dialog's exit animation is fully done —
+      // Navigator.pop() completes the Future immediately, but the dialog
+      // widget stays in the overlay for the exit animation and its builder
+      // keeps referencing these controllers.
+      Future.delayed(const Duration(milliseconds: 300), () {
+        ctrlA.dispose();
+        ctrlB.dispose();
+      });
+    }
+  }
+
+  Widget _setScoreInputRow(String label, TextEditingController ctrl, Color color) =>
+      Row(
+        children: [
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 64,
+            child: TextField(
+              controller: ctrl,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 10,
+                ),
+                isDense: true,
+              ),
+            ),
+          ),
+        ],
+      );
+
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   void _openStats() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleStatsPage(tournament: _t),
-    ));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ScrambleStatsPage(tournament: _t)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n      = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
     final completed = _t.completedGames;
-    final total     = _t.totalGames;
-    final progress  = _t.progressFraction;
+    final total = _t.totalGames;
+    final progress = _t.progressFraction;
 
     return Scaffold(
       appBar: TournaQAppBar(
@@ -155,8 +363,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         subtitle: _t.name,
         actions: [
           IconButton(
-            icon: const Icon(Icons.leaderboard_rounded,
-                color: AppColors.goldLight),
+            icon: const Icon(
+              Icons.leaderboard_rounded,
+              color: AppColors.goldLight,
+            ),
             tooltip: l10n.tooltipRankings,
             onPressed: _openStats,
           ),
@@ -167,15 +377,17 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _sectionDivider(l10n.overviewSectionOverview, Icons.bar_chart_rounded),
+            _sectionDivider(
+              l10n.overviewSectionOverview,
+              Icons.bar_chart_rounded,
+            ),
             const SizedBox(height: 10),
             _buildHeader(l10n, completed, total, progress),
             const SizedBox(height: 20),
-            _buildTimelineSection(l10n),
-            const SizedBox(height: 20),
-            _buildPlayersSection(l10n),
-            const SizedBox(height: 20),
-            _sectionDivider(l10n.overviewSectionSchedule, Icons.event_note_rounded),
+            _sectionDivider(
+              l10n.overviewSectionSchedule,
+              Icons.event_note_rounded,
+            ),
             const SizedBox(height: 10),
             _buildScheduleList(l10n),
           ],
@@ -186,9 +398,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Section divider ───────────────────────────────────────────────────────
 
-  Widget _sectionDivider(String label, IconData icon,
-      {bool collapsible = false, bool expanded = false,
-      VoidCallback? onToggle}) {
+  Widget _sectionDivider(
+    String label,
+    IconData icon, {
+    bool collapsible = false,
+    bool expanded = false,
+    VoidCallback? onToggle,
+  }) {
     return InkWell(
       onTap: onToggle,
       borderRadius: BorderRadius.circular(6),
@@ -227,11 +443,17 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   // ── Overview header ───────────────────────────────────────────────────────
 
-  Widget _buildHeader(AppLocalizations l10n, int completed, int total, double progress) {
+  Widget _buildHeader(
+    AppLocalizations l10n,
+    int completed,
+    int total,
+    double progress,
+  ) {
     final lastRound = _t.rounds.isNotEmpty ? _t.rounds.last : null;
     final estFinish =
         lastRound?.actualEndTime ?? lastRound?.scheduledBreakEndTime;
-    final finished = lastRound?.actualEndTime != null &&
+    final finished =
+        lastRound?.actualEndTime != null &&
         _t.games.isNotEmpty &&
         _t.games.every((g) => g.isCompleted);
 
@@ -253,20 +475,24 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     Text(
                       l10n.overviewGamesCompleted(completed, total),
                       style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 15),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     _buildStatChips(l10n),
                     if (estFinish != null) ...[
                       const SizedBox(height: 4),
-                      Text(
+                      _statChip(
+                        Icons.flag_rounded,
                         finished
                             ? l10n.overviewFinished(
-                                ScrambleService.formatTime(estFinish))
+                                ScrambleService.formatTime(estFinish),
+                              )
                             : l10n.overviewEstFinish(
-                                ScrambleService.formatTime(estFinish)),
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.black54),
+                                ScrambleService.formatTime(estFinish),
+                              ),
+                        onTap: _showSchedulePreviewSheet,
                       ),
                     ],
                   ],
@@ -282,8 +508,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               value: progress,
               minHeight: 6,
               backgroundColor: Colors.white,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppColors.olive),
+              valueColor: const AlwaysStoppedAnimation(AppColors.olive),
             ),
           ),
         ],
@@ -302,13 +527,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             value: progress,
             strokeWidth: 5,
             backgroundColor: Colors.white,
-            valueColor:
-                const AlwaysStoppedAnimation(AppColors.olive),
+            valueColor: const AlwaysStoppedAnimation(AppColors.olive),
           ),
           Text(
             '${(progress * 100).round()}%',
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700),
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -324,10 +547,16 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       spacing: 6,
       runSpacing: 6,
       children: [
-        _statChip(Icons.event_repeat_rounded, l10n.statsRounds(_t.roundCount),
-            onTap: _showSettingsEditSheet),
-        _statChip(Icons.crop_square_rounded, l10n.statsCourts(_t.courtCount),
-            onTap: _showSettingsEditSheet),
+        _statChip(
+          Icons.event_repeat_rounded,
+          l10n.statsRounds(_t.roundCount),
+          onTap: _showSettingsEditSheet,
+        ),
+        _statChip(
+          Icons.crop_square_rounded,
+          l10n.statsCourts(_t.courtCount),
+          onTap: _showSettingsEditSheet,
+        ),
         _statChip(
           Icons.grid_view_rounded,
           '${_t.playersPerTeam}v${_t.playersPerTeam}',
@@ -335,7 +564,15 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           locked: modeLocked,
         ),
         _statChip(
-            Icons.people_rounded, l10n.doghouseStatsPlayers(_t.playerCount)),
+          Icons.people_rounded,
+          l10n.doghouseStatsPlayers(_t.playerCount),
+          onTap: _showPlayersSheet,
+        ),
+        _statChip(
+          Icons.groups_rounded,
+          l10n.overviewTeamsLabel,
+          onTap: _showTeamsSheet,
+        ),
       ],
     );
   }
@@ -364,9 +601,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           Text(
             label,
             style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
           if (locked) ...[
             const SizedBox(width: 3),
@@ -386,40 +624,71 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
-  // ── Timeline section ──────────────────────────────────────────────────────
+  // ── Schedule Preview sheet ────────────────────────────────────────────────
 
-  Widget _buildTimelineSection(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionDivider(
-          l10n.overviewSectionTimeline,
-          Icons.schedule_rounded,
-          collapsible: true,
-          expanded: _timelineExpanded,
-          onToggle: () => setState(() => _timelineExpanded = !_timelineExpanded),
-        ),
-        if (_timelineExpanded) ...[
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.goldCream,
-              borderRadius: BorderRadius.circular(14),
+  /// Opened from the header's "Est. finish" chip. Shows the tournament
+  /// start/predicted-end row (tap to edit) plus the per-round timeline —
+  /// content that used to be an always-expanded mid-page section.
+  void _showSchedulePreviewSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _RefreshableSheet(
+        onMount: (refresh) => _scheduleSheetRefresh = refresh,
+        onUnmount: () => _scheduleSheetRefresh = null,
+        builder: (ctx) {
+          final l10n = AppLocalizations.of(context)!;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                8,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 32,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.overviewSectionTimeline,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldCream,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildStartAndEndRow(),
+                        const SizedBox(height: 8),
+                        const Divider(
+                          height: 1,
+                          thickness: 0.5,
+                          color: AppColors.goldDark,
+                        ),
+                        const SizedBox(height: 4),
+                        ..._buildTimelineRows(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildStartAndEndRow(),
-                const SizedBox(height: 8),
-                const Divider(height: 1, thickness: 0.5, color: AppColors.goldDark),
-                const SizedBox(height: 4),
-                ..._buildTimelineRows(),
-              ],
-            ),
-          ),
-        ],
-      ],
+          );
+        },
+      ),
     );
   }
 
@@ -451,35 +720,48 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    const Icon(Icons.play_circle_outline_rounded,
-                        size: 13, color: Colors.black38),
-                    const SizedBox(width: 5),
-                    Text(
-                      l10n.timelineStart(ScrambleService.formatTime(_t.startTime)),
-                      style: const TextStyle(fontSize: 12, color: Colors.black54),
-                    ),
-                  ]),
-                  const SizedBox(height: 2),
-                  Row(children: [
-                    Icon(
-                      allDone
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.flag_outlined,
-                      size: 13,
-                      color: allDone ? AppColors.olive : Colors.black38,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      endText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: allDone ? AppColors.olive : Colors.black54,
-                        fontWeight:
-                            allDone ? FontWeight.w600 : FontWeight.normal,
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.play_circle_outline_rounded,
+                        size: 13,
+                        color: Colors.black38,
                       ),
-                    ),
-                  ]),
+                      const SizedBox(width: 5),
+                      Text(
+                        l10n.timelineStart(
+                          ScrambleService.formatTime(_t.startTime),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(
+                        allDone
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.flag_outlined,
+                        size: 13,
+                        color: allDone ? AppColors.olive : Colors.black38,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        endText,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: allDone ? AppColors.olive : Colors.black54,
+                          fontWeight: allDone
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -529,7 +811,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
               SizedBox(
                 width: 66,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: allDone ? AppColors.olive : AppColors.goldCream,
                     borderRadius: BorderRadius.circular(20),
@@ -550,11 +835,21 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(timeLabel,
-                        style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    Text(
+                      timeLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
                     if (breakTime != null)
-                      Text(l10n.timelineBreakUntil(breakTime),
-                          style: const TextStyle(fontSize: 11, color: Colors.black38)),
+                      Text(
+                        l10n.timelineBreakUntil(breakTime),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black38,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -563,19 +858,24 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                 children: [
                   if (_t.paceAlertsEnabled) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: allDone ? 1.0 : 0.12),
+                        color: statusColor.withValues(
+                          alpha: allDone ? 1.0 : 0.12,
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         allDone
                             ? l10n.statusCompleted
                             : isOverdue
-                                ? l10n.statusOverdue
-                                : hasStarted
-                                    ? l10n.statusDue
-                                    : l10n.statusUpcoming,
+                            ? l10n.statusOverdue
+                            : hasStarted
+                            ? l10n.statusDue
+                            : l10n.statusUpcoming,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -585,7 +885,11 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     ),
                     const SizedBox(width: 6),
                   ],
-                  const Icon(Icons.edit_rounded, size: 13, color: Colors.black26),
+                  const Icon(
+                    Icons.edit_rounded,
+                    size: 13,
+                    color: Colors.black26,
+                  ),
                 ],
               ),
             ],
@@ -599,13 +903,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
 
   void _showOverallEditSheet() {
     TimeOfDay startTime = TimeOfDay.fromDateTime(_t.startTime);
-    final firstPending = _t.rounds.cast<ScrambleRound?>().firstWhere(
-      (r) {
-        final games = _t.getGamesForRound(r!.id);
-        return games.isEmpty || games.any((g) => !g.isCompleted);
-      },
-      orElse: () => null,
-    );
+    final firstPending = _t.rounds.cast<ScrambleRound?>().firstWhere((r) {
+      final games = _t.getGamesForRound(r!.id);
+      return games.isEmpty || games.any((g) => !g.isCompleted);
+    }, orElse: () => null);
     int matchMinutes =
         (firstPending ?? _t.rounds.first).matchDuration.inMinutes;
     int breakMinutes =
@@ -622,50 +923,72 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           return TournaQSheet(
             body: Padding(
               padding: EdgeInsets.fromLTRB(
-                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+                20,
+                8,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 32,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(children: [
-                    Expanded(
-                      child: Text(
-                        l10n.timelineScheduleTitle,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.timelineScheduleTitle,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        _applyOverallEdit(startTime, matchMinutes, breakMinutes,
-                            paceAlertsEnabled);
-                        Navigator.of(ctx).pop();
-                      },
-                      style: TextButton.styleFrom(
-                          foregroundColor: AppColors.gold),
-                      child: Text(
-                        l10n.btnSave,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      TextButton(
+                        onPressed: () {
+                          _applyOverallEdit(
+                            startTime,
+                            matchMinutes,
+                            breakMinutes,
+                            paceAlertsEnabled,
+                          );
+                          Navigator.of(ctx).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.gold,
+                        ),
+                        child: Text(
+                          l10n.btnSave,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                   const SizedBox(height: 20),
-                  Text(l10n.timelineTournamentStart,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineTournamentStart,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildTimeTile(startTime.format(ctx), () async {
                     final picked = await showTimePicker(
-                        context: ctx, initialTime: startTime);
+                      context: ctx,
+                      initialTime: startTime,
+                    );
                     if (picked != null) setSheet(() => startTime = picked);
                   }),
                   const SizedBox(height: 16),
-                  Text(l10n.timelineGameDuration,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineGameDuration,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: matchMinutes,
@@ -673,11 +996,14 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     onChanged: (v) => setSheet(() => matchMinutes = v),
                   ),
                   const SizedBox(height: 16),
-                  Text(l10n.timelineBreakDurationPending,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineBreakDurationPending,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: breakMinutes,
@@ -690,12 +1016,20 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     value: paceAlertsEnabled,
                     onChanged: (v) => setSheet(() => paceAlertsEnabled = v),
                     activeThumbColor: AppColors.gold,
-                    title: Text(l10n.timelinePaceAlertsTitle,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600)),
-                    subtitle: Text(l10n.timelinePaceAlertsSubtitle,
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.black54)),
+                    title: Text(
+                      l10n.timelinePaceAlertsTitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      l10n.timelinePaceAlertsSubtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -706,19 +1040,27 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
   }
 
-  void _applyOverallEdit(TimeOfDay newTime, int matchMinutes, int breakMinutes,
-      bool paceAlertsEnabled) {
+  void _applyOverallEdit(
+    TimeOfDay newTime,
+    int matchMinutes,
+    int breakMinutes,
+    bool paceAlertsEnabled,
+  ) {
     final old = _t.startTime;
-    final newStart =
-        DateTime(old.year, old.month, old.day, newTime.hour, newTime.minute);
+    final newStart = DateTime(
+      old.year,
+      old.month,
+      old.day,
+      newTime.hour,
+      newTime.minute,
+    );
 
     var rounds = List<ScrambleRound>.from(_t.rounds);
     var cursor = newStart;
 
     for (var i = 0; i < rounds.length; i++) {
       final games = _t.getGamesForRound(rounds[i].id);
-      final allDone =
-          games.isNotEmpty && games.every((g) => g.isCompleted);
+      final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
 
       if (allDone) {
         // Completed: leave scheduled times alone; advance cursor past actual end + break.
@@ -739,11 +1081,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       cursor = cursor.add(Duration(minutes: matchMinutes + breakMinutes));
     }
 
-    _update(_t.copyWith(
-      startTime: newStart,
-      rounds: rounds,
-      paceAlertsEnabled: paceAlertsEnabled,
-    ));
+    _update(
+      _t.copyWith(
+        startTime: newStart,
+        rounds: rounds,
+        paceAlertsEnabled: paceAlertsEnabled,
+      ),
+    );
   }
 
   void _showRoundEditSheet(ScrambleRound round) {
@@ -761,76 +1105,110 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           return TournaQSheet(
             body: Padding(
               padding: EdgeInsets.fromLTRB(
-                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+                20,
+                8,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 32,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(children: [
-                    Expanded(
-                      child: Text(
-                        l10n.timelineRound(round.roundNumber),
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w800),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.timelineRound(round.roundNumber),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        final d = round.scheduledStartTime;
-                        final newStart = DateTime(
-                            d.year, d.month, d.day, startTime.hour, startTime.minute);
-                        final updatedRound = round.copyWith(
-                          scheduledStartTime: newStart,
-                          matchDuration: Duration(minutes: matchMinutes),
-                          breakDuration: Duration(minutes: breakMinutes),
-                        );
-                        // Cascade pending rounds from the edited round's break end.
-                        final rounds = List<ScrambleRound>.from(_t.rounds);
-                        final idx = rounds.indexWhere((r) => r.id == round.id);
-                        rounds[idx] = updatedRound;
-                        var cursor = updatedRound.scheduledBreakEndTime;
-                        for (var i = idx + 1; i < rounds.length; i++) {
-                          final games = _t.getGamesForRound(rounds[i].id);
-                          final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
-                          if (allDone) {
-                            final r = rounds[i];
-                            if (r.actualEndTime != null) {
-                              final afterBreak = r.actualEndTime!.add(r.breakDuration);
-                              if (afterBreak.isAfter(cursor)) cursor = afterBreak;
+                      TextButton(
+                        onPressed: () {
+                          final d = round.scheduledStartTime;
+                          final newStart = DateTime(
+                            d.year,
+                            d.month,
+                            d.day,
+                            startTime.hour,
+                            startTime.minute,
+                          );
+                          final updatedRound = round.copyWith(
+                            scheduledStartTime: newStart,
+                            matchDuration: Duration(minutes: matchMinutes),
+                            breakDuration: Duration(minutes: breakMinutes),
+                          );
+                          // Cascade pending rounds from the edited round's break end.
+                          final rounds = List<ScrambleRound>.from(_t.rounds);
+                          final idx = rounds.indexWhere(
+                            (r) => r.id == round.id,
+                          );
+                          rounds[idx] = updatedRound;
+                          var cursor = updatedRound.scheduledBreakEndTime;
+                          for (var i = idx + 1; i < rounds.length; i++) {
+                            final games = _t.getGamesForRound(rounds[i].id);
+                            final allDone =
+                                games.isNotEmpty &&
+                                games.every((g) => g.isCompleted);
+                            if (allDone) {
+                              final r = rounds[i];
+                              if (r.actualEndTime != null) {
+                                final afterBreak = r.actualEndTime!.add(
+                                  r.breakDuration,
+                                );
+                                if (afterBreak.isAfter(cursor))
+                                  cursor = afterBreak;
+                              }
+                              continue;
                             }
-                            continue;
+                            rounds[i] = rounds[i].copyWith(
+                              scheduledStartTime: cursor,
+                            );
+                            cursor = cursor.add(
+                              rounds[i].matchDuration + rounds[i].breakDuration,
+                            );
                           }
-                          rounds[i] = rounds[i].copyWith(scheduledStartTime: cursor);
-                          cursor = cursor.add(rounds[i].matchDuration + rounds[i].breakDuration);
-                        }
-                        _update(_t.copyWith(rounds: rounds));
-                        Navigator.of(ctx).pop();
-                      },
-                      style:
-                          TextButton.styleFrom(foregroundColor: AppColors.gold),
-                      child: Text(l10n.btnSave,
-                          style:
-                              const TextStyle(fontWeight: FontWeight.w700)),
-                    ),
-                  ]),
+                          _update(_t.copyWith(rounds: rounds));
+                          Navigator.of(ctx).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.gold,
+                        ),
+                        child: Text(
+                          l10n.btnSave,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 20),
-                  Text(l10n.timelineEditStartTime,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineEditStartTime,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildTimeTile(startTime.format(ctx), () async {
                     final picked = await showTimePicker(
-                        context: ctx, initialTime: startTime);
+                      context: ctx,
+                      initialTime: startTime,
+                    );
                     if (picked != null) setSheet(() => startTime = picked);
                   }),
                   const SizedBox(height: 16),
-                  Text(l10n.timelineMatchDuration,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineMatchDuration,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: matchMinutes,
@@ -838,11 +1216,14 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     onChanged: (v) => setSheet(() => matchMinutes = v),
                   ),
                   const SizedBox(height: 16),
-                  Text(l10n.timelineBreakAfterRound,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.timelineBreakAfterRound,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: breakMinutes,
@@ -887,29 +1268,34 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             playerCount: activePlayerCount,
             playersPerTeam: mode,
           );
-          final activeCourtsPossible =
-              min(courts, activePlayerCount ~/ (mode * 2));
+          final activeCourtsPossible = min(
+            courts,
+            activePlayerCount ~/ (mode * 2),
+          );
           final courtsBlocked = activeCourtsPossible < courts;
           final roundsBlocked = rounds < minRounds;
-          final hasChange = rounds != _t.roundCount ||
+          final hasChange =
+              rounds != _t.roundCount ||
               courts != _t.courtCount ||
               mode != _t.playersPerTeam;
-          final canSave = hasChange &&
+          final canSave =
+              hasChange &&
               !courtsBlocked &&
               !roundsBlocked &&
               !suggestions.any((s) => s.isBlocking);
 
           final impactLines = <String>[];
           if (lockedRounds > 0) {
-            impactLines
-                .add(l10n.overviewSettingsLockedRounds(lockedRounds));
+            impactLines.add(l10n.overviewSettingsLockedRounds(lockedRounds));
           }
           if (rounds < _t.roundCount) {
-            impactLines.add(l10n.overviewSettingsRoundsRemoved(
-                rounds + 1, _t.roundCount));
+            impactLines.add(
+              l10n.overviewSettingsRoundsRemoved(rounds + 1, _t.roundCount),
+            );
           } else if (rounds > _t.roundCount) {
             impactLines.add(
-                l10n.overviewSettingsRoundsAdded(rounds - _t.roundCount));
+              l10n.overviewSettingsRoundsAdded(rounds - _t.roundCount),
+            );
           }
           if (hasChange) {
             impactLines.add(l10n.overviewSettingsRemix);
@@ -918,44 +1304,58 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           return TournaQSheet(
             body: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
-                  20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+                20,
+                8,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 32,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(children: [
-                    Expanded(
-                      child: Text(
-                        l10n.overviewSettingsTitle,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w800),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.overviewSettingsTitle,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: canSave
-                          ? () {
-                              Navigator.of(ctx).pop();
-                              _confirmAndApplySettings(
-                                rounds: rounds,
-                                courts: courts,
-                                mode: mode,
-                                impactLines: impactLines,
-                              );
-                            }
-                          : null,
-                      style:
-                          TextButton.styleFrom(foregroundColor: AppColors.gold),
-                      child: Text(l10n.btnSave,
-                          style: const TextStyle(fontWeight: FontWeight.w700)),
-                    ),
-                  ]),
+                      TextButton(
+                        onPressed: canSave
+                            ? () {
+                                Navigator.of(ctx).pop();
+                                _confirmAndApplySettings(
+                                  rounds: rounds,
+                                  courts: courts,
+                                  mode: mode,
+                                  impactLines: impactLines,
+                                );
+                              }
+                            : null,
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.gold,
+                        ),
+                        child: Text(
+                          l10n.btnSave,
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 20),
 
-                  Text(l10n.setupRoundsLabel,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.setupRoundsLabel,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: rounds,
@@ -966,11 +1366,14 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  Text(l10n.setupCourts,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.setupCourts,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   _buildMinutePicker(
                     value: courts,
@@ -981,27 +1384,32 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  Text(l10n.setupFormat,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  Text(
+                    l10n.setupFormat,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<int>(
                     // ignore: deprecated_member_use
                     value: mode,
                     isDense: true,
                     decoration: InputDecoration(
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(12, 10, 4, 10),
+                      contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     items: [2, 3, 4, 5, 6]
-                        .map((n) => DropdownMenuItem(
-                              value: n,
-                              child: Text('${n}v$n'),
-                            ))
+                        .map(
+                          (n) => DropdownMenuItem(
+                            value: n,
+                            child: Text('${n}v$n'),
+                          ),
+                        )
                         .toList(),
                     onChanged: modeLocked
                         ? null
@@ -1011,39 +1419,57 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   ),
                   if (modeLocked) ...[
                     const SizedBox(height: 4),
-                    Text(l10n.overviewSettingsModeLocked,
-                        style: const TextStyle(
-                            fontSize: 11, color: Colors.black38)),
+                    Text(
+                      l10n.overviewSettingsModeLocked,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.black38,
+                      ),
+                    ),
                   ],
 
                   if (suggestions.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    Text(l10n.setupSuggestions,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black54)),
+                    Text(
+                      l10n.setupSuggestions,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    ...suggestions.map((s) =>
-                        ScrambleSuggestionCard(suggestion: s, onAction: null)),
+                    ...suggestions.map(
+                      (s) =>
+                          ScrambleSuggestionCard(suggestion: s, onAction: null),
+                    ),
                   ],
 
                   if (courtsBlocked) ...[
                     const SizedBox(height: 4),
                     Text(
                       l10n.overviewSettingsCourtsBlocked(activeCourtsPossible),
-                      style: TextStyle(fontSize: 12, color: Colors.red.shade700),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red.shade700,
+                      ),
                     ),
                   ],
 
                   if (impactLines.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    ...impactLines.map((line) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(line,
-                              style: const TextStyle(
-                                  fontSize: 12, color: Colors.black54)),
-                        )),
+                    ...impactLines.map(
+                      (line) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          line,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -1063,18 +1489,18 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     final l10n = AppLocalizations.of(context)!;
     final ok = await _confirmReshuffle(
       l10n.overviewSettingsConfirmTitle,
-      impactLines.isEmpty
-          ? l10n.overviewSettingsRemix
-          : impactLines.join('\n'),
+      impactLines.isEmpty ? l10n.overviewSettingsRemix : impactLines.join('\n'),
       confirmLabel: l10n.overviewSettingsConfirmBtn,
     );
     if (ok != true || !mounted) return;
-    _update(ScrambleService.applySettingsChange(
-      _t,
-      roundCount: rounds,
-      courtCount: courts,
-      playersPerTeam: mode,
-    ));
+    _update(
+      ScrambleService.applySettingsChange(
+        _t,
+        roundCount: rounds,
+        courtCount: courts,
+        playersPerTeam: mode,
+      ),
+    );
   }
 
   Widget _buildTimeTile(String label, VoidCallback onTap) {
@@ -1088,15 +1514,22 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.access_time_rounded,
-                size: 16, color: Colors.black38),
+            const Icon(
+              Icons.access_time_rounded,
+              size: 16,
+              color: Colors.black38,
+            ),
             const SizedBox(width: 10),
-            Text(label,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+            ),
             const Spacer(),
-            const Icon(Icons.chevron_right_rounded,
-                size: 18, color: Colors.black38),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: Colors.black38,
+            ),
           ],
         ),
       ),
@@ -1125,63 +1558,328 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             onPressed: value > min ? () => onChanged(value - 1) : null,
           ),
           Expanded(
-            child: Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600)),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.add_rounded, size: 20),
-            onPressed:
-                (max == null || value < max) ? () => onChanged(value + 1) : null,
+            onPressed: (max == null || value < max)
+                ? () => onChanged(value + 1)
+                : null,
           ),
         ],
       ),
     );
   }
 
-  // ── Players section ───────────────────────────────────────────────────────
+  // ── Players sheet ─────────────────────────────────────────────────────────
 
-  Widget _buildPlayersSection(AppLocalizations l10n) {
-    final isLive = _t.rounds.isNotEmpty &&
-        _t.status != ScrambleTournamentStatus.completed;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionDivider(
-          l10n.overviewSectionPlayers(_t.players.length),
-          Icons.group_rounded,
-          collapsible: true,
-          expanded: _playersExpanded,
-          onToggle: () =>
-              setState(() => _playersExpanded = !_playersExpanded),
-        ),
-        if (_playersExpanded) ...[
-          const SizedBox(height: 10),
-          if (isLive) ...[
-            _buildAddPlayerButton(l10n),
-            const SizedBox(height: 8),
-          ],
-          _buildPlayerTable(l10n, isLive),
-        ],
-      ],
+  /// Opened from the header's "N players" chip. Add/edit/eject/swap — the
+  /// content that used to be an always-expanded mid-page section.
+  void _showPlayersSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _RefreshableSheet(
+        onMount: (refresh) => _playersSheetRefresh = refresh,
+        onUnmount: () => _playersSheetRefresh = null,
+        builder: (ctx) {
+          final l10n = AppLocalizations.of(context)!;
+          final isLive =
+              _t.rounds.isNotEmpty &&
+              _t.status != ScrambleTournamentStatus.completed;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                8,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 32,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.overviewSectionPlayers(_t.players.length),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (isLive) ...[
+                    _buildAddPlayerButton(l10n),
+                    const SizedBox(height: 8),
+                  ],
+                  _buildPlayerTable(l10n, isLive),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
+
+  // ── Teams sheet (tournament-wide) ─────────────────────────────────────────
+
+  Set<int> _allCourtNumbers() => _t.games.map((g) => g.courtNumber).toSet();
+
+  /// Opened from the header's "Teams" chip. Shows every side ("team") across
+  /// every round, filterable by round and by court — mirrors the Scramble
+  /// King Teams sheet. Each game contributes two rows (side A, side B).
+  void _showTeamsSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _RefreshableSheet(
+        onMount: (refresh) => _teamsSheetRefresh = refresh,
+        onUnmount: () => _teamsSheetRefresh = null,
+        builder: (ctx) {
+          return StatefulBuilder(
+            builder: (ctx, setSheet) {
+              final l10n = AppLocalizations.of(context)!;
+              final rounds = _t.rounds.toList()
+                ..sort((a, b) => a.roundNumber.compareTo(b.roundNumber));
+              final courts = _allCourtNumbers().toList()..sort();
+
+              return TournaQSheet(
+                body: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    8,
+                    20,
+                    MediaQuery.of(ctx).viewInsets.bottom + 32,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l10n.overviewTeamsLabel,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (rounds.length > 1) ...[
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _teamsFilterChip(
+                              l10n.overviewTeamsFilterAll,
+                              _teamsRoundFilter == null,
+                              () => setSheet(() => _teamsRoundFilter = null),
+                            ),
+                            for (final round in rounds)
+                              _teamsFilterChip(
+                                l10n.overviewRound(round.roundNumber),
+                                _teamsRoundFilter == round.roundNumber,
+                                () => setSheet(
+                                  () => _teamsRoundFilter = round.roundNumber,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      if (courts.length > 1) ...[
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _teamsFilterChip(
+                              l10n.overviewTeamsFilterAll,
+                              _teamsCourtFilter == null,
+                              () => setSheet(() => _teamsCourtFilter = null),
+                            ),
+                            for (final courtNumber in courts)
+                              _teamsFilterChip(
+                                l10n.matchCourtLabel(courtNumber),
+                                _teamsCourtFilter == courtNumber,
+                                () => setSheet(
+                                  () => _teamsCourtFilter = courtNumber,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                      _buildFilteredTeamsList(l10n, rounds),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _teamsFilterChip(String label, bool selected, VoidCallback onTap) =>
+      Material(
+        color: selected ? AppColors.olive : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: selected ? Colors.white : Colors.black54,
+              ),
+            ),
+          ),
+        ),
+      );
+
+  /// Every side across [rounds] (already filtered by `_teamsRoundFilter`),
+  /// further filtered by `_teamsCourtFilter`. Rounds get a small sub-header
+  /// whenever more than one is being shown at once; each row always carries
+  /// its court number, since courts from different rounds can be mixed
+  /// together here.
+  Widget _buildFilteredTeamsList(
+    AppLocalizations l10n,
+    List<ScrambleRound> allRounds,
+  ) {
+    String nameFor(String id) => scramblePlayerLabel(_t, id, l10n);
+
+    final rounds = _teamsRoundFilter == null
+        ? allRounds
+        : allRounds
+              .where((r) => r.roundNumber == _teamsRoundFilter)
+              .toList();
+    final showRoundHeaders = rounds.length > 1;
+
+    final sections = <Widget>[];
+    for (final round in rounds) {
+      final rows = <Widget>[];
+      for (final game in _t.getGamesForRound(round.id)) {
+        if (_teamsCourtFilter != null &&
+            game.courtNumber != _teamsCourtFilter) {
+          continue;
+        }
+        final courtLabel = l10n.matchCourtLabel(game.courtNumber);
+        rows.add(_teamRow(
+          game.teamNameA ?? game.sideAPlayerIds.map(nameFor).join(' & '),
+          game.sideAPlayerIds.map(nameFor).join(' & '),
+          courtLabel: courtLabel,
+        ));
+        rows.add(_teamRow(
+          game.teamNameB ?? game.sideBPlayerIds.map(nameFor).join(' & '),
+          game.sideBPlayerIds.map(nameFor).join(' & '),
+          courtLabel: courtLabel,
+        ));
+      }
+      if (rows.isEmpty) continue;
+      if (showRoundHeaders) {
+        sections.add(Padding(
+          padding: const EdgeInsets.only(top: 6, bottom: 2),
+          child: Text(
+            l10n.overviewRound(round.roundNumber),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: Colors.black45,
+            ),
+          ),
+        ));
+      }
+      sections.addAll(rows);
+    }
+
+    if (sections.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          l10n.overviewTeamsEmpty,
+          style: const TextStyle(fontSize: 13, color: Colors.black38),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: sections,
+    );
+  }
+
+  Widget _teamRow(String teamName, String players, {String? courtLabel}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: const BoxDecoration(
+                color: AppColors.goldDark,
+                shape: BoxShape.circle,
+              ),
+            ),
+            Text(
+              teamName,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.goldDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                players,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (courtLabel != null) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  courtLabel,
+                  style: const TextStyle(fontSize: 10, color: Colors.black45),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
 
   Widget _buildAddPlayerButton(AppLocalizations l10n) {
     return OutlinedButton.icon(
       onPressed: _showAddPlayerSheet,
       icon: const Icon(Icons.person_add_rounded, size: 16),
-      label: Text(l10n.menuAddPlayer,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+      label: Text(
+        l10n.menuAddPlayer,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.olive,
         side: BorderSide(color: AppColors.olive.withValues(alpha: 0.4)),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10)),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
     );
   }
@@ -1202,16 +1900,20 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         if (ok != true) return false;
         final globalPlayer = widget.onCreatePlayer?.call(name);
         final newPlayer = ScramblePlayer(
-          id:        ScramblePlayer.generateId(),
-          name:      name,
-          source:    globalPlayer != null
+          id: ScramblePlayer.generateId(),
+          name: name,
+          source: globalPlayer != null
               ? ScramblePlayerSource.existing
               : ScramblePlayerSource.created,
           appUserId: globalPlayer?.id,
-          status:    PlayerStatus.late,
+          status: PlayerStatus.late,
         );
-        _update(ScrambleService.rebuildRemainingRounds(
-            _t, [..._t.players, newPlayer]));
+        _update(
+          ScrambleService.rebuildRemainingRounds(_t, [
+            ..._t.players,
+            newPlayer,
+          ]),
+        );
         return true;
       },
       onPickExisting: (appUserId, name) async {
@@ -1222,14 +1924,18 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         );
         if (ok != true) return false;
         final newPlayer = ScramblePlayer(
-          id:        ScramblePlayer.generateId(),
-          name:      name,
-          source:    ScramblePlayerSource.existing,
+          id: ScramblePlayer.generateId(),
+          name: name,
+          source: ScramblePlayerSource.existing,
           appUserId: appUserId,
-          status:    PlayerStatus.late,
+          status: PlayerStatus.late,
         );
-        _update(ScrambleService.rebuildRemainingRounds(
-            _t, [..._t.players, newPlayer]));
+        _update(
+          ScrambleService.rebuildRemainingRounds(_t, [
+            ..._t.players,
+            newPlayer,
+          ]),
+        );
         return true;
       },
     );
@@ -1258,19 +1964,18 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     required String name,
     String? appUserId,
   }) {
-    final swappedOut =
-        outgoing.copyWith(status: PlayerStatus.swappedOut);
+    final swappedOut = outgoing.copyWith(status: PlayerStatus.swappedOut);
     final globalPlayer = appUserId != null
-        ? null  // id already known; appUserId is the link
+        ? null // id already known; appUserId is the link
         : widget.onCreatePlayer?.call(name);
     final swappedIn = ScramblePlayer(
-      id:        ScramblePlayer.generateId(),
-      name:      name,
-      source:    globalPlayer != null
+      id: ScramblePlayer.generateId(),
+      name: name,
+      source: globalPlayer != null
           ? ScramblePlayerSource.existing
           : ScramblePlayerSource.created,
       appUserId: globalPlayer?.id ?? appUserId,
-      status:    PlayerStatus.swappedIn,
+      status: PlayerStatus.swappedIn,
     );
     final newPlayers = [
       ..._t.players.map((p) => p.id == outgoing.id ? swappedOut : p),
@@ -1295,33 +2000,56 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(children: [
-                Expanded(
-                  child: Text(AppLocalizations.of(context)!.overviewEditPlayer,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                ),
-                TextButton(
-                  onPressed: () {
-                    final name = nameCtrl.text.trim();
-                    if (name.isEmpty) return;
-                    _update(_t.copyWith(
-                      players: _t.players
-                          .map((p) => p.id == player.id ? p.copyWith(name: name) : p)
-                          .toList(),
-                    ));
-                    if (player.appUserId != null) {
-                      widget.onUpdatePlayer?.call(player.appUserId!, name);
-                    }
-                    Navigator.of(ctx).pop();
-                  },
-                  style: TextButton.styleFrom(foregroundColor: AppColors.gold),
-                  child: Text(AppLocalizations.of(context)!.btnSave,
-                      style: const TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ]),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.overviewEditPlayer,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final name = nameCtrl.text.trim();
+                      if (name.isEmpty) return;
+                      _update(
+                        _t.copyWith(
+                          players: _t.players
+                              .map(
+                                (p) => p.id == player.id
+                                    ? p.copyWith(name: name)
+                                    : p,
+                              )
+                              .toList(),
+                        ),
+                      );
+                      if (player.appUserId != null) {
+                        widget.onUpdatePlayer?.call(player.appUserId!, name);
+                      }
+                      Navigator.of(ctx).pop();
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.gold,
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)!.btnSave,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
-              Text(AppLocalizations.of(context)!.labelName,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+              Text(
+                AppLocalizations.of(context)!.labelName,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
+              ),
               const SizedBox(height: 6),
               TextField(
                 controller: nameCtrl,
@@ -1330,19 +2058,29 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                 onSubmitted: (_) {
                   final name = nameCtrl.text.trim();
                   if (name.isEmpty) return;
-                  _update(_t.copyWith(
-                    players: _t.players
-                        .map((p) => p.id == player.id ? p.copyWith(name: name) : p)
-                        .toList(),
-                  ));
+                  _update(
+                    _t.copyWith(
+                      players: _t.players
+                          .map(
+                            (p) =>
+                                p.id == player.id ? p.copyWith(name: name) : p,
+                          )
+                          .toList(),
+                    ),
+                  );
                   if (player.appUserId != null) {
                     widget.onUpdatePlayer?.call(player.appUserId!, name);
                   }
                   Navigator.of(ctx).pop();
                 },
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -1358,15 +2096,16 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     required String title,
     required String subtitle,
     required Future<bool> Function(String name) onPickName,
-    required Future<bool> Function(String appUserId, String name) onPickExisting,
+    required Future<bool> Function(String appUserId, String name)
+    onPickExisting,
   }) {
-    final alreadyIn  = _t.players
+    final alreadyIn = _t.players
         .map((p) => p.appUserId)
         .whereType<String>()
         .toSet();
-    final appState    = LocalStorageService.loadAppState();
+    final appState = LocalStorageService.loadAppState();
     final allExisting = appState.players;
-    final allGroups   = appState.groups;
+    final allGroups = appState.groups;
 
     showModalBottomSheet<void>(
       context: context,
@@ -1388,13 +2127,15 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   // ── Player table ──────────────────────────────────────────────────────────
 
   Widget _buildPlayerTable(AppLocalizations l10n, bool isLive) {
-    final stats     = ScrambleService.computeStats(_t);
+    final stats = ScrambleService.computeStats(_t);
     final statsById = {for (final s in stats) s.playerId: s};
     if (_t.players.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(l10n.doghouseSetupNoPlayers,
-            style: const TextStyle(fontSize: 13, color: Colors.black38)),
+        child: Text(
+          l10n.doghouseSetupNoPlayers,
+          style: const TextStyle(fontSize: 13, color: Colors.black38),
+        ),
       );
     }
     return Column(
@@ -1426,49 +2167,189 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title,
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w700)),
-        content: Text(body,
-            style: const TextStyle(
-                fontSize: 14, color: Colors.black54, height: 1.5)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          body,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+            height: 1.5,
+          ),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(AppLocalizations.of(context)!.btnCancel)),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(AppLocalizations.of(context)!.btnCancel),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: confirmColor,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            child: Text(confirmLabel,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
+            child: Text(
+              confirmLabel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
     );
   }
 
+  /// Eject-time choice between the two placeholder strategies (see
+  /// [ScrambleService.placeholderAndReshuffle] / [placeholderThroughout]).
+  /// Returns the chosen strategy key, or null if cancelled.
+  Future<String?> _showEjectChoiceDialog(
+    ScramblePlayer player,
+    AppLocalizations l10n,
+  ) {
+    var selected = 'placeholder_reshuffle';
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            l10n.overviewEjectTitle(player.name),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.overviewEjectChoiceIntro(player.name),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _ejectOptionCard(
+                  selected: selected == 'placeholder_reshuffle',
+                  title: l10n.overviewEjectOptPlaceholderReshuffleTitle,
+                  description:
+                      l10n.overviewEjectOptPlaceholderReshuffleDesc(player.name),
+                  onTap: () =>
+                      setDialogState(() => selected = 'placeholder_reshuffle'),
+                ),
+                const SizedBox(height: 8),
+                _ejectOptionCard(
+                  selected: selected == 'placeholder_throughout',
+                  title: l10n.overviewEjectOptPlaceholderThroughoutTitle,
+                  description: l10n.overviewEjectOptPlaceholderThroughoutDesc(
+                    player.name,
+                  ),
+                  onTap: () =>
+                      setDialogState(() => selected = 'placeholder_throughout'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l10n.btnCancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(selected),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                l10n.overviewEjectBtn,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _ejectOptionCard({
+    required bool selected,
+    required String title,
+    required String description,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.oliveLight : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? AppColors.olive : Colors.grey.shade300,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              selected ? Icons.radio_button_checked : Icons.radio_button_off,
+              size: 18,
+              color: selected ? AppColors.olive : Colors.black38,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _confirmEject(ScramblePlayer player) async {
     final l10n = AppLocalizations.of(context)!;
-    final ok = await _confirmReshuffle(
-      l10n.overviewEjectTitle(player.name),
-      l10n.overviewEjectBody(player.name),
-      confirmLabel: l10n.overviewEjectBtn,
-      confirmColor: Colors.red,
-    );
-    if (ok != true || !mounted) return;
-    final ejected =
-        player.copyWith(status: PlayerStatus.ejected);
+    final choice = await _showEjectChoiceDialog(player, l10n);
+    if (choice == null || !mounted) return;
+    final ejected = player.copyWith(status: PlayerStatus.ejected);
     final newPlayers = _t.players
         .map((p) => p.id == player.id ? ejected : p)
         .toList();
-    _update(ScrambleService.rebuildRemainingRounds(_t, newPlayers));
+    final updated = choice == 'placeholder_throughout'
+        ? ScrambleService.placeholderThroughout(_t, player.id, newPlayers)
+        : ScrambleService.placeholderAndReshuffle(_t, player.id, newPlayers);
+    _update(updated);
   }
 
   // ── Rounds / Schedule ─────────────────────────────────────────────────────
@@ -1496,37 +2377,60 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         child: child,
       ),
       onReorder: (oldIndex, newIndex) => _update(
-          ScrambleService.reorderRounds(_t,
-              oldIndex: oldIndex, newIndex: newIndex)),
+        ScrambleService.reorderRounds(
+          _t,
+          oldIndex: oldIndex,
+          newIndex: newIndex,
+        ),
+      ),
       itemBuilder: (ctx, i) {
         final round = rounds[i];
         final games = _t.getGamesForRound(round.id);
         final allDone = games.isNotEmpty && games.every((g) => g.isCompleted);
         final draggable = canReorder && i >= locked;
+        final collapsed = _collapsedRoundIds.contains(round.id);
 
         // Sit-outs are stored on court 1's game and shared across the round.
         final sitOutNames = games.isEmpty
             ? const <String>[]
             : games.first.sittingOutPlayerIds
-                .map((id) => _t.getPlayer(id)?.name ?? id)
-                .toList();
+                  .map((id) => _t.getPlayer(id)?.name ?? id)
+                  .toList();
 
         final section = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _roundHeader(l10n, round, allDone, games),
-            const SizedBox(height: 6),
-            ...games.map((g) => ScrambleGameTile(
-                  game:       g,
-                  round:      round,
-                  tournament: _t,
-                  onTap:      () => _openScorecard(g),
-                  onExport:   () => _exportGame(g, round),
-                  onImportResult: () => _importResult(g),
-                )),
-            if (sitOutNames.isNotEmpty) ...[
+            _roundHeader(
+              l10n,
+              round,
+              allDone,
+              games,
+              collapsed: collapsed,
+              onToggleCollapsed: () => setState(() {
+                if (collapsed) {
+                  _collapsedRoundIds.remove(round.id);
+                } else {
+                  _collapsedRoundIds.add(round.id);
+                }
+              }),
+            ),
+            if (!collapsed) ...[
               const SizedBox(height: 6),
-              _buildScheduleSitOutRow(sitOutNames),
+              ...games.map(
+                (g) => ScrambleGameTile(
+                  game: g,
+                  round: round,
+                  tournament: _t,
+                  onTap: () => _openScorecard(g),
+                  onExport: () => _exportGame(g, round),
+                  onImportResult: () => _importResult(g),
+                  onManualScore: () => _showSetScoreDialog(g, round),
+                ),
+              ),
+              if (sitOutNames.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                _buildScheduleSitOutRow(sitOutNames),
+              ],
             ],
             const SizedBox(height: 16),
           ],
@@ -1548,43 +2452,52 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
   }
 
   Widget _buildScheduleSitOutRow(List<String> names) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        margin: const EdgeInsets.only(top: 2),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    margin: const EdgeInsets.only(top: 2),
+    decoration: BoxDecoration(
+      color: Colors.grey.shade100,
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.chair_rounded, size: 13, color: Colors.black38),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            'Sitting out: ${names.join(', ')}',
+            style: const TextStyle(fontSize: 12, color: Colors.black45),
+          ),
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.chair_rounded, size: 13, color: Colors.black38),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                'Sitting out: ${names.join(', ')}',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 
   Widget _roundHeader(
-      AppLocalizations l10n, ScrambleRound round, bool allDone, List<ScrambleGame> games) {
+    AppLocalizations l10n,
+    ScrambleRound round,
+    bool allDone,
+    List<ScrambleGame> games, {
+    required bool collapsed,
+    required VoidCallback onToggleCollapsed,
+  }) {
     final DateTime? actualStart = allDone
         ? games
-            .where((g) => g.actualStartTime != null)
-            .map((g) => g.actualStartTime!)
-            .fold<DateTime?>(
-                null, (a, b) => a == null || b.isBefore(a) ? b : a)
+              .where((g) => g.actualStartTime != null)
+              .map((g) => g.actualStartTime!)
+              .fold<DateTime?>(
+                null,
+                (a, b) => a == null || b.isBefore(a) ? b : a,
+              )
         : null;
-    final actualEnd  = round.actualEndTime;
+    final actualEnd = round.actualEndTime;
     final showActual = allDone && actualEnd != null;
 
     // Round-level progress icon (moved off the game cards). Mirrors the game
     // status colours: completed → olive check, any game running → gold ball,
     // otherwise still scheduled → grey clock.
-    final anyInProgress =
-        games.any((g) => g.status == ScrambleGameStatus.inProgress);
+    final anyInProgress = games.any(
+      (g) => g.status == ScrambleGameStatus.inProgress,
+    );
     final IconData statusIcon;
     final Color statusColor;
     if (allDone) {
@@ -1615,76 +2528,96 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       }
     }
 
-    return Row(
-      children: [
-        Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: allDone ? AppColors.olive : AppColors.goldCream,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            l10n.overviewRound(round.roundNumber),
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color:
-                  allDone ? Colors.white : AppColors.goldDark,
+    return InkWell(
+      onTap: onToggleCollapsed,
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: allDone ? AppColors.olive : AppColors.goldCream,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              l10n.overviewRound(round.roundNumber),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: allDone ? Colors.white : AppColors.goldDark,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Row(
-            children: [
-              if (showActual) ...[
-                Flexible(
-                  child: Text(
-                    actualStart != null
-                        ? '${ScrambleService.formatTime(actualStart)} – '
-                            '${ScrambleService.formatTime(actualEnd)}'
-                        : ScrambleService.formatTime(actualEnd),
-                    style: const TextStyle(fontSize: 12, color: Colors.black45),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  l10n.overviewActual,
-                  style: const TextStyle(fontSize: 10, color: Colors.black38),
-                ),
-              ] else ...[
-                Flexible(
-                  child: Text(
-                    '${ScrambleService.formatTime(round.scheduledStartTime)} – '
-                    '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
-                    style: const TextStyle(fontSize: 12, color: Colors.black45),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (round.breakDuration > Duration.zero) ...[
-                  const SizedBox(width: 4),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Row(
+              children: [
+                if (showActual) ...[
                   Flexible(
                     child: Text(
-                      l10n.overviewBreakUntil(
-                          ScrambleService.formatTime(round.scheduledBreakEndTime)),
-                      style: const TextStyle(fontSize: 11, color: Colors.black38),
+                      actualStart != null
+                          ? '${ScrambleService.formatTime(actualStart)} – '
+                                '${ScrambleService.formatTime(actualEnd)}'
+                          : ScrambleService.formatTime(actualEnd),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black45,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 4),
+                  Text(
+                    l10n.overviewActual,
+                    style: const TextStyle(fontSize: 10, color: Colors.black38),
+                  ),
+                ] else ...[
+                  Flexible(
+                    child: Text(
+                      '${ScrambleService.formatTime(round.scheduledStartTime)} – '
+                      '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black45,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (round.breakDuration > Duration.zero) ...[
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        l10n.overviewBreakUntil(
+                          ScrambleService.formatTime(
+                            round.scheduledBreakEndTime,
+                          ),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black38,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ],
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(width: 6),
-        Icon(statusIcon, size: 18, color: statusColor),
-        if (paceLabel != null) ...[
           const SizedBox(width: 6),
-          _paceChip(paceColor!, paceLabel),
+          Icon(statusIcon, size: 18, color: statusColor),
+          if (paceLabel != null) ...[
+            const SizedBox(width: 6),
+            _paceChip(paceColor!, paceLabel),
+          ],
+          const SizedBox(width: 4),
+          Icon(
+            collapsed ? Icons.expand_more_rounded : Icons.expand_less_rounded,
+            size: 18,
+            color: Colors.black38,
+          ),
         ],
-      ],
+      ),
     );
   }
 
@@ -1709,10 +2642,58 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           Text(
             label,
             style: TextStyle(
-                fontSize: 10, color: color, fontWeight: FontWeight.w600),
+              fontSize: 10,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+/// Wraps a bottom-sheet body and hands the caller a `refresh` callback that
+/// forces it to rebuild — used so an open sheet reflects mutations made via
+/// nested dialogs (e.g. ejecting a player) instead of going stale until
+/// closed and reopened.
+///
+/// Registers via [onMount] and unregisters via [onUnmount] from this widget's
+/// own [State.dispose], which always runs synchronously with unmount. That
+/// matters: unregistering from `showModalBottomSheet`'s returned Future
+/// (`.whenComplete`) instead would be unsafe — that Future can resolve after
+/// this element is already defunct, leaving a stale callback that crashes
+/// the next time something tries to invoke it.
+class _RefreshableSheet extends StatefulWidget {
+  final void Function(VoidCallback refresh) onMount;
+  final VoidCallback onUnmount;
+  final WidgetBuilder builder;
+
+  const _RefreshableSheet({
+    required this.onMount,
+    required this.onUnmount,
+    required this.builder,
+  });
+
+  @override
+  State<_RefreshableSheet> createState() => _RefreshableSheetState();
+}
+
+class _RefreshableSheetState extends State<_RefreshableSheet> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onMount(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.onUnmount();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
 }

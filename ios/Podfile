@@ -1,5 +1,6 @@
 # Required by google_mobile_ads 8.x (GMA iOS SDK 12.x)
-platform :ios, '14.0'
+# Raised to 15.5 for mobile_scanner 7.x (Apple Vision framework).
+platform :ios, '15.5'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

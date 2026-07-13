@@ -1527,7 +1527,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get doghouseGameplayControls => 'Controles';
 
   @override
-  String get doghouseInDoghouseLabel => 'En la caseta';
+  String get doghouseInDoghouseLabel => 'Doghouse';
 
   @override
   String get doghouseMatchControls => 'Controles de partido';
@@ -1580,6 +1580,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get doghouseGameLost => 'Partido\nPerdido';
+
+  @override
+  String get doghouseUndoLoss => 'Deshacer\nPérdida';
 
   @override
   String get doghouseUndoGame => 'Deshacer\nPartido';
@@ -1956,6 +1959,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get overviewEjectBtn => 'Expulsar';
 
   @override
+  String overviewEjectChoiceIntro(String name) {
+    return '$name será eliminado de la alineación. Los partidos completados permanecen en las estadísticas. Elige cómo gestionar sus partidos restantes:';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderReshuffleTitle =>
+      'Suplente y reorganizar';
+
+  @override
+  String overviewEjectOptPlaceholderReshuffleDesc(String name) {
+    return 'Todas las rondas restantes se remezclan sin $name. Si su partido de esta ronda ya empezó en otra pista, ese puesto se convierte en un Suplente anónimo para que los otros tres puedan seguir jugando.';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderThroughoutTitle =>
+      'Suplente en todas las rondas';
+
+  @override
+  String overviewEjectOptPlaceholderThroughoutDesc(String name) {
+    return 'El puesto de $name se convierte en un Suplente anónimo en cada ronda restante. Los emparejamientos y el horario de los demás no cambian.';
+  }
+
+  @override
+  String get overviewPlaceholderName => 'Suplente';
+
+  @override
   String get overviewEditPlayer => 'Editar jugador';
 
   @override
@@ -1965,6 +1994,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String overviewRound(int number) {
     return 'Ronda $number';
+  }
+
+  @override
+  String scorecardParallelCourts(int count) {
+    return '$count pistas — se juegan en paralelo';
   }
 
   @override
@@ -3070,4 +3104,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get overviewSettingsConfirmBtn => 'Aplicar';
+
+  @override
+  String get overviewTeamsLabel => 'Equipos';
+
+  @override
+  String get overviewTeamsFilterAll => 'Todos';
+
+  @override
+  String get overviewTeamsEmpty => 'Aún no hay equipos para este filtro.';
+
+  @override
+  String get overviewScoreSaved => 'Resultado guardado.';
 }

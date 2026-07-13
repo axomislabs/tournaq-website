@@ -49,7 +49,7 @@ class _QrScanPageState extends State<QrScanPage> {
           MobileScanner(
             controller: _controller,
             onDetect: _onDetect,
-            errorBuilder: (ctx, error, child) => _ErrorView(error: error),
+            errorBuilder: (ctx, error) => _ErrorView(error: error),
           ),
           // Scan window cutout.
           Center(

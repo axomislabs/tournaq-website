@@ -1499,7 +1499,7 @@
   "doghouseGameplayControls": "Gameplay Controls",
   "@doghouseGameplayControls": {},
 
-  "doghouseInDoghouseLabel": "In Doghouse",
+  "doghouseInDoghouseLabel": "Doghouse",
   "@doghouseInDoghouseLabel": {},
 
   "doghouseMatchControls": "Match Controls",
@@ -1555,6 +1555,9 @@
 
   "doghouseGameLost": "Game\nLost",
   "@doghouseGameLost": {},
+
+  "doghouseUndoLoss": "Undo\nLoss",
+  "@doghouseUndoLoss": {},
 
   "doghouseUndoGame": "Undo\nGame",
   "@doghouseUndoGame": {},
@@ -1939,6 +1942,30 @@
   "overviewEjectBtn": "Eject",
   "@overviewEjectBtn": {},
 
+  "overviewEjectChoiceIntro": "{name} will be removed from the lineup. Completed games remain in the stats. Choose how their remaining games are handled:",
+  "@overviewEjectChoiceIntro": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderReshuffleTitle": "Placeholder & reshuffle",
+  "@overviewEjectOptPlaceholderReshuffleTitle": {},
+
+  "overviewEjectOptPlaceholderReshuffleDesc": "Every remaining round is re-paired without {name}. If their game this round has already started elsewhere, that seat becomes an anonymous Placeholder so the other three can still play.",
+  "@overviewEjectOptPlaceholderReshuffleDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewEjectOptPlaceholderThroughoutTitle": "Placeholder throughout",
+  "@overviewEjectOptPlaceholderThroughoutTitle": {},
+
+  "overviewEjectOptPlaceholderThroughoutDesc": "{name}'s seat becomes an anonymous Placeholder in every remaining round instead. Nobody else's pairings or schedule change.",
+  "@overviewEjectOptPlaceholderThroughoutDesc": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "overviewPlaceholderName": "Placeholder",
+  "@overviewPlaceholderName": {},
+
   "overviewEditPlayer": "Edit Player",
   "@overviewEditPlayer": {},
 
@@ -1948,6 +1975,11 @@
   "overviewRound": "Round {number}",
   "@overviewRound": {
     "placeholders": { "number": { "type": "int" } }
+  },
+
+  "scorecardParallelCourts": "{count} courts — played in parallel",
+  "@scorecardParallelCourts": {
+    "placeholders": { "count": { "type": "int" } }
   },
 
   "overviewActual": "actual",
@@ -2997,5 +3029,17 @@
   "@overviewSettingsConfirmTitle": {},
 
   "overviewSettingsConfirmBtn": "Apply",
-  "@overviewSettingsConfirmBtn": {}
+  "@overviewSettingsConfirmBtn": {},
+
+  "overviewTeamsLabel": "Teams",
+  "@overviewTeamsLabel": {},
+
+  "overviewTeamsFilterAll": "All",
+  "@overviewTeamsFilterAll": {},
+
+  "overviewTeamsEmpty": "No teams for this filter yet.",
+  "@overviewTeamsEmpty": {},
+
+  "overviewScoreSaved": "Score saved.",
+  "@overviewScoreSaved": {}
 }

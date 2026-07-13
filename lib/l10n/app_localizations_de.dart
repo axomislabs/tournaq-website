@@ -1530,7 +1530,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get doghouseGameplayControls => 'Spielsteuerung';
 
   @override
-  String get doghouseInDoghouseLabel => 'Im Doghouse';
+  String get doghouseInDoghouseLabel => 'Doghouse';
 
   @override
   String get doghouseMatchControls => 'Spielaktionen';
@@ -1583,6 +1583,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get doghouseGameLost => 'Spiel\nVerloren';
+
+  @override
+  String get doghouseUndoLoss => 'Rückgängig\nVerlust';
 
   @override
   String get doghouseUndoGame => 'Rückgängig\nSpiel';
@@ -1958,6 +1961,32 @@ class AppLocalizationsDe extends AppLocalizations {
   String get overviewEjectBtn => 'Ausschließen';
 
   @override
+  String overviewEjectChoiceIntro(String name) {
+    return '$name wird aus dem Line-up entfernt. Abgeschlossene Spiele bleiben in der Statistik. Wähle, wie mit den verbleibenden Spielen verfahren wird:';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderReshuffleTitle =>
+      'Platzhalter & neu auslosen';
+
+  @override
+  String overviewEjectOptPlaceholderReshuffleDesc(String name) {
+    return 'Alle verbleibenden Runden werden ohne $name neu gepaart. Läuft das Spiel dieser Runde auf einem anderen Feld schon, wird dieser Platz zu einem anonymen Platzhalter, damit die anderen drei weiterspielen können.';
+  }
+
+  @override
+  String get overviewEjectOptPlaceholderThroughoutTitle =>
+      'Durchgehend Platzhalter';
+
+  @override
+  String overviewEjectOptPlaceholderThroughoutDesc(String name) {
+    return '${name}s Platz wird stattdessen in jeder verbleibenden Runde zu einem anonymen Platzhalter. Die Paarungen und der Zeitplan aller anderen bleiben unverändert.';
+  }
+
+  @override
+  String get overviewPlaceholderName => 'Platzhalter';
+
+  @override
   String get overviewEditPlayer => 'Spieler bearbeiten';
 
   @override
@@ -1967,6 +1996,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String overviewRound(int number) {
     return 'Runde $number';
+  }
+
+  @override
+  String scorecardParallelCourts(int count) {
+    return '$count Felder — werden parallel gespielt';
   }
 
   @override
@@ -3070,4 +3104,16 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get overviewSettingsConfirmBtn => 'Übernehmen';
+
+  @override
+  String get overviewTeamsLabel => 'Teams';
+
+  @override
+  String get overviewTeamsFilterAll => 'Alle';
+
+  @override
+  String get overviewTeamsEmpty => 'Für diesen Filter noch keine Teams.';
+
+  @override
+  String get overviewScoreSaved => 'Ergebnis gespeichert.';
 }

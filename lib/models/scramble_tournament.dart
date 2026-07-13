@@ -101,6 +101,14 @@ class ScrambleGame {
     this.teamNameB,
   });
 
+  /// Sentinel seat id for an ejected player's not-yet-played game that
+  /// couldn't be reshuffled away — a real person fills it on the court, but
+  /// the app never tracks who, so it never appears in [ScrambleTournament.players]
+  /// and never earns ranking points or stats.
+  static const placeholderId = '__scramble_placeholder__';
+
+  static bool isPlaceholder(String playerId) => playerId == placeholderId;
+
   bool get isCompleted => status == ScrambleGameStatus.completed;
 
   /// 'A', 'B', or null (draw / not completed)
@@ -112,25 +120,28 @@ class ScrambleGame {
   }
 
   ScrambleGame copyWith({
+    List<String>? sideAPlayerIds,
+    List<String>? sideBPlayerIds,
     int? sideAScore,
     int? sideBScore,
     ScrambleGameStatus? status,
     DateTime? actualStartTime,
     DateTime? actualEndTime,
+    String? firstServerId,
   }) =>
       ScrambleGame(
         id: id,
         roundId: roundId,
         courtNumber: courtNumber,
-        sideAPlayerIds: sideAPlayerIds,
-        sideBPlayerIds: sideBPlayerIds,
+        sideAPlayerIds: sideAPlayerIds ?? this.sideAPlayerIds,
+        sideBPlayerIds: sideBPlayerIds ?? this.sideBPlayerIds,
         sittingOutPlayerIds: sittingOutPlayerIds,
         sideAScore: sideAScore ?? this.sideAScore,
         sideBScore: sideBScore ?? this.sideBScore,
         status: status ?? this.status,
         actualStartTime: actualStartTime ?? this.actualStartTime,
         actualEndTime: actualEndTime ?? this.actualEndTime,
-        firstServerId: firstServerId,
+        firstServerId: firstServerId ?? this.firstServerId,
         arbitratorId: arbitratorId,
         teamNameA: teamNameA,
         teamNameB: teamNameB,
@@ -346,7 +357,11 @@ class ScrambleTournament {
   /// Players sitting out each round when activeCourts × playersPerCourt < playerCount.
   int get sittingOutCount => players.length - (activeCourts * playersPerCourt);
 
-  int get playerCount => players.length;
+  /// Active roster size — excludes ejected/swapped-out entries (they stay in
+  /// [players] for ranking history but shouldn't count toward "how many are
+  /// playing"). Matches the convention already used by the sibling
+  /// KingOfTheCourt/Doghouse tournament models.
+  int get playerCount => players.where((p) => p.isActive).length;
   int get roundCount => rounds.length;
   int get totalGames => games.length;
   int get completedGames => games.where((g) => g.isCompleted).length;

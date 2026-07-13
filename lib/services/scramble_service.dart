@@ -778,9 +778,12 @@ class ScrambleService {
           draws: s.draws + (winner == null ? 1 : 0),
           uniqueTeammateIds: {
             ...s.uniqueTeammateIds,
-            ...aIds.where((x) => x != id)
+            ...aIds.where((x) => x != id && !ScrambleGame.isPlaceholder(x))
           },
-          uniqueOpponentIds: {...s.uniqueOpponentIds, ...bIds},
+          uniqueOpponentIds: {
+            ...s.uniqueOpponentIds,
+            ...bIds.where((x) => !ScrambleGame.isPlaceholder(x))
+          },
         );
       }
 
@@ -799,9 +802,12 @@ class ScrambleService {
           draws: s.draws + (winner == null ? 1 : 0),
           uniqueTeammateIds: {
             ...s.uniqueTeammateIds,
-            ...bIds.where((x) => x != id)
+            ...bIds.where((x) => x != id && !ScrambleGame.isPlaceholder(x))
           },
-          uniqueOpponentIds: {...s.uniqueOpponentIds, ...aIds},
+          uniqueOpponentIds: {
+            ...s.uniqueOpponentIds,
+            ...aIds.where((x) => !ScrambleGame.isPlaceholder(x))
+          },
         );
       }
     }
@@ -979,6 +985,76 @@ class ScrambleService {
       players: newPlayers,
       games: [...pastGames, ...newGames],
     );
+  }
+
+  // ── Eject: placeholder seats ────────────────────────────────────────────────
+
+  /// Swaps [playerId] out of [game]'s seats (and, if they were it, the
+  /// scheduled first server) for the anonymous [ScrambleGame.placeholderId].
+  /// A real person fills the seat on the court; the app just stops tracking
+  /// who they were.
+  static ScrambleGame _placeholderSeat(ScrambleGame game, String playerId) =>
+      game.copyWith(
+        sideAPlayerIds: game.sideAPlayerIds
+            .map((id) => id == playerId ? ScrambleGame.placeholderId : id)
+            .toList(),
+        sideBPlayerIds: game.sideBPlayerIds
+            .map((id) => id == playerId ? ScrambleGame.placeholderId : id)
+            .toList(),
+        firstServerId: game.firstServerId == playerId
+            ? ScrambleGame.placeholderId
+            : null,
+      );
+
+  /// Eject option 1: placeholders only the games [rebuildRemainingRounds]
+  /// can't reach — those in a round at or before the rebuild frontier (see
+  /// [_rebuildFrontier]) that still have [playerId] in a still-`scheduled`
+  /// game, typically because another court in that same round has already
+  /// started. Every fully-unstarted round from the frontier onward is then
+  /// reshuffled exactly as [rebuildRemainingRounds] already does.
+  static ScrambleTournament placeholderAndReshuffle(
+    ScrambleTournament tournament,
+    String playerId,
+    List<ScramblePlayer> newPlayers,
+  ) {
+    final frontier = _rebuildFrontier(tournament);
+    final roundNumberById = {
+      for (final r in tournament.rounds) r.id: r.roundNumber,
+    };
+    final patchedGames = tournament.games.map((g) {
+      final roundNumber = roundNumberById[g.roundId];
+      if (roundNumber == null || roundNumber >= frontier) return g;
+      if (g.status != ScrambleGameStatus.scheduled) return g;
+      if (!g.sideAPlayerIds.contains(playerId) &&
+          !g.sideBPlayerIds.contains(playerId)) {
+        return g;
+      }
+      return _placeholderSeat(g, playerId);
+    }).toList();
+    return rebuildRemainingRounds(
+      tournament.copyWith(games: patchedGames),
+      newPlayers,
+    );
+  }
+
+  /// Eject option 2: placeholders [playerId]'s seat in every remaining
+  /// `scheduled` game they're in, current and future alike, without
+  /// reshuffling anything else — everyone else's pairings and schedule stay
+  /// exactly as originally announced.
+  static ScrambleTournament placeholderThroughout(
+    ScrambleTournament tournament,
+    String playerId,
+    List<ScramblePlayer> newPlayers,
+  ) {
+    final patchedGames = tournament.games.map((g) {
+      if (g.status != ScrambleGameStatus.scheduled) return g;
+      if (!g.sideAPlayerIds.contains(playerId) &&
+          !g.sideBPlayerIds.contains(playerId)) {
+        return g;
+      }
+      return _placeholderSeat(g, playerId);
+    }).toList();
+    return tournament.copyWith(players: newPlayers, games: patchedGames);
   }
 
   /// Builds one candidate rebuild attempt for [futureRounds], starting from
@@ -1241,6 +1317,38 @@ class ScrambleService {
   }
 
   // ── Schedule Reflow ───────────────────────────────────────────────────────
+
+  /// After marking a game completed, stamps [round]'s `actualEndTime` once
+  /// every game in it is done, and reflows all pending round times (via
+  /// [reflowAllPending]) if the round finished ahead of its scheduled end.
+  /// A round that finished late is left alone — an overdue round already
+  /// shows a warning, and the admin adjusts the schedule manually rather
+  /// than have it silently compress the rest of the day.
+  ///
+  /// No-ops if [round]'s games aren't all completed yet.
+  static ScrambleTournament reflowIfRoundComplete(
+    ScrambleTournament tournament,
+    ScrambleRound round,
+  ) {
+    final roundGames = tournament.getGamesForRound(round.id);
+    if (!roundGames.every((g) => g.isCompleted)) return tournament;
+
+    final now = DateTime.now();
+    final actualEnd = roundGames
+        .map((g) => g.actualEndTime ?? now)
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+
+    // Use the round from `tournament` (not the caller's [round]) to preserve
+    // any scheduledStartTime already adjusted by a previous reflow.
+    final liveRound = tournament.getRound(round.id) ?? round;
+    final updated =
+        tournament.updateRound(liveRound.copyWith(actualEndTime: actualEnd));
+
+    if (actualEnd.isBefore(liveRound.scheduledMatchEndTime)) {
+      return reflowAllPending(updated);
+    }
+    return updated;
+  }
 
   /// Shifts all pending round start times globally based on the latest actual
   /// end time across ALL completed rounds (not just the one that just finished).

@@ -40,16 +40,20 @@ class ScrambleKingOverviewPage extends StatefulWidget {
 
 class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
   late ScrambleKingTournament _t;
-  bool _playersExpanded = false;
-  bool _timelineExpanded = false;
   final Set<String> _expandedRoundIds = {};
-  // Tournament-wide "Teams" section (between Players and Schedule) —
-  // collapsed by default (each round's own court tiles already show every
-  // team's name + players); expands to a filterable list of every team
-  // across every round.
-  bool _teamsExpanded = false;
+  // Tournament-wide "Teams" sheet filters — every team across every round,
+  // filterable by round and by court; persisted here so they survive
+  // between openings of the sheet.
   int? _teamsRoundFilter; // round number; null ⇒ all rounds
   int? _teamsCourtFilter; // court number; null ⇒ all courts
+
+  // Players / Timeline / Teams now live in their own bottom sheets (opened
+  // from the header pills) rather than always-expanded inline sections —
+  // these let any mutation refresh the sheet in place while it's open, the
+  // same pattern used in the regular Scramble mode's overview page.
+  StateSetter? _playersSheetSetState;
+  StateSetter? _timelineSheetSetState;
+  StateSetter? _teamsSheetSetState;
 
   @override
   void initState() {
@@ -68,6 +72,9 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
     setState(() => _t = updated);
     ScrambleKingStorageService.save(updated);
     widget.onChanged(updated);
+    _playersSheetSetState?.call(() {});
+    _timelineSheetSetState?.call(() {});
+    _teamsSheetSetState?.call(() {});
   }
 
   Future<void> _openCourt(ScrambleKingRound round, int courtNumber) async {
@@ -116,12 +123,6 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
           const SizedBox(height: 10),
           _buildHeader(l10n, completed, total, progress),
           const SizedBox(height: 20),
-          _buildTimelineSection(l10n),
-          const SizedBox(height: 20),
-          _buildPlayersSection(l10n),
-          const SizedBox(height: 20),
-          _buildTeamsSection(l10n),
-          const SizedBox(height: 20),
           _sectionDivider(l10n.overviewSectionSchedule, Icons.event_note_rounded),
           const SizedBox(height: 10),
           ..._buildRoundSections(l10n),
@@ -132,38 +133,25 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
 
   // ── Section divider ───────────────────────────────────────────────────────
 
-  Widget _sectionDivider(String label, IconData icon,
-      {bool collapsible = false, bool expanded = false, VoidCallback? onToggle}) {
-    return InkWell(
-      onTap: onToggle,
-      borderRadius: BorderRadius.circular(6),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          children: [
-            Icon(icon, size: 14, color: AppColors.oliveMedium),
-            const SizedBox(width: 6),
-            Text(
-              label.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.oliveMedium,
-                letterSpacing: 0.6,
-              ),
+  Widget _sectionDivider(String label, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Icon(icon, size: 14, color: AppColors.oliveMedium),
+          const SizedBox(width: 6),
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.oliveMedium,
+              letterSpacing: 0.6,
             ),
-            const SizedBox(width: 8),
-            const Expanded(child: Divider(height: 1)),
-            if (collapsible) ...[
-              const SizedBox(width: 4),
-              Icon(
-                expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-                size: 16,
-                color: Colors.black38,
-              ),
-            ],
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          const Expanded(child: Divider(height: 1)),
+        ],
       ),
     );
   }
@@ -222,11 +210,12 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
           ? l10n.scrambleKingOddPlayerJumperLabel
           : l10n.scrambleKingOddPlayerPlaceholderLabel;
 
-  /// Every tournament-level setting as a pill: editable ones (rounds,
-  /// courts, strike, assignment, odd-player) open the shared edit sheet;
-  /// read-only ones (players, team size, estimated finish) are informational
-  /// — players and team size already have their own dedicated editing UI
-  /// elsewhere, and estimated finish is a derived value, not a raw setting.
+  /// Every tournament-level setting or section as a pill: rounds/courts/
+  /// strike/assignment/odd-player open the shared edit sheet; players,
+  /// teams and estimated finish each open their own dedicated sheet (the
+  /// content that used to be always-expanded inline sections). Only team
+  /// size stays informational-only for now — full configurable team size is
+  /// a separate, larger project.
   Widget _buildInfoPills(AppLocalizations l10n) {
     final lastRound = _t.rounds.isNotEmpty ? _t.rounds.last : null;
     final estFinish = lastRound?.actualEndTime ?? lastRound?.scheduledBreakEndTime;
@@ -240,12 +229,15 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
             onTap: _showFormatEditSheet),
         _infoPill(Icons.sports_volleyball_rounded, l10n.scrambleKingCourtsPill(_t.courtCount),
             onTap: _showFormatEditSheet),
-        _infoPill(Icons.group_rounded, l10n.scrambleKingPlayersPill(_t.playerCount)),
+        _infoPill(Icons.group_rounded, l10n.scrambleKingPlayersPill(_t.playerCount),
+            onTap: _showPlayersSheet),
+        _infoPill(Icons.groups_rounded, l10n.scrambleKingTeamsLabel, onTap: _showTeamsSheet),
         _infoPill(Icons.grid_view_rounded, '2v2'),
         if (estFinish != null)
           _infoPill(
               Icons.flag_outlined,
-              finished ? l10n.overviewFinished(_fmtTime(estFinish)) : l10n.overviewEstFinish(_fmtTime(estFinish))),
+              finished ? l10n.overviewFinished(_fmtTime(estFinish)) : l10n.overviewEstFinish(_fmtTime(estFinish)),
+              onTap: _showTimelineSheet),
         if (_t.strikePoints > 0)
           _infoPill(Icons.bolt_rounded, l10n.kotcStrikePoints(_t.strikePoints),
               onTap: _showFormatEditSheet),
@@ -308,39 +300,53 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
 
   // ── Timeline section ──────────────────────────────────────────────────────
 
-  Widget _buildTimelineSection(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionDivider(
-          l10n.overviewSectionTimeline,
-          Icons.schedule_rounded,
-          collapsible: true,
-          expanded: _timelineExpanded,
-          onToggle: () => setState(() => _timelineExpanded = !_timelineExpanded),
-        ),
-        if (_timelineExpanded) ...[
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.goldCream,
-              borderRadius: BorderRadius.circular(14),
+  /// Opened from the header's "Est. finish" pill. Shows the tournament
+  /// start/predicted-end row (tap to edit) plus the per-round timeline —
+  /// mirrors the regular Scramble mode's schedule preview sheet.
+  void _showTimelineSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          _timelineSheetSetState = setSheet;
+          final l10n = AppLocalizations.of(context)!;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding:
+                  EdgeInsets.fromLTRB(20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.overviewSectionTimeline,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldCream,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildStartAndEndRow(),
+                        const SizedBox(height: 8),
+                        const Divider(height: 1, thickness: 0.5, color: AppColors.goldDark),
+                        const SizedBox(height: 4),
+                        ..._buildTimelineRows(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildStartAndEndRow(),
-                const SizedBox(height: 8),
-                const Divider(height: 1, thickness: 0.5, color: AppColors.goldDark),
-                const SizedBox(height: 4),
-                ..._buildTimelineRows(),
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
+          );
+        },
+      ),
+    ).whenComplete(() => _timelineSheetSetState = null);
   }
 
   Widget _buildStartAndEndRow() {
@@ -956,29 +962,41 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
 
   // ── Players section ───────────────────────────────────────────────────────
 
-  Widget _buildPlayersSection(AppLocalizations l10n) {
-    final isLive = _t.status != ScrambleKingTournamentStatus.completed && _t.rounds.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionDivider(
-          l10n.overviewSectionPlayers(_t.players.length),
-          Icons.group_rounded,
-          collapsible: true,
-          expanded: _playersExpanded,
-          onToggle: () => setState(() => _playersExpanded = !_playersExpanded),
-        ),
-        if (_playersExpanded) ...[
-          const SizedBox(height: 10),
-          if (isLive) ...[
-            _buildAddPlayerButton(l10n),
-            const SizedBox(height: 8),
-          ],
-          _buildPlayerTable(l10n, isLive),
-        ],
-      ],
-    );
+  /// Opened from the header's "Players" pill — mirrors the regular Scramble
+  /// mode's players sheet.
+  void _showPlayersSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          _playersSheetSetState = setSheet;
+          final l10n = AppLocalizations.of(context)!;
+          final isLive = _t.status != ScrambleKingTournamentStatus.completed && _t.rounds.isNotEmpty;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding:
+                  EdgeInsets.fromLTRB(20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.overviewSectionPlayers(_t.players.length),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 16),
+                  if (isLive) ...[
+                    _buildAddPlayerButton(l10n),
+                    const SizedBox(height: 8),
+                  ],
+                  _buildPlayerTable(l10n, isLive),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    ).whenComplete(() => _playersSheetSetState = null);
   }
 
   Widget _buildAddPlayerButton(AppLocalizations l10n) {
@@ -1267,48 +1285,60 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
   /// Collapsible, tournament-wide "Teams" section (between Players and
   /// Schedule). Collapsed by default — each round's own court tiles already
   /// show every team's name + players — and expands to every team across
-  /// every round, filterable by round and by court.
-  Widget _buildTeamsSection(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionDivider(
-          l10n.scrambleKingTeamsLabel,
-          Icons.groups_rounded,
-          collapsible: true,
-          expanded: _teamsExpanded,
-          onToggle: () => setState(() => _teamsExpanded = !_teamsExpanded),
-        ),
-        if (_teamsExpanded) ...[
-          const SizedBox(height: 8),
-          if (_t.rounds.length > 1) ...[
-            Wrap(spacing: 6, runSpacing: 6, children: [
-              _teamsFilterChip(l10n.scrambleKingTeamsFilterAll, _teamsRoundFilter == null,
-                  () => setState(() => _teamsRoundFilter = null)),
-              for (final round in _t.rounds)
-                _teamsFilterChip(
-                    l10n.scrambleKingRoundLabel(round.roundNumber),
-                    _teamsRoundFilter == round.roundNumber,
-                    () => setState(() => _teamsRoundFilter = round.roundNumber)),
-            ]),
-            const SizedBox(height: 8),
-          ],
-          if (_allCourtNumbers().length > 1) ...[
-            Wrap(spacing: 6, runSpacing: 6, children: [
-              _teamsFilterChip(l10n.scrambleKingTeamsFilterAll, _teamsCourtFilter == null,
-                  () => setState(() => _teamsCourtFilter = null)),
-              for (final courtNumber in _allCourtNumbers().toList()..sort())
-                _teamsFilterChip(
-                    l10n.scrambleKingCourtPageTitle(courtNumber),
-                    _teamsCourtFilter == courtNumber,
-                    () => setState(() => _teamsCourtFilter = courtNumber)),
-            ]),
-            const SizedBox(height: 8),
-          ],
-          _buildFilteredTeamsList(l10n),
-        ],
-      ],
-    );
+  /// every round, filterable by round and by court. Opened from the header's
+  /// "Teams" pill.
+  void _showTeamsSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          _teamsSheetSetState = setSheet;
+          final l10n = AppLocalizations.of(context)!;
+          return TournaQSheet(
+            body: SingleChildScrollView(
+              padding:
+                  EdgeInsets.fromLTRB(20, 8, 20, MediaQuery.of(ctx).viewInsets.bottom + 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(l10n.scrambleKingTeamsLabel,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 16),
+                  if (_t.rounds.length > 1) ...[
+                    Wrap(spacing: 6, runSpacing: 6, children: [
+                      _teamsFilterChip(l10n.scrambleKingTeamsFilterAll, _teamsRoundFilter == null,
+                          () => setSheet(() => _teamsRoundFilter = null)),
+                      for (final round in _t.rounds)
+                        _teamsFilterChip(
+                            l10n.scrambleKingRoundLabel(round.roundNumber),
+                            _teamsRoundFilter == round.roundNumber,
+                            () => setSheet(() => _teamsRoundFilter = round.roundNumber)),
+                    ]),
+                    const SizedBox(height: 8),
+                  ],
+                  if (_allCourtNumbers().length > 1) ...[
+                    Wrap(spacing: 6, runSpacing: 6, children: [
+                      _teamsFilterChip(l10n.scrambleKingTeamsFilterAll, _teamsCourtFilter == null,
+                          () => setSheet(() => _teamsCourtFilter = null)),
+                      for (final courtNumber in _allCourtNumbers().toList()..sort())
+                        _teamsFilterChip(
+                            l10n.scrambleKingCourtPageTitle(courtNumber),
+                            _teamsCourtFilter == courtNumber,
+                            () => setSheet(() => _teamsCourtFilter = courtNumber)),
+                    ]),
+                    const SizedBox(height: 8),
+                  ],
+                  _buildFilteredTeamsList(l10n),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    ).whenComplete(() => _teamsSheetSetState = null);
   }
 
   Widget _teamsFilterChip(String label, bool selected, VoidCallback onTap) => Material(

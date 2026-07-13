@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/scramble_tournament.dart';
+import '../utils/scramble_names.dart';
 
 /// Compact card showing one [ScrambleGame] in the overview list.
 class ScrambleGameTile extends StatelessWidget {
@@ -16,6 +17,10 @@ class ScrambleGameTile extends StatelessWidget {
   /// Scan a completed result back onto this game (scheduled games only).
   final VoidCallback? onImportResult;
 
+  /// Manually set the final score and complete this game without opening
+  /// the scorecard (scheduled games only).
+  final VoidCallback? onManualScore;
+
   const ScrambleGameTile({
     super.key,
     required this.game,
@@ -24,21 +29,30 @@ class ScrambleGameTile extends StatelessWidget {
     this.onTap,
     this.onExport,
     this.onImportResult,
+    this.onManualScore,
   });
 
   @override
   Widget build(BuildContext context) {
-    final teamA = game.sideAPlayerIds
-        .map((id) => tournament.getPlayer(id)?.name ?? id)
-        .join(' & ');
-    final teamB = game.sideBPlayerIds
-        .map((id) => tournament.getPlayer(id)?.name ?? id)
-        .join(' & ');
-
-    // Game status is shown on the round header now; the card only carries the
-    // export/import action, which exists for not-yet-started games.
+    // Export/import/manual-score actions exist for not-yet-started games.
     final showMenu = game.status == ScrambleGameStatus.scheduled &&
-        (onExport != null || onImportResult != null);
+        (onExport != null || onImportResult != null || onManualScore != null);
+
+    // Per-game status, trailing on the referee line — the round header shows
+    // this too, but with multiple courts per round that's not enough to tell
+    // which specific game is running/done at a glance. Same icon+colour
+    // language as the round header, just one level more granular.
+    final (statusIcon, statusColor) = switch (game.status) {
+      ScrambleGameStatus.completed => (
+          Icons.check_circle_rounded,
+          AppColors.olive,
+        ),
+      ScrambleGameStatus.inProgress => (
+          Icons.sports_volleyball_rounded,
+          AppColors.gold,
+        ),
+      ScrambleGameStatus.scheduled => (Icons.schedule_rounded, Colors.black38),
+    };
 
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
@@ -53,41 +67,57 @@ class ScrambleGameTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Court badge
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppColors.oliveLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Court',
-                        style: TextStyle(
-                            fontSize: 7,
-                            color: AppColors.olive,
-                            fontWeight: FontWeight.w400)),
-                    Text('${game.courtNumber}',
-                        style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.olive,
-                            fontWeight: FontWeight.w400,
-                            height: 1)),
+              // Court badge, with the export/import QR action stacked right
+              // below it — the card is naturally taller than the 38px badge
+              // (two team rows + a referee line), so this uses that leftover
+              // space instead of squeezing the name/score rows.
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: AppColors.oliveLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Court',
+                            style: TextStyle(
+                                fontSize: 7,
+                                color: AppColors.olive,
+                                fontWeight: FontWeight.w400)),
+                        Text('${game.courtNumber}',
+                            style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.olive,
+                                fontWeight: FontWeight.w400,
+                                height: 1)),
+                      ],
+                    ),
+                  ),
+                  if (showMenu) ...[
+                    const SizedBox(height: 6),
+                    SizedBox(
+                        width: 30, height: 30, child: _buildMenu(context)),
                   ],
-                ),
+                ],
               ),
               const SizedBox(width: 12),
-              // Teams + score
+              // Teams + score — full card width.
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _teamRow(teamA, game.sideAScore, game.winningSide == 'A'),
+                    _teamRow(context, game.sideAPlayerIds, game.sideAScore,
+                        game.winningSide == 'A'),
                     const SizedBox(height: 2),
-                    _teamRow(teamB, game.sideBScore, game.winningSide == 'B'),
+                    _teamRow(context, game.sideBPlayerIds, game.sideBScore,
+                        game.winningSide == 'B'),
                     if (game.teamNameA != null && game.teamNameB != null) ...[
                       const SizedBox(height: 4),
                       Text(
@@ -101,13 +131,12 @@ class ScrambleGameTile extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 3),
-                    // Bottom line: referee only.
                     Row(
                       children: [
                         const Icon(Icons.gavel_rounded,
                             size: 9, color: Colors.blueGrey),
                         const SizedBox(width: 2),
-                        Flexible(
+                        Expanded(
                           child: Text(
                             game.arbitratorId != null
                                 ? '${tournament.getPlayer(game.arbitratorId!)?.name ?? ''} refs'
@@ -117,19 +146,14 @@ class ScrambleGameTile extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        // Expanded above soaks up the slack so this always
+                        // sits flush right, aligned under the score column.
+                        const SizedBox(width: 4),
+                        Icon(statusIcon, size: 14, color: statusColor),
                       ],
                     ),
                   ],
                 ),
-              ),
-              // Export/import action on the card's right edge — a comfortable
-              // tap target. The slot is always reserved (even when empty) so the
-              // team/score rows keep an identical width on every card.
-              const SizedBox(width: 4),
-              SizedBox(
-                width: 36,
-                height: 36,
-                child: showMenu ? _buildMenu(context) : null,
               ),
             ],
           ),
@@ -141,12 +165,13 @@ class ScrambleGameTile extends StatelessWidget {
   Widget _buildMenu(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, size: 20, color: Colors.black45),
+      icon: const Icon(Icons.qr_code_rounded, size: 20, color: Colors.black45),
       padding: EdgeInsets.zero,
       tooltip: '',
       onSelected: (v) {
         if (v == 'export') onExport?.call();
         if (v == 'import') onImportResult?.call();
+        if (v == 'score') onManualScore?.call();
       },
       itemBuilder: (ctx) => [
         if (onExport != null)
@@ -173,11 +198,42 @@ class ScrambleGameTile extends StatelessWidget {
               ],
             ),
           ),
+        if (onManualScore != null)
+          PopupMenuItem(
+            value: 'score',
+            child: Row(
+              children: [
+                const Icon(Icons.edit_rounded,
+                    size: 18, color: AppColors.olive),
+                const SizedBox(width: 8),
+                Text(l10n.scorecardManualScore),
+              ],
+            ),
+          ),
       ],
     );
   }
 
-  Widget _teamRow(String name, int score, bool isWinner) {
+  Widget _teamRow(
+    BuildContext context,
+    List<String> playerIds,
+    int score,
+    bool isWinner,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
+    final spans = <InlineSpan>[];
+    for (var i = 0; i < playerIds.length; i++) {
+      if (i > 0) spans.add(const TextSpan(text: ' & '));
+      final id = playerIds[i];
+      final isPlaceholder = ScrambleGame.isPlaceholder(id);
+      spans.add(TextSpan(
+        text: scramblePlayerLabel(tournament, id, l10n),
+        style: isPlaceholder
+            ? const TextStyle(
+                fontStyle: FontStyle.italic, color: Colors.black45)
+            : null,
+      ));
+    }
     return Row(
       children: [
         if (isWinner)
@@ -187,12 +243,14 @@ class ScrambleGameTile extends StatelessWidget {
                 size: 12, color: AppColors.goldDark),
           ),
         Expanded(
-          child: Text(
-            name,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
-              color: Colors.black87,
+          child: Text.rich(
+            TextSpan(
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                color: Colors.black87,
+              ),
+              children: spans,
             ),
             overflow: TextOverflow.ellipsis,
           ),

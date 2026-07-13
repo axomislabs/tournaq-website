@@ -59,6 +59,11 @@ class PlayerPill extends StatelessWidget {
   final double fontSize;
   final VoidCallback? onTap;
 
+  /// True for an ejected player's anonymous stand-in seat — rendered in
+  /// italics with a ghost icon instead of a real name, so it reads clearly
+  /// as "not a tracked person" rather than a possible data glitch.
+  final bool isPlaceholder;
+
   const PlayerPill({
     super.key,
     required this.name,
@@ -67,6 +72,7 @@ class PlayerPill extends StatelessWidget {
     this.compact = false,
     this.fontSize = 10,
     this.onTap,
+    this.isPlaceholder = false,
   });
 
   @override
@@ -81,7 +87,9 @@ class PlayerPill extends StatelessWidget {
           color: isServing ? activeColor : Colors.black12,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isServing ? activeColor : Colors.black26,
+            color: isServing
+                ? activeColor
+                : (isPlaceholder ? Colors.black38 : Colors.black26),
           ),
         ),
         child: Row(
@@ -90,14 +98,20 @@ class PlayerPill extends StatelessWidget {
             if (isServing) ...[
               const Icon(Icons.sports_volleyball_rounded, size: 9, color: Colors.white),
               const SizedBox(width: 3),
+            ] else if (isPlaceholder) ...[
+              const Icon(Icons.person_outline_rounded, size: 9, color: Colors.black45),
+              const SizedBox(width: 3),
             ],
             Flexible(
               child: Text(
                 name,
                 style: TextStyle(
                   fontSize: fontSize,
+                  fontStyle: isPlaceholder ? FontStyle.italic : FontStyle.normal,
                   fontWeight: isServing ? FontWeight.w700 : FontWeight.w400,
-                  color: isServing ? Colors.white : Colors.black54,
+                  color: isServing
+                      ? Colors.white
+                      : (isPlaceholder ? Colors.black45 : Colors.black54),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

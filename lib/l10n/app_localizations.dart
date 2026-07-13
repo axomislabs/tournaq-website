@@ -2839,7 +2839,7 @@ abstract class AppLocalizations {
   /// No description provided for @doghouseInDoghouseLabel.
   ///
   /// In en, this message translates to:
-  /// **'In Doghouse'**
+  /// **'Doghouse'**
   String get doghouseInDoghouseLabel;
 
   /// No description provided for @doghouseMatchControls.
@@ -2931,6 +2931,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Game\nLost'**
   String get doghouseGameLost;
+
+  /// No description provided for @doghouseUndoLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo\nLoss'**
+  String get doghouseUndoLoss;
 
   /// No description provided for @doghouseUndoGame.
   ///
@@ -3544,6 +3550,42 @@ abstract class AppLocalizations {
   /// **'Eject'**
   String get overviewEjectBtn;
 
+  /// No description provided for @overviewEjectChoiceIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will be removed from the lineup. Completed games remain in the stats. Choose how their remaining games are handled:'**
+  String overviewEjectChoiceIntro(String name);
+
+  /// No description provided for @overviewEjectOptPlaceholderReshuffleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholder & reshuffle'**
+  String get overviewEjectOptPlaceholderReshuffleTitle;
+
+  /// No description provided for @overviewEjectOptPlaceholderReshuffleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Every remaining round is re-paired without {name}. If their game this round has already started elsewhere, that seat becomes an anonymous Placeholder so the other three can still play.'**
+  String overviewEjectOptPlaceholderReshuffleDesc(String name);
+
+  /// No description provided for @overviewEjectOptPlaceholderThroughoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholder throughout'**
+  String get overviewEjectOptPlaceholderThroughoutTitle;
+
+  /// No description provided for @overviewEjectOptPlaceholderThroughoutDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s seat becomes an anonymous Placeholder in every remaining round instead. Nobody else\'s pairings or schedule change.'**
+  String overviewEjectOptPlaceholderThroughoutDesc(String name);
+
+  /// No description provided for @overviewPlaceholderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Placeholder'**
+  String get overviewPlaceholderName;
+
   /// No description provided for @overviewEditPlayer.
   ///
   /// In en, this message translates to:
@@ -3561,6 +3603,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Round {number}'**
   String overviewRound(int number);
+
+  /// No description provided for @scorecardParallelCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} courts — played in parallel'**
+  String scorecardParallelCourts(int count);
 
   /// No description provided for @overviewActual.
   ///
@@ -5439,6 +5487,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply'**
   String get overviewSettingsConfirmBtn;
+
+  /// No description provided for @overviewTeamsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get overviewTeamsLabel;
+
+  /// No description provided for @overviewTeamsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get overviewTeamsFilterAll;
+
+  /// No description provided for @overviewTeamsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No teams for this filter yet.'**
+  String get overviewTeamsEmpty;
+
+  /// No description provided for @overviewScoreSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Score saved.'**
+  String get overviewScoreSaved;
 }
 
 class _AppLocalizationsDelegate
