@@ -303,6 +303,42 @@ li {
     color: var(--olive);
 }
 
+.inprogress-status {
+    background: var(--gold);
+    color: var(--gold-dark);
+}
+
+.updates-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fdf6e3;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 12px 0 20px;
+}
+
+.updates-banner .sign {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.updates-banner .sign-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-dark);
+    line-height: 1.4;
+}
+
+.updates-banner .sign-text span {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    color: #8a6b00;
+    margin-top: 2px;
+}
+
 .download-card {
     background: white;
     padding: 24px;

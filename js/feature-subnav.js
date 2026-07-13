@@ -104,6 +104,7 @@
             <a href="${m}games-and-tournaments.html">Games &amp; Tournaments Hub</a>
             <a href="${m}quick-game.html">Quick Game</a>
             <a href="${m}social-scramble.html">Social Scramble</a>
+            <a href="${m}scramble-king.html">Scramble King</a>
             <a href="${m}doghouse.html">Doghouse</a>
             <a href="${m}king-of-the-court.html">King of the Court</a>
             <a href="${m}ko-system.html">Single Elimination</a>
