@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../">
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.navigation.title">
 
 <head>
   <meta charset="UTF-8" />
@@ -122,6 +122,41 @@
       background: var(--olive);
       color: white;
     }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .pill {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    .pill-available { background: #2e7d32; color: white; }
+    .pill-planned   { background: rgba(85,107,47,0.12); color: var(--olive); }
+
+    .feature-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+    .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
   </style>
 </head>
 
@@ -169,6 +204,7 @@
           <a href="#flow" data-i18n="features.navigation.cardnav.flow">Arena to Scorecard</a>
           <a href="#history" data-i18n="features.navigation.cardnav.history">Tournament History</a>
           <a href="#supporting" data-i18n="features.navigation.cardnav.supporting">Supporting Screens</a>
+          <a href="#features" data-i18n="features.navigation.cardnav.features">Navigation Features</a>
         </div>
       </div>
     </section>
@@ -276,6 +312,92 @@
           <img class="vertical" src="../../assets/screenshots/sponsoring1.png" alt="Sponsoring and Promo screen showing ad banner Follow the Journey rate app and Coming Soon partnership features">
         </div>
       </div>
+    </section>
+
+    <!-- Navigation Features -->
+    <section id="features" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="features.navigation.features.title">Navigation Features</h2>
+      <p class="section-text" data-i18n="features.navigation.features.text">The full navigation structure is live today — the Home screen, TournaQ Arena, Administration, More, and every screen behind them. All of it works offline, directly on the device.</p>
+
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li1.title">Three top-level destinations</strong>
+            <p data-i18n="features.navigation.features.li1.text">The Home screen splits the app into TournaQ Arena for all games and tournaments, Administration for players, teams, and groups, and More for everything alongside them. Everything else branches off these three.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li2.title">More</strong>
+            <p data-i18n="features.navigation.features.li2.text">More collects the screens that sit beside the main flow: Contact &amp; About (social links, support channels, legal documents, and the app version), Sponsoring &amp; Promo (advertising and partnership opportunities), and Settings.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li3.title">Straightforward navigation</strong>
+            <p data-i18n="features.navigation.features.li3.text">Every route follows the same shape — from a top-level destination into a hub, from the hub down to the next level of detail, and back the same way. No hidden paths and no dead ends.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li4.title">TournaQ Arena mode hub</strong>
+            <p data-i18n="features.navigation.features.li4.text">Every game and tournament mode is grouped into three categories — Quick Games, Single Competitions &amp; Socials, and Team Competitions — each a large tappable card.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li5.title">Mode availability at a glance</strong>
+            <p data-i18n="features.navigation.features.li5.text">Available modes are shown in gold with a badge counting the tournaments already played in that mode. Modes still in development appear in grey with a "Soon" badge.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li6.title">Built-in mode help</strong>
+            <p data-i18n="features.navigation.features.li6.text">An info icon on every mode card explains the format before you commit to it, with a "Learn more" link through to the website.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li7.title">Three-step path to a scorecard</strong>
+            <p data-i18n="features.navigation.features.li7.text">Pick a mode, configure the setup, open a match. The path is identical in every format — learn it once and it applies to all of them.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li8.title">Tournament dashboard</strong>
+            <p data-i18n="features.navigation.features.li8.text">Each tournament opens on a dashboard showing the full schedule grouped by round, with team names, courts, times, match status, and a completion percentage. Tap any match to score it.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li9.title">Tournament history by mode</strong>
+            <p data-i18n="features.navigation.features.li9.text">Past tournaments are saved on the device and listed in the Arena's history panel, grouped by mode with a total count — so any previous event is a couple of taps away.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li10.title">Coming Soon feature cards</strong>
+            <p data-i18n="features.navigation.features.li10.text">Modes and features still in development appear as cards in the Arena and on the Home screen, each linking through to the website, the feedback form, and email.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.navigation.features.li11.title">Language &amp; privacy settings</strong>
+            <p data-i18n="features.navigation.features.li11.text">Settings offers four language options — Automatic, English, Deutsch, Español — and a Privacy Options link for managing ad consent choices.</p>
+          </div>
+        </li>
+      </ul>
     </section>
 
     <div class="feedback-cta">

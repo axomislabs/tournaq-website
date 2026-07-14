@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../../">
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.user-administration.title">
 
 <head>
   <meta charset="UTF-8" />
@@ -113,6 +113,41 @@
       background: var(--olive);
       color: white;
     }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .pill {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    .pill-available { background: #2e7d32; color: white; }
+    .pill-planned   { background: rgba(85,107,47,0.12); color: var(--olive); }
+
+    .feature-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+    .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
   </style>
 </head>
 
@@ -159,6 +194,7 @@
           <a href="#teams" data-i18n="features.user-administration.cardnav.teams">Teams</a>
           <a href="#groups" data-i18n="features.user-administration.cardnav.groups">Groups</a>
           <a href="#ingame" data-i18n="features.user-administration.cardnav.ingame">In-Game Import</a>
+          <a href="#features" data-i18n="features.user-administration.cardnav.features">Administration Features</a>
         </div>
       </div>
     </section>
@@ -252,6 +288,139 @@
           <img class="vertical" src="../../assets/screenshots/singleko_tournament_addteams_existing.png" alt="Single Elimination setup showing Add Existing Teams with Group filter and saved team list">
         </div>
       </div>
+    </section>
+
+    <!-- Administration Features -->
+    <section id="features" style="margin-top: 40px;">
+      <h2 class="section-title" data-i18n="features.user-administration.features.title">Administration Features</h2>
+      <p class="section-text" data-i18n="features.user-administration.features.text">Players, teams, and groups are live today — saved on the device, reusable in every mode, and importable directly from any setup screen. Organiser accounts, roles, and permissions are planned for the multi-user platform.</p>
+
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li1.title">Reusable player &amp; team library</strong>
+            <p data-i18n="features.user-administration.features.li1.text">Players, teams, and groups are saved once and available in every mode — Quick Games, Social Scrambles, King of the Court, Doghouse, and Single Elimination. No re-entering names each session.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li2.title">Players hub with search &amp; filters</strong>
+            <p data-i18n="features.user-administration.features.li2.text">Every saved player in one searchable list, filterable by name, team, or tournament. Each entry shows how many teams, groups, and tournaments the player belongs to, and can be edited or deleted inline.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li3.title">Create players</strong>
+            <p data-i18n="features.user-administration.features.li3.text">Add a player with a name — or a suggested one — and optionally assign them to existing teams and groups at the moment of creation.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li4.title">Export &amp; import players, groups &amp; teams</strong>
+            <p data-i18n="features.user-administration.features.li4.text">Export your player, group, and team data and import it back — or onto another device — so setting up a bigger event doesn't mean re-entering every name by hand.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li5.title">Teams hub with saved rosters</strong>
+            <p data-i18n="features.user-administration.features.li5.text">Pre-formed teams are stored with their player rosters and can be browsed by name, player, or tournament. Each entry shows the player count and group membership.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li6.title">Create teams</strong>
+            <p data-i18n="features.user-administration.features.li6.text">Name a team, link it to existing player profiles, and assign it to one or more groups. It is immediately available in the Add Existing Teams list across all bracket modes.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li7.title">Groups for clubs, venues &amp; series</strong>
+            <p data-i18n="features.user-administration.features.li7.text">Organise players and teams into groups that represent a club, a venue, or a recurring event series. A player or team can belong to several groups at once.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li8.title">Group filtering during setup</strong>
+            <p data-i18n="features.user-administration.features.li8.text">Every player and team import panel offers a group filter, so a club session can be set up by filtering to that group and adding its members in a few taps.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li9.title">Add existing players in-game</strong>
+            <p data-i18n="features.user-administration.features.li9.text">During tournament setup, Add Existing Players opens the full saved library with search and group filter. Tap + on any name to add them, with a counter tracking the remaining spots.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li10.title">Add existing teams in-game</strong>
+            <p data-i18n="features.user-administration.features.li10.text">In bracket modes, Add Existing Teams lists all saved teams with their player counts. Adding a team loads its player names automatically, ready to appear on scorecards.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li11.title">Inline player import in Quick Games</strong>
+            <p data-i18n="features.user-administration.features.li11.text">Each player slot in a Quick Game team has a search icon that opens the Players Hub inline — find a saved player and drop them straight into the slot without leaving the screen.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.features.li12.title">Stored on the device, no account needed</strong>
+            <p data-i18n="features.user-administration.features.li12.text">The whole administration library lives locally on the device and works without an internet connection or a sign-up.</p>
+          </div>
+        </li>
+      </ul>
+
+      <h2 style="margin-top: 32px;" data-i18n="features.user-administration.feature.title">Advanced Administration &amp; Access Control</h2>
+      <p data-i18n="features.user-administration.feature.text">Accounts, roles, and permissions are part of the long-term platform vision. These features target established clubs, federations, and tournament series that need structured organiser roles, access control, and accountability across multiple events.</p>
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li1.title">Organiser accounts</strong>
+            <p data-i18n="features.user-administration.feature.li1.text">Dedicated organiser accounts with persistent access to event history, team data, and tournament configurations.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li2.title">Role-based access control</strong>
+            <p data-i18n="features.user-administration.feature.li2.text">Assign different permission levels to users — e.g. head organiser, scorekeeper, referee, read-only viewer — so each person sees and can do only what's appropriate for their role.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li3.title">Multi-organiser events</strong>
+            <p data-i18n="features.user-administration.feature.li3.text">Allow multiple people to co-manage a single event — useful for large tournaments with separate court managers or a dedicated administration team.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li4.title">Event-level permissions</strong>
+            <p data-i18n="features.user-administration.feature.li4.text">Control who can view, edit, or publish results for a specific event — independently of organisation-wide roles.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.user-administration.feature.li5.title">Audit log</strong>
+            <p data-i18n="features.user-administration.feature.li5.text">A timestamped log of actions taken during an event — score changes, bracket edits, withdrawals — for dispute resolution and record-keeping.</p>
+          </div>
+        </li>
+      </ul>
     </section>
 
     <div class="feedback-cta">

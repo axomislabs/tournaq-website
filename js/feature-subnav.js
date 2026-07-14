@@ -123,7 +123,7 @@
             <a href="${f}tournament-features.html">Tournament Management</a>
             <a href="${f}device-scalability.html">Device &amp; Screen</a>
             <a href="${f}navigation.html">Navigation</a>
-            <a href="${f}user-administration.html">User Administration</a>
+            <a href="${f}user-administration.html">Player &amp; Team Administration</a>
           </div>
         </div>
       </div>
