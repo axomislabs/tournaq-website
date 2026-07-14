@@ -2839,6 +2839,30 @@
   "scrambleKingScorecard": "Scorecard",
   "@scrambleKingScorecard": {},
 
+  "scrambleKingExportCourt": "Export court",
+  "@scrambleKingExportCourt": {},
+
+  "scrambleKingScanCourtHint": "Point the camera at a court QR code.",
+  "@scrambleKingScanCourtHint": {},
+
+  "scrambleKingScanNotCourt": "This QR code is not a court.",
+  "@scrambleKingScanNotCourt": {},
+
+  "scrambleKingImportSuccess": "Imported court from “{name}”.",
+  "@scrambleKingImportSuccess": { "placeholders": { "name": { "type": "String" } } },
+
+  "scrambleKingImportedCourts": "Imported Courts",
+  "@scrambleKingImportedCourts": {},
+
+  "scrambleKingImportedUpcomingHint": "For other courts, see the host device.",
+  "@scrambleKingImportedUpcomingHint": {},
+
+  "scrambleKingSetResultTitle": "Set Court Result",
+  "@scrambleKingSetResultTitle": {},
+
+  "scrambleKingSetResultDescription": "Enter each team's points to complete this court without playing it.",
+  "@scrambleKingSetResultDescription": {},
+
   "scrambleKingManuallyEdited": "Manually edited",
   "@scrambleKingManuallyEdited": {},
 
@@ -2880,8 +2904,11 @@
   "scrambleKingCourtCompleteBanner": "This court's round is complete",
   "@scrambleKingCourtCompleteBanner": {},
 
-  "scrambleKingCourtCompleteHint": "Tap here, or the ranking icon above, to view or edit results",
+  "scrambleKingCourtCompleteHint": "Tap here to view or edit results",
   "@scrambleKingCourtCompleteHint": {},
+
+  "scrambleKingEditResults": "View / edit results",
+  "@scrambleKingEditResults": {},
 
   "scrambleKingRoundTimer": "Round Timer",
   "@scrambleKingRoundTimer": {},
@@ -3041,5 +3068,67 @@
   "@overviewTeamsEmpty": {},
 
   "overviewScoreSaved": "Score saved.",
-  "@overviewScoreSaved": {}
+  "@overviewScoreSaved": {},
+
+  "rosterMenuTooltip": "Import / Export",
+  "@rosterMenuTooltip": {},
+
+  "rosterDownloadTemplate": "Download template",
+  "@rosterDownloadTemplate": {},
+
+  "rosterImport": "Import players…",
+  "@rosterImport": {},
+
+  "rosterExport": "Export players…",
+  "@rosterExport": {},
+
+  "rosterMenuInfo": "About",
+  "@rosterMenuInfo": {},
+
+  "rosterNothingToExport": "There are no players to export yet.",
+  "@rosterNothingToExport": {},
+
+  "rosterImportTitle": "Import roster",
+  "@rosterImportTitle": {},
+
+  "rosterImportInvalidFile": "Could not read this file. Please choose a TournaQ Excel template or export (.xlsx).",
+  "@rosterImportInvalidFile": {},
+
+  "rosterImportNoChanges": "No changes were found in this file.",
+  "@rosterImportNoChanges": {},
+
+  "rosterImportSummary": "{created} added · {updated} updated · {teamsCreated} new teams · {groupsCreated} new groups",
+  "@rosterImportSummary": {
+    "placeholders": {
+      "created": { "type": "int" },
+      "updated": { "type": "int" },
+      "teamsCreated": { "type": "int" },
+      "groupsCreated": { "type": "int" }
+    }
+  },
+
+  "rosterImportDeleteWarning": "{count, plural, =1{1 player will be permanently deleted:} other{{count} players will be permanently deleted:}}",
+  "@rosterImportDeleteWarning": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "rosterMirrorDisabledNote": "Deletion is disabled for this file (not a full export from this device), so no one will be removed.",
+  "@rosterMirrorDisabledNote": {},
+
+  "rosterImportConfirm": "Import",
+  "@rosterImportConfirm": {},
+
+  "rosterImportConfirmDelete": "Delete & import",
+  "@rosterImportConfirmDelete": {},
+
+  "rosterImportDone": "{created} added, {updated} updated, {deleted} removed.",
+  "@rosterImportDone": {
+    "placeholders": {
+      "created": { "type": "int" },
+      "updated": { "type": "int" },
+      "deleted": { "type": "int" }
+    }
+  }
 }

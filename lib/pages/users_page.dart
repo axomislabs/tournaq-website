@@ -8,6 +8,7 @@ import '../services/king_of_the_court_storage_service.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../state/app_state.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_player_sheet.dart';
@@ -18,7 +19,11 @@ enum _SearchMode { name, team, tournament }
 class UsersPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  const UsersPage({super.key, required this.appState, required this.onAppStateChanged});
+  const UsersPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
   @override
   State<UsersPage> createState() => _UsersPageState();
 }
@@ -40,8 +45,8 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   void _loadTournamentCounts() {
-    final counts  = <String, int>{};
-    final byName  = <String, Set<String>>{};
+    final counts = <String, int>{};
+    final byName = <String, Set<String>>{};
 
     void add(String? playerId, String tournamentName) {
       if (playerId == null) return;
@@ -50,23 +55,31 @@ class _UsersPageState extends State<UsersPage> {
     }
 
     for (final t in ScrambleStorageService.loadAll()) {
-      for (final p in t.players) { add(p.appUserId, t.name); }
+      for (final p in t.players) {
+        add(p.appUserId, t.name);
+      }
     }
     for (final t in KingOfTheCourtStorageService.loadAll()) {
-      for (final p in t.players) { add(p.appUserId, t.name); }
+      for (final p in t.players) {
+        add(p.appUserId, t.name);
+      }
     }
     for (final t in DoghouseStorageService.loadAll()) {
-      for (final p in t.players) { add(p.appUserId, t.name); }
+      for (final p in t.players) {
+        add(p.appUserId, t.name);
+      }
     }
     for (final t in KoBracketStorageService.loadAll()) {
       for (final team in t.teams) {
-        for (final p in team.players) { add(p.appPlayerId.isEmpty ? null : p.appPlayerId, t.name); }
+        for (final p in team.players) {
+          add(p.appPlayerId.isEmpty ? null : p.appPlayerId, t.name);
+        }
       }
     }
 
     setState(() {
-      _tournamentCountByPlayer   = counts;
-      _playersByTournamentName   = byName;
+      _tournamentCountByPlayer = counts;
+      _playersByTournamentName = byName;
     });
   }
 
@@ -101,11 +114,19 @@ class _UsersPageState extends State<UsersPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Team', items: items,
+      context: context,
+      title: 'Assign to Team',
+      items: items,
       emptyMessage: 'Player is already in all teams.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignUserToTeam(_localState, userId: userId, teamId: selected));
+      _updateState(
+        AppDataService.assignUserToTeam(
+          _localState,
+          userId: userId,
+          teamId: selected,
+        ),
+      );
     }
   }
 
@@ -115,11 +136,19 @@ class _UsersPageState extends State<UsersPage> {
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Group', items: items,
+      context: context,
+      title: 'Assign to Group',
+      items: items,
       emptyMessage: 'Player is already in all groups.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: userId, groupId: selected));
+      _updateState(
+        AppDataService.assignPlayerToGroup(
+          _localState,
+          playerId: userId,
+          groupId: selected,
+        ),
+      );
     }
   }
 
@@ -127,7 +156,9 @@ class _UsersPageState extends State<UsersPage> {
     final user = _localState.getPlayerById(userId);
     if (user == null) return;
     final ok = await showConfirmDeleteDialog(context, user.name);
-    if (ok && mounted) _updateState(AppDataService.deleteUser(_localState, userId));
+    if (ok && mounted) {
+      _updateState(AppDataService.deleteUser(_localState, userId));
+    }
   }
 
   Future<void> _deleteAllPlayers() async {
@@ -137,15 +168,21 @@ class _UsersPageState extends State<UsersPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete All Players',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Delete All Players',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           'This removes all $count players from your player pool.\n\n'
           'Existing tournaments and game history are not affected — '
           'those keep their own player records. To remove players from '
           'a tournament, delete the tournament itself.\n\n'
           'Players will also be removed from any teams they belong to.',
-          style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.5),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+            height: 1.5,
+          ),
         ),
         actions: [
           TextButton(
@@ -204,14 +241,14 @@ class _UsersPageState extends State<UsersPage> {
   // ── Search bar ────────────────────────────────────────────────────────────
 
   static const _modeLabels = {
-    _SearchMode.name:       'Name',
-    _SearchMode.team:       'Team',
+    _SearchMode.name: 'Name',
+    _SearchMode.team: 'Team',
     _SearchMode.tournament: 'Tournament',
   };
 
   static const _modeHints = {
-    _SearchMode.name:       'Search players…',
-    _SearchMode.team:       'Search by team…',
+    _SearchMode.name: 'Search players…',
+    _SearchMode.team: 'Search by team…',
     _SearchMode.tournament: 'Search by tournament…',
   };
 
@@ -221,6 +258,7 @@ class _UsersPageState extends State<UsersPage> {
       children: [
         Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -229,17 +267,28 @@ class _UsersPageState extends State<UsersPage> {
             decoration: InputDecoration(
               hintText: _modeHints[_searchMode],
               hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
-              prefixIcon: const Icon(Icons.search_rounded, size: 16, color: Colors.black38),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 16,
+                color: Colors.black38,
+              ),
               suffixIcon: _searchCtrl.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 16, color: Colors.black38),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.black38,
+                      ),
                       onPressed: () => setState(() => _searchCtrl.clear()),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 10,
+              ),
               isDense: true,
             ),
           ),
@@ -256,7 +305,10 @@ class _UsersPageState extends State<UsersPage> {
                   _searchCtrl.clear();
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: selected ? AppColors.goldCream : Colors.transparent,
                     border: Border.all(
@@ -267,15 +319,22 @@ class _UsersPageState extends State<UsersPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_modeIcon(m), size: 13,
-                          color: selected ? AppColors.goldDark : Colors.black45),
+                      Icon(
+                        _modeIcon(m),
+                        size: 13,
+                        color: selected ? AppColors.goldDark : Colors.black45,
+                      ),
                       const SizedBox(width: 5),
-                      Text(_modeLabels[m]!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                            color: selected ? AppColors.goldDark : Colors.black54,
-                          )),
+                      Text(
+                        _modeLabels[m]!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: selected ? AppColors.goldDark : Colors.black54,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -288,10 +347,10 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   IconData _modeIcon(_SearchMode mode) => switch (mode) {
-        _SearchMode.name       => Icons.person_rounded,
-        _SearchMode.team       => Icons.group_rounded,
-        _SearchMode.tournament => Icons.emoji_events_rounded,
-      };
+    _SearchMode.name => Icons.person_rounded,
+    _SearchMode.team => Icons.group_rounded,
+    _SearchMode.tournament => Icons.emoji_events_rounded,
+  };
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
@@ -303,87 +362,108 @@ class _UsersPageState extends State<UsersPage> {
 
     return Scaffold(
       appBar: TournaQAppBar(title: l10n.pagePlayers),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Start card ─────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildStartCard(l10n),
-          ),
-          const SizedBox(height: 20),
-
-          // ── Section header ─────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.group_rounded,
-                    size: 20, color: AppColors.oliveMedium),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${l10n.pagePlayers} ($total)',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                if (total > 0)
-                  TextButton.icon(
-                    onPressed: _deleteAllPlayers,
-                    icon: const Icon(Icons.delete_outline, size: 16),
-                    label: const Text('Delete All',
-                        style: TextStyle(fontSize: 12)),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.red.shade400),
-                  ),
-              ],
+      body: BracketBackground(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Start card ─────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildStartCard(l10n),
             ),
-          ),
+            const SizedBox(height: 20),
 
-          // ── Search ─────────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: _buildSearchBar(l10n),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Player list ────────────────────────────────────────────────
-          Expanded(
-            child: total == 0
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.people_rounded,
-                            size: 48, color: Colors.grey.shade300),
-                        const SizedBox(height: 12),
-                        Text(l10n.noPlayersYet,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.black45)),
-                        const SizedBox(height: 4),
-                        const Text('Tap Add Player to get started.',
-                            style: TextStyle(
-                                color: Colors.black38, fontSize: 13)),
-                      ],
-                    ),
-                  )
-                : filtered.isEmpty
-                    ? Center(
-                        child: Text(l10n.noPlayersFiltered,
-                            style: const TextStyle(color: Colors.black45)),
-                      )
-                    : ListView.builder(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                        itemCount: filtered.length,
-                        itemBuilder: (_, i) =>
-                            _buildPlayerCard(filtered[i], l10n),
+            // ── Section header ─────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.group_rounded,
+                    size: 20,
+                    color: AppColors.oliveMedium,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${l10n.pagePlayers} ($total)',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
-          ),
-        ],
+                    ),
+                  ),
+                  if (total > 0)
+                    TextButton.icon(
+                      onPressed: _deleteAllPlayers,
+                      icon: const Icon(Icons.delete_outline, size: 16),
+                      label: const Text(
+                        'Delete All',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red.shade400,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // ── Search ─────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: _buildSearchBar(l10n),
+            ),
+            const SizedBox(height: 8),
+
+            // ── Player list ────────────────────────────────────────────────
+            Expanded(
+              child: total == 0
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.people_rounded,
+                            size: 48,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.noPlayersYet,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap Add Player to get started.',
+                            style: TextStyle(
+                              color: Colors.black38,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : filtered.isEmpty
+                  ? Center(
+                      child: Text(
+                        l10n.noPlayersFiltered,
+                        style: const TextStyle(color: Colors.black45),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) =>
+                          _buildPlayerCard(filtered[i], l10n),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -418,9 +498,10 @@ class _UsersPageState extends State<UsersPage> {
               Text(
                 l10n.navPlayers,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -428,9 +509,10 @@ class _UsersPageState extends State<UsersPage> {
           Text(
             l10n.playerHubSubtitle,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -438,15 +520,20 @@ class _UsersPageState extends State<UsersPage> {
               ElevatedButton.icon(
                 onPressed: _showCreateSheet,
                 icon: const Icon(Icons.add_rounded),
-                label: Text(l10n.btnCreatePlayer,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                label: Text(
+                  l10n.btnCreatePlayer,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: AppColors.gold,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 12),
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ],
@@ -478,12 +565,15 @@ class _UsersPageState extends State<UsersPage> {
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => UserDetailPage(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => UserDetailPage(
               appState: _localState,
               onAppStateChanged: _updateState,
-              userId: player.id),
-        )),
+              userId: player.id,
+            ),
+          ),
+        ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -499,9 +589,7 @@ class _UsersPageState extends State<UsersPage> {
                 ),
                 child: Center(
                   child: Text(
-                    player.name.isNotEmpty
-                        ? player.name[0].toUpperCase()
-                        : '?',
+                    player.name.isNotEmpty ? player.name[0].toUpperCase() : '?',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 17,
@@ -522,7 +610,9 @@ class _UsersPageState extends State<UsersPage> {
                           child: Text(
                             player.name,
                             style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -531,7 +621,9 @@ class _UsersPageState extends State<UsersPage> {
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 3),
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.goldCream,
                               borderRadius: BorderRadius.circular(6),
@@ -553,7 +645,9 @@ class _UsersPageState extends State<UsersPage> {
                       Text(
                         stats.join('  ·  '),
                         style: const TextStyle(
-                            fontSize: 12, color: Colors.black54),
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -563,24 +657,40 @@ class _UsersPageState extends State<UsersPage> {
               ),
               const SizedBox(width: 4),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert,
-                    size: 18, color: Colors.black38),
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 18,
+                  color: Colors.black38,
+                ),
                 padding: EdgeInsets.zero,
                 onSelected: (value) {
                   switch (value) {
-                    case 'assign_team': _assignTeam(player.id);
-                    case 'assign_group': _assignGroup(player.id);
-                    case 'delete': _deletePlayer(player.id);
+                    case 'assign_team':
+                      _assignTeam(player.id);
+                    case 'assign_group':
+                      _assignGroup(player.id);
+                    case 'delete':
+                      _deletePlayer(player.id);
                   }
                 },
                 itemBuilder: (_) => [
-                  actionMenuItem('assign_team', Icons.group_rounded,
-                      l10n.menuAssignToTeam),
-                  actionMenuItem('assign_group', Icons.home_rounded,
-                      l10n.menuAssignToClub),
+                  actionMenuItem(
+                    'assign_team',
+                    Icons.group_rounded,
+                    l10n.menuAssignToTeam,
+                  ),
+                  actionMenuItem(
+                    'assign_group',
+                    Icons.home_rounded,
+                    l10n.menuAssignToClub,
+                  ),
                   const PopupMenuDivider(),
-                  actionMenuItem('delete', Icons.delete_outline,
-                      l10n.btnDelete, destructive: true),
+                  actionMenuItem(
+                    'delete',
+                    Icons.delete_outline,
+                    l10n.btnDelete,
+                    destructive: true,
+                  ),
                 ],
               ),
             ],

@@ -9,6 +9,7 @@ import '../services/imported_scorecard_storage_service.dart';
 import '../services/scramble_storage_service.dart';
 import '../services/scramble_transfer_service.dart';
 import '../widgets/tournament_history_card.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'qr_scan_page.dart';
 import 'scramble_overview_page.dart';
@@ -95,17 +96,19 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   }
 
   void _openImportedScorecard(ImportedScorecard imp) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleScorecardPage(
-        tournament: imp.tournament,
-        game: imp.game,
-        round: imp.round,
-        isImported: true,
-        parentTournamentId: imp.parentTournamentId,
-        saveToStore: false,
-        onChanged: (updated) => _persistImported(imp, updated),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ScrambleScorecardPage(
+          tournament: imp.tournament,
+          game: imp.game,
+          round: imp.round,
+          isImported: true,
+          parentTournamentId: imp.parentTournamentId,
+          saveToStore: false,
+          onChanged: (updated) => _persistImported(imp, updated),
+        ),
       ),
-    ));
+    );
   }
 
   void _persistImported(ImportedScorecard imp, ScrambleTournament updated) {
@@ -129,8 +132,10 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.scrambleImportedDeleteAllTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.scrambleImportedDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.scrambleImportedDeleteAllBody(_imported.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -158,8 +163,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   String _gameStatusLabel(AppLocalizations l10n, ScrambleGameStatus s) =>
@@ -182,25 +186,29 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   }
 
   void _openSetup() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleSetupPage(
-        existingPlayers: widget.existingPlayers,
-        existingGroups: widget.existingGroups,
-        onCreated: _persist,
-        onCreatePlayer: widget.onCreatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ScrambleSetupPage(
+          existingPlayers: widget.existingPlayers,
+          existingGroups: widget.existingGroups,
+          onCreated: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   void _openOverview(ScrambleTournament t) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => ScrambleOverviewPage(
-        tournament:     t,
-        onChanged:      _persist,
-        onCreatePlayer: widget.onCreatePlayer,
-        onUpdatePlayer: widget.onUpdatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ScrambleOverviewPage(
+          tournament: t,
+          onChanged: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+          onUpdatePlayer: widget.onUpdatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _deleteOne(ScrambleTournament t) async {
@@ -209,8 +217,10 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteTournamentTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteTournamentTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteTournamentBody(t.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -241,8 +251,10 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteAllTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteAllBody(_scrambles.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -272,20 +284,22 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
 
   String _statusLabel(AppLocalizations l10n, ScrambleTournament t) =>
       switch (t.status) {
-        ScrambleTournamentStatus.completed  => l10n.statusCompleted,
+        ScrambleTournamentStatus.completed => l10n.statusCompleted,
         ScrambleTournamentStatus.inProgress => l10n.statusInProgress,
-        ScrambleTournamentStatus.setup      => l10n.statusSetup,
+        ScrambleTournamentStatus.setup => l10n.statusSetup,
       };
 
   String _dateLabel(AppLocalizations l10n, ScrambleTournament t) {
-    final d    = t.startTime;
-    final now  = DateTime.now();
-    final diff = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(d.year, d.month, d.day))
-        .inDays;
+    final d = t.startTime;
+    final now = DateTime.now();
+    final diff = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(d.year, d.month, d.day)).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
-    if (diff < 7)  return l10n.dateDaysAgo(diff);
+    if (diff < 7) return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -306,35 +320,37 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          // ── Start card ───────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildStartCard(l10n),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-          // ── History | Imported toggle (only when there's something imported) ──
-          if (_imported.isNotEmpty) ...[
+      body: BracketBackground(
+        child: CustomScrollView(
+          slivers: [
+            // ── Start card ───────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildTabToggle(l10n),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildStartCard(l10n),
               ),
             ),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+            // ── History | Imported toggle (only when there's something imported) ──
+            if (_imported.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildTabToggle(l10n),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            ],
+
+            if (showImported)
+              ..._buildImportedSlivers(l10n)
+            else
+              ..._buildHistorySlivers(l10n),
+
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
-
-          if (showImported)
-            ..._buildImportedSlivers(l10n)
-          else
-            ..._buildHistorySlivers(l10n),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 16)),
-        ],
+        ),
       ),
     );
   }
@@ -416,24 +432,32 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              const Icon(Icons.history_rounded,
-                  size: 20, color: AppColors.oliveMedium),
+              const Icon(
+                Icons.history_rounded,
+                size: 20,
+                color: AppColors.oliveMedium,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   l10n.doghouseTournamentHistory(_scrambles.length),
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               if (_scrambles.isNotEmpty)
                 TextButton.icon(
                   onPressed: _deleteAll,
                   icon: const Icon(Icons.delete_outline, size: 16),
-                  label: Text(l10n.btnDeleteAll,
-                      style: const TextStyle(fontSize: 12)),
+                  label: Text(
+                    l10n.btnDeleteAll,
+                    style: const TextStyle(fontSize: 12),
+                  ),
                   style: TextButton.styleFrom(
-                      foregroundColor: Colors.red.shade400),
+                    foregroundColor: Colors.red.shade400,
+                  ),
                 ),
             ],
           ),
@@ -447,18 +471,25 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.shuffle_rounded,
-                    size: 48, color: Colors.grey.shade300),
+                Icon(
+                  Icons.shuffle_rounded,
+                  size: 48,
+                  color: Colors.grey.shade300,
+                ),
                 const SizedBox(height: 12),
-                Text(l10n.doghouseNoTournamentsYet,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.black45)),
+                Text(
+                  l10n.doghouseNoTournamentsYet,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.black45,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(l10n.doghouseNoTournamentsHint,
-                    style: const TextStyle(
-                        color: Colors.black38, fontSize: 13)),
+                Text(
+                  l10n.doghouseNoTournamentsHint,
+                  style: const TextStyle(color: Colors.black38, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -467,29 +498,25 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (_, i) {
-                final t = _scrambles[i];
-                return TournamentHistoryCard(
-                  name:        t.name,
-                  typeLabel:   'Social Scrambles',
-                  typeColor:   AppColors.gold,
-                  typeIcon:    Icons.shuffle_rounded,
-                  dateLabel:   _dateLabel(l10n, t),
-                  statusLabel: _statusLabel(l10n, t),
-                  isActive:
-                      t.status != ScrambleTournamentStatus.completed,
-                  stats: [
-                    l10n.doghouseStatsPlayers(t.playerCount),
-                    l10n.statsRounds(t.roundCount),
-                    l10n.statsGamesOf(t.completedGames, t.totalGames),
-                  ],
-                  onTap:       () => _openOverview(t),
-                  onDeleteTap: () => _deleteOne(t),
-                );
-              },
-              childCount: _scrambles.length,
-            ),
+            delegate: SliverChildBuilderDelegate((_, i) {
+              final t = _scrambles[i];
+              return TournamentHistoryCard(
+                name: t.name,
+                typeLabel: 'Social Scrambles',
+                typeColor: AppColors.gold,
+                typeIcon: Icons.shuffle_rounded,
+                dateLabel: _dateLabel(l10n, t),
+                statusLabel: _statusLabel(l10n, t),
+                isActive: t.status != ScrambleTournamentStatus.completed,
+                stats: [
+                  l10n.doghouseStatsPlayers(t.playerCount),
+                  l10n.statsRounds(t.roundCount),
+                  l10n.statsGamesOf(t.completedGames, t.totalGames),
+                ],
+                onTap: () => _openOverview(t),
+                onDeleteTap: () => _deleteOne(t),
+              );
+            }, childCount: _scrambles.length),
           ),
         ),
     ];
@@ -512,8 +539,11 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: l10n.scrambleImportedFilterHint,
-                    prefixIcon: const Icon(Icons.search_rounded,
-                        size: 20, color: Colors.black38),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: Colors.black38,
+                    ),
                     suffixIcon: _importFilter.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear_rounded, size: 18),
@@ -522,9 +552,12 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
                           )
                         : null,
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                   ),
                 ),
               ),
@@ -532,10 +565,13 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
               TextButton.icon(
                 onPressed: _deleteAllImported,
                 icon: const Icon(Icons.delete_outline, size: 16),
-                label: Text(l10n.btnDeleteAll,
-                    style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  l10n.btnDeleteAll,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 style: TextButton.styleFrom(
-                    foregroundColor: Colors.red.shade400),
+                  foregroundColor: Colors.red.shade400,
+                ),
               ),
             ],
           ),
@@ -545,8 +581,10 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
         SliverFillRemaining(
           hasScrollBody: false,
           child: Center(
-            child: Text(l10n.scrambleImportedEmpty,
-                style: const TextStyle(color: Colors.black38, fontSize: 13)),
+            child: Text(
+              l10n.scrambleImportedEmpty,
+              style: const TextStyle(color: Colors.black38, fontSize: 13),
+            ),
           ),
         )
       else
@@ -578,10 +616,7 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
       dateLabel: _importedDateLabel(l10n, imp),
       statusLabel: _gameStatusLabel(l10n, game.status),
       isActive: game.status != ScrambleGameStatus.completed,
-      stats: [
-        l10n.scrambleImportedCourt(game.courtNumber),
-        '$teamA vs $teamB',
-      ],
+      stats: [l10n.scrambleImportedCourt(game.courtNumber), '$teamA vs $teamB'],
       onTap: () => _openImportedScorecard(imp),
       onDeleteTap: () => _deleteOneImported(imp),
     );
@@ -590,9 +625,11 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
   String _importedDateLabel(AppLocalizations l10n, ImportedScorecard imp) {
     final d = imp.importedAt;
     final now = DateTime.now();
-    final diff = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(d.year, d.month, d.day))
-        .inDays;
+    final diff = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(d.year, d.month, d.day)).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
     if (diff < 7) return l10n.dateDaysAgo(diff);
@@ -627,9 +664,10 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
               Text(
                 'Social Scrambles',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -637,23 +675,26 @@ class _ScrambleHubPageState extends State<ScrambleHubPage> {
           Text(
             l10n.modeSocialScramblesDesc,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.doghouseNewTournament,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.doghouseNewTournament,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],

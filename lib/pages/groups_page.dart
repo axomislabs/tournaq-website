@@ -4,6 +4,7 @@ import '../models/group.dart';
 import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_group_sheet.dart';
@@ -14,7 +15,11 @@ enum _GroupSearchMode { name, player, team }
 class GroupsPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  const GroupsPage({super.key, required this.appState, required this.onAppStateChanged});
+  const GroupsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
   @override
   State<GroupsPage> createState() => _GroupsPageState();
 }
@@ -62,11 +67,19 @@ class _GroupsPageState extends State<GroupsPage> {
         .map((u) => (id: u.id, name: u.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign Player', items: items,
+      context: context,
+      title: 'Assign Player',
+      items: items,
       emptyMessage: 'All players are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignPlayerToGroup(_localState, playerId: selected, groupId: groupId));
+      _updateState(
+        AppDataService.assignPlayerToGroup(
+          _localState,
+          playerId: selected,
+          groupId: groupId,
+        ),
+      );
     }
   }
 
@@ -78,11 +91,19 @@ class _GroupsPageState extends State<GroupsPage> {
         .map((t) => (id: t.id, name: t.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign Team', items: items,
+      context: context,
+      title: 'Assign Team',
+      items: items,
       emptyMessage: 'All teams are already in this group.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToGroup(_localState, teamId: selected, groupId: groupId));
+      _updateState(
+        AppDataService.assignTeamToGroup(
+          _localState,
+          teamId: selected,
+          groupId: groupId,
+        ),
+      );
     }
   }
 
@@ -90,7 +111,9 @@ class _GroupsPageState extends State<GroupsPage> {
     final group = _localState.getGroupById(groupId);
     if (group == null) return;
     final ok = await showConfirmDeleteDialog(context, group.name);
-    if (ok && mounted) _updateState(AppDataService.deleteGroup(_localState, groupId));
+    if (ok && mounted) {
+      _updateState(AppDataService.deleteGroup(_localState, groupId));
+    }
   }
 
   // ── Filter ─────────────────────────────────────────────────────────────────
@@ -128,22 +151,22 @@ class _GroupsPageState extends State<GroupsPage> {
   // ── Search bar ─────────────────────────────────────────────────────────────
 
   static const _modeLabels = {
-    _GroupSearchMode.name:   'Name',
+    _GroupSearchMode.name: 'Name',
     _GroupSearchMode.player: 'Player',
-    _GroupSearchMode.team:   'Team',
+    _GroupSearchMode.team: 'Team',
   };
 
   static const _modeHints = {
-    _GroupSearchMode.name:   'Search groups…',
+    _GroupSearchMode.name: 'Search groups…',
     _GroupSearchMode.player: 'Search by player…',
-    _GroupSearchMode.team:   'Search by team…',
+    _GroupSearchMode.team: 'Search by team…',
   };
 
   IconData _modeIcon(_GroupSearchMode mode) => switch (mode) {
-        _GroupSearchMode.name   => Icons.home_rounded,
-        _GroupSearchMode.player => Icons.person_rounded,
-        _GroupSearchMode.team   => Icons.group_rounded,
-      };
+    _GroupSearchMode.name => Icons.home_rounded,
+    _GroupSearchMode.player => Icons.person_rounded,
+    _GroupSearchMode.team => Icons.group_rounded,
+  };
 
   Widget _buildSearchBar() {
     return Column(
@@ -151,6 +174,7 @@ class _GroupsPageState extends State<GroupsPage> {
       children: [
         Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -159,17 +183,28 @@ class _GroupsPageState extends State<GroupsPage> {
             decoration: InputDecoration(
               hintText: _modeHints[_searchMode],
               hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
-              prefixIcon: const Icon(Icons.search_rounded, size: 16, color: Colors.black38),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 16,
+                color: Colors.black38,
+              ),
               suffixIcon: _searchCtrl.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 16, color: Colors.black38),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.black38,
+                      ),
                       onPressed: () => setState(() => _searchCtrl.clear()),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 10,
+              ),
               isDense: true,
             ),
           ),
@@ -186,7 +221,10 @@ class _GroupsPageState extends State<GroupsPage> {
                   _searchCtrl.clear();
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: selected ? AppColors.goldCream : Colors.transparent,
                     border: Border.all(
@@ -197,15 +235,22 @@ class _GroupsPageState extends State<GroupsPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_modeIcon(m), size: 13,
-                          color: selected ? AppColors.goldDark : Colors.black45),
+                      Icon(
+                        _modeIcon(m),
+                        size: 13,
+                        color: selected ? AppColors.goldDark : Colors.black45,
+                      ),
                       const SizedBox(width: 5),
-                      Text(_modeLabels[m]!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                            color: selected ? AppColors.goldDark : Colors.black54,
-                          )),
+                      Text(
+                        _modeLabels[m]!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: selected ? AppColors.goldDark : Colors.black54,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -247,9 +292,10 @@ class _GroupsPageState extends State<GroupsPage> {
               Text(
                 l10n.navClubs,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -257,21 +303,25 @@ class _GroupsPageState extends State<GroupsPage> {
           Text(
             l10n.groupHubSubtitle,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.btnCreateClub,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.btnCreateClub,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
@@ -290,72 +340,95 @@ class _GroupsPageState extends State<GroupsPage> {
 
     return Scaffold(
       appBar: TournaQAppBar(title: l10n.pageClubs),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Hero card ──────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildHeroCard(l10n),
-          ),
-          const SizedBox(height: 20),
-
-          // ── Section header ─────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.home_rounded, size: 20, color: AppColors.oliveMedium),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${l10n.pageClubs} ($total)',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ],
+      body: BracketBackground(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Hero card ──────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildHeroCard(l10n),
             ),
-          ),
+            const SizedBox(height: 20),
 
-          // ── Search ─────────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: _buildSearchBar(),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Group list ─────────────────────────────────────────────────
-          Expanded(
-            child: total == 0
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.home_rounded, size: 48, color: Colors.grey.shade300),
-                        const SizedBox(height: 12),
-                        Text(l10n.noClubsYet,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.black45)),
-                        const SizedBox(height: 4),
-                        const Text('Tap Create Group to get started.',
-                            style: TextStyle(color: Colors.black38, fontSize: 13)),
-                      ],
-                    ),
-                  )
-                : filtered.isEmpty
-                    ? Center(
-                        child: Text(l10n.noClubsFiltered,
-                            style: const TextStyle(color: Colors.black45)),
-                      )
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                        itemCount: filtered.length,
-                        itemBuilder: (_, i) => _buildGroupCard(filtered[i], l10n),
+            // ── Section header ─────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.home_rounded,
+                    size: 20,
+                    color: AppColors.oliveMedium,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${l10n.pageClubs} ($total)',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
-          ),
-        ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Search ─────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: _buildSearchBar(),
+            ),
+            const SizedBox(height: 8),
+
+            // ── Group list ─────────────────────────────────────────────────
+            Expanded(
+              child: total == 0
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.home_rounded,
+                            size: 48,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.noClubsYet,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap Create Group to get started.',
+                            style: TextStyle(
+                              color: Colors.black38,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : filtered.isEmpty
+                  ? Center(
+                      child: Text(
+                        l10n.noClubsFiltered,
+                        style: const TextStyle(color: Colors.black45),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) => _buildGroupCard(filtered[i], l10n),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -364,7 +437,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
   Widget _buildGroupCard(Group group, AppLocalizations l10n) {
     final playerCount = group.playerIds.length;
-    final teamCount   = group.teamIds.length;
+    final teamCount = group.teamIds.length;
     final stats = <String>[
       '$playerCount player${playerCount == 1 ? '' : 's'}',
       if (teamCount > 0) '$teamCount team${teamCount == 1 ? '' : 's'}',
@@ -379,10 +452,15 @@ class _GroupsPageState extends State<GroupsPage> {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => GroupDetailPage(
-              appState: _localState, onAppStateChanged: _updateState, groupId: group.id),
-        )),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => GroupDetailPage(
+              appState: _localState,
+              onAppStateChanged: _updateState,
+              groupId: group.id,
+            ),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
@@ -394,36 +472,69 @@ class _GroupsPageState extends State<GroupsPage> {
                   color: AppColors.goldCream,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.home_rounded, size: 20, color: AppColors.gold),
+                child: const Icon(
+                  Icons.home_rounded,
+                  size: 20,
+                  color: AppColors.gold,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(group.name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
+                    Text(
+                      group.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(stats.join(' · '),
-                        style: const TextStyle(fontSize: 12, color: Colors.black45)),
+                    Text(
+                      stats.join(' · '),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black45,
+                      ),
+                    ),
                   ],
                 ),
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, size: 20, color: Colors.black38),
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 20,
+                  color: Colors.black38,
+                ),
                 onSelected: (value) {
                   switch (value) {
-                    case 'assign_player': _assignPlayer(group.id);
-                    case 'assign_team':   _assignTeam(group.id);
-                    case 'delete':        _deleteGroup(group.id);
+                    case 'assign_player':
+                      _assignPlayer(group.id);
+                    case 'assign_team':
+                      _assignTeam(group.id);
+                    case 'delete':
+                      _deleteGroup(group.id);
                   }
                 },
                 itemBuilder: (_) => [
-                  actionMenuItem('assign_player', Icons.person_rounded, l10n.menuAssignPlayer),
-                  actionMenuItem('assign_team',   Icons.group_rounded,  l10n.menuAssignTeam),
+                  actionMenuItem(
+                    'assign_player',
+                    Icons.person_rounded,
+                    l10n.menuAssignPlayer,
+                  ),
+                  actionMenuItem(
+                    'assign_team',
+                    Icons.group_rounded,
+                    l10n.menuAssignTeam,
+                  ),
                   const PopupMenuDivider(),
-                  actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
+                  actionMenuItem(
+                    'delete',
+                    Icons.delete_outline,
+                    l10n.btnDelete,
+                    destructive: true,
+                  ),
                 ],
               ),
             ],

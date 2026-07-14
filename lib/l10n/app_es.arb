@@ -1799,5 +1799,50 @@
   "@overviewTeamsEmpty": {},
 
   "overviewScoreSaved": "Resultado guardado.",
-  "@overviewScoreSaved": {}
+  "@overviewScoreSaved": {},
+
+  "rosterMenuTooltip": "Importar / Exportar",
+  "@rosterMenuTooltip": {},
+
+  "rosterDownloadTemplate": "Descargar plantilla",
+  "@rosterDownloadTemplate": {},
+
+  "rosterImport": "Importar jugadores…",
+  "@rosterImport": {},
+
+  "rosterExport": "Exportar jugadores…",
+  "@rosterExport": {},
+
+  "rosterMenuInfo": "Información",
+  "@rosterMenuInfo": {},
+
+  "rosterNothingToExport": "Todavía no hay jugadores para exportar.",
+  "@rosterNothingToExport": {},
+
+  "rosterImportTitle": "Importar plantel",
+  "@rosterImportTitle": {},
+
+  "rosterImportInvalidFile": "No se pudo leer el archivo. Elige una plantilla o exportación de TournaQ (.xlsx).",
+  "@rosterImportInvalidFile": {},
+
+  "rosterImportNoChanges": "No se encontraron cambios en este archivo.",
+  "@rosterImportNoChanges": {},
+
+  "rosterImportSummary": "{created} añadidos · {updated} actualizados · {teamsCreated} equipos nuevos · {groupsCreated} grupos nuevos",
+  "@rosterImportSummary": {},
+
+  "rosterImportDeleteWarning": "{count, plural, =1{Se eliminará 1 jugador de forma permanente:} other{Se eliminarán {count} jugadores de forma permanente:}}",
+  "@rosterImportDeleteWarning": {},
+
+  "rosterMirrorDisabledNote": "La eliminación está desactivada para este archivo (no es una exportación completa de este dispositivo), por lo que no se eliminará a nadie.",
+  "@rosterMirrorDisabledNote": {},
+
+  "rosterImportConfirm": "Importar",
+  "@rosterImportConfirm": {},
+
+  "rosterImportConfirmDelete": "Eliminar e importar",
+  "@rosterImportConfirmDelete": {},
+
+  "rosterImportDone": "{created} añadidos, {updated} actualizados, {deleted} eliminados.",
+  "@rosterImportDone": {}
 }

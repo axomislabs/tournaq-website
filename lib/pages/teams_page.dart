@@ -5,6 +5,7 @@ import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../state/app_state.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import '../widgets/assign_dialog.dart';
 import '../widgets/create_team_sheet.dart';
@@ -15,7 +16,11 @@ enum _TeamSearchMode { name, player, tournament }
 class TeamsPage extends StatefulWidget {
   final AppState appState;
   final Function(AppState) onAppStateChanged;
-  const TeamsPage({super.key, required this.appState, required this.onAppStateChanged});
+  const TeamsPage({
+    super.key,
+    required this.appState,
+    required this.onAppStateChanged,
+  });
   @override
   State<TeamsPage> createState() => _TeamsPageState();
 }
@@ -76,11 +81,19 @@ class _TeamsPageState extends State<TeamsPage> {
         .map((c) => (id: c.id, name: c.name))
         .toList();
     final selected = await showAssignDialog(
-      context: context, title: 'Assign to Group', items: items,
+      context: context,
+      title: 'Assign to Group',
+      items: items,
       emptyMessage: 'Team is already in all groups.',
     );
     if (selected != null && mounted) {
-      _updateState(AppDataService.assignTeamToGroup(_localState, teamId: teamId, groupId: selected));
+      _updateState(
+        AppDataService.assignTeamToGroup(
+          _localState,
+          teamId: teamId,
+          groupId: selected,
+        ),
+      );
     }
   }
 
@@ -88,7 +101,9 @@ class _TeamsPageState extends State<TeamsPage> {
     final team = _localState.getTeamById(teamId);
     if (team == null) return;
     final ok = await showConfirmDeleteDialog(context, team.name);
-    if (ok && mounted) _updateState(AppDataService.deleteTeam(_localState, teamId));
+    if (ok && mounted) {
+      _updateState(AppDataService.deleteTeam(_localState, teamId));
+    }
   }
 
   Future<void> _deleteAllTeams() async {
@@ -98,15 +113,21 @@ class _TeamsPageState extends State<TeamsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Delete All Teams',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Delete All Teams',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           'This removes all $count teams from your team pool.\n\n'
           'Players will lose their team memberships and groups will '
           'lose their team references.\n\n'
           'Any games that were played with these teams will show a '
           'generic name ("Team 1 / Team 2") instead of the team name.',
-          style: const TextStyle(fontSize: 14, color: Colors.black54, height: 1.5),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black54,
+            height: 1.5,
+          ),
         ),
         actions: [
           TextButton(
@@ -118,7 +139,9 @@ class _TeamsPageState extends State<TeamsPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: const Text('Delete All'),
           ),
@@ -168,22 +191,22 @@ class _TeamsPageState extends State<TeamsPage> {
   // ── Search bar ────────────────────────────────────────────────────────────
 
   static const _modeLabels = {
-    _TeamSearchMode.name:       'Name',
-    _TeamSearchMode.player:     'Player',
+    _TeamSearchMode.name: 'Name',
+    _TeamSearchMode.player: 'Player',
     _TeamSearchMode.tournament: 'Tournament',
   };
 
   static const _modeHints = {
-    _TeamSearchMode.name:       'Search teams…',
-    _TeamSearchMode.player:     'Search by player…',
+    _TeamSearchMode.name: 'Search teams…',
+    _TeamSearchMode.player: 'Search by player…',
     _TeamSearchMode.tournament: 'Search by tournament…',
   };
 
   IconData _modeIcon(_TeamSearchMode mode) => switch (mode) {
-        _TeamSearchMode.name       => Icons.group_rounded,
-        _TeamSearchMode.player     => Icons.person_rounded,
-        _TeamSearchMode.tournament => Icons.emoji_events_rounded,
-      };
+    _TeamSearchMode.name => Icons.group_rounded,
+    _TeamSearchMode.player => Icons.person_rounded,
+    _TeamSearchMode.tournament => Icons.emoji_events_rounded,
+  };
 
   Widget _buildSearchBar() {
     return Column(
@@ -191,6 +214,7 @@ class _TeamsPageState extends State<TeamsPage> {
       children: [
         Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(12),
           ),
@@ -199,17 +223,28 @@ class _TeamsPageState extends State<TeamsPage> {
             decoration: InputDecoration(
               hintText: _modeHints[_searchMode],
               hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
-              prefixIcon: const Icon(Icons.search_rounded, size: 16, color: Colors.black38),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 16,
+                color: Colors.black38,
+              ),
               suffixIcon: _searchCtrl.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 16, color: Colors.black38),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        size: 16,
+                        color: Colors.black38,
+                      ),
                       onPressed: () => setState(() => _searchCtrl.clear()),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 10,
+              ),
               isDense: true,
             ),
           ),
@@ -226,7 +261,10 @@ class _TeamsPageState extends State<TeamsPage> {
                   _searchCtrl.clear();
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: selected ? AppColors.goldCream : Colors.transparent,
                     border: Border.all(
@@ -237,15 +275,22 @@ class _TeamsPageState extends State<TeamsPage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_modeIcon(m), size: 13,
-                          color: selected ? AppColors.goldDark : Colors.black45),
+                      Icon(
+                        _modeIcon(m),
+                        size: 13,
+                        color: selected ? AppColors.goldDark : Colors.black45,
+                      ),
                       const SizedBox(width: 5),
-                      Text(_modeLabels[m]!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-                            color: selected ? AppColors.goldDark : Colors.black54,
-                          )),
+                      Text(
+                        _modeLabels[m]!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: selected ? AppColors.goldDark : Colors.black54,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -261,94 +306,113 @@ class _TeamsPageState extends State<TeamsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n     = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context)!;
     final filtered = _filteredTeams;
-    final total    = _localState.teams.length;
+    final total = _localState.teams.length;
 
     return Scaffold(
       appBar: TournaQAppBar(title: l10n.pageTeams),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // ── Hero card ──────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _buildHeroCard(l10n),
-          ),
-          const SizedBox(height: 20),
-
-          // ── Section header ─────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.group_rounded,
-                    size: 20, color: AppColors.oliveMedium),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${l10n.pageTeams} ($total)',
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                if (total > 0)
-                  TextButton.icon(
-                    onPressed: _deleteAllTeams,
-                    icon: const Icon(Icons.delete_outline, size: 16),
-                    label: const Text('Delete All',
-                        style: TextStyle(fontSize: 12)),
-                    style: TextButton.styleFrom(
-                        foregroundColor: Colors.red.shade400),
-                  ),
-              ],
+      body: BracketBackground(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Hero card ──────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _buildHeroCard(l10n),
             ),
-          ),
+            const SizedBox(height: 20),
 
-          // ── Search ─────────────────────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: _buildSearchBar(),
-          ),
-          const SizedBox(height: 8),
-
-          // ── Team list ──────────────────────────────────────────────────
-          Expanded(
-            child: total == 0
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.group_rounded,
-                            size: 48, color: Colors.grey.shade300),
-                        const SizedBox(height: 12),
-                        Text(l10n.noTeamsYet,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.black45)),
-                        const SizedBox(height: 4),
-                        const Text('Tap Create Team to get started.',
-                            style: TextStyle(
-                                color: Colors.black38, fontSize: 13)),
-                      ],
-                    ),
-                  )
-                : filtered.isEmpty
-                    ? Center(
-                        child: Text(l10n.noTeamsFiltered,
-                            style:
-                                const TextStyle(color: Colors.black45)),
-                      )
-                    : ListView.builder(
-                        padding:
-                            const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                        itemCount: filtered.length,
-                        itemBuilder: (_, i) =>
-                            _buildTeamCard(filtered[i], l10n),
+            // ── Section header ─────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.group_rounded,
+                    size: 20,
+                    color: AppColors.oliveMedium,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${l10n.pageTeams} ($total)',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
                       ),
-          ),
-        ],
+                    ),
+                  ),
+                  if (total > 0)
+                    TextButton.icon(
+                      onPressed: _deleteAllTeams,
+                      icon: const Icon(Icons.delete_outline, size: 16),
+                      label: const Text(
+                        'Delete All',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red.shade400,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // ── Search ─────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: _buildSearchBar(),
+            ),
+            const SizedBox(height: 8),
+
+            // ── Team list ──────────────────────────────────────────────────
+            Expanded(
+              child: total == 0
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.group_rounded,
+                            size: 48,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.noTeamsYet,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.black45,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Tap Create Team to get started.',
+                            style: TextStyle(
+                              color: Colors.black38,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : filtered.isEmpty
+                  ? Center(
+                      child: Text(
+                        l10n.noTeamsFiltered,
+                        style: const TextStyle(color: Colors.black45),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) => _buildTeamCard(filtered[i], l10n),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -383,9 +447,10 @@ class _TeamsPageState extends State<TeamsPage> {
               Text(
                 l10n.navTeams,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -393,23 +458,26 @@ class _TeamsPageState extends State<TeamsPage> {
           Text(
             l10n.teamHubSubtitle,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _showCreateSheet,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.btnCreateTeam,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.btnCreateTeam,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],
@@ -421,7 +489,7 @@ class _TeamsPageState extends State<TeamsPage> {
 
   Widget _buildTeamCard(Team team, AppLocalizations l10n) {
     final memberCount = _localState.getPlayersForTeam(team.id).length;
-    final groupCount  = _localState.groups
+    final groupCount = _localState.groups
         .where((c) => c.teamIds.contains(team.id))
         .length;
     final stats = <String>[
@@ -437,12 +505,15 @@ class _TeamsPageState extends State<TeamsPage> {
         side: BorderSide(color: Colors.grey.shade200),
       ),
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => TeamDetailPage(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => TeamDetailPage(
               appState: _localState,
               onAppStateChanged: _updateState,
-              teamId: team.id),
-        )),
+              teamId: team.id,
+            ),
+          ),
+        ),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -458,9 +529,7 @@ class _TeamsPageState extends State<TeamsPage> {
                 ),
                 child: Center(
                   child: Text(
-                    team.name.isNotEmpty
-                        ? team.name[0].toUpperCase()
-                        : '?',
+                    team.name.isNotEmpty ? team.name[0].toUpperCase() : '?',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 17,
@@ -481,7 +550,9 @@ class _TeamsPageState extends State<TeamsPage> {
                           child: Text(
                             team.name,
                             style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -494,7 +565,9 @@ class _TeamsPageState extends State<TeamsPage> {
                       Text(
                         stats.join('  ·  '),
                         style: const TextStyle(
-                            fontSize: 12, color: Colors.black54),
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
                       ),
                     ],
                   ],
@@ -502,27 +575,48 @@ class _TeamsPageState extends State<TeamsPage> {
               ),
               const SizedBox(width: 4),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert,
-                    size: 18, color: Colors.black38),
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 18,
+                  color: Colors.black38,
+                ),
                 padding: EdgeInsets.zero,
                 onSelected: (value) {
                   switch (value) {
                     case 'edit':
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => TeamDetailPage(
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => TeamDetailPage(
                             appState: _localState,
                             onAppStateChanged: _updateState,
-                            teamId: team.id),
-                      ));
-                    case 'assign_group': _assignGroup(team.id);
-                    case 'delete': _deleteTeam(team.id);
+                            teamId: team.id,
+                          ),
+                        ),
+                      );
+                    case 'assign_group':
+                      _assignGroup(team.id);
+                    case 'delete':
+                      _deleteTeam(team.id);
                   }
                 },
                 itemBuilder: (_) => [
-                  actionMenuItem('edit', Icons.edit_rounded, l10n.menuEditPlayers),
-                  actionMenuItem('assign_group', Icons.home_rounded, l10n.menuAssignToClub),
+                  actionMenuItem(
+                    'edit',
+                    Icons.edit_rounded,
+                    l10n.menuEditPlayers,
+                  ),
+                  actionMenuItem(
+                    'assign_group',
+                    Icons.home_rounded,
+                    l10n.menuAssignToClub,
+                  ),
                   const PopupMenuDivider(),
-                  actionMenuItem('delete', Icons.delete_outline, l10n.btnDelete, destructive: true),
+                  actionMenuItem(
+                    'delete',
+                    Icons.delete_outline,
+                    l10n.btnDelete,
+                    destructive: true,
+                  ),
                 ],
               ),
             ],
@@ -531,5 +625,4 @@ class _TeamsPageState extends State<TeamsPage> {
       ),
     );
   }
-
 }

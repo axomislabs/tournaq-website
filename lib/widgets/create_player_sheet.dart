@@ -1,9 +1,9 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
+import '../utils/player_name_generator.dart';
 import 'sheet_helpers.dart';
 
 class CreatePlayerSheet extends StatefulWidget {
@@ -21,10 +21,6 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
   final Set<String> _groupIds = {};
   bool _teamExpanded = false;
   bool _groupExpanded = false;
-  final _rng = Random();
-
-  static const _firstNames = ['Alex','Charlie','Jordan','Taylor','Morgan','Casey','Jamie','Avery','Riley','Rowan','Skyler','Quinn','Parker','Drew','Reese'];
-  static const _lastNames  = ['Harper','Brooks','Cole','Reed','Blake','Carter','Lane','Hayes','Hart','West','Fox','Gray','Shaw','Mason','Finn'];
 
   @override
   void initState() { super.initState(); _suggestName(); }
@@ -39,7 +35,7 @@ class _CreatePlayerSheetState extends State<CreatePlayerSheet> {
 
   void _suggestName() {
     setState(() {
-      _nameCtrl.text = '${_firstNames[_rng.nextInt(_firstNames.length)]} ${_lastNames[_rng.nextInt(_lastNames.length)]}';
+      _nameCtrl.text = PlayerNameGenerator.randomName();
     });
   }
 

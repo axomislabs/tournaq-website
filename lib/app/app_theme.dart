@@ -65,6 +65,15 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
       ),
 
+      // Opaque interiors for every text field and dropdown so the bracket
+      // texture on tournament/admin pages never shows through them. Invisible
+      // on white surfaces; custom stepper/picker/tile containers aren't
+      // InputDecoration-based, so they keep their own backgrounds.
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+      ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.gold,

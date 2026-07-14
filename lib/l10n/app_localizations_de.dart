@@ -2904,6 +2904,35 @@ class AppLocalizationsDe extends AppLocalizations {
   String get scrambleKingScorecard => 'Scorecard';
 
   @override
+  String get scrambleKingExportCourt => 'Export court';
+
+  @override
+  String get scrambleKingScanCourtHint =>
+      'Point the camera at a court QR code.';
+
+  @override
+  String get scrambleKingScanNotCourt => 'This QR code is not a court.';
+
+  @override
+  String scrambleKingImportSuccess(String name) {
+    return 'Imported court from “$name”.';
+  }
+
+  @override
+  String get scrambleKingImportedCourts => 'Imported Courts';
+
+  @override
+  String get scrambleKingImportedUpcomingHint =>
+      'For other courts, see the host device.';
+
+  @override
+  String get scrambleKingSetResultTitle => 'Set Court Result';
+
+  @override
+  String get scrambleKingSetResultDescription =>
+      'Enter each team\'s points to complete this court without playing it.';
+
+  @override
   String get scrambleKingManuallyEdited => 'Manually edited';
 
   @override
@@ -2944,7 +2973,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get scrambleKingCourtCompleteHint =>
-      'Tap here, or the ranking icon above, to view or edit results';
+      'Tap here to view or edit results';
+
+  @override
+  String get scrambleKingEditResults => 'View / edit results';
 
   @override
   String get scrambleKingRoundTimer => 'Round Timer';
@@ -3116,4 +3148,70 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get overviewScoreSaved => 'Ergebnis gespeichert.';
+
+  @override
+  String get rosterMenuTooltip => 'Import / Export';
+
+  @override
+  String get rosterDownloadTemplate => 'Vorlage herunterladen';
+
+  @override
+  String get rosterImport => 'Spieler importieren…';
+
+  @override
+  String get rosterExport => 'Spieler exportieren…';
+
+  @override
+  String get rosterMenuInfo => 'Info';
+
+  @override
+  String get rosterNothingToExport =>
+      'Es gibt noch keine Spieler zum Exportieren.';
+
+  @override
+  String get rosterImportTitle => 'Kader importieren';
+
+  @override
+  String get rosterImportInvalidFile =>
+      'Die Datei konnte nicht gelesen werden. Bitte wähle eine TournaQ-Excel-Vorlage oder einen Export (.xlsx).';
+
+  @override
+  String get rosterImportNoChanges =>
+      'In dieser Datei wurden keine Änderungen gefunden.';
+
+  @override
+  String rosterImportSummary(
+    int created,
+    int updated,
+    int teamsCreated,
+    int groupsCreated,
+  ) {
+    return '$created hinzugefügt · $updated aktualisiert · $teamsCreated neue Teams · $groupsCreated neue Gruppen';
+  }
+
+  @override
+  String rosterImportDeleteWarning(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Spieler werden endgültig gelöscht:',
+      one: '1 Spieler wird endgültig gelöscht:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rosterMirrorDisabledNote =>
+      'Das Löschen ist für diese Datei deaktiviert (kein vollständiger Export von diesem Gerät), daher wird niemand entfernt.';
+
+  @override
+  String get rosterImportConfirm => 'Importieren';
+
+  @override
+  String get rosterImportConfirmDelete => 'Löschen & importieren';
+
+  @override
+  String rosterImportDone(int created, int updated, int deleted) {
+    return '$created hinzugefügt, $updated aktualisiert, $deleted entfernt.';
+  }
 }

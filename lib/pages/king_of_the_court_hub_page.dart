@@ -6,6 +6,7 @@ import '../models/group.dart';
 import '../models/player.dart';
 import '../services/king_of_the_court_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'king_of_the_court_setup_page.dart';
@@ -52,26 +53,30 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
   }
 
   void _openSetup() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => KingOfTheCourtSetupPage(
-        existingPlayers: widget.existingPlayers,
-        existingGroups: widget.existingGroups,
-        onCreated: _persist,
-        onCreatePlayer: widget.onCreatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => KingOfTheCourtSetupPage(
+          existingPlayers: widget.existingPlayers,
+          existingGroups: widget.existingGroups,
+          onCreated: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   void _openScoreboard(KingOfTheCourtTournament s) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => KingOfTheCourtScoreboardPage(
-        tournament: s,
-        existingPlayers: widget.existingPlayers,
-        existingGroups: widget.existingGroups,
-        onChanged:  _persist,
-        onCreatePlayer: widget.onCreatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => KingOfTheCourtScoreboardPage(
+          tournament: s,
+          existingPlayers: widget.existingPlayers,
+          existingGroups: widget.existingGroups,
+          onChanged: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _deleteOne(KingOfTheCourtTournament s) async {
@@ -80,16 +85,19 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteTournamentTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteTournamentTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteTournamentBody(s.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.btnCancel)),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -111,16 +119,19 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteAllTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteAllBody(_tournaments.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.btnCancel)),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -139,20 +150,22 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
 
   String _statusLabel(AppLocalizations l10n, KingOfTheCourtTournament s) =>
       switch (s.status) {
-        KotcTournamentStatus.completed  => l10n.statusCompleted,
+        KotcTournamentStatus.completed => l10n.statusCompleted,
         KotcTournamentStatus.inProgress => l10n.statusInProgress,
-        KotcTournamentStatus.setup      => l10n.statusSetup,
+        KotcTournamentStatus.setup => l10n.statusSetup,
       };
 
   String _dateLabel(AppLocalizations l10n, KingOfTheCourtTournament s) {
-    final d    = s.createdAt;
-    final now  = DateTime.now();
-    final diff = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(d.year, d.month, d.day))
-        .inDays;
+    final d = s.createdAt;
+    final now = DateTime.now();
+    final diff = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(d.year, d.month, d.day)).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
-    if (diff < 7)  return l10n.dateDaysAgo(diff);
+    if (diff < 7) return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -161,96 +174,113 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'King of the Court'),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildStartCard(l10n),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const Icon(Icons.history_rounded,
-                      size: 20, color: AppColors.oliveMedium),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.doghouseTournamentHistory(_tournaments.length),
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  if (_tournaments.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: _deleteAll,
-                      icon: const Icon(Icons.delete_outline, size: 16),
-                      label: Text(l10n.btnDeleteAll,
-                          style: const TextStyle(fontSize: 12)),
-                      style: TextButton.styleFrom(
-                          foregroundColor: Colors.red.shade400),
-                    ),
-                ],
+      body: BracketBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildStartCard(l10n),
               ),
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
-          if (_tournaments.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
                   children: [
-                    Icon(Icons.workspace_premium_rounded,
-                        size: 48, color: Colors.grey.shade300),
-                    const SizedBox(height: 12),
-                    Text(l10n.doghouseNoTournamentsYet,
+                    const Icon(
+                      Icons.history_rounded,
+                      size: 20,
+                      color: AppColors.oliveMedium,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.doghouseTournamentHistory(_tournaments.length),
                         style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.black45)),
-                    const SizedBox(height: 4),
-                    Text(l10n.doghouseNoTournamentsHint,
-                        style: const TextStyle(
-                            color: Colors.black38, fontSize: 13)),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    if (_tournaments.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: _deleteAll,
+                        icon: const Icon(Icons.delete_outline, size: 16),
+                        label: Text(
+                          l10n.btnDeleteAll,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red.shade400,
+                        ),
+                      ),
                   ],
                 ),
               ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) {
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            if (_tournaments.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.workspace_premium_rounded,
+                        size: 48,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.doghouseNoTournamentsYet,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.doghouseNoTournamentsHint,
+                        style: const TextStyle(
+                          color: Colors.black38,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((_, i) {
                     final s = _tournaments[i];
                     return TournamentHistoryCard(
-                      name:        s.name,
-                      typeLabel:   'King of the Court',
-                      typeColor:   AppColors.gold,
-                      typeIcon:    Icons.workspace_premium_rounded,
-                      dateLabel:   _dateLabel(l10n, s),
+                      name: s.name,
+                      typeLabel: 'King of the Court',
+                      typeColor: AppColors.gold,
+                      typeIcon: Icons.workspace_premium_rounded,
+                      dateLabel: _dateLabel(l10n, s),
                       statusLabel: _statusLabel(l10n, s),
-                      isActive:    s.status != KotcTournamentStatus.completed,
+                      isActive: s.status != KotcTournamentStatus.completed,
                       stats: [
                         l10n.doghouseStatsPlayers(s.playerCount),
                         l10n.doghouseStatsGames(s.gameCount),
                         l10n.statsPtsScored(s.totalPoints),
                       ],
-                      onTap:       () => _openScoreboard(s),
+                      onTap: () => _openScoreboard(s),
                       onDeleteTap: () => _deleteOne(s),
                     );
-                  },
-                  childCount: _tournaments.length,
+                  }, childCount: _tournaments.length),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -278,15 +308,19 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
         children: [
           const Row(
             children: [
-              Icon(Icons.workspace_premium_rounded,
-                  color: Colors.white, size: 22),
+              Icon(
+                Icons.workspace_premium_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
               SizedBox(width: 8),
               Text(
                 'King of the Court',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -294,23 +328,26 @@ class _KingOfTheCourtHubPageState extends State<KingOfTheCourtHubPage> {
           Text(
             l10n.modeKotcDesc,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.doghouseNewTournament,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.doghouseNewTournament,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],

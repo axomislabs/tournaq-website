@@ -6,6 +6,7 @@ import '../models/group.dart';
 import '../models/player.dart';
 import '../services/doghouse_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'doghouse_scoreboard_page.dart';
 import 'doghouse_setup_page.dart';
@@ -52,26 +53,30 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
   }
 
   void _openSetup() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => DoghouseSetupPage(
-        existingPlayers: widget.existingPlayers,
-        existingGroups: widget.existingGroups,
-        onCreated: _persist,
-        onCreatePlayer: widget.onCreatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DoghouseSetupPage(
+          existingPlayers: widget.existingPlayers,
+          existingGroups: widget.existingGroups,
+          onCreated: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   void _openScoreboard(DoghouseTournament t) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => DoghouseScoreboardPage(
-        tournament: t,
-        existingPlayers: widget.existingPlayers,
-        existingGroups: widget.existingGroups,
-        onChanged:  _persist,
-        onCreatePlayer: widget.onCreatePlayer,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => DoghouseScoreboardPage(
+          tournament: t,
+          existingPlayers: widget.existingPlayers,
+          existingGroups: widget.existingGroups,
+          onChanged: _persist,
+          onCreatePlayer: widget.onCreatePlayer,
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _deleteOne(DoghouseTournament t) async {
@@ -80,16 +85,19 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteTournamentTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteTournamentTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteTournamentBody(t.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.btnCancel)),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -111,16 +119,19 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteAllTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        title: Text(
+          l10n.doghouseDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteAllBody(_tournaments.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(l10n.btnCancel)),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -139,20 +150,22 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
 
   String _statusLabel(AppLocalizations l10n, DoghouseTournament t) =>
       switch (t.status) {
-        DoghouseTournamentStatus.completed  => l10n.statusCompleted,
+        DoghouseTournamentStatus.completed => l10n.statusCompleted,
         DoghouseTournamentStatus.inProgress => l10n.statusInProgress,
-        DoghouseTournamentStatus.setup      => l10n.statusSetup,
+        DoghouseTournamentStatus.setup => l10n.statusSetup,
       };
 
   String _dateLabel(AppLocalizations l10n, DoghouseTournament t) {
-    final dt   = t.createdAt;
-    final now  = DateTime.now();
-    final diff = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(dt.year, dt.month, dt.day))
-        .inDays;
+    final dt = t.createdAt;
+    final now = DateTime.now();
+    final diff = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(dt.year, dt.month, dt.day)).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
-    if (diff < 7)  return l10n.dateDaysAgo(diff);
+    if (diff < 7) return l10n.dateDaysAgo(diff);
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 
@@ -161,96 +174,113 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: TournaQAppBar(title: l10n.doghouseTitle),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildStartCard(l10n),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const Icon(Icons.history_rounded,
-                      size: 20, color: AppColors.oliveMedium),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.doghouseTournamentHistory(_tournaments.length),
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  if (_tournaments.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: _deleteAll,
-                      icon: const Icon(Icons.delete_outline, size: 16),
-                      label: Text(l10n.btnDeleteAll,
-                          style: const TextStyle(fontSize: 12)),
-                      style: TextButton.styleFrom(
-                          foregroundColor: Colors.red.shade400),
-                    ),
-                ],
+      body: BracketBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildStartCard(l10n),
               ),
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
-          if (_tournaments.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
                   children: [
-                    Icon(Icons.pets_rounded,
-                        size: 48, color: Colors.grey.shade300),
-                    const SizedBox(height: 12),
-                    Text(l10n.doghouseNoTournamentsYet,
+                    const Icon(
+                      Icons.history_rounded,
+                      size: 20,
+                      color: AppColors.oliveMedium,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.doghouseTournamentHistory(_tournaments.length),
                         style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.black45)),
-                    const SizedBox(height: 4),
-                    Text(l10n.doghouseNoTournamentsHint,
-                        style: const TextStyle(
-                            color: Colors.black38, fontSize: 13)),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    if (_tournaments.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: _deleteAll,
+                        icon: const Icon(Icons.delete_outline, size: 16),
+                        label: Text(
+                          l10n.btnDeleteAll,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red.shade400,
+                        ),
+                      ),
                   ],
                 ),
               ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) {
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            if (_tournaments.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.pets_rounded,
+                        size: 48,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.doghouseNoTournamentsYet,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.doghouseNoTournamentsHint,
+                        style: const TextStyle(
+                          color: Colors.black38,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((_, i) {
                     final t = _tournaments[i];
                     return TournamentHistoryCard(
-                      name:        t.name,
-                      typeLabel:   l10n.doghouseTitle,
-                      typeColor:   AppColors.gold,
-                      typeIcon:    Icons.pets_rounded,
-                      dateLabel:   _dateLabel(l10n, t),
+                      name: t.name,
+                      typeLabel: l10n.doghouseTitle,
+                      typeColor: AppColors.gold,
+                      typeIcon: Icons.pets_rounded,
+                      dateLabel: _dateLabel(l10n, t),
                       statusLabel: _statusLabel(l10n, t),
-                      isActive:    t.status != DoghouseTournamentStatus.completed,
+                      isActive: t.status != DoghouseTournamentStatus.completed,
                       stats: [
                         l10n.doghouseStatsPlayers(t.playerCount),
                         l10n.doghouseStatsGames(t.gameCount),
                         l10n.doghouseStatsEscapes(t.totalEscapes),
                       ],
-                      onTap:       () => _openScoreboard(t),
+                      onTap: () => _openScoreboard(t),
                       onDeleteTap: () => _deleteOne(t),
                     );
-                  },
-                  childCount: _tournaments.length,
+                  }, childCount: _tournaments.length),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -283,9 +313,10 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
               Text(
                 l10n.doghouseTitle,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -293,15 +324,17 @@ class _DoghouseHubPageState extends State<DoghouseHubPage> {
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.doghouseNewTournament,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.doghouseNewTournament,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],

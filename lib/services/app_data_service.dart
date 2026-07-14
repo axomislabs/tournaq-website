@@ -59,6 +59,12 @@ class AppDataService {
         updatedState = updatedState.updateGroup(group.removePlayerId(userId));
       }
     }
+    // Remove player from all teams (keep Team.userIds in sync with the deletion)
+    for (final team in state.teams) {
+      if (team.userIds.contains(userId)) {
+        updatedState = updatedState.updateTeam(team.removeUserId(userId));
+      }
+    }
     return updatedState;
   }
 

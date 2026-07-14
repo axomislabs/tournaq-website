@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
@@ -7,6 +6,7 @@ import '../models/group.dart';
 import '../models/scramble_king_tournament.dart';
 import '../models/scramble_tournament.dart' show ScrambleSuggestion;
 import '../services/scramble_king_service.dart';
+import '../utils/session_title_generator.dart';
 import '../models/player.dart';
 import '../widgets/scramble_suggestion_card.dart';
 import '../widgets/scrollable_page.dart';
@@ -63,19 +63,6 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
   final _playerNameCtrl = TextEditingController();
   final _playerSearchCtrl = TextEditingController();
 
-  static final _rng = Random();
-  static const _nameTemplates = [
-    ('Scramble', 'Crown'),
-    ('Royal', 'Mixer'),
-    ('Court', 'Kings'),
-    ('Shuffle', 'Throne'),
-    ('Golden', 'Rally'),
-    ('Wild', 'Reign'),
-    ('Sunday', 'Scramble'),
-    ('Electric', 'Kingdom'),
-    ('Friday', 'Rumble'),
-    ('Neon', 'Court'),
-  ];
 
   @override
   void initState() {
@@ -104,10 +91,8 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
     super.dispose();
   }
 
-  String _randomName() {
-    final t = _nameTemplates[_rng.nextInt(_nameTemplates.length)];
-    return '${t.$1} ${t.$2}';
-  }
+  String _randomName() =>
+      SessionTitleGenerator.random(SessionTitleTheme.scrambleKing);
 
   Duration get _matchDuration => Duration(minutes: _matchMinutes);
   Duration get _breakDuration => Duration(minutes: _breakMinutes);
@@ -333,7 +318,10 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
           void fillRandom() {
             final needed = _targetPlayerCount - _players.length;
             if (needed <= 0) return;
-            _players.addAll(ScrambleKingService.generateRandomPlayers(needed));
+            _players.addAll(ScrambleKingService.generateRandomPlayers(
+              needed,
+              existing: _players.map((p) => p.name).toSet(),
+            ));
             rebuild();
           }
 
@@ -965,6 +953,8 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             isDense: true,
+            filled: true,
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             suffix: Row(
@@ -1134,6 +1124,8 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       );

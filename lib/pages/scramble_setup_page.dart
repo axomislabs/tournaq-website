@@ -6,6 +6,7 @@ import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/scramble_tournament.dart';
 import '../services/scramble_service.dart';
+import '../utils/session_title_generator.dart';
 import '../models/player.dart';
 import '../widgets/scramble_suggestion_card.dart';
 import '../widgets/scrollable_page.dart';
@@ -62,29 +63,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   final _playerNameCtrl   = TextEditingController();
   final _playerSearchCtrl = TextEditingController();
 
-  static final _rng = Random();
-  static const _nameTemplates = [
-    ('Wild',      'Scramble'),
-    ('Lazy',      'Shuffle'),
-    ('Happy',     'Chaos'),
-    ('Sneaky',    'Mixer'),
-    ('Tropical',  'Frenzy'),
-    ('Sunset',    'Blitz'),
-    ('Neon',      'Scramble'),
-    ('Blazing',   'Mix-Up'),
-    ('Groovy',    'Shakedown'),
-    ('Friendly',  'Rumble'),
-    ('Casual',    'Bash'),
-    ('Electric',  'Fiesta'),
-    ('Cheeky',    'Shuffle'),
-    ('Breezy',    'Scramble'),
-    ('Absolute',  'Chaos'),
-    ('Epic',      'Mixer'),
-    ('Sneaky',    'Frenzy'),
-    ('Disco',     'Scramble'),
-    ('Friday',    'Shuffle'),
-    ('Sunday',    'Blitz'),
-  ];
 
   @override
   void initState() {
@@ -113,10 +91,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
   // ── Computed ─────────────────────────────────────────────────────────────────
 
-  String _randomName() {
-    final t = _nameTemplates[_rng.nextInt(_nameTemplates.length)];
-    return '${t.$1} ${t.$2}';
-  }
+  String _randomName() =>
+      SessionTitleGenerator.random(SessionTitleTheme.scramble);
 
   Duration get _matchDuration => Duration(minutes: _matchMinutes);
   Duration get _breakDuration => Duration(minutes: _breakMinutes);
@@ -385,7 +361,10 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           void fillRandom() {
             final needed = _targetPlayerCount - _players.length;
             if (needed <= 0) return;
-            _players.addAll(ScrambleService.generateRandomPlayers(needed));
+            _players.addAll(ScrambleService.generateRandomPlayers(
+              needed,
+              existing: _players.map((p) => p.name).toSet(),
+            ));
             rebuild();
           }
 
@@ -1095,6 +1074,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             isDense: true,
+            filled: true,
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10)),
@@ -1236,6 +1217,8 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

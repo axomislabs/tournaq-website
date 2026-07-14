@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
@@ -9,6 +7,7 @@ import '../models/player.dart';
 import '../models/team.dart';
 import '../services/app_data_service.dart';
 import '../state/app_state.dart';
+import '../utils/team_name_generator.dart';
 import 'assign_dialog.dart';
 import 'ko_team_editor_sheet.dart';
 import 'sheet_helpers.dart';
@@ -36,17 +35,6 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
 
   String _randomTeam1Name = '';
   String _randomTeam2Name = '';
-
-  static const _adjectives = [
-    'Thunder', 'Iron', 'Swift', 'Bold', 'Red', 'Blue', 'Gold', 'Silver',
-    'Dark', 'Storm', 'Crimson', 'Blazing', 'Frozen', 'Shadow', 'Solar',
-    'Mighty', 'Royal', 'Wild', 'Steel', 'Fire',
-  ];
-  static const _nouns = [
-    'Hawks', 'Bears', 'Lions', 'Eagles', 'Wolves', 'Panthers', 'Sharks',
-    'Tigers', 'Foxes', 'Dragons', 'Cobras', 'Ravens', 'Falcons', 'Jaguars',
-    'Vipers', 'Stallions', 'Rhinos', 'Gladiators', 'Titans', 'Strikers',
-  ];
 
   @override
   void initState() {
@@ -158,17 +146,10 @@ class _QuickStartSheetState extends State<QuickStartSheet> {
   }
 
   void _generateRandomNames() {
-    final rng = Random();
-    final adj1 = _adjectives[rng.nextInt(_adjectives.length)];
-    final adj2 = _adjectives[rng.nextInt(_adjectives.length)];
-    final noun1 = _nouns[rng.nextInt(_nouns.length)];
-    String noun2;
-    do {
-      noun2 = _nouns[rng.nextInt(_nouns.length)];
-    } while (noun2 == noun1);
+    final names = TeamNameGenerator.uniqueNames(2);
     setState(() {
-      _randomTeam1Name = '$adj1 $noun1';
-      _randomTeam2Name = '$adj2 $noun2';
+      _randomTeam1Name = names[0];
+      _randomTeam2Name = names[1];
     });
   }
 

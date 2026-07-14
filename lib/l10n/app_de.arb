@@ -1799,5 +1799,50 @@
   "@overviewTeamsEmpty": {},
 
   "overviewScoreSaved": "Ergebnis gespeichert.",
-  "@overviewScoreSaved": {}
+  "@overviewScoreSaved": {},
+
+  "rosterMenuTooltip": "Import / Export",
+  "@rosterMenuTooltip": {},
+
+  "rosterDownloadTemplate": "Vorlage herunterladen",
+  "@rosterDownloadTemplate": {},
+
+  "rosterImport": "Spieler importieren…",
+  "@rosterImport": {},
+
+  "rosterExport": "Spieler exportieren…",
+  "@rosterExport": {},
+
+  "rosterMenuInfo": "Info",
+  "@rosterMenuInfo": {},
+
+  "rosterNothingToExport": "Es gibt noch keine Spieler zum Exportieren.",
+  "@rosterNothingToExport": {},
+
+  "rosterImportTitle": "Kader importieren",
+  "@rosterImportTitle": {},
+
+  "rosterImportInvalidFile": "Die Datei konnte nicht gelesen werden. Bitte wähle eine TournaQ-Excel-Vorlage oder einen Export (.xlsx).",
+  "@rosterImportInvalidFile": {},
+
+  "rosterImportNoChanges": "In dieser Datei wurden keine Änderungen gefunden.",
+  "@rosterImportNoChanges": {},
+
+  "rosterImportSummary": "{created} hinzugefügt · {updated} aktualisiert · {teamsCreated} neue Teams · {groupsCreated} neue Gruppen",
+  "@rosterImportSummary": {},
+
+  "rosterImportDeleteWarning": "{count, plural, =1{1 Spieler wird endgültig gelöscht:} other{{count} Spieler werden endgültig gelöscht:}}",
+  "@rosterImportDeleteWarning": {},
+
+  "rosterMirrorDisabledNote": "Das Löschen ist für diese Datei deaktiviert (kein vollständiger Export von diesem Gerät), daher wird niemand entfernt.",
+  "@rosterMirrorDisabledNote": {},
+
+  "rosterImportConfirm": "Importieren",
+  "@rosterImportConfirm": {},
+
+  "rosterImportConfirmDelete": "Löschen & importieren",
+  "@rosterImportConfirmDelete": {},
+
+  "rosterImportDone": "{created} hinzugefügt, {updated} aktualisiert, {deleted} entfernt.",
+  "@rosterImportDone": {}
 }

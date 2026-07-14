@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
@@ -6,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../models/group.dart';
 import '../models/doghouse_drill.dart';
 import '../services/scramble_service.dart';
+import '../utils/session_title_generator.dart';
 import '../models/player.dart';
 import '../widgets/group_picker_sheet.dart';
 import '../widgets/scrollable_page.dart';
@@ -54,29 +54,6 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
 
   final List<DoghousePlayer> _players = [];
 
-  static final _rng = Random();
-  static const _nameTemplates = [
-    ('Escape',   'Session'),
-    ('Doghouse', 'Dash'),
-    ('Side',     'Out'),
-    ('Break',    'Out'),
-    ('Hustle',   'Hour'),
-    ('Serving',  'Time'),
-    ('Back',     'Yard'),
-    ('Grind',    'Session'),
-    ('Serve',    'Battle'),
-    ('Net',      'Breaker'),
-    ('Rally',    'Rumble'),
-    ('Beach',    'Grind'),
-    ('Sand',     'Session'),
-    ('Court',    'Battle'),
-    ('Block',    'Party'),
-    ('Spike',    'Session'),
-    ('Sand',     'Storm'),
-    ('Power',    'Serve'),
-    ('Hard',     'Court'),
-    ('Game',     'Day'),
-  ];
 
   @override
   void initState() {
@@ -100,10 +77,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
     super.dispose();
   }
 
-  String _randomName() {
-    final t = _nameTemplates[_rng.nextInt(_nameTemplates.length)];
-    return '${t.$1} ${t.$2}';
-  }
+  String _randomName() =>
+      SessionTitleGenerator.random(SessionTitleTheme.doghouse);
 
   int get _minPlayers => _playersPerTeam * 2;
 
@@ -303,7 +278,10 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
           void fillRandom() {
             final needed = _targetPlayerCount - _players.length;
             if (needed <= 0) return;
-            final generated = ScrambleService.generateRandomPlayers(needed);
+            final generated = ScrambleService.generateRandomPlayers(
+              needed,
+              existing: _players.map((p) => p.name).toSet(),
+            );
             for (final p in generated) {
               _players.add(DoghousePlayer(
                 id:     DoghousePlayer.generateId(),
@@ -919,6 +897,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             isDense: true,
+            filled: true,
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10)),
@@ -1023,6 +1003,8 @@ class _DoghouseSetupPageState extends State<DoghouseSetupPage> {
 
   InputDecoration _inputDecoration({String? hint}) => InputDecoration(
         hintText: hint,
+        filled: true,
+        fillColor: Colors.white,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

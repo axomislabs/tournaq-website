@@ -12,6 +12,7 @@ import 'king_of_the_court_storage_service.dart';
 import 'doghouse_storage_service.dart';
 import 'ko_bracket_storage_service.dart';
 import 'scramble_king_storage_service.dart';
+import 'imported_scramble_king_court_storage_service.dart';
 
 /// Local persistence layer for TournaQ.
 ///
@@ -59,6 +60,7 @@ class LocalStorageService {
     await DoghouseStorageService.init();
     await KoBracketStorageService.init();
     await ScrambleKingStorageService.init();
+    await ImportedScrambleKingCourtStorageService.init();
   }
 
   // Opens a Hive box, and if the file is corrupted, wipes it and reopens fresh.

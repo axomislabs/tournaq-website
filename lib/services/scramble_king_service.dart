@@ -2,7 +2,7 @@ import 'dart:math';
 import '../models/scramble_king_tournament.dart';
 import '../models/scramble_tournament.dart' show ScrambleSuggestion, ScrambleSuggestionType;
 import 'scramble_service.dart';
-import 'scramble_team_names.dart';
+import '../utils/team_name_generator.dart';
 
 /// Core business logic for Scramble King tournaments.
 ///
@@ -40,7 +40,8 @@ class ScrambleKingService {
   static const _exhaustivePlayerLimit = 32;
 
   // ── Player generation ────────────────────────────────────────────────────
-  // Delegates to ScrambleService's name lists rather than duplicating them.
+  // Delegates to ScrambleService's shared name generator rather than
+  // duplicating the pool.
 
   static ScrambleKingPlayer randomPlayer() {
     final p = ScrambleService.randomPlayer();
@@ -51,8 +52,19 @@ class ScrambleKingService {
     );
   }
 
-  static List<ScrambleKingPlayer> generateRandomPlayers(int count) =>
-      List.generate(count, (_) => randomPlayer());
+  /// Generates [count] random players with distinct names. Pass the names of
+  /// players already in the roster as [existing] so the new batch avoids them.
+  static List<ScrambleKingPlayer> generateRandomPlayers(
+    int count, {
+    Set<String>? existing,
+  }) =>
+      ScrambleService.generateRandomPlayers(count, existing: existing)
+          .map((p) => ScrambleKingPlayer(
+                id: ScrambleKingPlayer.generateId(),
+                name: p.name,
+                source: ScrambleKingPlayerSource.random,
+              ))
+          .toList();
 
   // ── Tournament builder (all rounds generated upfront) ───────────────────
 
@@ -307,7 +319,7 @@ class ScrambleKingService {
         ...rawSlots.map((s) => s.playerIds),
         if (floater != null) [floater.id],
       ];
-      final names = ScrambleTeamNames.unique(nameGroups);
+      final names = TeamNameGenerator.uniqueForTeams(nameGroups);
       final teamSlots = [
         for (var t = 0; t < rawSlots.length; t++)
           ScrambleKingTeamSlot(

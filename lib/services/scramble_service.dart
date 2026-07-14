@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../models/scramble_tournament.dart';
-import 'scramble_team_names.dart';
+import '../utils/player_name_generator.dart';
+import '../utils/team_name_generator.dart';
 
 /// Core business logic for Timed Scramble tournaments.
 ///
@@ -41,17 +42,6 @@ class ScrambleService {
   // whereas the raw ceiling itself often is not — this applies broadly, not
   // just to exact-fit ("zero-slack") configurations.
   static const _repeatSafetyPercent = 65;
-
-  static const _randomFirstNames = [
-    'Alex', 'Sam', 'Jordan', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery',
-    'Quinn', 'Drew', 'Reese', 'Blake', 'Skyler', 'Peyton', 'Jamie', 'Rowan',
-    'Finley', 'Emery', 'Sage', 'River',
-  ];
-  static const _randomLastNames = [
-    'Smith', 'Jones', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson',
-    'Moore', 'Taylor', 'Anderson', 'Thomas', 'Jackson', 'White', 'Harris',
-    'Martin', 'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark',
-  ];
 
   // ── Schedule Builder ────────────────────────────────────────────────────────
 
@@ -290,7 +280,7 @@ class ScrambleService {
 
         final sideAIds = sideA.map((p) => p.id).toList();
         final sideBIds = sideB.map((p) => p.id).toList();
-        final (nameA, nameB) = ScrambleTeamNames.generate(sideAIds, sideBIds);
+        final (nameA, nameB) = TeamNameGenerator.pairForPlayers(sideAIds, sideBIds);
         games.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: roundId,
@@ -1135,7 +1125,7 @@ class ScrambleService {
 
         final sideAIds2 = sideA.map((p) => p.id).toList();
         final sideBIds2 = sideB.map((p) => p.id).toList();
-        final (nameA2, nameB2) = ScrambleTeamNames.generate(sideAIds2, sideBIds2);
+        final (nameA2, nameB2) = TeamNameGenerator.pairForPlayers(sideAIds2, sideBIds2);
         newGames.add(ScrambleGame(
           id: ScrambleGame.generateId(),
           roundId: round.id,
@@ -1410,18 +1400,25 @@ class ScrambleService {
 
   // ── Player Generation ─────────────────────────────────────────────────────
 
-  static ScramblePlayer randomPlayer() {
-    final first = _randomFirstNames[_rng.nextInt(_randomFirstNames.length)];
-    final last = _randomLastNames[_rng.nextInt(_randomLastNames.length)];
-    return ScramblePlayer(
-      id: ScramblePlayer.generateId(),
-      name: '$first $last',
-      source: ScramblePlayerSource.random,
-    );
-  }
+  static ScramblePlayer randomPlayer() => ScramblePlayer(
+        id: ScramblePlayer.generateId(),
+        name: PlayerNameGenerator.randomName(),
+        source: ScramblePlayerSource.random,
+      );
 
-  static List<ScramblePlayer> generateRandomPlayers(int count) =>
-      List.generate(count, (_) => randomPlayer());
+  /// Generates [count] random players with distinct names. Pass the names of
+  /// players already in the roster as [existing] so the new batch avoids them.
+  static List<ScramblePlayer> generateRandomPlayers(
+    int count, {
+    Set<String>? existing,
+  }) =>
+      PlayerNameGenerator.uniqueNames(count, excluding: existing)
+          .map((name) => ScramblePlayer(
+                id: ScramblePlayer.generateId(),
+                name: name,
+                source: ScramblePlayerSource.random,
+              ))
+          .toList();
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../app/app_colors.dart';
@@ -7,6 +6,8 @@ import '../models/group.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../models/player.dart';
 import '../models/team.dart';
+import '../utils/session_title_generator.dart';
+import '../utils/team_name_generator.dart';
 import '../widgets/group_picker_sheet.dart';
 import '../widgets/ko_team_editor_sheet.dart';
 import '../widgets/scrollable_page.dart';
@@ -21,40 +22,6 @@ const _kGold      = AppColors.gold;
 const _kGoldDark  = AppColors.goldDark;
 const _kGoldCream = AppColors.goldCream;
 const _kOlive     = AppColors.olive;
-
-final _rng = Random();
-
-const _teamAdjectives = [
-  'Thunder', 'Iron', 'Swift', 'Bold', 'Red', 'Blue', 'Gold', 'Silver',
-  'Dark', 'Storm', 'Crimson', 'Blazing', 'Frozen', 'Shadow', 'Solar',
-  'Mighty', 'Royal', 'Wild', 'Steel', 'Fire',
-];
-const _teamNouns = [
-  'Hawks', 'Bears', 'Lions', 'Eagles', 'Wolves', 'Panthers', 'Sharks',
-  'Tigers', 'Foxes', 'Dragons', 'Cobras', 'Ravens', 'Falcons', 'Jaguars',
-  'Vipers', 'Stallions', 'Rhinos', 'Gladiators', 'Titans', 'Strikers',
-];
-
-String _pickFunName(Set<String> used) {
-  String name;
-  var attempts = 0;
-  do {
-    final adj  = _teamAdjectives[_rng.nextInt(_teamAdjectives.length)];
-    final noun = _teamNouns[_rng.nextInt(_teamNouns.length)];
-    name = '$adj $noun';
-    attempts++;
-  } while (used.contains(name) && attempts < 200);
-  used.add(name);
-  return name;
-}
-
-const _nameTemplates = [
-  ('Golden', 'Bracket'), ('Iron', 'Fist'),    ('Thunder', 'Cup'),
-  ('Steel', 'Cage'),     ('Crown', 'Classic'), ('Champion', 'Cup'),
-  ('Elite', 'Eight'),    ('Final', 'Fury'),    ('Blazing', 'Bracket'),
-  ('Sunset', 'Showdown'),('Neon', 'Knockout'), ('Wild', 'Card'),
-  ('Friday', 'Fight'),   ('Epic', 'Bracket'),  ('Sneaky', 'Semifinal'),
-];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
@@ -140,10 +107,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
-  String _randomName() {
-    final t = _nameTemplates[_rng.nextInt(_nameTemplates.length)];
-    return '${t.$1} ${t.$2}';
-  }
+  String _randomName() =>
+      SessionTitleGenerator.random(SessionTitleTheme.koBracket);
 
 
   void _onTeamCountChanged(int count) {
@@ -227,10 +192,11 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
     setState(() {
       final used = _teams.map((t) => t.name).toSet();
       final needed = _teamCount - _teams.length;
+      final names = TeamNameGenerator.uniqueNames(needed, excluding: used);
       for (var i = 0; i < needed; i++) {
         _teams.add(KoTeam(
           id: KoTeam.generateId(),
-          name: _pickFunName(used),
+          name: names[i],
           players: List.generate(
             _playersPerSide,
             (j) => KoPlayerSnapshot(appPlayerId: '', name: 'Player ${j + 1}'),
@@ -487,6 +453,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
                     isDense: true,
+                    filled: true,
+                    fillColor: Colors.white,
                     contentPadding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -1410,6 +1378,8 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: InputDecoration(
             isDense: true,
+            filled: true,
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             suffix: Row(
@@ -1760,7 +1730,10 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
   // ── Method picker ─────────────────────────────────────────────────────────
 
   Widget _buildMethodPicker(AppLocalizations l10n) {
-    final funName = _pickFunName(Set.from(widget.usedNames));
+    final funName = TeamNameGenerator.uniqueNames(
+      1,
+      excluding: Set.from(widget.usedNames),
+    ).first;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
       child: Column(
@@ -2106,6 +2079,8 @@ class _KoSlotPickerSheetState extends State<_KoSlotPickerSheet> {
               }
             },
             decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10)),
               contentPadding:

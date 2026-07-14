@@ -8,6 +8,7 @@ import '../models/player.dart';
 import '../models/team.dart';
 import '../services/ko_bracket_storage_service.dart';
 import '../widgets/tournament_history_card.dart';
+import '../widgets/bracket_background.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'ko_bracket_bracket_page.dart';
 import 'ko_bracket_setup_page.dart';
@@ -62,32 +63,40 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
   }
 
   void _openSetup() {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => KoBracketSetupPage(
-        existingPlayers: widget.existingPlayers,
-        existingTeams: widget.existingTeams,
-        existingGroups: widget.existingGroups,
-        onCreatePlayer: widget.onCreatePlayer,
-        onUpdatePlayer: widget.onUpdatePlayer,
-        onCreateTeam: widget.onCreateTeam,
-        onCreated: _persist,
-      ),
-    )).then((_) => _loadTournaments());
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => KoBracketSetupPage(
+              existingPlayers: widget.existingPlayers,
+              existingTeams: widget.existingTeams,
+              existingGroups: widget.existingGroups,
+              onCreatePlayer: widget.onCreatePlayer,
+              onUpdatePlayer: widget.onUpdatePlayer,
+              onCreateTeam: widget.onCreateTeam,
+              onCreated: _persist,
+            ),
+          ),
+        )
+        .then((_) => _loadTournaments());
   }
 
   void _openTournament(KoBracketTournament t) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => KoBracketBracketPage(
-        tournament: t,
-        onChanged: _persist,
-        existingPlayers: widget.existingPlayers,
-        existingTeams: widget.existingTeams,
-        existingGroups: widget.existingGroups,
-        onCreatePlayer: widget.onCreatePlayer,
-        onUpdatePlayer: widget.onUpdatePlayer,
-        onCreateTeam: widget.onCreateTeam,
-      ),
-    )).then((_) => _loadTournaments());
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => KoBracketBracketPage(
+              tournament: t,
+              onChanged: _persist,
+              existingPlayers: widget.existingPlayers,
+              existingTeams: widget.existingTeams,
+              existingGroups: widget.existingGroups,
+              onCreatePlayer: widget.onCreatePlayer,
+              onUpdatePlayer: widget.onUpdatePlayer,
+              onCreateTeam: widget.onCreateTeam,
+            ),
+          ),
+        )
+        .then((_) => _loadTournaments());
   }
 
   Future<void> _deleteOne(KoBracketTournament t) async {
@@ -95,10 +104,11 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteTournamentTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.doghouseDeleteTournamentTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteTournamentBody(t.name),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -128,10 +138,11 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.doghouseDeleteAllTitle,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.doghouseDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
         content: Text(
           l10n.doghouseDeleteAllBody(_tournaments.length),
           style: const TextStyle(fontSize: 14, color: Colors.black54),
@@ -161,20 +172,22 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
 
   String _statusLabel(AppLocalizations l10n, KoBracketTournament t) =>
       switch (t.status) {
-        KoBracketStatus.completed  => l10n.statusCompleted,
+        KoBracketStatus.completed => l10n.statusCompleted,
         KoBracketStatus.inProgress => l10n.statusInProgress,
-        KoBracketStatus.setup      => l10n.statusSetup,
+        KoBracketStatus.setup => l10n.statusSetup,
       };
 
   String _dateLabel(AppLocalizations l10n, KoBracketTournament t) {
-    final d    = t.createdAt;
-    final now  = DateTime.now();
-    final diff = DateTime(now.year, now.month, now.day)
-        .difference(DateTime(d.year, d.month, d.day))
-        .inDays;
+    final d = t.createdAt;
+    final now = DateTime.now();
+    final diff = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(DateTime(d.year, d.month, d.day)).inDays;
     if (diff == 0) return l10n.dateToday;
     if (diff == 1) return l10n.dateYesterday;
-    if (diff < 7)  return l10n.dateDaysAgo(diff);
+    if (diff < 7) return l10n.dateDaysAgo(diff);
     return '${d.day}/${d.month}/${d.year}';
   }
 
@@ -185,124 +198,140 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: const TournaQAppBar(title: 'Single Elimination'),
-      body: CustomScrollView(
-        slivers: [
-          // ── Start card ───────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: _buildStartCard(l10n),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
-          // ── History header ───────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const Icon(Icons.history_rounded,
-                      size: 20, color: AppColors.oliveMedium),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l10n.doghouseTournamentHistory(_tournaments.length),
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  if (_tournaments.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: _deleteAll,
-                      icon: const Icon(Icons.delete_outline, size: 16),
-                      label: Text(l10n.btnDeleteAll,
-                          style: const TextStyle(fontSize: 12)),
-                      style: TextButton.styleFrom(
-                          foregroundColor: Colors.red.shade400),
-                    ),
-                ],
+      body: BracketBackground(
+        child: CustomScrollView(
+          slivers: [
+            // ── Start card ───────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: _buildStartCard(l10n),
               ),
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-          // ── Tournament list ──────────────────────────────────────────
-          if (_tournaments.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            // ── History header ───────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
                   children: [
-                    Transform.rotate(
-                      angle: pi,
-                      child: Icon(Icons.account_tree_rounded,
-                          size: 48, color: Colors.grey.shade300),
+                    const Icon(
+                      Icons.history_rounded,
+                      size: 20,
+                      color: AppColors.oliveMedium,
                     ),
-                    const SizedBox(height: 12),
-                    Text(l10n.doghouseNoTournamentsYet,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.doghouseTournamentHistory(_tournaments.length),
                         style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.black45)),
-                    const SizedBox(height: 4),
-                    Text(l10n.doghouseNoTournamentsHint,
-                        style: const TextStyle(
-                            color: Colors.black38, fontSize: 13)),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    if (_tournaments.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: _deleteAll,
+                        icon: const Icon(Icons.delete_outline, size: 16),
+                        label: Text(
+                          l10n.btnDeleteAll,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red.shade400,
+                        ),
+                      ),
                   ],
                 ),
               ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (_, i) {
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+            // ── Tournament list ──────────────────────────────────────────
+            if (_tournaments.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.rotate(
+                        angle: pi,
+                        child: Icon(
+                          Icons.account_tree_rounded,
+                          size: 48,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.doghouseNoTournamentsYet,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Colors.black45,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.doghouseNoTournamentsHint,
+                        style: const TextStyle(
+                          color: Colors.black38,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((_, i) {
                     final t = _tournaments[i];
-                    final completed =
-                        t.matches.where((m) => m.isComplete).length;
+                    final completed = t.matches
+                        .where((m) => m.isComplete)
+                        .length;
                     final total = t.matches.length;
 
                     String? winnerName;
                     if (t.status == KoBracketStatus.completed) {
                       final finalMatch = t.matches
-                          .where((m) =>
-                              m.round == t.mainRoundCount &&
-                              m.isComplete)
+                          .where(
+                            (m) => m.round == t.mainRoundCount && m.isComplete,
+                          )
                           .firstOrNull;
                       if (finalMatch?.winnerId != null) {
-                        winnerName =
-                            t.teamById(finalMatch!.winnerId!)?.name;
+                        winnerName = t.teamById(finalMatch!.winnerId!)?.name;
                       }
                     }
 
                     return TournamentHistoryCard(
-                      name:        t.name,
-                      typeLabel:   'Single Elimination',
-                      typeColor:   AppColors.gold,
-                      typeIcon:    Icons.account_tree_rounded,
-                      iconAngle:   pi,
-                      dateLabel:   _dateLabel(l10n, t),
+                      name: t.name,
+                      typeLabel: 'Single Elimination',
+                      typeColor: AppColors.gold,
+                      typeIcon: Icons.account_tree_rounded,
+                      iconAngle: pi,
+                      dateLabel: _dateLabel(l10n, t),
                       statusLabel: _statusLabel(l10n, t),
-                      isActive:
-                          t.status != KoBracketStatus.completed,
+                      isActive: t.status != KoBracketStatus.completed,
                       stats: [
                         l10n.statsTeams(t.teamCount),
                         l10n.statsCourts(t.courtCount),
                         l10n.statsMatchesOf(completed, total),
                         if (winnerName != null) '🏆 $winnerName',
                       ],
-                      onTap:       () => _openTournament(t),
+                      onTap: () => _openTournament(t),
                       onDeleteTap: () => _deleteOne(t),
                     );
-                  },
-                  childCount: _tournaments.length,
+                  }, childCount: _tournaments.length),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -332,16 +361,20 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
             children: [
               Transform.rotate(
                 angle: pi,
-                child: const Icon(Icons.account_tree_rounded,
-                    color: Colors.white, size: 22),
+                child: const Icon(
+                  Icons.account_tree_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 8),
               Text(
                 'Single Elimination',
                 style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ],
           ),
@@ -349,23 +382,26 @@ class _KoBracketHubPageState extends State<KoBracketHubPage> {
           Text(
             l10n.modeSingleElimDesc,
             style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.90),
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+              color: Colors.white.withValues(alpha: 0.90),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: _openSetup,
             icon: const Icon(Icons.add_rounded),
-            label: Text(l10n.doghouseNewTournament,
-                style: const TextStyle(fontWeight: FontWeight.w700)),
+            label: Text(
+              l10n.doghouseNewTournament,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
           ),
         ],

@@ -5146,6 +5146,54 @@ abstract class AppLocalizations {
   /// **'Scorecard'**
   String get scrambleKingScorecard;
 
+  /// No description provided for @scrambleKingExportCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'Export court'**
+  String get scrambleKingExportCourt;
+
+  /// No description provided for @scrambleKingScanCourtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a court QR code.'**
+  String get scrambleKingScanCourtHint;
+
+  /// No description provided for @scrambleKingScanNotCourt.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code is not a court.'**
+  String get scrambleKingScanNotCourt;
+
+  /// No description provided for @scrambleKingImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported court from “{name}”.'**
+  String scrambleKingImportSuccess(String name);
+
+  /// No description provided for @scrambleKingImportedCourts.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported Courts'**
+  String get scrambleKingImportedCourts;
+
+  /// No description provided for @scrambleKingImportedUpcomingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For other courts, see the host device.'**
+  String get scrambleKingImportedUpcomingHint;
+
+  /// No description provided for @scrambleKingSetResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Court Result'**
+  String get scrambleKingSetResultTitle;
+
+  /// No description provided for @scrambleKingSetResultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter each team\'s points to complete this court without playing it.'**
+  String get scrambleKingSetResultDescription;
+
   /// No description provided for @scrambleKingManuallyEdited.
   ///
   /// In en, this message translates to:
@@ -5221,8 +5269,14 @@ abstract class AppLocalizations {
   /// No description provided for @scrambleKingCourtCompleteHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap here, or the ranking icon above, to view or edit results'**
+  /// **'Tap here to view or edit results'**
   String get scrambleKingCourtCompleteHint;
+
+  /// No description provided for @scrambleKingEditResults.
+  ///
+  /// In en, this message translates to:
+  /// **'View / edit results'**
+  String get scrambleKingEditResults;
 
   /// No description provided for @scrambleKingRoundTimer.
   ///
@@ -5511,6 +5565,101 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score saved.'**
   String get overviewScoreSaved;
+
+  /// No description provided for @rosterMenuTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Import / Export'**
+  String get rosterMenuTooltip;
+
+  /// No description provided for @rosterDownloadTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Download template'**
+  String get rosterDownloadTemplate;
+
+  /// No description provided for @rosterImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import players…'**
+  String get rosterImport;
+
+  /// No description provided for @rosterExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export players…'**
+  String get rosterExport;
+
+  /// No description provided for @rosterMenuInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get rosterMenuInfo;
+
+  /// No description provided for @rosterNothingToExport.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no players to export yet.'**
+  String get rosterNothingToExport;
+
+  /// No description provided for @rosterImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import roster'**
+  String get rosterImportTitle;
+
+  /// No description provided for @rosterImportInvalidFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read this file. Please choose a TournaQ Excel template or export (.xlsx).'**
+  String get rosterImportInvalidFile;
+
+  /// No description provided for @rosterImportNoChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'No changes were found in this file.'**
+  String get rosterImportNoChanges;
+
+  /// No description provided for @rosterImportSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{created} added · {updated} updated · {teamsCreated} new teams · {groupsCreated} new groups'**
+  String rosterImportSummary(
+    int created,
+    int updated,
+    int teamsCreated,
+    int groupsCreated,
+  );
+
+  /// No description provided for @rosterImportDeleteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 player will be permanently deleted:} other{{count} players will be permanently deleted:}}'**
+  String rosterImportDeleteWarning(int count);
+
+  /// No description provided for @rosterMirrorDisabledNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion is disabled for this file (not a full export from this device), so no one will be removed.'**
+  String get rosterMirrorDisabledNote;
+
+  /// No description provided for @rosterImportConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get rosterImportConfirm;
+
+  /// No description provided for @rosterImportConfirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete & import'**
+  String get rosterImportConfirmDelete;
+
+  /// No description provided for @rosterImportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{created} added, {updated} updated, {deleted} removed.'**
+  String rosterImportDone(int created, int updated, int deleted);
 }
 
 class _AppLocalizationsDelegate

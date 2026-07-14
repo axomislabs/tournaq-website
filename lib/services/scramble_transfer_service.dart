@@ -234,7 +234,7 @@ class ScrambleTransferService {
   static String _encode(String type, Map<String, dynamic> data) {
     final envelope = {'t': type, 'v': _version, 'd': data};
     final jsonBytes = utf8.encode(jsonEncode(envelope));
-    final gz = GZipEncoder().encodeBytes(jsonBytes);
+    final gz = GZipEncoder().encode(jsonBytes)!;
     return base64Url.encode(gz);
   }
 
