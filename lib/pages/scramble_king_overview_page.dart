@@ -59,6 +59,15 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
   StateSetter? _playersSheetSetState;
   StateSetter? _timelineSheetSetState;
   StateSetter? _teamsSheetSetState;
+  // Paired with the setters above: `.whenComplete()` nulls the setter once a
+  // sheet's route finishes closing, but that completion fires as a
+  // microtask — a live update (e.g. from a court page's onChanged callback)
+  // can land in the gap after the sheet's State is already disposed but
+  // before the field is cleared. BuildContext.mounted reflects disposal
+  // synchronously, so checking it closes that race.
+  BuildContext? _playersSheetContext;
+  BuildContext? _timelineSheetContext;
+  BuildContext? _teamsSheetContext;
 
   @override
   void initState() {
@@ -77,9 +86,15 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
     setState(() => _t = updated);
     ScrambleKingStorageService.save(updated);
     widget.onChanged(updated);
-    _playersSheetSetState?.call(() {});
-    _timelineSheetSetState?.call(() {});
-    _teamsSheetSetState?.call(() {});
+    if (_playersSheetContext?.mounted ?? false) {
+      _playersSheetSetState?.call(() {});
+    }
+    if (_timelineSheetContext?.mounted ?? false) {
+      _timelineSheetSetState?.call(() {});
+    }
+    if (_teamsSheetContext?.mounted ?? false) {
+      _teamsSheetSetState?.call(() {});
+    }
   }
 
   Future<void> _openCourt(ScrambleKingRound round, int courtNumber) async {
@@ -114,13 +129,39 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
         title: l10n.modeScrambleKingName,
         subtitle: _t.name,
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(
-              Icons.leaderboard_rounded,
+              Icons.qr_code_scanner_rounded,
               color: AppColors.goldLight,
             ),
-            tooltip: l10n.tooltipRankings,
-            onPressed: _openStats,
+            onSelected: (v) {
+              if (v == 'scan') _importResult();
+              if (v == 'rankings') _openStats();
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'scan',
+                child: Row(
+                  children: [
+                    const Icon(Icons.qr_code_scanner_rounded,
+                        size: 18, color: AppColors.olive),
+                    const SizedBox(width: 8),
+                    Text(l10n.scrambleImportResult),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'rankings',
+                child: Row(
+                  children: [
+                    const Icon(Icons.leaderboard_rounded,
+                        size: 18, color: AppColors.olive),
+                    const SizedBox(width: 8),
+                    Text(l10n.tooltipRankings),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -264,7 +305,9 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
         ),
         _infoPill(
           Icons.group_rounded,
-          l10n.scrambleKingPlayersPill(_t.playerCount),
+          l10n.scrambleKingPlayersPill(
+            _t.players.where((p) => p.isActive).length,
+          ),
           onTap: _showPlayersSheet,
         ),
         _infoPill(
@@ -379,6 +422,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) {
           _timelineSheetSetState = setSheet;
+          _timelineSheetContext = ctx;
           final l10n = AppLocalizations.of(context)!;
           return TournaQSheet(
             body: SingleChildScrollView(
@@ -424,13 +468,52 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  // Pace alerts toggle, surfaced directly here so it can be
+                  // flipped mid-tournament without digging into the edit sheet.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldCream,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: SwitchListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      value: _t.paceAlertsEnabled,
+                      onChanged: (v) {
+                        _update(_t.copyWith(paceAlertsEnabled: v));
+                        setSheet(() {});
+                      },
+                      activeThumbColor: AppColors.gold,
+                      title: Text(
+                        l10n.timelinePaceAlertsTitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        l10n.timelinePaceAlertsSubtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           );
         },
       ),
-    ).whenComplete(() => _timelineSheetSetState = null);
+    ).whenComplete(() {
+      _timelineSheetSetState = null;
+      _timelineSheetContext = null;
+    });
   }
 
   Widget _buildStartAndEndRow() {
@@ -646,7 +729,6 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
         (firstPending ?? _t.rounds.first).matchDuration.inMinutes;
     int breakMinutes =
         (firstPending ?? _t.rounds.first).breakDuration.inMinutes;
-    bool paceAlertsEnabled = _t.paceAlertsEnabled;
 
     showModalBottomSheet<void>(
       context: context,
@@ -684,9 +766,10 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                             startTime,
                             matchMinutes,
                             breakMinutes,
-                            paceAlertsEnabled,
+                            _t.paceAlertsEnabled,
                           );
                           Navigator.of(ctx).pop();
+                          _showSnack(l10n.overviewSettingsSaved);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.gold,
@@ -744,27 +827,6 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                     value: breakMinutes,
                     min: 0,
                     onChanged: (v) => setSheet(() => breakMinutes = v),
-                  ),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: paceAlertsEnabled,
-                    onChanged: (v) => setSheet(() => paceAlertsEnabled = v),
-                    activeThumbColor: AppColors.gold,
-                    title: Text(
-                      l10n.timelinePaceAlertsTitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      l10n.timelinePaceAlertsSubtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -826,6 +888,11 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
     var courts = _t.courtCount;
     var strike = _t.strikePoints;
     final minRounds = _minRoundCount();
+    // Shown inline rather than via ScaffoldMessenger: a SnackBar on the
+    // page's own Scaffold renders behind this modal sheet's barrier, so it
+    // was invisible — Save looked like it silently did nothing instead of
+    // explaining why it didn't close.
+    String? courtsError;
 
     showModalBottomSheet<void>(
       context: context,
@@ -868,12 +935,9 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                               activeCount,
                               courts,
                             ).isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
+                              setSheet(
+                                () => courtsError =
                                     l10n.scrambleKingInvalidCourtCount,
-                                  ),
-                                ),
                               );
                               return;
                             }
@@ -896,6 +960,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                           );
                           _update(updated);
                           Navigator.of(ctx).pop();
+                          _showSnack(l10n.overviewSettingsSaved);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.gold,
@@ -936,8 +1001,21 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                     value: courts,
                     min: 1,
                     max: 8,
-                    onChanged: (v) => setSheet(() => courts = v),
+                    onChanged: (v) => setSheet(() {
+                      courts = v;
+                      courtsError = null;
+                    }),
                   ),
+                  if (courtsError != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      courtsError!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   Text(
                     l10n.kotcSetupStrikeLabel,
@@ -1119,6 +1197,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                           }
                           _update(_t.copyWith(rounds: rounds));
                           Navigator.of(ctx).pop();
+                          _showSnack(l10n.overviewSettingsSaved);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.gold,
@@ -1318,6 +1397,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) {
           _playersSheetSetState = setSheet;
+          _playersSheetContext = ctx;
           final l10n = AppLocalizations.of(context)!;
           final isLive =
               _t.status != ScrambleKingTournamentStatus.completed &&
@@ -1335,7 +1415,9 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n.overviewSectionPlayers(_t.players.length),
+                    l10n.overviewSectionPlayers(
+                      _t.players.where((p) => p.isActive).length,
+                    ),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -1353,7 +1435,10 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
           );
         },
       ),
-    ).whenComplete(() => _playersSheetSetState = null);
+    ).whenComplete(() {
+      _playersSheetSetState = null;
+      _playersSheetContext = null;
+    });
   }
 
   Widget _buildAddPlayerButton(AppLocalizations l10n) {
@@ -1601,7 +1686,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
           name: p.name,
           status: p.status,
           statsLine: (s != null && p.isActive)
-              ? '${s.roundsPlayed}r · ${s.totalPoints}pts'
+              ? '${s.roundsPlayed}r · ${s.totalGamesWon}w · ${s.totalPoints}pts'
               : null,
           onEdit: () => _showEditPlayerSheet(p),
           onEject: isLive ? () => _confirmEject(p) : null,
@@ -1683,6 +1768,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
 
   String _courtContext(
     AppLocalizations l10n,
+    ScrambleKingRound round,
     ScrambleKingCourtFormation formation,
   ) {
     String nameFor(String id) => _t.getPlayer(id)?.name ?? '?';
@@ -1693,7 +1779,8 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
         formation.floaterSlot!.teamName ??
             nameFor(formation.floaterSlot!.playerId),
     ];
-    return '${l10n.scrambleKingCourtPageTitle(formation.courtNumber)} · ${teams.join(' · ')}';
+    return '${l10n.scrambleKingRoundLabel(round.roundNumber)} · '
+        '${l10n.scrambleKingCourtPageTitle(formation.courtNumber)} · ${teams.join(' · ')}';
   }
 
   void _exportCourt(
@@ -1709,15 +1796,12 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
     showQrExportSheet(
       context,
       title: l10n.scrambleKingExportCourt,
-      subtitle: _courtContext(l10n, formation),
+      subtitle: _courtContext(l10n, round, formation),
       data: data,
     );
   }
 
-  Future<void> _importResult(
-    ScrambleKingRound round,
-    ScrambleKingCourtFormation formation,
-  ) async {
+  Future<void> _importResult() async {
     final l10n = AppLocalizations.of(context)!;
     final raw = await Navigator.of(context).push<String>(
       MaterialPageRoute(
@@ -1737,8 +1821,16 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
       _showSnack(l10n.scrambleResultMismatch);
       return;
     }
-    if (res.roundId != round.id || res.courtNumber != formation.courtNumber) {
+    // Locate the round + court from the payload itself so this works both
+    // from a specific court's menu and from the tournament-level scan menu.
+    final round = _t.getRound(res.roundId);
+    final formation = round?.getCourt(res.courtNumber);
+    if (round == null || formation == null) {
       _showSnack(l10n.scrambleResultMismatch);
+      return;
+    }
+    if (formation.isCompleted) {
+      _showSnack(l10n.scrambleResultAlreadyRecorded);
       return;
     }
     _update(
@@ -1973,7 +2065,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
                   formation: court,
                   onTap: () => _openCourt(round, court.courtNumber),
                   onExport: () => _exportCourt(round, court),
-                  onImportResult: () => _importResult(round, court),
+                  onImportResult: () => _importResult(),
                   onManualScore: () => _showSetCourtResultDialog(round, court),
                 ),
             ],
@@ -2001,6 +2093,7 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) {
           _teamsSheetSetState = setSheet;
+          _teamsSheetContext = ctx;
           final l10n = AppLocalizations.of(context)!;
           return TournaQSheet(
             body: SingleChildScrollView(
@@ -2073,7 +2166,10 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
           );
         },
       ),
-    ).whenComplete(() => _teamsSheetSetState = null);
+    ).whenComplete(() {
+      _teamsSheetSetState = null;
+      _teamsSheetContext = null;
+    });
   }
 
   Widget _teamsFilterChip(String label, bool selected, VoidCallback onTap) =>
@@ -2310,65 +2406,65 @@ class _ScrambleKingOverviewPageState extends State<ScrambleKingOverviewPage> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Row(
-                children: [
-                  if (showActual) ...[
-                    Flexible(
-                      child: Text(
-                        actualStart != null
-                            ? '${_fmtTime(actualStart)} – ${_fmtTime(actualEnd)}'
-                            : _fmtTime(actualEnd),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black45,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      l10n.overviewActual,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black38,
-                      ),
-                    ),
-                  ] else ...[
-                    Flexible(
-                      child: Text(
-                        '${_fmtTime(round.scheduledStartTime)} – ${_fmtTime(round.scheduledMatchEndTime)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black45,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (round.breakDuration > Duration.zero) ...[
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          l10n.overviewBreakUntil(
-                            _fmtTime(round.scheduledBreakEndTime),
+              // Break-until sits on its own full-width line (not inline) so a
+              // pace chip never squeezes it into an ellipsis — matters most for
+              // longer localized strings (de/es).
+              child: showActual
+                  ? Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            actualStart != null
+                                ? '${_fmtTime(actualStart)} – ${_fmtTime(actualEnd)}'
+                                : _fmtTime(actualEnd),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.black45,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          l10n.overviewActual,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             color: Colors.black38,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${_fmtTime(round.scheduledStartTime)} – ${_fmtTime(round.scheduledMatchEndTime)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black45,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ],
-                ],
-              ),
+                        if (round.breakDuration > Duration.zero)
+                          Text(
+                            l10n.timelineBreakUntil(
+                              _fmtTime(round.scheduledBreakEndTime),
+                            ),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.black38,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
             ),
-            const SizedBox(width: 6),
-            Icon(statusIcon, size: 18, color: statusColor),
             if (paceLabel != null) ...[
               const SizedBox(width: 6),
               _paceChip(paceColor!, paceLabel),
             ],
+            const SizedBox(width: 6),
+            Icon(statusIcon, size: 18, color: statusColor),
             const SizedBox(width: 4),
             Icon(
               expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,

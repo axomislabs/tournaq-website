@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../l10n/app_localizations.dart';
 import '../models/scramble_tournament.dart';
 import '../utils/player_name_generator.dart';
 import '../utils/team_name_generator.dart';
@@ -593,6 +594,7 @@ class ScrambleService {
   // ── Validation & Suggestions ──────────────────────────────────────────────
 
   static List<ScrambleSuggestion> validate({
+    required AppLocalizations l10n,
     required int roundCount,
     required Duration matchDuration,
     required Duration breakDuration,
@@ -607,18 +609,18 @@ class ScrambleService {
     if (roundCount <= 0) {
       // Defensive only — the Rounds field is clamped to a minimum of 1 in
       // the UI, so this should be unreachable in practice.
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.tooFewRounds,
-        message: 'At least 1 round is needed to build a schedule.',
+        message: l10n.ssSugTooFewRounds,
         isBlocking: true,
       ));
       return suggestions;
     }
 
     if (roundDuration.inSeconds <= 0) {
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustMatchDuration,
-        message: 'Match and break duration must be greater than zero.',
+        message: l10n.ssSugZeroDuration,
       ));
       return suggestions;
     }
@@ -630,9 +632,7 @@ class ScrambleService {
     if (activeCourts == 0) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustPlayerCount,
-        message: 'At least $playersPerCourt players are needed for one '
-            '${playersPerTeam}v$playersPerTeam court. '
-            'Add more players or switch to a smaller format.',
+        message: l10n.ssSugMinPlayers(playersPerCourt, playersPerTeam),
       ));
       return suggestions;
     }
@@ -640,9 +640,7 @@ class ScrambleService {
     if (playerCount > _exhaustivePlayerLimit) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.largeGroup,
-        message: 'With $playerCount players the mixing becomes statistical — '
-            'everyone-against-everyone is no longer guaranteed, but equal '
-            'play time still is. This works well for large events.',
+        message: l10n.ssSugLargeGroup(playerCount),
       ));
     }
 
@@ -669,17 +667,14 @@ class ScrambleService {
 
       if (roundCount > t.maxNoRepeatRounds) {
         final coverageNote = t.maxNoRepeatRounds < t.coverageTargetRounds
-            ? ' Full coverage (everyone partners with everyone) would take '
-                '${t.coverageTargetRounds} rounds, but then some players '
-                'would repeat partners.'
+            ? l10n.ssSugCoverageNote(t.coverageTargetRounds)
             : '';
         suggestions.add(ScrambleSuggestion(
           type: ScrambleSuggestionType.capRoundsForFreshPartners,
-          message: 'With $roundCount rounds, some partnerships will repeat. '
-              'Up to ${t.maxNoRepeatRounds} rounds keeps every partnership '
-              'unique.$coverageNote',
+          message: l10n.ssSugRepeatPartners(roundCount, t.maxNoRepeatRounds) +
+              coverageNote,
           actionLabel: t.maxNoRepeatRounds > 0
-              ? 'Cap at ${t.maxNoRepeatRounds} rounds'
+              ? l10n.ssSugCapAction(t.maxNoRepeatRounds)
               : null,
           suggestedRoundCount:
               t.maxNoRepeatRounds > 0 ? t.maxNoRepeatRounds : null,
@@ -687,11 +682,8 @@ class ScrambleService {
       } else if (t.maxNoRepeatRounds < t.coverageTargetRounds) {
         suggestions.add(ScrambleSuggestion(
           type: ScrambleSuggestionType.capRoundsForFreshPartners,
-          message: 'This setup keeps every partnership unique for all '
-              '$roundCount rounds. Full coverage (everyone partners with '
-              'everyone) isn\'t possible without repeats for this '
-              'player/court combination — it would need '
-              '${t.coverageTargetRounds} rounds.',
+          message: l10n.ssSugAllUniqueNoCoverage(
+              roundCount, t.coverageTargetRounds),
         ));
       }
     }
@@ -699,9 +691,8 @@ class ScrambleService {
     if (activeCourts < courtCount) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustCourtCount,
-        message: 'Only $activeCourts of $courtCount courts can be filled '
-            'with $playerCount players in ${playersPerTeam}v$playersPerTeam. '
-            'Reduce courts to $activeCourts or add more players.',
+        message: l10n.ssSugCourtsUnfilled(
+            activeCourts, courtCount, playerCount, playersPerTeam),
       ));
     }
 
@@ -711,20 +702,17 @@ class ScrambleService {
     if (sittingOut < activeCourts) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.noRefereeAvailable,
-        message: 'With $playerCount players filling $activeCourts court'
-            '${activeCourts == 1 ? '' : 's'} in ${playersPerTeam}v$playersPerTeam, '
-            'only $sittingOut player${sittingOut == 1 ? '' : 's'} sit out each round — '
-            '${activeCourts - sittingOut} court${activeCourts - sittingOut == 1 ? '' : 's'} '
-            'won\'t have a dedicated referee and will need scores entered manually.',
+        message: l10n.ssSugNoReferee(
+            playerCount, activeCourts, playersPerTeam, sittingOut,
+            activeCourts - sittingOut),
       ));
     }
 
     if (breakDuration.inMinutes > matchDuration.inMinutes) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.reduceBreakDuration,
-        message: 'Break duration (${_fmtDuration(breakDuration)}) is longer '
-            'than match duration (${_fmtDuration(matchDuration)}). '
-            'Consider reducing breaks to allow more rounds.',
+        message: l10n.ssSugBreakTooLong(
+            _fmtDuration(breakDuration), _fmtDuration(matchDuration)),
       ));
     }
 

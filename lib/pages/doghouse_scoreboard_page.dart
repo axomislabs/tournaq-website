@@ -1605,18 +1605,25 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                 onTick: (_) => setState(() {}),
                 onFinished: _onSessionFinished,
               ),
-              const SizedBox(width: 8),
-              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+              const SizedBox(width: 4),
+              // Pause/Resume are mutually exclusive (mirrors Scramble King's
+              // single-line timer row) — showing both at once is what
+              // overflowed this row at narrower landscape widths.
+              if (timerRunning)
+                _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer)
+              else if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
                 _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
                     resumeTimer, primary: true),
-              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer),
-              const SizedBox(width: 4),
-              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
+              const SizedBox(width: 2),
+              // Shorter label than the portrait Wrap's "Start / Restart" —
+              // this Row has no wrap fallback, so the combined label was
+              // part of what overflowed narrower landscape widths.
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.btnRestart,
                   _startOrRestart),
-              const SizedBox(width: 4),
+              const SizedBox(width: 2),
               _refTextBtn('+30s',
                   () => addSessionTime(const Duration(seconds: 30))),
-              const SizedBox(width: 4),
+              const SizedBox(width: 2),
               _refTextBtn('−30s',
                   () => addSessionTime(const Duration(seconds: -30))),
               const Spacer(),
@@ -1883,7 +1890,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
       context: context,
       title: l10n.kotcChangeAdmin,
       subtitle: l10n.kotcChangeAdminSubtitle,
-      pool: _pool.map((p) => (id: p.id, name: p.name)).toList(),
+      // Excludes the current Challenger team too — `_pool` on its own only
+      // excludes the on-court team, but a Challenger is just as actively
+      // committed to playing next and must never double as admin.
+      pool: _pool
+          .where((p) => !_challengerTeam.any((c) => c.id == p.id))
+          .map((p) => (id: p.id, name: p.name))
+          .toList(),
       currentAdminId: _adminPlayerId,
       onSetAdmin: (id) {
         setState(() => _adminPlayerId = id);
@@ -1948,11 +1961,18 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
             runSpacing: 6,
             alignment: WrapAlignment.center,
             children: [
-              if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
+              // Pause/Resume are mutually exclusive — showing both at once
+              // (the pre-fix landscape behavior) is redundant since only one
+              // is ever a valid action at a time.
+              if (timerRunning)
+                _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer)
+              else if (_sessionTimerKey.currentState?.timerState == ScrambleTimerState.paused)
                 _refBtn(Icons.play_arrow_rounded, AppLocalizations.of(context)!.btnResume,
                     resumeTimer, primary: true),
-              _refBtn(Icons.pause_rounded, AppLocalizations.of(context)!.btnStop, pauseTimer),
-              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.doghouseStartRestart,
+              // Short label (matches the landscape row) — the combined
+              // "Start / Restart" wording is long enough on its own to push
+              // the fourth button (−30s) onto its own line even here.
+              _refBtn(Icons.replay_rounded, AppLocalizations.of(context)!.btnRestart,
                   _startOrRestart),
               _refTextBtn('+30s',
                   () => addSessionTime(const Duration(seconds: 30))),
@@ -2026,18 +2046,37 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
         side: BorderSide(color: _kGold.withValues(alpha: 0.35)),
       ),
       child: Padding(
-        padding: EdgeInsets.all(compact ? 10 : 14),
-        child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        padding: EdgeInsets.all(compact ? 6 : 14),
+        // Same rationale as the selection/suggestion tiles: this Column has
+        // no Expanded/flexible child, so at squeezed heights (Up Next and
+        // Challengers each get roughly half of what the active scoring tile
+        // gets, stacked in the same column) it scrolls instead of relying on
+        // a fixed height budget.
+        child: compact
+            ? SingleChildScrollView(
+                child: _upNextTileContent(team, hasTeam, canReroll, compact))
+            : _upNextTileContent(team, hasTeam, canReroll, compact),
+      ),
+    );
+  }
+
+  Widget _upNextTileContent(
+    List<DoghousePlayer> team,
+    bool hasTeam,
+    bool canReroll,
+    bool compact,
+  ) {
+    return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
               Icon(Icons.schedule_rounded,
-                  size: 15, color: _kGold.withValues(alpha: 0.7)),
+                  size: compact ? 13 : 15, color: _kGold.withValues(alpha: 0.7)),
               const SizedBox(width: 6),
               Text(AppLocalizations.of(context)!.kotcUpNext,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: compact ? 11 : 12,
                     fontWeight: FontWeight.w700,
                     color: _kGold.withValues(alpha: 0.7),
                     letterSpacing: 0.4,
@@ -2058,7 +2097,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                 ),
               ),
             ]),
-            const SizedBox(height: 8),
+            SizedBox(height: compact ? 2 : 8),
             if (!hasTeam)
               Text(AppLocalizations.of(context)!.doghouseNotEnoughInQueue,
                   style: TextStyle(
@@ -2086,9 +2125,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                     .toList(),
               ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   // ── Challengers tile ────────────────────────────────────────────────────────
@@ -2105,23 +2142,34 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
         side: BorderSide(color: _kGold.withValues(alpha: 0.55), width: 1.5),
       ),
       child: Padding(
-        padding: EdgeInsets.all(compact ? 10 : 14),
-        child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        padding: EdgeInsets.all(compact ? 6 : 14),
+        // Same rationale as _upNextTileContent.
+        child: compact
+            ? SingleChildScrollView(
+                child: _challengersTileContent(hasChallengers, compact))
+            : _challengersTileContent(hasChallengers, compact),
+      ),
+    );
+  }
+
+  Widget _challengersTileContent(bool hasChallengers, bool compact) {
+    return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
-              const Icon(Icons.groups_rounded, size: 15, color: _kGold),
+              Icon(Icons.groups_rounded,
+                  size: compact ? 13 : 15, color: _kGold),
               const SizedBox(width: 6),
               Text(AppLocalizations.of(context)!.kotcChallengers,
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: compact ? 11 : 12,
                     fontWeight: FontWeight.w700,
                     color: _kGold,
                     letterSpacing: 0.4,
                   )),
             ]),
-            const SizedBox(height: 8),
+            SizedBox(height: compact ? 2 : 8),
             if (!hasChallengers)
               Text(AppLocalizations.of(context)!.kotcWaitingForPlayers,
                   style: TextStyle(
@@ -2149,9 +2197,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                     .toList(),
               ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   // ── Initial suggested-team tile (shown before any team is in the doghouse) ──
@@ -2174,8 +2220,23 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
       ),
       child: Padding(
         padding: EdgeInsets.all(compact ? 10 : 16),
-        child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        // Compact/landscape heights can be shorter than this tile's content,
+        // so it scrolls instead of relying on a fixed height budget (mirrors
+        // King of the Court's identical fix).
+        child: compact
+            ? SingleChildScrollView(
+                child: _automatedSuggestionTileContent(
+                    suggested, canStart, canReroll, compact))
+            : _automatedSuggestionTileContent(
+                suggested, canStart, canReroll, compact),
+      ),
+    );
+  }
+
+  Widget _automatedSuggestionTileContent(List<DoghousePlayer> suggested,
+      bool canStart, bool canReroll, bool compact) {
+    return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
@@ -2235,8 +2296,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
               ),
             ],
 
-            if (compact) const Spacer(),
-            SizedBox(height: compact ? 0 : 14),
+            SizedBox(height: compact ? 10 : 14),
             ElevatedButton.icon(
               onPressed: canStart ? _confirmSuggestedTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
@@ -2252,17 +2312,13 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
               ),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildSelectionTile({bool compact = false}) {
     if (_isAutoMode) {
       return _buildAutomatedSuggestionTile(compact: compact);
     }
-    final needed   = _t.playersPerTeam;
-    final selected = _pendingSelection.length;
     final canStart = _canStart;
 
     return Card(
@@ -2278,8 +2334,22 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
       ),
       child: Padding(
         padding: EdgeInsets.all(compact ? 10 : 16),
-        child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+        // Compact/landscape heights can be shorter than this tile's content,
+        // so it scrolls instead of relying on a fixed height budget (mirrors
+        // King of the Court's identical fix).
+        child: compact
+            ? SingleChildScrollView(child: _selectionTileContent(compact))
+            : _selectionTileContent(compact),
+      ),
+    );
+  }
+
+  Widget _selectionTileContent(bool compact) {
+    final needed   = _t.playersPerTeam;
+    final selected = _pendingSelection.length;
+    final canStart = _canStart;
+    return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(children: [
@@ -2377,8 +2447,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
               ),
             ],
 
-            if (compact) const Spacer(),
-            SizedBox(height: compact ? 0 : 14),
+            SizedBox(height: compact ? 10 : 14),
             ElevatedButton.icon(
               onPressed: canStart ? _confirmTeam : null,
               icon: const Icon(Icons.play_arrow_rounded),
@@ -2395,9 +2464,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
               ),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildActiveScoringTile({bool compact = false}) {
@@ -2421,7 +2488,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
       ),
       child: Padding(
         padding: compact
-            ? const EdgeInsets.fromLTRB(12, 10, 12, 8)
+            ? const EdgeInsets.fromLTRB(12, 8, 12, 6)
             : const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
           mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
@@ -2429,17 +2496,18 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
             // "In Doghouse" label — only shown in three-slot automated layout
             if (_isAutoMode) ...[
               Row(children: [
-                const Icon(Icons.pets_rounded, size: 13, color: _kGold),
+                Icon(Icons.pets_rounded,
+                    size: compact ? 11 : 13, color: _kGold),
                 const SizedBox(width: 5),
                 Text(AppLocalizations.of(context)!.doghouseInDoghouseLabel,
-                    style: const TextStyle(
-                      fontSize: 11,
+                    style: TextStyle(
+                      fontSize: compact ? 10 : 11,
                       fontWeight: FontWeight.w700,
                       color: _kGold,
                       letterSpacing: 0.4,
                     )),
               ]),
-              const SizedBox(height: 6),
+              SizedBox(height: compact ? 3 : 6),
             ],
             // Player chips
             Wrap(
@@ -2453,7 +2521,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                             : null,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+                              horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: _kGold.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
@@ -2465,14 +2533,14 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(p.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: _kGoldDark,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 13)),
+                                      fontSize: compact ? 11 : 13)),
                               if (_pool.isNotEmpty) ...[
                                 const SizedBox(width: 4),
                                 Icon(Icons.swap_horiz_rounded,
-                                    size: 11,
+                                    size: compact ? 10 : 11,
                                     color: _kGold.withValues(
                                         alpha: 0.6)),
                               ],
@@ -2482,7 +2550,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                       ))
                   .toList(),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: compact ? 2 : 8),
 
             // Game time + escape + games lost indicators
             Row(children: [
@@ -2558,25 +2626,65 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
               ),
             ]),
 
-            // Big side-out score — fills available height in compact/landscape.
+            // Big side-out score. In compact/landscape mode the counter
+            // sits between the +/- buttons in one Row (instead of stacked
+            // above a separate button row) so it shares the buttons'
+            // guaranteed height — on short Android screens a number
+            // squeezed into its own slot above the buttons could shrink to
+            // near-invisible; between the buttons it always gets a real,
+            // visible size. Mirrors King of the Court's identical fix.
             if (compact)
               Expanded(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Text(
-                      '$_currentSideOuts',
-                      style: const TextStyle(
-                        fontSize: 200.0,
-                        fontWeight: FontWeight.bold,
-                        height: 1.0,
-                        color: Colors.black87,
+                child: Row(
+                  children: [
+                    IconButton.filled(
+                      icon: const Icon(Icons.remove),
+                      tooltip: '−1 side-out',
+                      onPressed: (timerRunning && _currentSideOuts > 0)
+                          ? _removeSideOut
+                          : null,
+                      style: IconButton.styleFrom(
+                        backgroundColor: (timerRunning && _currentSideOuts > 0)
+                            ? _kGold
+                            : Colors.grey.shade300,
+                        foregroundColor: (timerRunning && _currentSideOuts > 0)
+                            ? Colors.white
+                            : Colors.grey,
+                        fixedSize: const Size(40, 40),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Text(
+                            '$_currentSideOuts',
+                            style: const TextStyle(
+                              fontSize: 200.0,
+                              fontWeight: FontWeight.bold,
+                              height: 1.0,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton.filled(
+                      icon: const Icon(Icons.add),
+                      tooltip: '+1 side-out',
+                      onPressed: timerRunning ? _addSideOut : null,
+                      style: IconButton.styleFrom(
+                        backgroundColor:
+                            timerRunning ? _kGold : Colors.grey.shade300,
+                        foregroundColor:
+                            timerRunning ? Colors.white : Colors.grey,
+                        fixedSize: const Size(46, 46),
+                      ),
+                    ),
+                  ],
                 ),
               )
-            else
+            else ...[
               Text(
                 '$_currentSideOuts',
                 style: const TextStyle(
@@ -2586,47 +2694,41 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                   color: Colors.black87,
                 ),
               ),
-
-            // +/- buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton.filled(
-                  icon: const Icon(Icons.remove),
-                  tooltip: '−1 side-out',
-                  onPressed:
-                      (timerRunning && _currentSideOuts > 0)
-                          ? _removeSideOut
-                          : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor:
-                        (timerRunning && _currentSideOuts > 0)
-                            ? _kGold
-                            : Colors.grey.shade300,
-                    foregroundColor:
-                        (timerRunning && _currentSideOuts > 0)
-                            ? Colors.white
-                            : Colors.grey,
-                    fixedSize: const Size(52, 52),
+              // +/- buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton.filled(
+                    icon: const Icon(Icons.remove),
+                    tooltip: '−1 side-out',
+                    onPressed: (timerRunning && _currentSideOuts > 0)
+                        ? _removeSideOut
+                        : null,
+                    style: IconButton.styleFrom(
+                      backgroundColor: (timerRunning && _currentSideOuts > 0)
+                          ? _kGold
+                          : Colors.grey.shade300,
+                      foregroundColor: (timerRunning && _currentSideOuts > 0)
+                          ? Colors.white
+                          : Colors.grey,
+                      fixedSize: const Size(52, 52),
+                    ),
                   ),
-                ),
-                IconButton.filled(
-                  icon: const Icon(Icons.add),
-                  tooltip: '+1 side-out',
-                  onPressed:
-                      timerRunning ? _addSideOut : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor: timerRunning
-                        ? _kGold
-                        : Colors.grey.shade300,
-                    foregroundColor: timerRunning
-                        ? Colors.white
-                        : Colors.grey,
-                    fixedSize: const Size(64, 64),
+                  IconButton.filled(
+                    icon: const Icon(Icons.add),
+                    tooltip: '+1 side-out',
+                    onPressed: timerRunning ? _addSideOut : null,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          timerRunning ? _kGold : Colors.grey.shade300,
+                      foregroundColor:
+                          timerRunning ? Colors.white : Colors.grey,
+                      fixedSize: const Size(64, 64),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -2842,7 +2944,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
                       : Colors.grey.shade200),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8)),
-          minimumSize: Size.zero,
+          minimumSize: const Size(0, 30),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       );
@@ -2857,7 +2959,7 @@ class _DoghouseScoreboardState extends State<DoghouseScoreboardPage>
           side: BorderSide(color: Colors.grey.shade300),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8)),
-          minimumSize: Size.zero,
+          minimumSize: const Size(0, 30),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
         child:

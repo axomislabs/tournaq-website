@@ -5,7 +5,7 @@ import '../app/app_links.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/clickable_card.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 
@@ -67,10 +67,6 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      drawer: AppDrawer(
-        appState: widget.appState,
-        onAppStateChanged: widget.onAppStateChanged,
-      ),
       appBar: TournaQAppBar(title: l10n.navContact),
       body: ScrollablePage(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
@@ -211,32 +207,14 @@ class _ContactPageState extends State<ContactPage> {
     required VoidCallback onTap,
     IconData trailing = Icons.open_in_new_rounded,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 1.5,
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        leading: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: iconBg,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(fontSize: 12, color: Colors.black54),
-        ),
-        trailing: Icon(trailing, size: 18, color: Colors.black38),
-        onTap: onTap,
-      ),
+    return ClickableCard(
+      icon: icon,
+      iconBg: iconBg,
+      iconColor: iconColor,
+      title: title,
+      subtitle: subtitle,
+      onTap: onTap,
+      trailing: trailing,
     );
   }
 

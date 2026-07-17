@@ -21,13 +21,20 @@ class KoBracketAdapter {
   int _pendingScore1 = 0;
   int _pendingScore2 = 0;
 
+  /// When false, persistence flows only through [_onChanged] and nothing is
+  /// written to [KoBracketStorageService]. Used when scoring an imported
+  /// mini-tournament so a referee's copy never pollutes the main KO store.
+  final bool _saveToStore;
+
   KoBracketAdapter({
     required KoBracketTournament tournament,
     required String matchId,
     required void Function(KoBracketTournament) onChanged,
+    bool saveToStore = true,
   })  : _tournament = tournament,
         _matchId = matchId,
-        _onChanged = onChanged {
+        _onChanged = onChanged,
+        _saveToStore = saveToStore {
     _match = tournament.matches.firstWhere((m) => m.id == matchId);
     _fmt = tournament.formatForRound(_match.round);
     _activeSetIndex = _match.sets.length;
@@ -61,6 +68,11 @@ class KoBracketAdapter {
     if (_activeSetIndex < _match.sets.length) {
       return _match.sets[_activeSetIndex].score1;
     }
+    // A completed match parks the view on the empty pending set — surface the
+    // deciding set's score on the locked cards instead of a confusing 0.
+    if (isMatchComplete && _match.sets.isNotEmpty) {
+      return _match.sets.last.score1;
+    }
     return _pendingScore1;
   }
 
@@ -68,6 +80,9 @@ class KoBracketAdapter {
   int get currentScore2 {
     if (_activeSetIndex < _match.sets.length) {
       return _match.sets[_activeSetIndex].score2;
+    }
+    if (isMatchComplete && _match.sets.isNotEmpty) {
+      return _match.sets.last.score2;
     }
     return _pendingScore2;
   }
@@ -179,12 +194,17 @@ class KoBracketAdapter {
   /// Saves live scores to storage only — does NOT call [_onChanged] (safe to
   /// call from dispose() where setState is forbidden).
   void flushLiveScoreToStorage(int score1, int score2) {
-    if (isCurrentSetCompleted || (score1 == 0 && score2 == 0)) return;
+    // Never persist live scores for a completed match — currentScore now
+    // reports the deciding set's score there, which must not leak back as a
+    // pending live score.
+    if (isMatchComplete || isCurrentSetCompleted || (score1 == 0 && score2 == 0)) {
+      return;
+    }
     _pendingScore1 = score1;
     _pendingScore2 = score2;
     final updatedMatch = _match.copyWith(liveScore1: score1, liveScore2: score2);
     final updated = _tournament.updateMatch(updatedMatch);
-    KoBracketStorageService.save(updated);
+    if (_saveToStore) KoBracketStorageService.save(updated);
     _tournament = updated;
     _match = updated.matches.firstWhere((m) => m.id == _matchId);
     _fmt = updated.formatForRound(_match.round);
@@ -196,10 +216,42 @@ class KoBracketAdapter {
     _persistMatch(mutate(_match));
   }
 
+  /// Overwrites the match with a manually-entered [sets] list and completes it,
+  /// propagating the (possibly changed) winner into the next round. Used by the
+  /// scorecard's "Edit score manually" flow — works whether the match was still
+  /// unplayed or already complete (in which case it overrides the prior result).
+  void applyManualResult(List<KoSet> sets) {
+    final t1 = sets.where((s) => s.isCompleted && s.score1 > s.score2).length;
+    final t2 = sets.where((s) => s.isCompleted && s.score2 > s.score1).length;
+    final winnerId = t1 > t2 ? _match.team1Id : _match.team2Id;
+    _pendingScore1 = 0;
+    _pendingScore2 = 0;
+    _activeSetIndex = sets.length;
+    _persistMatch(
+      _match.copyWith(
+        sets: sets,
+        winnerId: winnerId,
+        status: KoMatchStatus.completed,
+        startedAt: _match.startedAt ?? DateTime.now(),
+        completedAt: DateTime.now(),
+        clearLiveScores: true,
+      ),
+      propagateWinner: true,
+    );
+  }
+
   // ── Internal ──────────────────────────────────────────────────────────────
 
-  void _persistMatch(KoMatch updatedMatch, {bool propagateWinner = false}) {
-    var updated = _tournament.updateMatch(updatedMatch);
+  /// Applies [updatedMatch] to [tournament], propagating the winner into the
+  /// next round when [propagateWinner] is set, and recomputes the tournament
+  /// status. Pure — no storage or callback side effects, so it is safe to reuse
+  /// from the bracket page (manual score entry, QR result import) as well.
+  static KoBracketTournament applyMatchResult(
+    KoBracketTournament tournament,
+    KoMatch updatedMatch, {
+    bool propagateWinner = false,
+  }) {
+    var updated = tournament.updateMatch(updatedMatch);
 
     if (propagateWinner && updatedMatch.winnerId != null && updatedMatch.isComplete) {
       final propagated = updatedMatch.round == 0
@@ -215,8 +267,13 @@ class KoBracketAdapter {
     } else if (updated.status == KoBracketStatus.completed && !updated.allMatchesComplete) {
       updated = updated.copyWith(status: KoBracketStatus.inProgress);
     }
+    return updated;
+  }
 
-    KoBracketStorageService.save(updated);
+  void _persistMatch(KoMatch updatedMatch, {bool propagateWinner = false}) {
+    final updated =
+        applyMatchResult(_tournament, updatedMatch, propagateWinner: propagateWinner);
+    if (_saveToStore) KoBracketStorageService.save(updated);
     _tournament = updated;
     _match = updated.matches.firstWhere((m) => m.id == _matchId);
     _fmt = updated.formatForRound(_match.round);

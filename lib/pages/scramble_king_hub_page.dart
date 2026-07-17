@@ -35,6 +35,8 @@ class ScrambleKingHubPage extends StatefulWidget {
 class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
   List<ScrambleKingTournament> _tournaments = [];
   List<ImportedScrambleKingCourt> _imported = [];
+  final TextEditingController _importFilter = TextEditingController();
+  bool _showImportedTab = false;
 
   @override
   void initState() {
@@ -51,6 +53,20 @@ class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
     setState(
       () => _imported = ImportedScrambleKingCourtStorageService.loadAll(),
     );
+  }
+
+  @override
+  void dispose() {
+    _importFilter.dispose();
+    super.dispose();
+  }
+
+  List<ImportedScrambleKingCourt> get _filteredImported {
+    final q = _importFilter.text.trim().toLowerCase();
+    if (q.isEmpty) return _imported;
+    return _imported
+        .where((s) => s.tournamentName.toLowerCase().contains(q))
+        .toList();
   }
 
   // ── Import / scan ──────────────────────────────────────────────────────────
@@ -73,6 +89,7 @@ class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
     }
     await ImportedScrambleKingCourtStorageService.save(imported);
     _loadImported();
+    setState(() => _showImportedTab = true);
     _showSnack(l10n.scrambleKingImportSuccess(imported.tournamentName));
   }
 
@@ -107,6 +124,42 @@ class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
   Future<void> _deleteOneImported(ImportedScrambleKingCourt imp) async {
     await ImportedScrambleKingCourtStorageService.delete(imp.id);
     setState(() => _imported.removeWhere((s) => s.id == imp.id));
+  }
+
+  Future<void> _deleteAllImported() async {
+    if (_imported.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.scrambleImportedDeleteAllTitle,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          l10n.scrambleImportedDeleteAllBody(_imported.length),
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(l10n.btnDeleteAll),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      for (final s in _imported) {
+        await ImportedScrambleKingCourtStorageService.delete(s.id);
+      }
+      setState(() => _imported.clear());
+    }
   }
 
   void _showSnack(String msg) {
@@ -246,6 +299,7 @@ class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final showImported = _showImportedTab && _imported.isNotEmpty;
     return Scaffold(
       appBar: TournaQAppBar(
         title: l10n.modeScrambleKingName,
@@ -270,149 +324,271 @@ class _ScrambleKingHubPageState extends State<ScrambleKingHubPage> {
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            ..._buildImportedSlivers(l10n),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.history_rounded,
-                      size: 20,
-                      color: AppColors.oliveMedium,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.doghouseTournamentHistory(_tournaments.length),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    if (_tournaments.isNotEmpty)
-                      TextButton.icon(
-                        onPressed: _deleteAll,
-                        icon: const Icon(Icons.delete_outline, size: 16),
-                        label: Text(
-                          l10n.btnDeleteAll,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red.shade400,
-                        ),
-                      ),
-                  ],
+            // History | Imported toggle (only when there's something imported).
+            if (_imported.isNotEmpty) ...[
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _buildTabToggle(l10n),
                 ),
               ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 8)),
-            if (_tournaments.isEmpty)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.military_tech_rounded,
-                        size: 48,
-                        color: Colors.grey.shade300,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.doghouseNoTournamentsYet,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.black45,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.doghouseNoTournamentsHint,
-                        style: const TextStyle(
-                          color: Colors.black38,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            ],
+            if (showImported)
+              ..._buildImportedSlivers(l10n)
             else
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((_, i) {
-                    final t = _tournaments[i];
-                    return TournamentHistoryCard(
-                      name: t.name,
-                      typeLabel: l10n.modeScrambleKingName,
-                      typeColor: AppColors.gold,
-                      typeIcon: Icons.military_tech_rounded,
-                      dateLabel: _dateLabel(l10n, t),
-                      statusLabel: _statusLabel(l10n, t),
-                      isActive:
-                          t.status != ScrambleKingTournamentStatus.completed,
-                      stats: [
-                        l10n.doghouseStatsPlayers(t.playerCount),
-                        l10n.scrambleKingStatsRounds(
-                          t.completedRounds,
-                          t.roundCount,
-                        ),
-                      ],
-                      onTap: () => _openOverview(t),
-                      onDeleteTap: () => _deleteOne(t),
-                    );
-                  }, childCount: _tournaments.length),
-                ),
-              ),
+              ..._buildHistorySlivers(l10n),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildImportedSlivers(AppLocalizations l10n) {
-    if (_imported.isEmpty) return const [];
+  /// Compact two-segment switcher so imported courts stay one tap away
+  /// instead of sinking below a long tournament history list.
+  Widget _buildTabToggle(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _tabPill(
+              label: '${l10n.scrambleTabHistory} (${_tournaments.length})',
+              selected: !_showImportedTab,
+              onTap: () => setState(() => _showImportedTab = false),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: _tabPill(
+              label: '${l10n.scrambleTabImported} (${_imported.length})',
+              selected: _showImportedTab,
+              onTap: () => setState(() => _showImportedTab = true),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabPill({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: selected ? AppColors.gold : Colors.black45,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Tournament history slivers ──────────────────────────────────────────
+
+  List<Widget> _buildHistorySlivers(AppLocalizations l10n) {
     return [
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
               const Icon(
-                Icons.qr_code_rounded,
+                Icons.history_rounded,
                 size: 20,
                 color: AppColors.oliveMedium,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  l10n.scrambleKingImportedCourts,
+                  l10n.doghouseTournamentHistory(_tournaments.length),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
+              if (_tournaments.isNotEmpty)
+                TextButton.icon(
+                  onPressed: _deleteAll,
+                  icon: const Icon(Icons.delete_outline, size: 16),
+                  label: Text(
+                    l10n.btnDeleteAll,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red.shade400,
+                  ),
+                ),
             ],
           ),
         ),
       ),
-      const SliverToBoxAdapter(child: SizedBox(height: 4)),
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (_, i) => _importedCard(l10n, _imported[i]),
-            childCount: _imported.length,
+      const SliverToBoxAdapter(child: SizedBox(height: 8)),
+      if (_tournaments.isEmpty)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.military_tech_rounded,
+                  size: 48,
+                  color: Colors.grey.shade300,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.doghouseNoTournamentsYet,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.black45,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.doghouseNoTournamentsHint,
+                  style: const TextStyle(color: Colors.black38, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        )
+      else
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((_, i) {
+              final t = _tournaments[i];
+              return TournamentHistoryCard(
+                name: t.name,
+                typeLabel: l10n.modeScrambleKingName,
+                typeColor: AppColors.gold,
+                typeIcon: Icons.military_tech_rounded,
+                dateLabel: _dateLabel(l10n, t),
+                statusLabel: _statusLabel(l10n, t),
+                isActive: t.status != ScrambleKingTournamentStatus.completed,
+                stats: [
+                  l10n.doghouseStatsPlayers(t.playerCount),
+                  l10n.scrambleKingStatsRounds(
+                    t.completedRounds,
+                    t.roundCount,
+                  ),
+                ],
+                onTap: () => _openOverview(t),
+                onDeleteTap: () => _deleteOne(t),
+              );
+            }, childCount: _tournaments.length),
+          ),
+        ),
+    ];
+  }
+
+  // ── Imported courts slivers ─────────────────────────────────────────────
+
+  List<Widget> _buildImportedSlivers(AppLocalizations l10n) {
+    final filtered = _filteredImported;
+    return [
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _importFilter,
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: l10n.scrambleImportedFilterHint,
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: Colors.black38,
+                    ),
+                    suffixIcon: _importFilter.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded, size: 18),
+                            onPressed: () =>
+                                setState(() => _importFilter.clear()),
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              TextButton.icon(
+                onPressed: _deleteAllImported,
+                icon: const Icon(Icons.delete_outline, size: 16),
+                label: Text(
+                  l10n.btnDeleteAll,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red.shade400,
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      const SliverToBoxAdapter(child: SizedBox(height: 12)),
+      if (filtered.isEmpty)
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: Text(
+              l10n.scrambleImportedEmpty,
+              style: const TextStyle(color: Colors.black38, fontSize: 13),
+            ),
+          ),
+        )
+      else
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, i) => _importedCard(l10n, filtered[i]),
+              childCount: filtered.length,
+            ),
+          ),
+        ),
     ];
   }
 

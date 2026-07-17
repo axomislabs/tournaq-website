@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:tournaq/l10n/app_localizations_en.dart';
 import 'package:tournaq/models/player_status.dart';
 import 'package:tournaq/models/scramble_tournament.dart';
 import 'package:tournaq/services/scramble_service.dart';
@@ -188,6 +189,7 @@ void main() {
       int playersPerTeam = 2,
     }) {
       return ScrambleService.validate(
+        l10n: AppLocalizationsEn(),
         roundCount: rounds,
         matchDuration: const Duration(minutes: 1),
         breakDuration: Duration.zero,
@@ -351,6 +353,7 @@ void main() {
       int playersPerTeam = 2,
     }) {
       return ScrambleService.validate(
+        l10n: AppLocalizationsEn(),
         roundCount: 5,
         matchDuration: const Duration(minutes: 1),
         breakDuration: Duration.zero,

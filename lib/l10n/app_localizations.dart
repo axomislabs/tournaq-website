@@ -166,6 +166,12 @@ abstract class AppLocalizations {
   /// **'Contact & About'**
   String get navContact;
 
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
   /// No description provided for @pageGames.
   ///
   /// In en, this message translates to:
@@ -189,6 +195,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TournaQ Arena'**
   String get pageTournaments;
+
+  /// No description provided for @pageTournamentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet and compete for the court'**
+  String get pageTournamentsSubtitle;
 
   /// No description provided for @pageClubs.
   ///
@@ -783,6 +795,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage players, teams & groups'**
   String get landingAdminSubtitle;
+
+  /// No description provided for @landingMoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsoring, contact & settings'**
+  String get landingMoreSubtitle;
+
+  /// No description provided for @moreSponsoringSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsors, ads & promotions'**
+  String get moreSponsoringSubtitle;
+
+  /// No description provided for @moreContactSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get in touch & app info'**
+  String get moreContactSubtitle;
+
+  /// No description provided for @moreSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language & preferences'**
+  String get moreSettingsSubtitle;
+
+  /// No description provided for @navBecomeTester.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a Tester'**
+  String get navBecomeTester;
+
+  /// No description provided for @moreBecomeTesterSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try new features early'**
+  String get moreBecomeTesterSubtitle;
+
+  /// No description provided for @testerIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Help shape TournaQ by testing new features before they\'re released — on iOS via TestFlight, or on Android once you\'re added to the program.'**
+  String get testerIntro;
+
+  /// No description provided for @testerSectionIOS.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS'**
+  String get testerSectionIOS;
+
+  /// No description provided for @testerIOSDownloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download via TestFlight'**
+  String get testerIOSDownloadTitle;
+
+  /// No description provided for @testerIOSDownloadSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to install the beta directly'**
+  String get testerIOSDownloadSubtitle;
+
+  /// No description provided for @testerSectionSignup.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS & Android'**
+  String get testerSectionSignup;
+
+  /// No description provided for @testerSignupQRTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to Sign Up'**
+  String get testerSignupQRTitle;
+
+  /// No description provided for @testerSignupQRSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For iOS & Android testers'**
+  String get testerSignupQRSubtitle;
+
+  /// No description provided for @testerSignupLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Sign-up Form'**
+  String get testerSignupLinkTitle;
+
+  /// No description provided for @testerSignupLinkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'If you\'re already on this device'**
+  String get testerSignupLinkSubtitle;
+
+  /// No description provided for @testerNoteIOS.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS: signing up is optional — you can install directly via TestFlight — but it helps us stay in touch.'**
+  String get testerNoteIOS;
+
+  /// No description provided for @testerNoteAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Android: signing up is required. We add testers to the program by hand afterwards, so there may be a short wait.'**
+  String get testerNoteAndroid;
+
+  /// No description provided for @testerContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Got a Bigger Idea?'**
+  String get testerContactTitle;
+
+  /// No description provided for @testerContactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizing a big tournament, missing a mode or feature, or need support? Let us know — we prioritize tester requests.'**
+  String get testerContactBody;
+
+  /// No description provided for @testerContactButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get testerContactButton;
 
   /// No description provided for @btnGotIt.
   ///
@@ -3766,11 +3898,41 @@ abstract class AppLocalizations {
   /// **'Manual score entry is only available before live scoring has started. This prevents accidentally overwriting points that were already tracked.'**
   String get scorecardManualScoreBlockedBody;
 
+  /// No description provided for @scorecardEditScoreOverrideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Override current score?'**
+  String get scorecardEditScoreOverrideTitle;
+
+  /// No description provided for @scorecardEditScoreOverrideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This game already has a score. Editing it will replace the current result.'**
+  String get scorecardEditScoreOverrideBody;
+
+  /// No description provided for @scorecardEditWinnerLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Winner can\'t change'**
+  String get scorecardEditWinnerLockedTitle;
+
+  /// No description provided for @scorecardEditWinnerLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The next match has already started, so the winner of this match can\'t change. You can still correct the points as long as the same team wins.'**
+  String get scorecardEditWinnerLockedBody;
+
   /// No description provided for @scorecardManualScoreDescription.
   ///
   /// In en, this message translates to:
   /// **'Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.'**
   String get scorecardManualScoreDescription;
+
+  /// No description provided for @scorecardManualScoreTimeUpNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If the game was still in play when the timer ran out, you can set the final score manually here.'**
+  String get scorecardManualScoreTimeUpNote;
 
   /// No description provided for @btnOK.
   ///
@@ -4395,6 +4557,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Target number of players for the session. Used when auto-filling random players. Actual participants are added in the Players section below.'**
   String get kotcSetupPlayersHelp;
+
+  /// No description provided for @autoAllplayLowPlayersWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Allplay works with fewer players, but rotation may feel clunky below {count} players.'**
+  String autoAllplayLowPlayersWarning(int count);
 
   /// No description provided for @kotcSetupTimeHelp.
   ///
@@ -5302,6 +5470,24 @@ abstract class AppLocalizations {
   /// **'Record this court\'s results now and end its round.'**
   String get scrambleKingFinishCourtBody;
 
+  /// No description provided for @scrambleKingUndoDiscardPointsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard recorded points?'**
+  String get scrambleKingUndoDiscardPointsTitle;
+
+  /// No description provided for @scrambleKingUndoDiscardPointsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The team currently on court has {points} point(s) recorded. Undoing will discard them.'**
+  String scrambleKingUndoDiscardPointsBody(int points);
+
+  /// No description provided for @scrambleKingUndoDiscardPointsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard and undo'**
+  String get scrambleKingUndoDiscardPointsConfirm;
+
   /// No description provided for @scrambleKingBackToSchedule.
   ///
   /// In en, this message translates to:
@@ -5392,6 +5578,24 @@ abstract class AppLocalizations {
   /// **'This QR code is not a result.'**
   String get scrambleScanNotResult;
 
+  /// No description provided for @koBracketScanMatchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a match QR code.'**
+  String get koBracketScanMatchHint;
+
+  /// No description provided for @koBracketScanNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR code is not a match.'**
+  String get koBracketScanNotMatch;
+
+  /// No description provided for @koBracketImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported match from “{name}”.'**
+  String koBracketImportSuccess(String name);
+
   /// No description provided for @scrambleResultImported.
   ///
   /// In en, this message translates to:
@@ -5403,6 +5607,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This result is for a different tournament.'**
   String get scrambleResultMismatch;
+
+  /// No description provided for @scrambleResultAlreadyRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'A result has already been recorded for this game.'**
+  String get scrambleResultAlreadyRecorded;
 
   /// No description provided for @scrambleImportSuccess.
   ///
@@ -5485,7 +5695,7 @@ abstract class AppLocalizations {
   /// No description provided for @scrambleAdjustHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap Adjust final score to change the score, then Complete.'**
+  /// **'Tap Adjust final score to enter the final result.'**
   String get scrambleAdjustHint;
 
   /// No description provided for @overviewSettingsTitle.
@@ -5565,6 +5775,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score saved.'**
   String get overviewScoreSaved;
+
+  /// No description provided for @overviewSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved.'**
+  String get overviewSettingsSaved;
 
   /// No description provided for @rosterMenuTooltip.
   ///
@@ -5660,6 +5876,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{created} added, {updated} updated, {deleted} removed.'**
   String rosterImportDone(int created, int updated, int deleted);
+
+  /// No description provided for @skSugTooFewRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 1 round is needed.'**
+  String get skSugTooFewRounds;
+
+  /// No description provided for @skSugZeroDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Round duration must be greater than zero.'**
+  String get skSugZeroDuration;
+
+  /// No description provided for @skSugMinPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min} players are needed for one court.'**
+  String skSugMinPlayers(int min);
+
+  /// No description provided for @skSugInvalidCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'This player/court combination can\'t form a valid court. Add more players or reduce courts.'**
+  String get skSugInvalidCombo;
+
+  /// No description provided for @skSugCourtsUnfilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {filled} of {courts} courts can be filled with {players} players. Reduce courts or add players.'**
+  String skSugCourtsUnfilled(int filled, int courts, int players);
+
+  /// No description provided for @skSugFloaterSameTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'With this player count, the floater always partners with the same team on the rounds they float. Add players for more variety.'**
+  String get skSugFloaterSameTeam;
+
+  /// No description provided for @ssSugTooFewRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 1 round is needed to build a schedule.'**
+  String get ssSugTooFewRounds;
+
+  /// No description provided for @ssSugZeroDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Match and break duration must be greater than zero.'**
+  String get ssSugZeroDuration;
+
+  /// No description provided for @ssSugMinPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {n} players are needed for one {perTeam}v{perTeam} court. Add more players or switch to a smaller format.'**
+  String ssSugMinPlayers(int n, int perTeam);
+
+  /// No description provided for @ssSugLargeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'With {n} players the mixing becomes statistical — everyone-against-everyone is no longer guaranteed, but equal play time still is. This works well for large events.'**
+  String ssSugLargeGroup(int n);
+
+  /// No description provided for @ssSugRepeatPartners.
+  ///
+  /// In en, this message translates to:
+  /// **'With {rounds} rounds, some partnerships will repeat. Up to {max} rounds keeps every partnership unique.'**
+  String ssSugRepeatPartners(int rounds, int max);
+
+  /// No description provided for @ssSugCoverageNote.
+  ///
+  /// In en, this message translates to:
+  /// **' Full coverage (everyone partners with everyone) would take {target} rounds, but then some players would repeat partners.'**
+  String ssSugCoverageNote(int target);
+
+  /// No description provided for @ssSugCapAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cap at {max} rounds'**
+  String ssSugCapAction(int max);
+
+  /// No description provided for @ssSugAllUniqueNoCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'This setup keeps every partnership unique for all {rounds} rounds. Full coverage (everyone partners with everyone) isn\'t possible without repeats for this player/court combination — it would need {target} rounds.'**
+  String ssSugAllUniqueNoCoverage(int rounds, int target);
+
+  /// No description provided for @ssSugCourtsUnfilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {active} of {courts} courts can be filled with {players} players in {perTeam}v{perTeam}. Reduce courts to {active} or add more players.'**
+  String ssSugCourtsUnfilled(int active, int courts, int players, int perTeam);
+
+  /// No description provided for @ssSugNoReferee.
+  ///
+  /// In en, this message translates to:
+  /// **'With {players} players filling {active, plural, =1{1 court} other{{active} courts}} in {perTeam}v{perTeam}, only {sitting, plural, =1{1 player} other{{sitting} players}} sit out each round — {without, plural, =1{1 court} other{{without} courts}} won\'t have a dedicated referee and will need scores entered manually.'**
+  String ssSugNoReferee(
+    int players,
+    int active,
+    int perTeam,
+    int sitting,
+    int without,
+  );
+
+  /// No description provided for @ssSugBreakTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Break duration ({breakDur}) is longer than match duration ({matchDur}). Consider reducing breaks to allow more rounds.'**
+  String ssSugBreakTooLong(String breakDur, String matchDur);
+
+  /// No description provided for @bracketGenerationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bracket generation'**
+  String get bracketGenerationTitle;
+
+  /// No description provided for @bracketSeeding.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeding'**
+  String get bracketSeeding;
+
+  /// No description provided for @bracketSeedingRandomDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle teams into the bracket'**
+  String get bracketSeedingRandomDesc;
+
+  /// No description provided for @bracketSeedingSeededDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Order by team skill rating'**
+  String get bracketSeedingSeededDesc;
+
+  /// No description provided for @bracketOddTeamsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Odd teams'**
+  String get bracketOddTeamsSection;
+
+  /// No description provided for @bracketOddByesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Top teams skip the first round'**
+  String get bracketOddByesDesc;
+
+  /// No description provided for @bracketOddPlayInDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra teams fight into round 1'**
+  String get bracketOddPlayInDesc;
+
+  /// No description provided for @bracketOddPlayInPlusDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play-in with a repechage back-in'**
+  String get bracketOddPlayInPlusDesc;
+
+  /// No description provided for @bracketPlayInPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Play-in+'**
+  String get bracketPlayInPlus;
+
+  /// No description provided for @bracketRegenNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerates the bracket. Available only before the first match starts.'**
+  String get bracketRegenNote;
+
+  /// No description provided for @bracketSetSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Set schedule'**
+  String get bracketSetSchedule;
+
+  /// No description provided for @bracketEndsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends {time}'**
+  String bracketEndsAt(String time);
+
+  /// No description provided for @bracketRoundBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m break'**
+  String bracketRoundBreak(int minutes);
+
+  /// No description provided for @bracketTargetScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Target score'**
+  String get bracketTargetScore;
+
+  /// No description provided for @bracketSideChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Side change'**
+  String get bracketSideChange;
+
+  /// No description provided for @bracketSideChangeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get bracketSideChangeOff;
+
+  /// No description provided for @bracketSideChangeEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {points} points'**
+  String bracketSideChangeEvery(int points);
+
+  /// No description provided for @bracketNotifyTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify at target score'**
+  String get bracketNotifyTarget;
+
+  /// No description provided for @bracketNotifyTargetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt to finish when a side reaches the target'**
+  String get bracketNotifyTargetDesc;
+
+  /// No description provided for @bracketManualSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String bracketManualSet(int number);
+
+  /// No description provided for @bracketManualScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get bracketManualScore;
+
+  /// No description provided for @bracketTbd.
+  ///
+  /// In en, this message translates to:
+  /// **'TBD'**
+  String get bracketTbd;
+
+  /// No description provided for @bracketRefs.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} refs'**
+  String bracketRefs(String name);
+
+  /// No description provided for @bracketRoundFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final'**
+  String get bracketRoundFinal;
+
+  /// No description provided for @bracketRoundSemi.
+  ///
+  /// In en, this message translates to:
+  /// **'Semi-final'**
+  String get bracketRoundSemi;
+
+  /// No description provided for @bracketRoundQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarter-final'**
+  String get bracketRoundQuarter;
+
+  /// No description provided for @bracketRoundNumbered.
+  ///
+  /// In en, this message translates to:
+  /// **'Round {round}'**
+  String bracketRoundNumbered(int round);
+
+  /// No description provided for @bracketTagBye.
+  ///
+  /// In en, this message translates to:
+  /// **'BYE'**
+  String get bracketTagBye;
+
+  /// No description provided for @bracketTagWalkover.
+  ///
+  /// In en, this message translates to:
+  /// **'W/O'**
+  String get bracketTagWalkover;
+
+  /// No description provided for @bracketTagPlayIn.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAY-IN'**
+  String get bracketTagPlayIn;
+
+  /// No description provided for @bracketTagRepechage.
+  ///
+  /// In en, this message translates to:
+  /// **'REPECHAGE'**
+  String get bracketTagRepechage;
+
+  /// No description provided for @bracketAddBreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Add break'**
+  String get bracketAddBreak;
+
+  /// No description provided for @bracketBreakAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Break after {round}'**
+  String bracketBreakAfter(String round);
+
+  /// No description provided for @bracketMatchNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Match {number}'**
+  String bracketMatchNumber(int number);
+
+  /// No description provided for @bracketFinishBeforeExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the match before exporting the result.'**
+  String get bracketFinishBeforeExport;
 }
 
 class _AppLocalizationsDelegate

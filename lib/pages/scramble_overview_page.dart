@@ -109,12 +109,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       context,
       title: l10n.scrambleExportScorecard,
       subtitle:
+          '${l10n.overviewRound(round.roundNumber)} · '
           '${l10n.scrambleImportedCourt(game.courtNumber)} · $teamA vs $teamB',
       data: data,
     );
   }
 
-  Future<void> _importResult(ScrambleGame game) async {
+  Future<void> _importResult() async {
     final l10n = AppLocalizations.of(context)!;
     final raw = await Navigator.of(context).push<String>(
       MaterialPageRoute(
@@ -141,6 +142,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
     );
     if (target == null) {
       _showSnack(l10n.scrambleResultMismatch);
+      return;
+    }
+    if (target.isCompleted) {
+      _showSnack(l10n.scrambleResultAlreadyRecorded);
       return;
     }
     final updatedGame = target.copyWith(
@@ -362,13 +367,39 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         title: 'Social Scramble',
         subtitle: _t.name,
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(
-              Icons.leaderboard_rounded,
+              Icons.qr_code_scanner_rounded,
               color: AppColors.goldLight,
             ),
-            tooltip: l10n.tooltipRankings,
-            onPressed: _openStats,
+            onSelected: (v) {
+              if (v == 'scan') _importResult();
+              if (v == 'rankings') _openStats();
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'scan',
+                child: Row(
+                  children: [
+                    const Icon(Icons.qr_code_scanner_rounded,
+                        size: 18, color: AppColors.olive),
+                    const SizedBox(width: 8),
+                    Text(l10n.scrambleImportResult),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'rankings',
+                child: Row(
+                  children: [
+                    const Icon(Icons.leaderboard_rounded,
+                        size: 18, color: AppColors.olive),
+                    const SizedBox(width: 8),
+                    Text(l10n.tooltipRankings),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -683,6 +714,43 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  // Pace alerts toggle, surfaced here alongside the schedule
+                  // preview so it can be flipped mid-tournament (was previously
+                  // only reachable inside the start/end edit sheet).
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.goldCream,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: SwitchListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      value: _t.paceAlertsEnabled,
+                      onChanged: (v) {
+                        _update(_t.copyWith(paceAlertsEnabled: v));
+                        _scheduleSheetRefresh?.call();
+                      },
+                      activeThumbColor: AppColors.gold,
+                      title: Text(
+                        l10n.timelinePaceAlertsTitle,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        l10n.timelinePaceAlertsSubtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -911,7 +979,6 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         (firstPending ?? _t.rounds.first).matchDuration.inMinutes;
     int breakMinutes =
         (firstPending ?? _t.rounds.first).breakDuration.inMinutes;
-    bool paceAlertsEnabled = _t.paceAlertsEnabled;
 
     showModalBottomSheet<void>(
       context: context,
@@ -949,9 +1016,10 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                             startTime,
                             matchMinutes,
                             breakMinutes,
-                            paceAlertsEnabled,
+                            _t.paceAlertsEnabled,
                           );
                           Navigator.of(ctx).pop();
+                          _showSnack(l10n.overviewSettingsSaved);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.gold,
@@ -1009,27 +1077,6 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                     value: breakMinutes,
                     min: 0,
                     onChanged: (v) => setSheet(() => breakMinutes = v),
-                  ),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    value: paceAlertsEnabled,
-                    onChanged: (v) => setSheet(() => paceAlertsEnabled = v),
-                    activeThumbColor: AppColors.gold,
-                    title: Text(
-                      l10n.timelinePaceAlertsTitle,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      l10n.timelinePaceAlertsSubtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -1172,6 +1219,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                           }
                           _update(_t.copyWith(rounds: rounds));
                           Navigator.of(ctx).pop();
+                          _showSnack(l10n.overviewSettingsSaved);
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.gold,
@@ -1261,6 +1309,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           final l10n = AppLocalizations.of(context)!;
 
           final suggestions = ScrambleService.validate(
+            l10n: l10n,
             roundCount: rounds,
             matchDuration: _t.matchDuration,
             breakDuration: _t.breakDuration,
@@ -1501,6 +1550,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
         playersPerTeam: mode,
       ),
     );
+    _showSnack(l10n.overviewSettingsSaved);
   }
 
   Widget _buildTimeTile(String label, VoidCallback onTap) {
@@ -2423,7 +2473,7 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
                   tournament: _t,
                   onTap: () => _openScorecard(g),
                   onExport: () => _exportGame(g, round),
-                  onImportResult: () => _importResult(g),
+                  onImportResult: () => _importResult(),
                   onManualScore: () => _showSetScoreDialog(g, round),
                 ),
               ),
@@ -2518,13 +2568,13 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
       final now = DateTime.now();
       if (now.isAfter(round.scheduledMatchEndTime)) {
         paceColor = Colors.red.shade600;
-        paceLabel = 'overdue';
+        paceLabel = l10n.statusOverdue;
       } else if (now.isAfter(round.scheduledStartTime)) {
         paceColor = Colors.amber.shade700;
-        paceLabel = 'due';
+        paceLabel = l10n.statusDue;
       } else {
         paceColor = Colors.green.shade600;
-        paceLabel = 'upcoming';
+        paceLabel = l10n.statusUpcoming;
       }
     }
 
@@ -2550,66 +2600,69 @@ class _ScrambleOverviewPageState extends State<ScrambleOverviewPage> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Row(
-              children: [
-                if (showActual) ...[
-                  Flexible(
-                    child: Text(
-                      actualStart != null
-                          ? '${ScrambleService.formatTime(actualStart)} – '
-                                '${ScrambleService.formatTime(actualEnd)}'
-                          : ScrambleService.formatTime(actualEnd),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    l10n.overviewActual,
-                    style: const TextStyle(fontSize: 10, color: Colors.black38),
-                  ),
-                ] else ...[
-                  Flexible(
-                    child: Text(
-                      '${ScrambleService.formatTime(round.scheduledStartTime)} – '
-                      '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (round.breakDuration > Duration.zero) ...[
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        l10n.overviewBreakUntil(
-                          ScrambleService.formatTime(
-                            round.scheduledBreakEndTime,
+            // Break-until sits on its own full-width line (not inline) so a
+            // pace chip never squeezes it into an ellipsis — matters most for
+            // longer localized strings (de/es).
+            child: showActual
+                ? Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          actualStart != null
+                              ? '${ScrambleService.formatTime(actualStart)} – '
+                                    '${ScrambleService.formatTime(actualEnd)}'
+                              : ScrambleService.formatTime(actualEnd),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black45,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.overviewActual,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10,
                           color: Colors.black38,
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${ScrambleService.formatTime(round.scheduledStartTime)} – '
+                        '${ScrambleService.formatTime(round.scheduledMatchEndTime)}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black45,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ],
-              ],
-            ),
+                      if (round.breakDuration > Duration.zero)
+                        Text(
+                          l10n.timelineBreakUntil(
+                            ScrambleService.formatTime(
+                              round.scheduledBreakEndTime,
+                            ),
+                          ),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.black38,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
           ),
-          const SizedBox(width: 6),
-          Icon(statusIcon, size: 18, color: statusColor),
           if (paceLabel != null) ...[
             const SizedBox(width: 6),
             _paceChip(paceColor!, paceLabel),
           ],
+          const SizedBox(width: 6),
+          Icon(statusIcon, size: 18, color: statusColor),
           const SizedBox(width: 4),
           Icon(
             collapsed ? Icons.expand_more_rounded : Icons.expand_less_rounded,

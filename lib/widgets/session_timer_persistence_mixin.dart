@@ -120,7 +120,13 @@ mixin SessionTimerPersistenceMixin<T extends StatefulWidget> on State<T> {
 
   void startOrRestartTimer() {
     if (sessionIsCompleted) return;
-    sessionTimerKey.currentState?.restart();
+    // Explicitly reset to the full session length — restart() with no
+    // argument falls back to the widget's `initial` prop, which is a
+    // snapshot of wherever the timer last sat (e.g. 0:00 after the timer
+    // ran out or the session was completed and reopened), not necessarily
+    // the full duration. "Restart" should unambiguously mean "start over
+    // from the beginning," regardless of that snapshot.
+    sessionTimerKey.currentState?.restart(sessionTotalDuration);
     sessionTimerKey.currentState?.start();
     setState(() => _timerRunning = true);
     onSessionTimerRunningChanged(true);

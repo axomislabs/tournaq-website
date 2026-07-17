@@ -25,23 +25,55 @@ enum KoMatchStatus { scheduled, inProgress, completed, bye, walkover, playIn, re
 
 class KoRoundFormat {
   final int setsPerGame;
+
+  /// Target score per set (a.k.a. points-to-win). Flexible, like the Quick Game
+  /// scoreboard's target dropdown.
   final int pointsPerSet;
 
-  const KoRoundFormat({required this.setsPerGame, required this.pointsPerSet});
+  /// Combined score interval at which the scoreboard prompts a side change
+  /// (e.g. 5 → every 5 total points). null / 0 disables the reminder.
+  final int? sideChangeInterval;
 
-  KoRoundFormat copyWith({int? setsPerGame, int? pointsPerSet}) => KoRoundFormat(
+  /// When true, the scoreboard shows a "target reached" prompt once a side wins
+  /// the set by two — it only notifies (never auto-ends the set).
+  final bool notifyOnTargetReached;
+
+  const KoRoundFormat({
+    required this.setsPerGame,
+    required this.pointsPerSet,
+    this.sideChangeInterval,
+    this.notifyOnTargetReached = false,
+  });
+
+  KoRoundFormat copyWith({
+    int? setsPerGame,
+    int? pointsPerSet,
+    int? sideChangeInterval,
+    bool clearSideChangeInterval = false,
+    bool? notifyOnTargetReached,
+  }) =>
+      KoRoundFormat(
         setsPerGame: setsPerGame ?? this.setsPerGame,
         pointsPerSet: pointsPerSet ?? this.pointsPerSet,
+        sideChangeInterval: clearSideChangeInterval
+            ? null
+            : (sideChangeInterval ?? this.sideChangeInterval),
+        notifyOnTargetReached:
+            notifyOnTargetReached ?? this.notifyOnTargetReached,
       );
 
   Map<String, dynamic> toJson() => {
         'setsPerGame': setsPerGame,
         'pointsPerSet': pointsPerSet,
+        if (sideChangeInterval != null) 'sideChangeInterval': sideChangeInterval,
+        'notifyOnTargetReached': notifyOnTargetReached,
       };
 
   factory KoRoundFormat.fromJson(Map<String, dynamic> j) => KoRoundFormat(
         setsPerGame: j['setsPerGame'] as int? ?? 1,
         pointsPerSet: j['pointsPerSet'] as int? ?? 15,
+        sideChangeInterval: j['sideChangeInterval'] as int?,
+        notifyOnTargetReached: j['notifyOnTargetReached'] as bool? ?? false,
       );
 
   String get label => setsPerGame == 1 ? '$pointsPerSet pts' : 'Bo$setsPerGame · $pointsPerSet pts';
@@ -383,6 +415,12 @@ class KoBracketTournament {
   /// Break duration in minutes after each round. Keys are round numbers.
   final Map<int, int> roundBreaks;
   final DateTime? estimatedStart;
+
+  /// When true, the schedule surfaces pace-alert status labels (upcoming / due /
+  /// overdue / completed) per round — same opt-in behaviour as Social Scramble
+  /// and Scramble King.
+  final bool paceAlertsEnabled;
+
   final List<KoTeam> teams;
   final List<KoMatch> matches;
   final KoBracketStatus status;
@@ -401,6 +439,7 @@ class KoBracketTournament {
     this.roundFormats = const {},
     this.roundBreaks = const {},
     this.estimatedStart,
+    this.paceAlertsEnabled = false,
     this.teams = const [],
     this.matches = const [],
     this.status = KoBracketStatus.setup,
@@ -511,6 +550,7 @@ class KoBracketTournament {
     Map<int, KoRoundFormat>? roundFormats,
     Map<int, int>? roundBreaks,
     DateTime? estimatedStart,
+    bool? paceAlertsEnabled,
     List<KoTeam>? teams,
     List<KoMatch>? matches,
     KoBracketStatus? status,
@@ -527,6 +567,7 @@ class KoBracketTournament {
         roundFormats: roundFormats ?? this.roundFormats,
         roundBreaks: roundBreaks ?? this.roundBreaks,
         estimatedStart: estimatedStart ?? this.estimatedStart,
+        paceAlertsEnabled: paceAlertsEnabled ?? this.paceAlertsEnabled,
         teams: teams ?? this.teams,
         matches: matches ?? this.matches,
         status: status ?? this.status,
@@ -581,6 +622,7 @@ class KoBracketTournament {
         'roundFormats': roundFormats.map((k, v) => MapEntry(k.toString(), v.toJson())),
         'roundBreaks': roundBreaks.map((k, v) => MapEntry(k.toString(), v)),
         'estimatedStart': estimatedStart?.toIso8601String(),
+        'paceAlertsEnabled': paceAlertsEnabled,
         'teams': teams.map((t) => t.toJson()).toList(),
         'matches': matches.map((m) => m.toJson()).toList(),
         'status': status.name,
@@ -610,6 +652,7 @@ class KoBracketTournament {
         estimatedStart: j['estimatedStart'] != null
             ? DateTime.parse(j['estimatedStart'] as String)
             : null,
+        paceAlertsEnabled: j['paceAlertsEnabled'] as bool? ?? false,
         teams: (j['teams'] as List? ?? [])
             .map((e) => KoTeam.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(),

@@ -8,9 +8,16 @@ abstract final class AppLinks {
   // ── Support & Feedback ────────────────────────────────────────────────────
 
   static const String feedbackForm =
-      'https://docs.google.com/forms/d/e/1FAIpQLSc9XrG02hfj0Gt4bgWZJtmuGdJehVBpVMW7j_oWBfLtEgWZmQ/viewform?usp=publish-editor';
+      'https://docs.google.com/forms/d/e/1FAIpQLSfLJQT5bASsvEFN6emXW67Y75otvCKXwfOmP_p7PYCdtgY2jQ/viewform?usp=dialog';
 
   static const String contactEmail = 'team@tournaq.com';
+
+  // ── Beta testing ──────────────────────────────────────────────────────────
+
+  static const String testFlightJoin = 'https://testflight.apple.com/join/uFzz7vd9';
+
+  static const String betaSignupForm =
+      'https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog';
 
   // ── Social ────────────────────────────────────────────────────────────────
 
@@ -40,7 +47,8 @@ abstract final class AppLinks {
   static const String modeDoghouse       = '$_modesBase/doghouse.html';
   static const String modeKingOfTheCourt = '$_modesBase/king-of-the-court.html';
   static const String modeKoSystem       = '$_modesBase/ko-system.html';
-  static const String modeScrambleKing   = '$_modesBase/scramble-king.html';
+  // Published at the apex (non-www) host.
+  static const String modeScrambleKing   = 'https://tournaq.com/pages/modes/scramble-king.html';
 
   // ── Individual legal docs (published under the current site root) ─────────
 

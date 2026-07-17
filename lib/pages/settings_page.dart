@@ -4,7 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../services/consent_service.dart';
 import '../services/locale_service.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/clickable_card.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 
@@ -32,7 +32,6 @@ class SettingsPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      drawer: AppDrawer(appState: appState, onAppStateChanged: onAppStateChanged),
       appBar: TournaQAppBar(title: l10n.navSettings),
       body: ScrollablePage(
         padding: const EdgeInsets.all(20),
@@ -68,7 +67,7 @@ class SettingsPage extends StatelessWidget {
                     duration: const Duration(milliseconds: 150),
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.oliveMedium : Colors.transparent,
+                      color: isSelected ? AppColors.oliveMedium : Colors.white,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: isSelected ? AppColors.oliveMedium : Colors.grey.shade300,
@@ -104,22 +103,13 @@ class SettingsPage extends StatelessWidget {
                 ),
               ]),
               const SizedBox(height: 12),
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.oliveLight,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.tune_rounded, color: AppColors.olive, size: 20),
-                ),
-                title: Text(l10n.contactPrivacyOptions,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                subtitle: Text(l10n.contactPrivacyOptionsSub,
-                    style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                trailing: const Icon(Icons.chevron_right_rounded, color: Colors.black38),
+              ClickableCard(
+                icon: Icons.tune_rounded,
+                iconBg: AppColors.oliveLight,
+                iconColor: AppColors.olive,
+                title: l10n.contactPrivacyOptions,
+                subtitle: l10n.contactPrivacyOptionsSub,
+                trailing: Icons.chevron_right_rounded,
                 onTap: () => ConsentService.showPrivacyOptions(),
               ),
             ],

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
@@ -6,6 +5,7 @@ import '../models/scramble_king_tournament.dart';
 import '../services/scramble_king_service.dart';
 import '../services/scramble_king_storage_service.dart';
 import '../services/scramble_king_transfer_service.dart';
+import '../widgets/editable_info_chip.dart';
 import '../widgets/qr_export_sheet.dart';
 import '../widgets/scramble_king_court_result_tile.dart';
 import '../widgets/scramble_timer_widget.dart';
@@ -17,6 +17,21 @@ const _kGoldCardBg = AppColors.goldCardBg;
 const _kGoldCardLeading = AppColors.goldCardLeading;
 const _kOlive = AppColors.olive;
 const _kOliveLight = AppColors.oliveLight;
+
+/// Full snapshot of the live "waiting chain" state — everything an eject
+/// mutates besides the on-court slot itself (which is separately restored
+/// from the persisted stint record). Captured before each eject and
+/// restored verbatim on undo, so undo is exact rather than a fairness
+/// re-derivation that can land somewhere slightly different.
+typedef _ChainSnapshot = ({
+  List<String> pool,
+  String? challengerSlotId,
+  String? upNextSlotId,
+  String? floaterJumperPartnerId,
+  String? adminPlayerId,
+  String? nextAdminPlayerId,
+  Map<String, int> scorekeepCounts,
+});
 
 /// Live scoring for one court within one round, then — once the round ends
 /// for this court — a ranked, editable results view.
@@ -100,10 +115,43 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   /// been asked to keep score this round), used to balance the rotation.
   final Map<String, int> _scorekeepCounts = {};
 
+  /// Full snapshot of the waiting chain, taken right before the most recent
+  /// court/challenger ejection and restored verbatim on undo — so "undo,
+  /// then redo the same action" reproduces the exact same outcome, the same
+  /// way undoing a real-life call would. Re-deriving the chain via fairness
+  /// ranking instead (the old "soft undo" approach) can land on a different
+  /// queue order or referee handoff than before, which reads as the app
+  /// arbitrarily changing its mind to anyone watching the court.
+  _ChainSnapshot? _chainBeforeCourtEject;
+  _ChainSnapshot? _chainBeforeChallengerEject;
+
+  _ChainSnapshot get _currentChainSnapshot => (
+    pool: List.of(_pool),
+    challengerSlotId: _challengerSlotId,
+    upNextSlotId: _upNextSlotId,
+    floaterJumperPartnerId: _floaterJumperPartnerId,
+    adminPlayerId: _adminPlayerId,
+    nextAdminPlayerId: _nextAdminPlayerId,
+    scorekeepCounts: Map.of(_scorekeepCounts),
+  );
+
+  void _restoreChainSnapshot(_ChainSnapshot snapshot) {
+    _pool = List.of(snapshot.pool);
+    _challengerSlotId = snapshot.challengerSlotId;
+    _upNextSlotId = snapshot.upNextSlotId;
+    _floaterJumperPartnerId = snapshot.floaterJumperPartnerId;
+    _adminPlayerId = snapshot.adminPlayerId;
+    _nextAdminPlayerId = snapshot.nextAdminPlayerId;
+    _scorekeepCounts
+      ..clear()
+      ..addAll(snapshot.scorekeepCounts);
+  }
+
   final _matchTimerKey = GlobalKey<ScrambleTimerWidgetState>();
   final _stintWatch = Stopwatch();
   Duration? _timerInitialRemaining;
   bool _timerRunning = false;
+  bool _scheduleExpanded = false;
 
   ScrambleKingRound get _round => _t.getRound(widget.roundId)!;
   ScrambleKingCourtFormation get _formation =>
@@ -218,6 +266,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     // Finish/Undo Finish round-trip) may no longer be a valid member of it.
     _challengerSlotId = null;
     _upNextSlotId = null;
+    // Any pending eject snapshot belongs to a chain state that no longer
+    // exists post-resume — undo, if still offered, should fall back to
+    // fairness re-derivation rather than restoring a stale snapshot.
+    _chainBeforeCourtEject = null;
+    _chainBeforeChallengerEject = null;
 
     if (restoredStint != null) {
       _onCourtSlotId = restoredStint.turnSlotId;
@@ -298,12 +351,38 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     }
     if (widget.isImported) {
       final result = _formation.isCompleted;
-      return IconButton(
+      return PopupMenuButton<String>(
         icon: const Icon(Icons.qr_code_rounded, color: AppColors.goldLight),
-        tooltip: result
-            ? l10n.scrambleExportResult
-            : l10n.scrambleKingExportCourt,
-        onPressed: result ? _exportResult : _exportCourt,
+        onSelected: (v) {
+          if (v == 'export') result ? _exportResult() : _exportCourt();
+          if (v == 'edit') _showRanking();
+        },
+        itemBuilder: (ctx) => [
+          PopupMenuItem(
+            value: 'export',
+            child: Row(
+              children: [
+                const Icon(Icons.qr_code_rounded, size: 18, color: _kOlive),
+                const SizedBox(width: 8),
+                Text(
+                  result
+                      ? l10n.scrambleExportResult
+                      : l10n.scrambleKingExportCourt,
+                ),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 'edit',
+            child: Row(
+              children: [
+                const Icon(Icons.edit_rounded, size: 18, color: _kOlive),
+                const SizedBox(width: 8),
+                Text(l10n.scrambleKingEditResults),
+              ],
+            ),
+          ),
+        ],
       );
     }
     if (_formation.isCompleted) {
@@ -384,10 +463,82 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         _formation.floaterSlot!.teamName ??
             _nameFor(_formation.floaterSlot!.playerId),
     ];
-    return '${l10n.scrambleKingCourtPageTitle(widget.courtNumber)} · ${teams.join(' · ')}';
+    return '${l10n.scrambleKingRoundLabel(_round.roundNumber)} · '
+        '${l10n.scrambleKingCourtPageTitle(widget.courtNumber)} · ${teams.join(' · ')}';
   }
 
   String _nameFor(String playerId) => _t.getPlayer(playerId)?.name ?? '?';
+
+  // Read-only view of every team on this court (team name + player names),
+  // opened from the "Teams" pill in Match Controls (live + imported court).
+  void _showTeamsSheet(AppLocalizations l10n) {
+    Widget teamRow(String? teamName, String players) => Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _kOliveLight,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (teamName != null) ...[
+            Text(
+              teamName,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: _kOlive,
+              ),
+            ),
+            const SizedBox(height: 2),
+          ],
+          Text(
+            players,
+            style: const TextStyle(fontSize: 13, color: Colors.black87),
+          ),
+        ],
+      ),
+    );
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => TournaQSheet(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.groups_rounded, size: 20, color: _kOlive),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.pageTeams,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              for (final s in _formation.teamSlots)
+                teamRow(s.teamName, s.playerIds.map(_nameFor).join(' & ')),
+              if (_formation.floaterSlot != null)
+                teamRow(
+                  _formation.floaterSlot!.teamName,
+                  _nameFor(_formation.floaterSlot!.playerId),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   String? _teamNameForSlot(String slotId) {
     if (slotId == _formation.floaterSlot?.slotId) {
@@ -607,14 +758,47 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       if (_challengerSlotId != null) _pool.remove(_challengerSlotId);
     }
     if (_upNextSlotId == null) {
+      final busyTeam = _busyJumperPartnerTeamSlotId;
       final ranked = ScrambleKingService.rankQueue(
-        queueSlotIds: _pool,
+        queueSlotIds: busyTeam == null
+            ? _pool
+            : _pool.where((id) => id != busyTeam).toList(),
         onCourtSlotId: _onCourtSlotId,
         courtStints: _courtStints,
       );
       _upNextSlotId = ranked.isNotEmpty ? ranked.first : null;
       if (_upNextSlotId != null) _pool.remove(_upNextSlotId);
     }
+  }
+
+  /// Manual override for the auto-picked Up Next: cycles to the next-ranked
+  /// queued team (the same fairness order used to fill the slot), swapping the
+  /// current pick back into the pool. Mirrors the "Re-roll" affordance on
+  /// Doghouse / King of the Court, adapted to Scramble King's single-slot
+  /// queue.
+  void _rerollUpNext() {
+    final current = _upNextSlotId;
+    if (current == null || _pool.isEmpty) return;
+    final busyTeam = _busyJumperPartnerTeamSlotId;
+    final eligiblePool = busyTeam == null
+        ? _pool
+        : _pool.where((id) => id != busyTeam).toList();
+    final candidates = ScrambleKingService.rankQueue(
+      queueSlotIds: [...eligiblePool, current],
+      onCourtSlotId: _onCourtSlotId,
+      courtStints: _courtStints,
+    );
+    if (candidates.length <= 1) return;
+    final idx = candidates.indexOf(current);
+    final next = candidates[(idx + 1) % candidates.length];
+    if (next == current) return;
+    setState(() {
+      _pool = [..._pool, current]..remove(next);
+      _upNextSlotId = next;
+      // Up Next feeds the jumper-mode borrowed-partner choice — refresh it so
+      // the displayed pairing matches the newly-picked team.
+      _updateFloaterJumperAssignment();
+    });
   }
 
   /// Jumper mode only: the moment the floater's slot enters the chain as
@@ -648,13 +832,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   /// there's no prior Up Next/Challenger phase to have triggered
   /// `_updateFloaterJumperAssignment` already).
   void _lockFloaterJumperPartnerIfNeeded() {
+    if (_floaterJumperPartnerId != null) return;
     final allOtherTeams = _formation.teamSlots
         .where((s) => _pool.contains(s.slotId))
         .toList();
-    final stillValid =
-        _floaterJumperPartnerId != null &&
-        allOtherTeams.any((s) => s.playerIds.contains(_floaterJumperPartnerId));
-    if (stillValid) return;
     // Prefer a partner from a team that isn't about to be pulled onto court
     // itself (i.e. not the current Up Next) — falls back to including it
     // if nothing else is available.
@@ -666,8 +847,43 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           ? preferredTeams
           : allOtherTeams,
       courtStints: _courtStints,
+      // The current Auto-Allplay scorekeeper must never end up double-booked
+      // as a borrowed jumper partner — but their teammate, if any, is still
+      // free to play, so only the one player is excluded, not the whole team.
+      excludePlayerIds: {?_adminPlayerId},
     );
     _floaterJumperPartnerId = pick?.playerId; // null ⇒ awaiting ejection
+  }
+
+  /// Jumper mode only: whoever is currently the floater's live borrowed
+  /// partner, for as long as that partner is actually engaged alongside the
+  /// floater as Challenger or Court — i.e. actually playing right now, not
+  /// just queued. Returns null once the floater's own engagement ends (the
+  /// partner reverts to unassigned, same as `_floaterJumperPartnerId`).
+  String? get _busyJumperPartnerId {
+    final floaterSlot = _formation.floaterSlot?.slotId;
+    if (floaterSlot == null ||
+        _t.oddPlayerMode != ScrambleKingOddPlayerMode.jumper) {
+      return null;
+    }
+    if (_onCourtSlotId == floaterSlot) return _onCourtTempPartnerId;
+    if (_challengerSlotId == floaterSlot) return _floaterJumperPartnerId;
+    return null;
+  }
+
+  /// The team slot currently supplying [_busyJumperPartnerId]. Court/
+  /// Challenger is a live "win-stays" pairing (see `_ejectCourt`/
+  /// `_ejectChallenger`) — if the floater's side wins and stays engaged,
+  /// whoever is Up Next gets promoted to face them next. That team slot must
+  /// therefore never be Up Next while this holds, or the borrowed player
+  /// could end up rostered against their own team.
+  String? get _busyJumperPartnerTeamSlotId {
+    final partnerId = _busyJumperPartnerId;
+    if (partnerId == null) return null;
+    return _formation.teamSlots
+        .where((s) => s.playerIds.contains(partnerId))
+        .firstOrNull
+        ?.slotId;
   }
 
   /// The slot (team or floater) a given player currently belongs to.
@@ -682,13 +898,18 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   }
 
   /// Picks the least-scorekept-so-far candidate from [candidates], tie-break
-  /// random.
+  /// by player id — deterministic (not shuffled) so that re-deriving from
+  /// the same candidate set and counts, e.g. right after an undo, always
+  /// reaches the same pick instead of re-rolling it.
   String? _pickFairestScorekeeper(Iterable<String> candidates) {
     if (candidates.isEmpty) return null;
-    final sorted = candidates.toList()..shuffle(Random());
-    sorted.sort(
-      (a, b) => (_scorekeepCounts[a] ?? 0).compareTo(_scorekeepCounts[b] ?? 0),
-    );
+    final sorted = candidates.toList()
+      ..sort((a, b) {
+        final byCount = (_scorekeepCounts[a] ?? 0).compareTo(
+          _scorekeepCounts[b] ?? 0,
+        );
+        return byCount != 0 ? byCount : a.compareTo(b);
+      });
     return sorted.first;
   }
 
@@ -706,6 +927,11 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
   void _refreshScorekeeper() {
     if (!_isAllPlay) return;
 
+    // A pool team's slot doesn't move when one of its members is borrowed
+    // out as the floater's jumper partner — so without this exclusion that
+    // player would look like a normal waiting candidate here, even though
+    // they're actually mid-match as Challenger or Court right now.
+    final busyJumperPartnerId = _busyJumperPartnerId;
     final eligible = <String>[];
     for (final slotId in _pool) {
       if (slotId == _formation.floaterSlot?.slotId) {
@@ -715,6 +941,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         eligible.addAll(team.playerIds);
       }
     }
+    eligible.remove(busyJumperPartnerId);
     final upNext = _upNextSlotId;
 
     if (_adminPlayerId == null) {
@@ -738,18 +965,25 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
     if (adminSlot == _challengerSlotId) {
       // COMMIT: the previewed successor becomes real, right as the admin's
-      // slot is about to be promoted to court.
+      // slot is about to be promoted to court. The preview can go stale
+      // between being set and committed — this same chain-advance's
+      // `_topUpQueue()` may have already pulled the previewed player's team
+      // out of the pool and into Up Next — so it's only honored if they're
+      // still actually eligible; otherwise a fresh pick is made from who's
+      // in the pool right now.
       final candidates = eligible
           .where((pid) => pid != _adminPlayerId)
           .toList();
       final preferred = candidates
           .where((pid) => _slotIdForPlayer(pid) != upNext)
           .toList();
-      final successor =
-          _nextAdminPlayerId ??
-          _pickFairestScorekeeper(
-            preferred.isNotEmpty ? preferred : candidates,
-          );
+      final previewStillValid =
+          _nextAdminPlayerId != null && eligible.contains(_nextAdminPlayerId);
+      final successor = previewStillValid
+          ? _nextAdminPlayerId
+          : _pickFairestScorekeeper(
+              preferred.isNotEmpty ? preferred : candidates,
+            );
       if (successor != null) {
         setState(() {
           _adminPlayerId = successor;
@@ -783,6 +1017,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   void _ejectChallenger() {
     if (!_canEjectChallenger) return;
+    _chainBeforeChallengerEject = _currentChainSnapshot;
     setState(() {
       _lastEjectedChallengerSlotId = _challengerSlotId;
       _pool.add(_challengerSlotId!);
@@ -796,21 +1031,28 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   void _undoEjectChallenger() {
     if (_lastEjectedChallengerSlotId == null) return;
+    final snapshot = _chainBeforeChallengerEject;
     setState(() {
-      // Soft undo: both currently-visible slots return to the pool, the old
-      // challenger is restored, and a fresh Up Next is revealed — mirrors
-      // `_undoEjectCourt`'s "reset the rest, let fairness re-derive it"
-      // philosophy rather than perfectly rewinding the reveal.
-      if (_challengerSlotId != null) _pool.add(_challengerSlotId!);
-      if (_upNextSlotId != null) _pool.add(_upNextSlotId!);
-      _pool.remove(_lastEjectedChallengerSlotId);
-      _challengerSlotId = _lastEjectedChallengerSlotId;
-      _upNextSlotId = null;
+      if (snapshot != null) {
+        _restoreChainSnapshot(snapshot);
+        _chainBeforeChallengerEject = null;
+      } else {
+        // Fallback: shouldn't normally happen (every eject takes a
+        // snapshot) — falls back to the old "soft undo" (both
+        // currently-visible slots return to the pool, the old challenger is
+        // restored, and fairness re-derives a fresh Up Next) rather than
+        // perfectly rewinding the reveal.
+        if (_challengerSlotId != null) _pool.add(_challengerSlotId!);
+        if (_upNextSlotId != null) _pool.add(_upNextSlotId!);
+        _pool.remove(_lastEjectedChallengerSlotId);
+        _challengerSlotId = _lastEjectedChallengerSlotId;
+        _upNextSlotId = null;
+        _topUpQueue();
+        _updateFloaterJumperAssignment();
+      }
       _lastEjectedChallengerSlotId = null;
-      _topUpQueue();
-      _updateFloaterJumperAssignment();
     });
-    _refreshScorekeeper();
+    if (snapshot == null) _refreshScorekeeper();
   }
 
   // ── Scoring / ejection ────────────────────────────────────────────────────
@@ -879,6 +1121,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   void _ejectCourt({required ScrambleKingStintEndReason reason}) {
     if (_onCourtSlotId == null) return;
+    _chainBeforeCourtEject = _currentChainSnapshot;
     final stint = _buildStint(reason: reason);
     _stintWatch
       ..stop()
@@ -910,12 +1153,44 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     }
   }
 
-  /// Ported from KOTC's `_undoEjection` — a "soft" undo: restores the last
-  /// ejected slot + their points, but resets everyone else to a flat pool
-  /// and lets the chain be freshly re-seeded, rather than reversing the
-  /// promotion step by step.
-  void _undoEjectCourt() {
+  /// Restores the last ejected slot + their points, and the rest of the
+  /// waiting chain exactly as it was right before the ejection (see
+  /// `_chainBeforeCourtEject`) — so undo, then redo, reproduces the same
+  /// result rather than letting fairness ranking re-derive a possibly
+  /// different one.
+  ///
+  /// If a team is currently on court and has already racked up points of
+  /// its own, undoing would silently overwrite them with the restored
+  /// team's tally — so that case is confirmed first.
+  Future<void> _undoEjectCourt() async {
     if (!_canUndoEjectCourt) return;
+    if (_currentPoints > 0) {
+      final l10n = AppLocalizations.of(context)!;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(l10n.scrambleKingUndoDiscardPointsTitle),
+          content: Text(l10n.scrambleKingUndoDiscardPointsBody(_currentPoints)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.btnCancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(l10n.scrambleKingUndoDiscardPointsConfirm),
+            ),
+          ],
+        ),
+      );
+      if (ok != true) return;
+      if (!mounted) return;
+    }
     if (_hasCourt) {
       _stintWatch
         ..stop()
@@ -924,19 +1199,29 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     final lastStint = _courtStints.last;
     final restoredSlotId = lastStint.turnSlotId;
     final (tempPartner, benched) = _resolveStintSubstitution(lastStint);
+    final snapshot = _chainBeforeCourtEject;
     setState(() {
       _onCourtSlotId = restoredSlotId;
       _onCourtTempPartnerId = tempPartner;
       _onCourtBenchedPlayerId = benched;
       _currentPoints = lastStint.points;
-      _pool = List.from(ScrambleKingService.initialQueueOrder(_formation))
-        ..remove(restoredSlotId);
-      _floaterJumperPartnerId = null;
-      _challengerSlotId = null;
-      _upNextSlotId = null;
+      if (snapshot != null) {
+        _restoreChainSnapshot(snapshot);
+        _chainBeforeCourtEject = null;
+      } else {
+        // Fallback: shouldn't normally happen (every eject takes a
+        // snapshot) — falls back to the old "soft undo" (reset everyone
+        // else to a flat pool and let the chain be freshly re-seeded)
+        // rather than reversing the promotion step by step.
+        _pool = List.from(ScrambleKingService.initialQueueOrder(_formation))
+          ..remove(restoredSlotId);
+        _floaterJumperPartnerId = null;
+        _challengerSlotId = null;
+        _upNextSlotId = null;
+        _topUpQueue();
+        _updateFloaterJumperAssignment();
+      }
       _lastEjectedChallengerSlotId = null;
-      _topUpQueue();
-      _updateFloaterJumperAssignment();
     });
     _updateTournament(
       _t.copyWith(
@@ -945,7 +1230,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
     );
     _stintWatch.reset();
     if (_timerRunning) _stintWatch.start();
-    _refreshScorekeeper();
+    if (snapshot == null) _refreshScorekeeper();
   }
 
   // ── Round-end handling (mirrors ScrambleScorecardPage's timer-finished +
@@ -1025,7 +1310,13 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         ],
       ),
     );
-    if (ok == true) _completeCourt();
+    if (ok != true) return;
+    _completeCourt();
+    // Ending the court before time runs out skips the natural review step,
+    // so open the editable results sheet immediately in case the auto-scored
+    // stint needs a correction.
+    if (!mounted) return;
+    _showRanking();
   }
 
   bool get _canUndoFinishCourt => _formation.isCompleted;
@@ -1212,6 +1503,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) {
           final l10n = AppLocalizations.of(ctx)!;
+          // Excludes the current jumper partner too — their team slot stays
+          // in `_pool` while they're individually borrowed out to play
+          // Challenger/Court, but they must never double as admin.
+          final busyJumperPartnerId = _busyJumperPartnerId;
           final poolPlayers = <(String id, String name)>[];
           for (final slotId in _pool) {
             if (slotId == _formation.floaterSlot?.slotId) {
@@ -1224,7 +1519,9 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                 (s) => s.slotId == slotId,
               );
               for (final pid in team.playerIds) {
-                poolPlayers.add((pid, _nameFor(pid)));
+                if (pid != busyJumperPartnerId) {
+                  poolPlayers.add((pid, _nameFor(pid)));
+                }
               }
             }
           }
@@ -1627,7 +1924,29 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           _buildRoundTimerRow(l10n, inline: true),
           const SizedBox(height: 6),
           Expanded(
-            child: _formation.isCompleted
+            child: Stack(
+              children: [
+                _buildLandscapeCourtContent(l10n),
+                if (_t.paceAlertsEnabled && _scheduleExpanded)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    child: _buildLandscapePacePanel(l10n),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // The court content under the timer row. The pace panel is overlaid on top
+  // of this (via a Stack in _buildLandscapeBody) rather than inserted above it,
+  // so expanding the schedule never shrinks the scoring tile into an overflow.
+  Widget _buildLandscapeCourtContent(AppLocalizations l10n) {
+    return _formation.isCompleted
                 ? SingleChildScrollView(child: _buildRoundCompleteBanner(l10n))
                 : !_hasStarted
                 ? SingleChildScrollView(child: _buildStartCourtCard(l10n))
@@ -1699,68 +2018,309 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                         _buildFullWidthCourtUndoButton(l10n),
                       ],
                     ),
+                  );
+  }
+
+  // ── Schedule card (pace alerts) ──────────────────────────────────────────
+
+  (Color, String) _scheduleStatus(AppLocalizations l10n) {
+    final now = DateTime.now();
+    if (now.isAfter(_round.scheduledMatchEndTime)) {
+      return (Colors.red.shade600, l10n.statusOverdue);
+    }
+    if (now.isAfter(_round.scheduledStartTime)) {
+      return (Colors.amber.shade700, l10n.statusDue);
+    }
+    return (Colors.green.shade600, l10n.statusUpcoming);
+  }
+
+  Widget _scheduleChip(String label, Color fg, Color bg) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+    decoration: BoxDecoration(
+      color: bg,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      label,
+      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg),
+    ),
+  );
+
+  // Actual-vs-planned start/end chips (mirrors ScrambleScorecardPage).
+  String _paceDelta(int m) =>
+      m.abs() <= 1 ? 'on time' : (m > 0 ? '+${m}m' : '${m}m');
+
+  Widget _startChip() {
+    final start = _round.scheduledStartTime;
+    final actualStart = _formation.actualStartTime;
+    if (actualStart != null) {
+      final m = actualStart.difference(start).inMinutes;
+      final late = m > 1;
+      return _scheduleChip(
+        '${_fmtTime(actualStart)} (${_paceDelta(m)})',
+        late ? Colors.orange.shade700 : _kOlive,
+        late ? Colors.orange.withValues(alpha: 0.12) : _kOliveLight,
+      );
+    }
+    final mins = start.difference(DateTime.now()).inMinutes;
+    if (mins > 0) return _scheduleChip('In ${mins}m', _kOlive, _kOliveLight);
+    if (mins == 0) return _scheduleChip('Now', _kOlive, _kOliveLight);
+    return _scheduleChip(
+      '${-mins}m late',
+      Colors.orange.shade700,
+      Colors.orange.withValues(alpha: 0.12),
+    );
+  }
+
+  Widget _endChip() {
+    final end = _round.scheduledMatchEndTime;
+    final actualEnd = _formation.actualEndTime;
+    if (_formation.isCompleted && actualEnd != null) {
+      final m = actualEnd.difference(end).inMinutes;
+      final over = m > 1;
+      return _scheduleChip(
+        '✓ ${_fmtTime(actualEnd)} (${_paceDelta(m)})',
+        over ? Colors.orange.shade700 : _kOlive,
+        over ? Colors.orange.withValues(alpha: 0.12) : _kOliveLight,
+      );
+    }
+    final mins = end.difference(DateTime.now()).inMinutes;
+    if (mins > 0) {
+      final soon = mins <= 5;
+      return _scheduleChip(
+        '${mins}m left',
+        soon ? Colors.orange.shade700 : Colors.black54,
+        soon ? Colors.orange.withValues(alpha: 0.12) : Colors.grey.shade100,
+      );
+    }
+    final over = DateTime.now().difference(end).inMinutes.clamp(0, 9999);
+    return _scheduleChip(
+      '${over}m over',
+      Colors.red.shade700,
+      Colors.red.withValues(alpha: 0.1),
+    );
+  }
+
+  // Shared expanded detail — start row, end row, and the "hurry up" warning
+  // when overdue. Used by the portrait collapsible card and the landscape
+  // inline expanding strip.
+  Widget _buildScheduleDetail(AppLocalizations l10n) {
+    final start = _round.scheduledStartTime;
+    final end = _round.scheduledMatchEndTime;
+    final isOverEnd =
+        DateTime.now().isAfter(end) && !_formation.isCompleted;
+    final timeColor = isOverEnd ? Colors.red.shade700 : Colors.black87;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.play_circle_outline_rounded,
+              size: 13,
+              color: Colors.black38,
+            ),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 40,
+              child: Text(
+                l10n.btnStart,
+                style: const TextStyle(fontSize: 11, color: Colors.black45),
+              ),
+            ),
+            Text(
+              _fmtTime(start),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: timeColor,
+              ),
+            ),
+            const Spacer(),
+            _startChip(),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Icon(
+              Icons.stop_circle_outlined,
+              size: 13,
+              color: isOverEnd ? Colors.red.shade300 : Colors.black38,
+            ),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 40,
+              child: Text(
+                l10n.scorecardEnd,
+                style: const TextStyle(fontSize: 11, color: Colors.black45),
+              ),
+            ),
+            Text(
+              _fmtTime(end),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: timeColor,
+              ),
+            ),
+            const Spacer(),
+            _endChip(),
+          ],
+        ),
+        if (isOverEnd) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.warning_amber_rounded, size: 13, color: Colors.red),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  l10n.scorecardOverScheduleHurry,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.red,
                   ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Compact tappable pace indicator (target end time + status chip) for the
+  // landscape timer row — toggles the inline expanding detail strip.
+  Widget _buildPaceChip(AppLocalizations l10n) {
+    final (statusColor, statusText) = _scheduleStatus(l10n);
+    return InkWell(
+      onTap: () => setState(() => _scheduleExpanded = !_scheduleExpanded),
+      borderRadius: BorderRadius.circular(20),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.flag_outlined, size: 13, color: _kOlive),
+          const SizedBox(width: 3),
+          Text(
+            _fmtTime(_round.scheduledMatchEndTime),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: _kOlive,
+            ),
+          ),
+          const SizedBox(width: 6),
+          _scheduleChip(
+            statusText,
+            statusColor,
+            statusColor.withValues(alpha: 0.14),
+          ),
+          Icon(
+            _scheduleExpanded
+                ? Icons.expand_less_rounded
+                : Icons.expand_more_rounded,
+            size: 16,
+            color: Colors.black38,
           ),
         ],
       ),
     );
   }
 
-  // ── Schedule card (pace alerts) ──────────────────────────────────────────
-
-  Widget _buildScheduleCard(AppLocalizations l10n) {
-    final now = DateTime.now();
-    final start = _round.scheduledStartTime;
-    final end = _round.scheduledMatchEndTime;
-
-    final Color statusColor;
-    final String statusText;
-    if (now.isAfter(end)) {
-      statusColor = Colors.red.shade600;
-      statusText = l10n.statusOverdue;
-    } else if (now.isAfter(start)) {
-      statusColor = Colors.amber.shade700;
-      statusText = l10n.statusDue;
-    } else {
-      statusColor = Colors.green.shade600;
-      statusText = l10n.statusUpcoming;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: _kOliveLight,
-        borderRadius: BorderRadius.circular(12),
+  // Landscape overlay panel — the expanded schedule detail floated over the
+  // court (opaque, same olive / overdue-red palette as the portrait schedule
+  // card) so it never reflows the tiles beneath it.
+  Widget _buildLandscapePacePanel(AppLocalizations l10n) {
+    final isOverEnd = DateTime.now().isAfter(_round.scheduledMatchEndTime) &&
+        !_formation.isCompleted;
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isOverEnd ? const Color(0xFFFCE9E9) : _kOliveLight,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isOverEnd
+                ? Colors.red.withValues(alpha: 0.3)
+                : _kOlive.withValues(alpha: 0.25),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: _buildScheduleDetail(l10n),
       ),
-      child: Row(
+    );
+  }
+
+  // Portrait collapsible schedule card.
+  Widget _buildScheduleCard(AppLocalizations l10n) {
+    final (statusColor, statusText) = _scheduleStatus(l10n);
+    final isOverEnd = DateTime.now().isAfter(_round.scheduledMatchEndTime) &&
+        !_formation.isCompleted;
+    final labelColor = isOverEnd ? Colors.red : _kOlive;
+    return Container(
+      decoration: BoxDecoration(
+        color: isOverEnd ? Colors.red.withValues(alpha: 0.06) : _kOliveLight,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isOverEnd ? Colors.red.withValues(alpha: 0.3) : Colors.transparent,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.schedule_rounded, size: 15, color: _kOlive),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${_fmtTime(start)} – ${_fmtTime(end)}',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: _kOlive,
+          GestureDetector(
+            onTap: () => setState(() => _scheduleExpanded = !_scheduleExpanded),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              child: Row(
+                children: [
+                  Icon(Icons.schedule_rounded, size: 14, color: labelColor),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${_fmtTime(_round.scheduledStartTime)} – ${_fmtTime(_round.scheduledMatchEndTime)}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: labelColor,
+                    ),
+                  ),
+                  const Spacer(),
+                  if (!_scheduleExpanded) ...[
+                    _scheduleChip(
+                      statusText,
+                      statusColor,
+                      statusColor.withValues(alpha: 0.14),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Icon(
+                    _scheduleExpanded
+                        ? Icons.expand_less_rounded
+                        : Icons.expand_more_rounded,
+                    size: 18,
+                    color: Colors.black38,
+                  ),
+                ],
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(20),
+          if (_scheduleExpanded)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+              child: _buildScheduleDetail(l10n),
             ),
-            child: Text(
-              statusText,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: statusColor,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -1779,23 +2339,32 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       onFinished: _onMatchTimerFinished,
     );
 
-    final paused =
-        _matchTimerKey.currentState?.timerState == ScrambleTimerState.paused;
+    final ts = _matchTimerKey.currentState?.timerState;
+    final running = ts == ScrambleTimerState.running;
+    final paused = ts == ScrambleTimerState.paused;
+    final notStarted = !_hasStarted;
+    // Keep the control row to a single line (mirrors ScrambleScorecardPage):
+    // Pause and Resume are mutually exclusive, and the trailing button is
+    // contextual — Start when idle, Restart once the court is under way.
     final controls = <Widget>[
-      if (paused)
+      if (running)
+        _refBtn(Icons.pause_rounded, l10n.btnStop, () {
+          _matchTimerKey.currentState?.pause();
+          setState(() => _timerRunning = false);
+        })
+      else if (paused)
         _refBtn(Icons.play_arrow_rounded, l10n.btnResume, () {
           _matchTimerKey.currentState?.resume();
           setState(() => _timerRunning = true);
         }, primary: true),
-      _refBtn(Icons.pause_rounded, l10n.btnStop, () {
-        _matchTimerKey.currentState?.pause();
-        setState(() => _timerRunning = false);
-      }),
-      _refBtn(Icons.replay_rounded, l10n.doghouseStartRestart, () {
-        if (!_hasStarted) {
-          _startCourt();
-          return;
-        }
+      _refBtn(
+        notStarted ? Icons.play_arrow_rounded : Icons.replay_rounded,
+        notStarted ? l10n.btnStart : l10n.btnRestart,
+        () {
+          if (!_hasStarted) {
+            _startCourt();
+            return;
+          }
         // Always records the current time and resets the timer to the full
         // match duration before starting — mirrors
         // ScrambleScorecardPage._startOrRestart. `restart()` alone can't be
@@ -1829,6 +2398,10 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           timer,
           const SizedBox(width: 8),
           Expanded(child: Wrap(spacing: 6, runSpacing: 6, children: controls)),
+          if (_t.paceAlertsEnabled) ...[
+            const SizedBox(width: 8),
+            _buildPaceChip(l10n),
+          ],
         ],
       );
     }
@@ -1939,67 +2512,125 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         side: BorderSide(color: Colors.grey.shade300),
       ),
       child: Padding(
-        padding: EdgeInsets.all(compact ? 8 : 14),
+        padding: EdgeInsets.all(compact ? 6 : 14),
         child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.schedule_rounded,
-                  size: 15,
-                  color: Colors.grey.shade500,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  l10n.kotcUpNext,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.grey.shade500,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: compact ? 4 : 8),
-            if (slotId == null)
-              Text(
-                l10n.kotcWaitingForPlayers,
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-              )
-            else ...[
-              if (teamName != null)
-                _teamCaption(teamName, Colors.grey.shade500),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  ..._slotChipNames(slotId).map(
-                    (n) => _nameChip(
-                      n,
-                      Colors.grey.shade600,
-                      bg: Colors.grey.shade200,
-                      border: null,
-                      compact: compact,
-                    ),
-                  ),
-                  if (slotId == _formation.floaterSlot?.slotId)
-                    _floaterPartnerChip(
-                      l10n,
-                      Colors.grey.shade600,
-                      bg: Colors.grey.shade200,
-                      border: Colors.grey.shade400,
-                      compact: compact,
-                      partnerId: _floaterJumperPartnerId,
-                    ),
-                ],
-              ),
-            ],
+            // Label + team name always render in full here, outside the
+            // scrollable body below — so the team name stays visible no
+            // matter how many lines the player chips wrap onto.
+            _upNextTileHeader(l10n, teamName, compact),
+            SizedBox(height: compact ? 2 : 8),
+            // Same rationale as the selection/suggestion tiles: this has no
+            // Expanded/flexible child, so at squeezed heights (Up Next and
+            // Challengers each get roughly half of what the active scoring
+            // tile gets, stacked in the same column) it scrolls instead of
+            // relying on a fixed height budget.
+            compact
+                ? SingleChildScrollView(
+                    child: _upNextTileBody(l10n, slotId, compact))
+                : _upNextTileBody(l10n, slotId, compact),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _upNextTileHeader(
+    AppLocalizations l10n,
+    String? teamName,
+    bool compact,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.schedule_rounded,
+              size: compact ? 13 : 15,
+              color: Colors.grey.shade500,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              l10n.kotcUpNext,
+              style: TextStyle(
+                fontSize: compact ? 11 : 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const Spacer(),
+            if (_upNextSlotId != null && _pool.isNotEmpty)
+              compact
+                  ? IconButton(
+                      onPressed: _rerollUpNext,
+                      icon: const Icon(Icons.refresh_rounded, size: 15),
+                      color: _kOlive,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: l10n.quickStartReRoll,
+                    )
+                  : TextButton.icon(
+                      onPressed: _rerollUpNext,
+                      icon: const Icon(Icons.refresh_rounded, size: 13),
+                      label: Text(
+                        l10n.quickStartReRoll,
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: _kOlive,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+          ],
+        ),
+        if (teamName != null) ...[
+          SizedBox(height: compact ? 1 : 3),
+          _teamCaption(teamName, Colors.grey.shade500, compact: compact),
+        ],
+      ],
+    );
+  }
+
+  Widget _upNextTileBody(AppLocalizations l10n, String? slotId, bool compact) {
+    if (slotId == null) {
+      return Text(
+        l10n.kotcWaitingForPlayers,
+        style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+      );
+    }
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        ..._slotChipNames(slotId).map(
+          (n) => _nameChip(
+            n,
+            Colors.grey.shade600,
+            bg: Colors.grey.shade200,
+            border: null,
+            compact: compact,
+          ),
+        ),
+        if (slotId == _formation.floaterSlot?.slotId)
+          _floaterPartnerChip(
+            l10n,
+            Colors.grey.shade600,
+            bg: Colors.grey.shade200,
+            border: Colors.grey.shade400,
+            compact: compact,
+            partnerId: _floaterJumperPartnerId,
+          ),
+      ],
     );
   }
 
@@ -2019,62 +2650,92 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         side: BorderSide(color: _kOlive.withValues(alpha: 0.35), width: 1.5),
       ),
       child: Padding(
-        padding: EdgeInsets.all(compact ? 8 : 14),
+        padding: EdgeInsets.all(compact ? 6 : 14),
         child: Column(
-          mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.groups_rounded, size: 15, color: _kOlive),
-                const SizedBox(width: 6),
-                Text(
-                  l10n.kotcChallengers,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: _kOlive,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: compact ? 4 : 8),
-            if (!hasChallenger)
-              Text(
-                l10n.kotcWaitingForPlayers,
-                style: const TextStyle(color: _kOlive, fontSize: 12),
-              )
-            else ...[
-              if (teamName != null) _teamCaption(teamName, _kOlive),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  ..._slotChipNames(_challengerSlotId!).map(
-                    (n) => _nameChip(
-                      n,
-                      _kOlive,
-                      bg: _kOlive.withValues(alpha: 0.15),
-                      border: _kOlive.withValues(alpha: 0.4),
-                      compact: compact,
-                    ),
-                  ),
-                  if (_challengerSlotId == _formation.floaterSlot?.slotId)
-                    _floaterPartnerChip(
-                      l10n,
-                      _kOlive,
-                      bg: _kOlive.withValues(alpha: 0.15),
-                      border: _kOlive.withValues(alpha: 0.4),
-                      compact: compact,
-                      partnerId: _floaterJumperPartnerId,
-                    ),
-                ],
-              ),
-            ],
+            // Label + team name always render in full here — see
+            // `_upNextTileHeader` for why this is kept out of the scrollable
+            // body below.
+            _challengersTileHeader(l10n, teamName, compact),
+            SizedBox(height: compact ? 2 : 8),
+            // Same rationale as _upNextTileBody.
+            compact
+                ? SingleChildScrollView(
+                    child: _challengersTileBody(l10n, hasChallenger, compact))
+                : _challengersTileBody(l10n, hasChallenger, compact),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _challengersTileHeader(
+    AppLocalizations l10n,
+    String? teamName,
+    bool compact,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.groups_rounded, size: compact ? 13 : 15, color: _kOlive),
+            const SizedBox(width: 6),
+            Text(
+              l10n.kotcChallengers,
+              style: TextStyle(
+                fontSize: compact ? 11 : 12,
+                fontWeight: FontWeight.w700,
+                color: _kOlive,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ],
+        ),
+        if (teamName != null) ...[
+          SizedBox(height: compact ? 1 : 3),
+          _teamCaption(teamName, _kOlive, compact: compact),
+        ],
+      ],
+    );
+  }
+
+  Widget _challengersTileBody(
+    AppLocalizations l10n,
+    bool hasChallenger,
+    bool compact,
+  ) {
+    if (!hasChallenger) {
+      return Text(
+        l10n.kotcWaitingForPlayers,
+        style: const TextStyle(color: _kOlive, fontSize: 12),
+      );
+    }
+    return Wrap(
+      spacing: 6,
+      runSpacing: 4,
+      children: [
+        ..._slotChipNames(_challengerSlotId!).map(
+          (n) => _nameChip(
+            n,
+            _kOlive,
+            bg: _kOlive.withValues(alpha: 0.15),
+            border: _kOlive.withValues(alpha: 0.4),
+            compact: compact,
+          ),
+        ),
+        if (_challengerSlotId == _formation.floaterSlot?.slotId)
+          _floaterPartnerChip(
+            l10n,
+            _kOlive,
+            bg: _kOlive.withValues(alpha: 0.15),
+            border: _kOlive.withValues(alpha: 0.4),
+            compact: compact,
+            partnerId: _floaterJumperPartnerId,
+          ),
+      ],
     );
   }
 
@@ -2101,7 +2762,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       ),
       child: Padding(
         padding: compact
-            ? const EdgeInsets.fromLTRB(12, 10, 12, 8)
+            ? const EdgeInsets.fromLTRB(12, 8, 12, 6)
             : const EdgeInsets.fromLTRB(16, 16, 16, 12),
         child: Column(
           mainAxisSize: compact ? MainAxisSize.max : MainAxisSize.min,
@@ -2109,16 +2770,16 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
             // Tile header, mirroring the "UP NEXT" / "CHALLENGERS" tiles.
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.sports_volleyball_rounded,
-                  size: 15,
+                  size: compact ? 13 : 15,
                   color: _kGold,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   l10n.scrambleKingCourtLabel.toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: compact ? 11 : 12,
                     fontWeight: FontWeight.w700,
                     color: _kGold,
                     letterSpacing: 0.4,
@@ -2126,8 +2787,8 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                 ),
               ],
             ),
-            SizedBox(height: compact ? 4 : 8),
-            if (teamName != null) _teamCaption(teamName, _kGold),
+            SizedBox(height: compact ? 2 : 8),
+            if (teamName != null) _teamCaption(teamName, _kGold, compact: compact),
             // Player chips
             Wrap(
               spacing: 6,
@@ -2160,20 +2821,20 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                   ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: compact ? 2 : 8),
             // Game clock + strike badge
             Row(
               children: [
                 Icon(
                   Icons.timer_rounded,
-                  size: 12,
+                  size: compact ? 11 : 12,
                   color: _kGold.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   clock,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: compact ? 11 : 12,
                     color: _kGold.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w600,
                   ),
@@ -2214,25 +2875,65 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                 ],
               ],
             ),
-            // Big score
+            // Big score. In compact/landscape mode the counter sits between
+            // the +/- buttons in one Row (instead of stacked above a
+            // separate button row) so it shares the buttons' guaranteed
+            // height — on short Android screens a number squeezed into its
+            // own slot above the buttons could shrink to near-invisible;
+            // between the buttons it always gets a real, visible size.
+            // Mirrors King of the Court / Doghouse's identical fix.
             if (compact)
               Expanded(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Text(
-                      '$_currentPoints',
-                      style: const TextStyle(
-                        fontSize: 200,
-                        fontWeight: FontWeight.bold,
-                        height: 1,
-                        color: Colors.black87,
+                child: Row(
+                  children: [
+                    IconButton.filled(
+                      icon: const Icon(Icons.remove),
+                      tooltip: '−1',
+                      onPressed: (_timerRunning && _currentPoints > 0)
+                          ? _removePoint
+                          : null,
+                      style: IconButton.styleFrom(
+                        backgroundColor: (_timerRunning && _currentPoints > 0)
+                            ? _kGold
+                            : Colors.grey.shade300,
+                        foregroundColor: (_timerRunning && _currentPoints > 0)
+                            ? Colors.white
+                            : Colors.grey,
+                        fixedSize: const Size(44, 44),
                       ),
                     ),
-                  ),
+                    Expanded(
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: Text(
+                            '$_currentPoints',
+                            style: const TextStyle(
+                              fontSize: 200,
+                              fontWeight: FontWeight.bold,
+                              height: 1,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton.filled(
+                      icon: const Icon(Icons.add),
+                      tooltip: '+1',
+                      onPressed: _timerRunning ? _addPoint : null,
+                      style: IconButton.styleFrom(
+                        backgroundColor:
+                            _timerRunning ? _kGold : Colors.grey.shade300,
+                        foregroundColor:
+                            _timerRunning ? Colors.white : Colors.grey,
+                        fixedSize: const Size(52, 52),
+                      ),
+                    ),
+                  ],
                 ),
               )
-            else
+            else ...[
               Text(
                 '$_currentPoints',
                 style: const TextStyle(
@@ -2242,40 +2943,41 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
                   color: Colors.black87,
                 ),
               ),
-            // +/- buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton.filled(
-                  icon: const Icon(Icons.remove),
-                  tooltip: '−1',
-                  onPressed: (_timerRunning && _currentPoints > 0)
-                      ? _removePoint
-                      : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor: (_timerRunning && _currentPoints > 0)
-                        ? _kGold
-                        : Colors.grey.shade300,
-                    foregroundColor: (_timerRunning && _currentPoints > 0)
-                        ? Colors.white
-                        : Colors.grey,
-                    fixedSize: const Size(52, 52),
+              // +/- buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton.filled(
+                    icon: const Icon(Icons.remove),
+                    tooltip: '−1',
+                    onPressed: (_timerRunning && _currentPoints > 0)
+                        ? _removePoint
+                        : null,
+                    style: IconButton.styleFrom(
+                      backgroundColor: (_timerRunning && _currentPoints > 0)
+                          ? _kGold
+                          : Colors.grey.shade300,
+                      foregroundColor: (_timerRunning && _currentPoints > 0)
+                          ? Colors.white
+                          : Colors.grey,
+                      fixedSize: const Size(52, 52),
+                    ),
                   ),
-                ),
-                IconButton.filled(
-                  icon: const Icon(Icons.add),
-                  tooltip: '+1',
-                  onPressed: _timerRunning ? _addPoint : null,
-                  style: IconButton.styleFrom(
-                    backgroundColor: _timerRunning
-                        ? _kGold
-                        : Colors.grey.shade300,
-                    foregroundColor: _timerRunning ? Colors.white : Colors.grey,
-                    fixedSize: const Size(64, 64),
+                  IconButton.filled(
+                    icon: const Icon(Icons.add),
+                    tooltip: '+1',
+                    onPressed: _timerRunning ? _addPoint : null,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          _timerRunning ? _kGold : Colors.grey.shade300,
+                      foregroundColor:
+                          _timerRunning ? Colors.white : Colors.grey,
+                      fixedSize: const Size(64, 64),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -2578,12 +3280,14 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
               children: [
                 const Icon(Icons.groups_rounded, size: 16, color: _kGold),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.scrambleKingPickStartingTeam,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: _kGold,
+                Expanded(
+                  child: Text(
+                    l10n.scrambleKingPickStartingTeam,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: _kGold,
+                    ),
                   ),
                 ),
               ],
@@ -2652,6 +3356,14 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
           spacing: 8,
           runSpacing: 6,
           children: [
+            InfoChip(
+              icon: Icons.groups_rounded,
+              label: l10n.pageTeams,
+              bg: _kOliveLight,
+              fg: _kOlive,
+              onTap: () => _showTeamsSheet(l10n),
+              trailingIcon: Icons.unfold_more_rounded,
+            ),
             _chip(
               Icons.repeat_rounded,
               l10n.scrambleKingRoundLabel(_round.roundNumber),
@@ -2752,15 +3464,15 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
 
   // ── Shared small helpers (ported from KOTC) ──────────────────────────────
 
-  Widget _teamCaption(String text, Color color) => Padding(
-    padding: const EdgeInsets.only(bottom: 3),
+  Widget _teamCaption(String text, Color color, {bool compact = false}) => Padding(
+    padding: EdgeInsets.only(bottom: compact ? 1 : 3),
     child: Text(
       text.toUpperCase(),
       textAlign: TextAlign.center,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 10,
+        fontSize: compact ? 9 : 10,
         fontWeight: FontWeight.w700,
         color: color,
         letterSpacing: 0.5,
@@ -2840,13 +3552,15 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
         children: [
           Icon(icon, size: compact ? 12 : 14, color: fg.withValues(alpha: 0.8)),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: compact ? 11 : 13,
-              fontWeight: FontWeight.w600,
-              fontStyle: FontStyle.italic,
-              color: fg.withValues(alpha: 0.85),
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: compact ? 11 : 13,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                color: fg.withValues(alpha: 0.85),
+              ),
             ),
           ),
         ],
@@ -3054,7 +3768,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       side: BorderSide(color: primary ? _kOlive : Colors.grey.shade300),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      minimumSize: Size.zero,
+      minimumSize: const Size(0, 30),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
   );
@@ -3066,7 +3780,7 @@ class _ScrambleKingCourtPageState extends State<ScrambleKingCourtPage> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       side: BorderSide(color: Colors.grey.shade300),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      minimumSize: Size.zero,
+      minimumSize: const Size(0, 30),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     ),
     child: Text(label, style: const TextStyle(fontSize: 12)),

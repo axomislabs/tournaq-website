@@ -100,7 +100,9 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   int get _activeCourts =>
       min(_courtCount, _players.length ~/ (_playersPerTeam * 2));
 
-  List<ScrambleSuggestion> get _suggestions => ScrambleService.validate(
+  List<ScrambleSuggestion> _suggestionsFor(AppLocalizations l10n) =>
+      ScrambleService.validate(
+        l10n:           l10n,
         roundCount:     _rounds,
         matchDuration:  _matchDuration,
         breakDuration:  _breakDuration,
@@ -140,12 +142,13 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
     });
   }
 
+  // The only blocking suggestion is "too few rounds", already covered by the
+  // `_rounds > 0` check below — so gating needs no localized suggestion list.
   bool get _canCreate =>
       _nameCtrl.text.trim().isNotEmpty &&
       _matchMinutes > 0 &&
       _rounds > 0 &&
-      _players.length == _targetPlayerCount &&
-      !_suggestions.any((s) => s.isBlocking);
+      _players.length == _targetPlayerCount;
 
   // ── Actions ──────────────────────────────────────────────────────────────────
 
@@ -730,7 +733,7 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
   @override
   Widget build(BuildContext context) {
     final l10n       = AppLocalizations.of(context)!;
-    final suggestions = _suggestions;
+    final suggestions = _suggestionsFor(l10n);
     final canCreate   = _canCreate;
 
     return Scaffold(
@@ -831,8 +834,11 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
             ),
             const SizedBox(height: 14),
 
-            // Start time editing now lives in the Schedule Preview card
-            // below (mirrors the Overview page's start/end row + pencil).
+            // Schedule preview (live), with the pace-alerts toggle directly
+            // beneath it — matching the Overview page order (schedule first,
+            // then the toggle).
+            _schedulePreview(),
+            const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _paceAlertsEnabled,
@@ -845,10 +851,6 @@ class _ScrambleSetupPageState extends State<ScrambleSetupPage> {
                   style:
                       const TextStyle(fontSize: 12, color: Colors.black54)),
             ),
-            const SizedBox(height: 4),
-
-            // Schedule preview (live)
-            _schedulePreview(),
 
             // ── Suggestions ───────────────────────────────────────────────────
             if (suggestions.isNotEmpty) ...[

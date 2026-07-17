@@ -60,12 +60,17 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
   KoOddTeamStrategy       _oddStrategy    = KoOddTeamStrategy.byes;
 
   // ── Game settings ─────────────────────────────────────────────────────────
-  KoRoundFormat _defaultFormat           = const KoRoundFormat(setsPerGame: 1, pointsPerSet: 15);
+  KoRoundFormat _defaultFormat           = const KoRoundFormat(
+      setsPerGame: 1,
+      pointsPerSet: 15,
+      sideChangeInterval: 5,
+      notifyOnTargetReached: true);
   Map<int, KoRoundFormat> _roundFormats  = {};
   Map<int, int> _roundBreaks             = {};
 
   // ── Schedule ──────────────────────────────────────────────────────────────
   DateTime _estimatedStart = DateTime.now().add(const Duration(hours: 1));
+  bool _paceAlerts = false;
 
   // ── Teams ─────────────────────────────────────────────────────────────────
   List<KoTeam> _teams = [];
@@ -232,6 +237,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       roundFormats: _roundFormats,
       roundBreaks: _roundBreaks,
       estimatedStart: _estimatedStart,
+      paceAlertsEnabled: _paceAlerts,
       teams: teams,
     );
     final withMatches = base.copyWith(matches: KoBracketGenerator.generate(base));
@@ -254,6 +260,7 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
       roundFormats: _roundFormats,
       roundBreaks: _roundBreaks,
       estimatedStart: _estimatedStart,
+      paceAlertsEnabled: _paceAlerts,
       teams: teams,
       matches: KoBracketGenerator.generate(
         KoBracketTournament(
@@ -337,18 +344,12 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             _sectionDivider(l10n.doghouseTournamentSetup, Icons.tune_rounded),
             const SizedBox(height: 14),
 
-            Row(children: [
-              Expanded(
-                child: _comboField(
-                  label: l10n.setupSectionTeams,
-                  ctrl: _teamCountCtrl,
-                  presets: [4, 6, 8, 10, 12, 16],
-                  onParsed: _onTeamCountChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: _scheduleField()),
-            ]),
+            _comboField(
+              label: l10n.setupSectionTeams,
+              ctrl: _teamCountCtrl,
+              presets: [4, 6, 8, 10, 12, 16],
+              onParsed: _onTeamCountChanged,
+            ),
             const SizedBox(height: 14),
             Row(children: [
               Expanded(child: _playersPerSideField()),
@@ -426,6 +427,11 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
                         DropdownMenuItem(
                             value: KoOddTeamStrategy.playIn,
                             child: Text(l10n.setupOddTeamsPlayIn)),
+                        DropdownMenuItem(
+                            value: KoOddTeamStrategy.playInWithRepechage,
+                            enabled: false,
+                            child: Text(l10n.bracketPlayInPlus,
+                                style: const TextStyle(color: Colors.black38))),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _oddStrategy = v);
@@ -437,6 +443,20 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             ]),
             const SizedBox(height: 14),
             _buildSchedulePreview(preview),
+            const SizedBox(height: 8),
+            // Pace-alerts toggle beneath the schedule preview (schedule first,
+            // then the toggle — matching Social Scramble / Scramble King).
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _paceAlerts,
+              onChanged: (v) => setState(() => _paceAlerts = v),
+              activeThumbColor: AppColors.gold,
+              title: Text(l10n.timelinePaceAlertsTitle,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
+              subtitle: Text(l10n.timelinePaceAlertsSubtitle,
+                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            ),
             const SizedBox(height: 14),
             // ══ SECTION 2: Teams ══════════════════════════════════════════
             _sectionDivider(l10n.setupSectionTeams, Icons.groups_rounded),
@@ -1103,66 +1123,96 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
             setSheetState(() {});
           }
 
-          Widget chipRow(
-              List<int> options, int selected, void Function(int) onPick) {
-            return Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: options.map((v) {
-                final sel = v == selected;
-                return GestureDetector(
-                  onTap: () => onPick(v),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: sel ? _kGold : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: sel ? _kGoldDark : Colors.grey.shade300,
-                        width: sel ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Text('$v',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                            color: sel ? Colors.white : Colors.black54)),
-                  ),
-                );
-              }).toList(),
-            );
-          }
-
           return TournaQSheet(
             body: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(roundLabel,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 20),
-                  Text(l10n.setupSetsPerGame,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
+                  _configDropdown(
+                    label: l10n.setupSetsPerGame,
+                    valueText: '${fmt.setsPerGame}',
+                    itemBuilder: (_) => [
+                      for (final v in const [1, 3, 5])
+                        PopupMenuItem<int>(value: v, child: Text('$v')),
+                    ],
+                    onSelected: (v) => pick(fmt.copyWith(setsPerGame: v)),
+                  ),
+                  const SizedBox(height: 12),
+                  _configDropdown(
+                    label: l10n.bracketTargetScore,
+                    valueText: '${fmt.pointsPerSet}',
+                    itemBuilder: (_) => [
+                      for (final v in const [11, 15, 21])
+                        PopupMenuItem<int>(value: v, child: Text('$v')),
+                      PopupMenuItem<int>(
+                          value: _kCustomSentinel,
+                          child: Text(l10n.optionCustom)),
+                    ],
+                    onSelected: (v) async {
+                      if (v == _kCustomSentinel) {
+                        await _showCustomValueDialog(
+                          title: l10n.bracketTargetScore,
+                          initial: fmt.pointsPerSet,
+                          minValue: 1,
+                          onConfirm: (value) =>
+                              pick(fmt.copyWith(pointsPerSet: value)),
+                        );
+                      } else {
+                        pick(fmt.copyWith(pointsPerSet: v));
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _configDropdown(
+                    label: l10n.bracketSideChange,
+                    valueText: fmt.sideChangeInterval == null
+                        ? l10n.bracketSideChangeOff
+                        : '${fmt.sideChangeInterval}',
+                    itemBuilder: (_) => [
+                      PopupMenuItem<int>(
+                          value: 0, child: Text(l10n.bracketSideChangeOff)),
+                      for (final v in const [5, 7])
+                        PopupMenuItem<int>(value: v, child: Text('$v')),
+                      PopupMenuItem<int>(
+                          value: _kCustomSentinel,
+                          child: Text(l10n.optionCustom)),
+                    ],
+                    onSelected: (v) async {
+                      if (v == _kCustomSentinel) {
+                        await _showCustomValueDialog(
+                          title: l10n.bracketSideChange,
+                          initial: fmt.sideChangeInterval ?? 5,
+                          minValue: 1,
+                          onConfirm: (value) =>
+                              pick(fmt.copyWith(sideChangeInterval: value)),
+                        );
+                      } else if (v == 0) {
+                        pick(fmt.copyWith(clearSideChangeInterval: true));
+                      } else {
+                        pick(fmt.copyWith(sideChangeInterval: v));
+                      }
+                    },
+                  ),
                   const SizedBox(height: 8),
-                  chipRow([1, 3, 5], fmt.setsPerGame,
-                      (v) => pick(fmt.copyWith(setsPerGame: v))),
-                  const SizedBox(height: 16),
-                  Text(l10n.setupPointsPerSet,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54)),
-                  const SizedBox(height: 8),
-                  chipRow([11, 15, 21], fmt.pointsPerSet,
-                      (v) => pick(fmt.copyWith(pointsPerSet: v))),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    value: fmt.notifyOnTargetReached,
+                    activeThumbColor: _kGold,
+                    title: Text(l10n.bracketNotifyTarget,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600)),
+                    subtitle: Text(l10n.bracketNotifyTargetDesc,
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black54)),
+                    onChanged: (v) =>
+                        pick(fmt.copyWith(notifyOnTargetReached: v)),
+                  ),
                 ],
               ),
             ),
@@ -1170,6 +1220,112 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
         },
       ),
     );
+  }
+
+  static const int _kCustomSentinel = -1;
+
+  /// Quick-Game-style labeled dropdown (label on top, value below) shown as a
+  /// popup menu — used for sets per game, target score and side change.
+  Widget _configDropdown({
+    required String label,
+    required String valueText,
+    required List<PopupMenuEntry<int>> Function(BuildContext) itemBuilder,
+    required void Function(int) onSelected,
+    bool enabled = true,
+  }) {
+    return PopupMenuButton<int>(
+      enabled: enabled,
+      itemBuilder: itemBuilder,
+      onSelected: onSelected,
+      padding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(
+              color: enabled
+                  ? _kGold.withValues(alpha: 0.4)
+                  : Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(label,
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600)),
+                  Text(valueText,
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: enabled ? _kGoldDark : Colors.grey)),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down,
+                color: enabled ? _kGoldDark : Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Manual-entry dialog for a "Custom…" dropdown option (target / side change).
+  Future<void> _showCustomValueDialog({
+    required String title,
+    required int initial,
+    required int minValue,
+    required ValueChanged<int> onConfirm,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    final ctrl = TextEditingController(text: '$initial');
+    try {
+      final ok = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: Colors.white,
+          title: Text(title,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          content: TextField(
+            controller: ctrl,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.btnCancel),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: _kOlive, foregroundColor: Colors.white),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.btnSave),
+            ),
+          ],
+        ),
+      );
+      if (ok == true) {
+        final value = int.tryParse(ctrl.text) ?? initial;
+        onConfirm(value < minValue ? minValue : value);
+      }
+    } finally {
+      Future.delayed(const Duration(milliseconds: 300), ctrl.dispose);
+    }
   }
 
   void _pickBreak(int round, String roundLabel) {
@@ -1302,37 +1458,6 @@ class _KoBracketSetupPageState extends State<KoBracketSetupPage> {
         ]),
       ),
     ]);
-  }
-
-  Widget _scheduleField() {
-    final l10n = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _fieldLabel(l10n.setupScheduleLabel),
-        const SizedBox(height: 6),
-        DropdownButtonFormField<String>(
-          initialValue: 'soft',
-          isDense: true,
-          isExpanded: true,
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-          items: [
-            DropdownMenuItem(value: 'soft', child: Text(l10n.setupScheduleSoft)),
-            DropdownMenuItem(
-              value: 'forced',
-              enabled: false,
-              child: Text(l10n.setupScheduleForced,
-                  style: const TextStyle(color: Colors.black38)),
-            ),
-          ],
-          onChanged: (_) {},
-        ),
-      ],
-    );
   }
 
   Widget _playersPerSideField() {

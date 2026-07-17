@@ -78,6 +78,19 @@ class ScrambleTimerWidgetState extends State<ScrambleTimerWidget> {
     });
   }
 
+  /// Puts the timer in the paused state at [remaining] (or the current
+  /// remaining) without starting a ticker — used when re-entering a scorecard
+  /// the referee had paused, so it doesn't silently resume counting down.
+  void showPaused([Duration? remaining]) {
+    _ticker?.cancel();
+    setState(() {
+      if (remaining != null) {
+        _remaining = remaining < Duration.zero ? Duration.zero : remaining;
+      }
+      _state = ScrambleTimerState.paused;
+    });
+  }
+
   void addTime(Duration delta) {
     setState(() {
       if (widget.mode == ScrambleTimerMode.countdown) {

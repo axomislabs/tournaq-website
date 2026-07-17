@@ -5,7 +5,9 @@ import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../models/ko_bracket_tournament.dart';
 import '../scoring/ko_bracket_adapter.dart';
+import '../services/ko_bracket_transfer_service.dart';
 import '../widgets/player_pill.dart';
+import '../widgets/qr_export_sheet.dart';
 import '../widgets/sheet_helpers.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'gameplay_history_page.dart';
@@ -39,11 +41,27 @@ class KoBracketMatchPage extends StatefulWidget {
   final String matchId;
   final void Function(KoBracketTournament) onChanged;
 
+  /// True when scoring a match imported from another device's QR. Persistence
+  /// then flows only through [onChanged] (never the main KO store), and the app
+  /// bar offers an "export result" QR instead of the normal options.
+  final bool isImported;
+
+  /// The host tournament id to stamp into an exported result, so the origin
+  /// device can match the scanned result back to its own match.
+  final String? parentTournamentId;
+
+  /// Bracket position from the host (e.g. "Quarter-final · Match 3"), shown on
+  /// an imported scorecard instead of the mini-tournament's own position.
+  final String? importedPositionLabel;
+
   const KoBracketMatchPage({
     super.key,
     required this.tournament,
     required this.matchId,
     required this.onChanged,
+    this.isImported = false,
+    this.parentTournamentId,
+    this.importedPositionLabel,
   });
 
   @override
@@ -58,6 +76,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   int _score1 = 0;
   int _score2 = 0;
   bool _isSwapped = false;
+  double _dragDelta = 0; // accumulates horizontal drag to swap sides by gesture
 
   // ── Timer ─────────────────────────────────────────────────────────────────
   Timer? _timer;
@@ -82,12 +101,19 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       tournament: widget.tournament,
       matchId: widget.matchId,
       onChanged: widget.onChanged,
+      saveToStore: !widget.isImported,
     );
     _score1 = _adapter.currentScore1;
     _score2 = _adapter.currentScore2;
     _now = DateTime.now();
     _startTimer();
-    _assignSuggestionsIfNeeded();
+    // Deferred to post-frame: assigning suggestions persists the match and
+    // calls onChanged -> setState on the ancestor bracket page, which is illegal
+    // while this page is being inflated during the frame build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _assignSuggestionsIfNeeded();
+    });
   }
 
   @override
@@ -160,6 +186,413 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     }
   }
 
+  // ── Scorecard export (host → referee, before the match starts) ────────────
+
+  /// Shared QR subtitle: bracket position, court (when assigned) and the two
+  /// teams — matches the context shown on the other match exports.
+  String _matchContext(AppLocalizations l10n) {
+    final teams = '${_team1?.name ?? 'TBD'} vs ${_team2?.name ?? 'TBD'}';
+    final court = _match.courtAssignment != null
+        ? ' · ${l10n.matchCourtLabel(_match.courtAssignment!)}'
+        : '';
+    return '$_bracketPositionLabel$court · $teams';
+  }
+
+  void _exportScorecard() {
+    final l10n = AppLocalizations.of(context)!;
+    final data = KoBracketTransferService.encodeMatchExport(
+      _tournament,
+      _match,
+      positionLabel: _bracketPositionLabel,
+    );
+    showQrExportSheet(
+      context,
+      title: l10n.scrambleExportScorecard,
+      subtitle: _matchContext(l10n),
+      data: data,
+    );
+  }
+
+  // ── Imported result export (referee → host) ───────────────────────────────
+
+  void _exportResult() {
+    final l10n = AppLocalizations.of(context)!;
+    if (!_isMatchComplete) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n.bracketFinishBeforeExport),
+        duration: const Duration(seconds: 2),
+      ));
+      return;
+    }
+    final parentId = widget.parentTournamentId ?? _tournament.id;
+    final data = KoBracketTransferService.encodeResult(parentId, _match);
+    showQrExportSheet(
+      context,
+      title: l10n.scrambleExportResult,
+      subtitle: _matchContext(l10n),
+      data: data,
+    );
+  }
+
+  // ── Export / edit menu ────────────────────────────────────────────────────
+
+  /// Any points on the board — the live set or any recorded set.
+  bool get _hasAnyPoints =>
+      _score1 > 0 ||
+      _score2 > 0 ||
+      _match.sets.any((s) => s.score1 > 0 || s.score2 > 0);
+
+  /// The match this one's winner advanced into (immediate downstream slot), or
+  /// null at the final / before a winner exists. Round-0 play-ins feed a round-1
+  /// slot found by winner membership; main rounds are deterministic.
+  KoMatch? get _downstreamMatch {
+    final winnerId = _match.winnerId;
+    if (winnerId == null) return null;
+    if (_match.round == 0) {
+      for (final m in _tournament.matches.where((m) => m.round == 1)) {
+        if (m.team1Id == winnerId || m.team2Id == winnerId) return m;
+      }
+      return null;
+    }
+    final targetRound = _match.round + 1;
+    final targetIndex = _match.matchIndex ~/ 2;
+    final idx = _tournament.matches.indexWhere(
+        (m) => m.round == targetRound && m.matchIndex == targetIndex);
+    return idx < 0 ? null : _tournament.matches[idx];
+  }
+
+  /// True once the downstream match is underway — started, scored or complete —
+  /// so re-adjudicating this match must not change who advanced into it.
+  bool get _downstreamLocked {
+    final d = _downstreamMatch;
+    if (d == null) return false;
+    return d.startedAt != null ||
+        d.isComplete ||
+        d.sets.any((s) => s.score1 > 0 || s.score2 > 0);
+  }
+
+  /// The app-bar QR menu (export + edit score). Shown only while the board is
+  /// still 0–0 (hand-off / manual entry) or once the match is complete (export
+  /// result / fix the score). Hidden mid-match so an in-progress board can't be
+  /// exported or silently overwritten. Null when there's nothing to offer.
+  Widget? _buildExportEditMenu(AppLocalizations l10n) {
+    if (_team1 == null || _team2 == null) return null;
+    if (!(_isMatchComplete || !_hasAnyPoints)) return null;
+
+    final canExportScorecard = !_isMatchComplete && !widget.isImported;
+    PopupMenuItem<String> item(String value, IconData icon, String label) =>
+        PopupMenuItem<String>(
+          value: value,
+          child: Row(children: [
+            Icon(icon, size: 18, color: _kOlive),
+            const SizedBox(width: 8),
+            Text(label),
+          ]),
+        );
+
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.qr_code_rounded),
+      tooltip: l10n.scrambleExportScorecard,
+      onSelected: (v) {
+        switch (v) {
+          case 'export':
+            _isMatchComplete ? _exportResult() : _exportScorecard();
+          case 'edit':
+            _onEditScore();
+        }
+      },
+      itemBuilder: (ctx) => [
+        if (_isMatchComplete)
+          item('export', Icons.qr_code_rounded, l10n.scrambleExportResult)
+        else if (canExportScorecard)
+          item('export', Icons.qr_code_rounded, l10n.scrambleExportScorecard),
+        item('edit', Icons.edit_rounded, l10n.scorecardManualScore),
+      ],
+    );
+  }
+
+  // ── Manual score entry / edit ─────────────────────────────────────────────
+
+  void _onEditScore() {
+    if (_hasAnyPoints) {
+      _confirmOverrideThenEdit();
+    } else {
+      _showEditScoreDialog();
+    }
+  }
+
+  Future<void> _confirmOverrideThenEdit() async {
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        title: Text(l10n.scorecardEditScoreOverrideTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        content: Text(l10n.scorecardEditScoreOverrideBody,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black87, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.btnContinue,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) _showEditScoreDialog();
+  }
+
+  Future<void> _showWinnerLockedDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        title: Row(children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.lock_outline_rounded,
+                color: Colors.orange.shade800, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(l10n.scorecardEditWinnerLockedTitle,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          ),
+        ]),
+        content: Text(l10n.scorecardEditWinnerLockedBody,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black87, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.btnGotIt,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditScoreDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final fmt = _fmt;
+    // Prefill with the existing set scores when editing a match that was played.
+    final ctrls1 = List.generate(
+        fmt.setsPerGame,
+        (i) => TextEditingController(
+            text: i < _match.sets.length ? '${_match.sets[i].score1}' : ''));
+    final ctrls2 = List.generate(
+        fmt.setsPerGame,
+        (i) => TextEditingController(
+            text: i < _match.sets.length ? '${_match.sets[i].score2}' : ''));
+
+    List<KoSet> tally() {
+      final sets = <KoSet>[];
+      for (var i = 0; i < fmt.setsPerGame; i++) {
+        final s1 = int.tryParse(ctrls1[i].text) ?? 0;
+        final s2 = int.tryParse(ctrls2[i].text) ?? 0;
+        if (s1 == 0 && s2 == 0) continue;
+        sets.add(KoSet(score1: s1, score2: s2, isCompleted: true));
+      }
+      return sets;
+    }
+
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => StatefulBuilder(
+          builder: (ctx, setDialog) {
+            final sets = tally();
+            final w1 = sets.where((s) => s.score1 > s.score2).length;
+            final w2 = sets.where((s) => s.score2 > s.score1).length;
+            final canSave = sets.isNotEmpty && w1 != w2;
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              backgroundColor: Colors.white,
+              title: Row(children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                      color: _kOliveLight,
+                      borderRadius: BorderRadius.circular(10)),
+                  child:
+                      const Icon(Icons.edit_rounded, color: _kOlive, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(l10n.scorecardManualScore,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text(l10n.scorecardManualScoreDescription,
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.black54, height: 1.5)),
+                    const SizedBox(height: 12),
+                    Row(children: [
+                      Expanded(
+                        child: Text(_team1?.name ?? 'TBD',
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: _kGoldDark)),
+                      ),
+                      const SizedBox(width: 56),
+                      Expanded(
+                        child: Text(_team2?.name ?? 'TBD',
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: _kOlive)),
+                      ),
+                    ]),
+                    const SizedBox(height: 8),
+                    for (var i = 0; i < fmt.setsPerGame; i++) ...[
+                      _manualSetRow(
+                          ctrls1[i],
+                          ctrls2[i],
+                          fmt.setsPerGame > 1 ? l10n.bracketManualSet(i + 1) : null,
+                          () => setDialog(() {})),
+                      const SizedBox(height: 8),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                Row(children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      child: Text(l10n.btnCancel),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: _kOlive,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10))),
+                      onPressed:
+                          canSave ? () => Navigator.of(ctx).pop(true) : null,
+                      child: Text(l10n.scorecardCompleteGame,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ]),
+              ],
+            );
+          },
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final newSets = tally();
+      // Don't let an edit flip the winner once the next match is already under
+      // way — that would corrupt a started/played downstream game. Point-only
+      // corrections that keep the same winner are still allowed.
+      final newW1 = newSets.where((s) => s.score1 > s.score2).length;
+      final newW2 = newSets.where((s) => s.score2 > s.score1).length;
+      final newWinnerId = newW1 > newW2 ? _match.team1Id : _match.team2Id;
+      if (_match.winnerId != null &&
+          newWinnerId != _match.winnerId &&
+          _downstreamLocked) {
+        await _showWinnerLockedDialog();
+        return;
+      }
+      _adapter.applyManualResult(newSets);
+      setState(() {
+        _score1 = _adapter.currentScore1;
+        _score2 = _adapter.currentScore2;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(l10n.overviewScoreSaved),
+        duration: const Duration(seconds: 2),
+      ));
+    } finally {
+      // Delay disposal until the dialog's exit animation completes.
+      Future.delayed(const Duration(milliseconds: 300), () {
+        for (final c in ctrls1) {
+          c.dispose();
+        }
+        for (final c in ctrls2) {
+          c.dispose();
+        }
+      });
+    }
+  }
+
+  Widget _manualSetRow(TextEditingController c1, TextEditingController c2,
+      String? label, VoidCallback onChanged) {
+    Widget field(TextEditingController c, Color color) => SizedBox(
+          width: 56,
+          child: TextField(
+            controller: c,
+            keyboardType: TextInputType.number,
+            textAlign: TextAlign.center,
+            onChanged: (_) => onChanged(),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            style: TextStyle(fontWeight: FontWeight.w700, color: color),
+          ),
+        );
+    return Column(children: [
+      if (label != null) ...[
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11,
+                color: Colors.black45,
+                fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+      ],
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        field(c1, _kGoldDark),
+        const SizedBox(width: 16),
+        const Text('–', style: TextStyle(fontSize: 16, color: Colors.black26)),
+        const SizedBox(width: 16),
+        field(c2, _kOlive),
+      ]),
+    ]);
+  }
+
   // ── Timer ─────────────────────────────────────────────────────────────────
 
   void _startTimer() {
@@ -176,11 +609,18 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   bool _shouldShowSideChangeReminder() {
     if (_currentSetDone) return false;
+    final interval = _fmt.sideChangeInterval;
+    if (interval == null || interval <= 0) return false;
     final total = _score1 + _score2;
     if (total == 0) return false;
-    if (_fmt.pointsPerSet == 15) return total % 5 == 0;
-    if (_fmt.pointsPerSet == 21) return total % 7 == 0;
-    return false;
+    return total % interval == 0;
+  }
+
+  /// A set is won at [pointsPerSet] with a two-point margin.
+  bool _isSetWon(int s1, int s2) {
+    final hi = s1 > s2 ? s1 : s2;
+    final lo = s1 > s2 ? s2 : s1;
+    return hi >= _fmt.pointsPerSet && (hi - lo) >= 2;
   }
 
   Future<void> _showSideChangeDialog() async {
@@ -229,6 +669,20 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     if (mounted) setState(() => _isSwapped = !_isSwapped);
   }
 
+  // ── Side swap (button + gesture) ──────────────────────────────────────────
+
+  void _swapSides() => setState(() => _isSwapped = !_isSwapped);
+
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    _dragDelta += details.delta.dx;
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails details) {
+    const threshold = 50.0; // pixels — a deliberate horizontal swipe swaps sides
+    if (_dragDelta.abs() > threshold) _swapSides();
+    _dragDelta = 0;
+  }
+
   // ── Scoring ───────────────────────────────────────────────────────────────
 
   void _addScore({required bool isLeft}) {
@@ -237,6 +691,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     final prevService = _activePlayerIndex;
     final changedService = isTeam1 != _isTeam1Serving;
     final perSide = _tournament.playersPerSide;
+    final wonBefore = _isSetWon(_score1, _score2);
     setState(() {
       if (isTeam1) {
         _score1++;
@@ -253,11 +708,91 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
         changedService: changedService,
       ));
     });
-    if (_shouldShowSideChangeReminder()) {
+    if (_fmt.notifyOnTargetReached &&
+        _isSetWon(_score1, _score2) &&
+        !wonBefore) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showTargetReachedDialog();
+      });
+    } else if (_shouldShowSideChangeReminder()) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _showSideChangeDialog();
       });
     }
+  }
+
+  /// Notify-only prompt when a side reaches the target score. Offers to
+  /// complete the set/game now, or keep playing (the game can still be finished
+  /// later from the scorecard's own complete button).
+  Future<void> _showTargetReachedDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+    final isTeam1Winner = _score1 > _score2;
+    final winnerName = (isTeam1Winner ? _team1?.name : _team2?.name) ?? '';
+    final setNumber = _currentSetIndex + 1;
+    final isOneSet = _fmt.setsPerGame == 1;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        title: Row(children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+                color: _kGoldCream, borderRadius: BorderRadius.circular(10)),
+            child:
+                const Icon(Icons.emoji_events_rounded, color: _kGoldDark, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(l10n.targetReachedTitle,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          ),
+        ]),
+        content: Text(
+          l10n.targetReachedBody(winnerName, setNumber),
+          style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+        ),
+        actions: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _kOlive,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _completeSet();
+                  },
+                  child: Text(isOneSet ? l10n.completeGame : l10n.completeSet,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(l10n.targetReachedKeepPlaying),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void _removeScore({required bool isLeft}) {
@@ -425,6 +960,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
   // ── Context chips ─────────────────────────────────────────────────────────
 
   String get _bracketPositionLabel {
+    if (widget.importedPositionLabel != null) return widget.importedPositionLabel!;
     final total = _tournament.mainRoundCount;
     final stepsFromFinal = total - _match.round;
     final roundName = switch (stepsFromFinal) {
@@ -455,6 +991,12 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       onPressed: _showOptions,
     );
 
+    // QR menu (export + edit score). Icons inherit the app bar's goldLight
+    // foreground so they stay visible on the olive bar. Only shown while 0–0
+    // or once complete; hidden mid-match. Match options live in the Gameplay
+    // Controls section, so there's no duplicate options button up here.
+    final exportEditMenu = _buildExportEditMenu(l10n);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -463,17 +1005,19 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       child: Scaffold(
       appBar: TournaQAppBar(
         title: 'Single Elimination',
-        subtitle: l10n.matchScorecard,
+        subtitle:
+            widget.isImported ? l10n.scrambleImportedScorecard : l10n.matchScorecard,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
-            tooltip: l10n.matchOptions,
-            onPressed: _showOptions,
-          ),
+          ?exportEditMenu,
         ],
       ),
       body: SafeArea(
-        child: OrientationBuilder(
+        // Horizontal drag anywhere on the scoreboard swaps the two sides —
+        // in addition to the swap button.
+        child: GestureDetector(
+          onHorizontalDragUpdate: _handleHorizontalDragUpdate,
+          onHorizontalDragEnd: _handleHorizontalDragEnd,
+          child: OrientationBuilder(
           builder: (context, orientation) {
             final isLandscape = orientation == Orientation.landscape;
 
@@ -503,10 +1047,10 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                     ] else if (_currentSetDone) ...[
                       const SizedBox(height: 4),
                       _buildLockBanner(l10n.matchSetCompleteBanner),
-                    ] else if (_match.startedAt == null) ...[
-                      const SizedBox(height: 4),
-                      _buildServesFirstBanner(landscape: true),
                     ],
+                    // Serves-first banner is intentionally omitted in landscape:
+                    // it consumed the vertical room the schedule card needs and
+                    // overflowed. Social Scramble likewise doesn't show it here.
                     const SizedBox(height: 4),
                     // Schedule + score cards
                     Expanded(
@@ -514,11 +1058,13 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Compact schedule — keep as narrow as possible
-                          Expanded(
-                            flex: 2,
-                            child: _buildScheduleCard(compact: true),
-                          ),
-                          const SizedBox(width: 8),
+                          if (_tournament.paceAlertsEnabled) ...[
+                            Expanded(
+                              flex: 2,
+                              child: _buildScheduleCard(compact: true),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           Expanded(
                             flex: 5,
                             child: _buildScoreCard(
@@ -573,8 +1119,10 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                     Icons.sports_volleyball_rounded,
                     trailing: optionsButton,
                   ),
-                  const SizedBox(height: 10),
-                  _buildScheduleCard(),
+                  if (_tournament.paceAlertsEnabled) ...[
+                    const SizedBox(height: 10),
+                    _buildScheduleCard(),
+                  ],
                   const SizedBox(height: 10),
                   _buildSetOverview(),
 
@@ -633,6 +1181,7 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
               ),
             );
           },
+        ),
         ),
       ),
     ), // Scaffold
@@ -759,6 +1308,15 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
             style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg)),
       );
 
+  /// Pace status for the schedule strip — mirrors Scramble King's
+  /// upcoming / due / overdue / completed tag.
+  (Color, String) _scheduleStatus(AppLocalizations l10n, DateTime start, DateTime end) {
+    if (_isMatchComplete) return (_kOlive, l10n.statusCompleted);
+    if (_now.isAfter(end)) return (Colors.red.shade600, l10n.statusOverdue);
+    if (_now.isAfter(start)) return (Colors.amber.shade700, l10n.statusDue);
+    return (Colors.green.shade600, l10n.statusUpcoming);
+  }
+
   Widget _buildScheduleCard({bool compact = false}) {
     final start = _match.scheduledStartTime;
     final end   = _match.scheduledEndTime;
@@ -865,9 +1423,12 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     final labelColor  = isOverEnd ? Colors.red : Colors.black45;
     final timeColor   = isOverEnd ? Colors.red.shade700 : Colors.black87;
 
+    final l10n = AppLocalizations.of(context)!;
+    final (statusColor, statusText) = _scheduleStatus(l10n, start, end);
+
     // ── Compact card (landscape left column) ─────────────────────────────────
-    // Fully vertical: every element on its own line so no minimum horizontal
-    // space is required beyond the widest chip (~90–110 px).
+    // Full planned start/end block with live pace chips — mirrors the Social
+    // Scramble scorecard so the landscape rail carries the same information.
     if (compact) {
       return Container(
         padding: const EdgeInsets.all(10),
@@ -880,50 +1441,53 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Row(children: [
               Icon(Icons.schedule_rounded, size: 12, color: labelColor),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
+              Text(l10n.overviewSectionSchedule.toUpperCase(),
                   style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: labelColor,
                       letterSpacing: 0.5)),
             ]),
-            const SizedBox(height: 4),
-            // Start time (icon inline — no text label to prevent wrapping in narrow card)
+            const SizedBox(height: 6),
             Row(children: [
               const Icon(Icons.play_circle_outline_rounded,
                   size: 11, color: Colors.black38),
-              const SizedBox(width: 3),
-              Text(_fmtTime(start),
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: timeColor,
-                      fontFeatures: const [FontFeature.tabularFigures()])),
+              const SizedBox(width: 4),
+              Text(l10n.scorecardPlannedStart,
+                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
             ]),
+            const SizedBox(height: 2),
+            Text(_fmtTime(start),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: timeColor,
+                    fontFeatures: const [FontFeature.tabularFigures()])),
             const SizedBox(height: 2),
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: startChip,
             ),
-            const SizedBox(height: 4),
-            // End time (icon inline)
+            const SizedBox(height: 6),
             Row(children: [
               Icon(Icons.stop_circle_outlined,
                   size: 11,
                   color: isOverEnd ? Colors.red.shade300 : Colors.black38),
-              const SizedBox(width: 3),
-              Text(_fmtTime(end),
-                  style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: timeColor,
-                      fontFeatures: const [FontFeature.tabularFigures()])),
+              const SizedBox(width: 4),
+              Text(l10n.scorecardPlannedEnd,
+                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
             ]),
+            const SizedBox(height: 2),
+            Text(_fmtTime(end),
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: timeColor,
+                    fontFeatures: const [FontFeature.tabularFigures()])),
             const SizedBox(height: 2),
             FittedBox(
               fit: BoxFit.scaleDown,
@@ -931,13 +1495,13 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
               child: endChip,
             ),
             if (isOverEnd) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Row(children: [
                 const Icon(Icons.warning_amber_rounded,
                     size: 12, color: Colors.red),
                 const SizedBox(width: 4),
                 Flexible(
-                  child: Text(AppLocalizations.of(context)!.scorecardOverSchedule,
+                  child: Text(l10n.scorecardOverSchedule,
                       style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -951,8 +1515,6 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
     }
 
     // ── Portrait card (collapsible) ───────────────────────────────────────────
-    final collapsedChip = (inProgress || _isMatchComplete) ? endChip : startChip;
-
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
@@ -972,15 +1534,15 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
               child: Row(children: [
                 Icon(Icons.schedule_rounded, size: 14, color: labelColor),
                 const SizedBox(width: 6),
-                Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
+                Text('${_fmtTime(start)} – ${_fmtTime(end)}',
                     style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: labelColor,
-                        letterSpacing: 0.6)),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: timeColor)),
                 const Spacer(),
                 if (!_scheduleExpanded) ...[
-                  collapsedChip,
+                  _scheduleChip(statusText, statusColor,
+                      statusColor.withValues(alpha: 0.14)),
                   const SizedBox(width: 6),
                 ],
                 Icon(
@@ -1617,7 +2179,6 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
 
   Widget _buildMatchActions() {
     final isOneSet = _fmt.setsPerGame == 1;
-    final startTime = _match.scheduledStartTime;
     final notStarted = _match.startedAt == null && !_isMatchComplete;
 
     return Column(
@@ -1625,7 +2186,8 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
       children: [
         _buildRefereeBanner(),
         const SizedBox(height: 10),
-        // Info chips
+        // Info chips — the scheduled start/end live in the schedule card above,
+        // so no separate "starts at" pill here.
         Wrap(
           spacing: 8,
           runSpacing: 6,
@@ -1640,12 +2202,6 @@ class _KoBracketMatchPageState extends State<KoBracketMatchPage> {
                 Colors.grey.shade100, Colors.black45),
             _chip(Icons.info_outline_rounded, '${_fmt.pointsPerSet} pts',
                 Colors.grey.shade100, Colors.black45),
-            _chip(Icons.calendar_today_rounded, 'Soft Schedule',
-                Colors.grey.shade100, Colors.black45),
-            if (startTime != null)
-              _chip(Icons.schedule_rounded,
-                  AppLocalizations.of(context)!.matchStartsAt(_fmtTime(startTime)),
-                  Colors.grey.shade100, Colors.black45),
             _chip(Icons.timer_rounded,
                 AppLocalizations.of(context)!.labelMinutes(_tournament.minutesForRound(_match.round)),
                 _kOliveLight, _kOlive),

@@ -145,6 +145,7 @@ class ScrambleKingCourtResultTile extends StatelessWidget {
                             teamNameFor(team.slotId) ??
                                 team.playerIds.map(nameFor).join(' & '),
                             team.playerIds.map(nameFor).join(' & '),
+                            team.gamesWon,
                             team.points,
                             // Only crown a winner once the court is finished —
                             // otherwise every not-yet-played court shows a
@@ -265,8 +266,17 @@ class ScrambleKingCourtResultTile extends StatelessWidget {
   /// One team's row. Player names lead (primary line), with the fun team name
   /// below in smaller type — the emphasis and exact font sizes mirror
   /// [ScrambleGameTile]: players at 13/w400/black87, team name at 11/w600/
-  /// black45, score at 15/w400 (gold when this team leads).
-  Widget _teamRow(String teamName, String players, int score, bool isWinner) {
+  /// black45. Trailing side shows both games won and points (points alone
+  /// doesn't convey standing, since ranking is games-won-first) — same
+  /// short-suffix convention as the player table (`Nw · Npts`), gold when
+  /// this team leads.
+  Widget _teamRow(
+    String teamName,
+    String players,
+    int gamesWon,
+    int points,
+    bool isWinner,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -306,9 +316,9 @@ class ScrambleKingCourtResultTile extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          '$score',
+          '${gamesWon}w · ${points}pts',
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.w400,
             color: isWinner ? AppColors.goldDark : Colors.black38,
           ),

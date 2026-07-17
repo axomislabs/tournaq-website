@@ -14,6 +14,15 @@ import '../widgets/tournaq_app_bar.dart';
 import 'king_of_the_court_scoreboard_page.dart';
 import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
+/// Below this many players, Auto-Allplay has no real spare capacity: Court +
+/// Challenger always reserve `playersPerTeam * 2` players, and the admin
+/// needs at least one more full team's worth of room beyond that (plus
+/// themselves) to hand off duty without it looping straight back. Unlike
+/// Scramble King, Up Next here is a soft/recomputed suggestion rather than a
+/// third reserved slot, so the threshold scales with team size instead of
+/// being a fixed number.
+int _minAutoAllplayPlayers(int playersPerTeam) => playersPerTeam * 3 + 1;
+
 class KingOfTheCourtSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final List<Group> existingGroups;
@@ -848,6 +857,32 @@ class _KingOfTheCourtSetupPageState extends State<KingOfTheCourtSetupPage> {
           onChanged: (v) {
             if (v != null) setState(() => _assignmentMode = v);
           },
+        ),
+        if (_assignmentMode == KotcAssignmentMode.automatedAllPlay &&
+            _targetPlayerCount < _minAutoAllplayPlayers(_playersPerTeam)) ...[
+          const SizedBox(height: 6),
+          _autoAllplayLowPlayersNote(
+              l10n, _minAutoAllplayPlayers(_playersPerTeam)),
+        ],
+      ],
+    );
+  }
+
+  /// Advisory (non-blocking) note shown once Auto-Allplay is selected with
+  /// fewer than [minPlayers] configured — the mode still works below that,
+  /// it just leaves the rotating admin with no real spare capacity to hand
+  /// off to.
+  Widget _autoAllplayLowPlayersNote(AppLocalizations l10n, int minPlayers) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline_rounded, size: 14, color: Colors.orange.shade800),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            l10n.autoAllplayLowPlayersWarning(minPlayers),
+            style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
+          ),
         ),
       ],
     );

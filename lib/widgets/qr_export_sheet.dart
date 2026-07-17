@@ -39,7 +39,7 @@ class _QrExportSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -70,9 +70,15 @@ class _QrExportSheet extends StatelessWidget {
             Builder(builder: (context) {
               // Render as large as the sheet allows (capped) so QR modules stay
               // big enough to scan reliably — Android's decoder in particular
-              // needs generous module size.
-              final qrSize = math.min(
-                  MediaQuery.of(context).size.width - 112, 320.0);
+              // needs generous module size. Constrain by height too so the code
+              // doesn't push the Done button off-screen in landscape (where the
+              // sheet is short); the surrounding SingleChildScrollView absorbs
+              // any remaining overflow.
+              final media = MediaQuery.of(context).size;
+              final qrSize = math
+                  .min(math.min(media.width - 112, media.height * 0.5), 320.0)
+                  .clamp(160.0, 320.0)
+                  .toDouble();
               return Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

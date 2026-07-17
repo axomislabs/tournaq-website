@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../l10n/app_localizations.dart';
 import '../models/scramble_king_tournament.dart';
 import '../models/scramble_tournament.dart' show ScrambleSuggestion, ScrambleSuggestionType;
 import 'scramble_service.dart';
@@ -588,10 +589,16 @@ class ScrambleKingService {
   // ── Odd-player floater temp-partner resolution ───────────────────────────
 
   /// Jumper mode: the eligible candidate with the fewest stints played this
-  /// round so far (fairness), ties broken by shuffle order.
+  /// round so far (fairness), ties broken by player id — deterministic (not
+  /// shuffled) so that re-deriving from the same candidates and stint
+  /// history, e.g. right after an undo, always reaches the same pick
+  /// instead of re-rolling it. [excludePlayerIds] drops individual players
+  /// (e.g. the current Auto-Allplay scorekeeper) without disqualifying the
+  /// rest of their team — their teammate may still be a valid partner.
   static ({String playerId, String teamSlotId})? pickJumperPartner({
     required List<ScrambleKingTeamSlot> otherQueuedTeams,
     required List<ScrambleKingStint> courtStints,
+    Set<String> excludePlayerIds = const {},
   }) {
     if (otherQueuedTeams.isEmpty) return null;
     final playedCount = <String, int>{};
@@ -602,11 +609,17 @@ class ScrambleKingService {
     }
     final candidates = <({String playerId, String teamSlotId})>[
       for (final team in otherQueuedTeams)
-        for (final pid in team.playerIds) (playerId: pid, teamSlotId: team.slotId),
-    ]..shuffle(_rng);
+        for (final pid in team.playerIds)
+          if (!excludePlayerIds.contains(pid)) (playerId: pid, teamSlotId: team.slotId),
+    ];
+    if (candidates.isEmpty) return null;
 
-    candidates.sort((a, b) =>
-        (playedCount[a.playerId] ?? 0).compareTo(playedCount[b.playerId] ?? 0));
+    candidates.sort((a, b) {
+      final byCount = (playedCount[a.playerId] ?? 0).compareTo(
+        playedCount[b.playerId] ?? 0,
+      );
+      return byCount != 0 ? byCount : a.playerId.compareTo(b.playerId);
+    });
     return candidates.first;
   }
 
@@ -725,7 +738,23 @@ class ScrambleKingService {
   // so the setup page can render warnings with the existing ScrambleSuggestionCard
   // widget, unmodified.
 
+  /// Whether the setup can produce at least one valid court. Mirrors the
+  /// blocking conditions in [validate] but needs no localized strings, so the
+  /// setup page can gate the Create button independently of the UI language.
+  static bool isBuildable({
+    required int playerCount,
+    required int courtCount,
+    required int roundCount,
+    required Duration matchDuration,
+  }) {
+    if (roundCount <= 0) return false;
+    if (matchDuration.inSeconds <= 0) return false;
+    if (playerCount < minNonFloaterCourtSize) return false;
+    return decideCourtSizes(playerCount, courtCount).isNotEmpty;
+  }
+
   static List<ScrambleSuggestion> validate({
+    required AppLocalizations l10n,
     required int playerCount,
     required int courtCount,
     required int roundCount,
@@ -734,24 +763,23 @@ class ScrambleKingService {
     final suggestions = <ScrambleSuggestion>[];
 
     if (roundCount <= 0) {
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.tooFewRounds,
-        message: 'At least 1 round is needed.',
+        message: l10n.skSugTooFewRounds,
         isBlocking: true,
       ));
     }
     if (matchDuration.inSeconds <= 0) {
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustMatchDuration,
-        message: 'Round duration must be greater than zero.',
+        message: l10n.skSugZeroDuration,
         isBlocking: true,
       ));
     }
     if (playerCount < minNonFloaterCourtSize) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustPlayerCount,
-        message: 'At least $minNonFloaterCourtSize players are needed for '
-            'one court.',
+        message: l10n.skSugMinPlayers(minNonFloaterCourtSize),
         isBlocking: true,
       ));
       return suggestions;
@@ -759,10 +787,9 @@ class ScrambleKingService {
 
     final sizes = decideCourtSizes(playerCount, courtCount);
     if (sizes.isEmpty) {
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustPlayerCount,
-        message: "This player/court combination can't form a valid court. "
-            'Add more players or reduce courts.',
+        message: l10n.skSugInvalidCombo,
         isBlocking: true,
       ));
       return suggestions;
@@ -771,19 +798,16 @@ class ScrambleKingService {
     if (sizes.length < courtCount) {
       suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.adjustCourtCount,
-        message: 'Only ${sizes.length} of $courtCount courts can be filled '
-            'with $playerCount players. Reduce courts or add players.',
+        message: l10n.skSugCourtsUnfilled(sizes.length, courtCount, playerCount),
       ));
     }
 
     final hasMinimalFloaterCourt =
         sizes.any((s) => s.isOdd && s == minFloaterCourtSize);
     if (hasMinimalFloaterCourt) {
-      suggestions.add(const ScrambleSuggestion(
+      suggestions.add(ScrambleSuggestion(
         type: ScrambleSuggestionType.largeGroup,
-        message: 'With this player count, the floater will always partner '
-            'with the same team on the rounds they float. Add players for '
-            'more variety.',
+        message: l10n.skSugFloaterSameTeam,
       ));
     }
 

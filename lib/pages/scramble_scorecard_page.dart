@@ -105,7 +105,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── Match state ───────────────────────────────────────────────────────────
   bool _matchCompleted = false;
-  bool _adjusting = false;
   bool _scheduleExpanded = false;
 
   // ── Timer ─────────────────────────────────────────────────────────────────
@@ -134,21 +133,37 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     if (!_matchCompleted &&
         _game.status == ScrambleGameStatus.inProgress &&
         _game.actualStartTime != null) {
-      final elapsed = DateTime.now().difference(_game.actualStartTime!);
-      final remaining = _round.matchDuration - elapsed;
-      if (remaining > Duration.zero) {
+      if (_game.pausedRemaining != null) {
+        // The referee paused this match before leaving the scorecard — stay
+        // paused on re-entry so it must be resumed/restarted by hand, instead
+        // of silently resuming the countdown.
+        final remaining = _game.pausedRemaining!;
         _timerInitialRemaining = remaining;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _matchTimerKey.currentState?.start();
+          if (!mounted) return;
+          if (remaining > Duration.zero) {
+            _matchTimerKey.currentState?.showPaused(remaining);
+          } else {
+            _matchTimerKey.currentState?.markFinished();
+          }
         });
       } else {
-        // Time already elapsed before this visit — quietly show the finished
-        // timer state instead of re-opening the "Time is up" dialog (which
-        // used to fire again on every re-entry and reset the countdown).
-        _timerInitialRemaining = Duration.zero;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _matchTimerKey.currentState?.markFinished();
-        });
+        final elapsed = DateTime.now().difference(_game.actualStartTime!);
+        final remaining = _round.matchDuration - elapsed;
+        if (remaining > Duration.zero) {
+          _timerInitialRemaining = remaining;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _matchTimerKey.currentState?.start();
+          });
+        } else {
+          // Time already elapsed before this visit — quietly show the finished
+          // timer state instead of re-opening the "Time is up" dialog (which
+          // used to fire again on every re-entry and reset the countdown).
+          _timerInitialRemaining = Duration.zero;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _matchTimerKey.currentState?.markFinished();
+          });
+        }
       }
     }
   }
@@ -180,29 +195,50 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   // ── QR export ─────────────────────────────────────────────────────────────
 
-  /// Adaptive header action: export the scorecard while scheduled, or export
-  /// the completed result on an imported scorecard. Hidden otherwise.
+  /// App-bar QR menu (export + edit score). Shown only while the board is still
+  /// 0–0 (hand off the scorecard / manual entry) or once the game is complete
+  /// (export the result / fix the score). Hidden mid-game so an in-progress
+  /// board can't be exported or silently overwritten — except for an
+  /// imported scorecard, where both actions must always stay available since
+  /// there's no other affordance to export or correct a referee's result.
   List<Widget>? _exportActions(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    if (_game.status == ScrambleGameStatus.scheduled) {
-      return [
-        IconButton(
-          icon: const Icon(Icons.qr_code_rounded),
-          tooltip: l10n.scrambleExportScorecard,
-          onPressed: _exportScorecard,
-        ),
-      ];
-    }
-    if (widget.isImported && _game.status == ScrambleGameStatus.completed) {
-      return [
-        IconButton(
-          icon: const Icon(Icons.qr_code_rounded),
-          tooltip: l10n.scrambleExportResult,
-          onPressed: _exportResult,
-        ),
-      ];
-    }
-    return null;
+    final noPoints = _scoreA == 0 && _scoreB == 0;
+    if (!widget.isImported && !(_matchCompleted || noPoints)) return null;
+
+    PopupMenuItem<String> item(String value, IconData icon, String label) =>
+        PopupMenuItem<String>(
+          value: value,
+          child: Row(children: [
+            Icon(icon, size: 18, color: _kOlive),
+            const SizedBox(width: 8),
+            Text(label),
+          ]),
+        );
+
+    return [
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.qr_code_rounded),
+        tooltip: l10n.scrambleExportScorecard,
+        onSelected: (v) {
+          switch (v) {
+            case 'export':
+              _matchCompleted ? _exportResult() : _exportScorecard();
+            case 'edit':
+              _onManualScore();
+          }
+        },
+        itemBuilder: (ctx) => [
+          item(
+              'export',
+              Icons.qr_code_rounded,
+              _matchCompleted
+                  ? l10n.scrambleExportResult
+                  : l10n.scrambleExportScorecard),
+          item('edit', Icons.edit_rounded, l10n.scorecardManualScore),
+        ],
+      ),
+    ];
   }
 
   void _exportScorecard() {
@@ -240,7 +276,8 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final teamB = _game.sideBPlayerIds
         .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
-    return '${l10n.scrambleImportedCourt(_game.courtNumber)} · $teamA vs $teamB';
+    return '${l10n.overviewRound(_round.roundNumber)} · '
+        '${l10n.scrambleImportedCourt(_game.courtNumber)} · $teamA vs $teamB';
   }
 
   // ── Score actions (QuickGame pattern) ────────────────────────────────────
@@ -351,7 +388,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _game = updatedGame;
       _t = updated;
       _matchCompleted = true;
-      _adjusting = false;
     });
     _matchTimerKey.currentState?.pause();
     _persist(updated);
@@ -388,10 +424,38 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final updatedGame = _game.copyWith(
       status: ScrambleGameStatus.inProgress,
       actualStartTime: DateTime.now(),
+      clearPausedRemaining: true,
     );
     setState(() => _game = updatedGame);
     _persist(_t.updateGame(updatedGame));
     _matchTimerKey.currentState?.start();
+  }
+
+  /// Referee paused the countdown — freeze the remaining time and persist it so
+  /// leaving and re-entering the scorecard keeps it paused rather than resuming.
+  void _pauseMatch() {
+    final remaining =
+        _matchTimerKey.currentState?.remaining ?? _round.matchDuration;
+    _matchTimerKey.currentState?.pause();
+    final updatedGame = _game.copyWith(pausedRemaining: remaining);
+    setState(() => _game = updatedGame);
+    _persist(_t.updateGame(updatedGame));
+  }
+
+  /// Referee resumed a paused countdown — re-anchor [actualStartTime] to the
+  /// frozen remaining so the wall-clock countdown continues correctly, and
+  /// clear the persisted pause.
+  void _resumeMatch() {
+    final remaining =
+        _matchTimerKey.currentState?.remaining ?? _round.matchDuration;
+    _matchTimerKey.currentState?.resume();
+    final newStart = DateTime.now().subtract(_round.matchDuration - remaining);
+    final updatedGame = _game.copyWith(
+      actualStartTime: newStart,
+      clearPausedRemaining: true,
+    );
+    setState(() => _game = updatedGame);
+    _persist(_t.updateGame(updatedGame));
   }
 
   /// Start/Restart — always records current time, resets timer to full
@@ -402,10 +466,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final updatedGame = _game.copyWith(
       status: ScrambleGameStatus.inProgress,
       actualStartTime: DateTime.now(),
+      clearPausedRemaining: true,
     );
     setState(() {
       _game = updatedGame;
-      _adjusting = false;
     });
     _persist(_t.updateGame(updatedGame));
     // Restart to the FULL match duration (the timer's `initial` may hold a
@@ -418,92 +482,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   Future<void> _onMatchTimerFinished() async {
     if (_matchCompleted || !mounted) return;
-    _matchTimerKey.currentState?.pause();
-
-    final adjust = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: _kGoldLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.timer_off_rounded,
-                color: _kGold,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'Time is up',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        content: const Text(
-          'Was the last point still ongoing when the timer ended?',
-          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _kOlive,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text(
-                'Adjust final score',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text(
-                'Complete game',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (!mounted) return;
-    if (adjust == false) {
-      await _completeGame();
-    } else if (adjust == true) {
-      // Unlock scoring immediately instead of leaving the referee to find the
-      // separate "Adjust final score" toggle — that hidden second step was
-      // the main source of confusion in the field.
-      setState(() => _adjusting = true);
-    }
+    // Timer's up: go straight to the score dialog (prefilled with the current
+    // score) so the referee can accept it as-is to complete, or correct it
+    // first — no separate "Time is up" chooser or board-unlock step.
+    _showManualScoreDialog();
   }
 
   // ── Game options sheet (QuickGame pattern) ────────────────────────────────
@@ -736,8 +718,9 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
         ScrambleTimerState.idle;
     final timerRunning = timerState == ScrambleTimerState.running;
     final timerFinished = timerState == ScrambleTimerState.finished;
-    final scoreLocked = _matchCompleted ||
-        (!timerRunning && !(timerFinished && _adjusting));
+    // Points are only editable via the +/- buttons while the timer runs; once
+    // it's finished (or paused/idle) the score is set through the dialog.
+    final scoreLocked = _matchCompleted || !timerRunning;
 
     final optionsButton = IconButton(
       icon: const Icon(Icons.tune_rounded, size: 20, color: _kOlive),
@@ -791,18 +774,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                           const SizedBox(width: 8),
                           if (timerFinished) ...[
                             _refBtn(
-                              _adjusting
-                                  ? Icons.check_rounded
-                                  : Icons.edit_rounded,
-                              _adjusting
-                                  ? AppLocalizations.of(context)!.btnDone
-                                  : AppLocalizations.of(context)!.btnAdjustFinalScore,
-                              () => setState(() => _adjusting = !_adjusting),
-                              // Emphasize the button while locked, so it's
-                              // obvious at a glance — this is the step users
-                              // most often miss when re-entering a finished
-                              // scorecard outside the Time's-up dialog flow.
-                              primary: !_adjusting,
+                              Icons.edit_rounded,
+                              AppLocalizations.of(context)!.btnAdjustFinalScore,
+                              _showManualScoreDialog,
+                              // Emphasize it — this is the step to finalize the
+                              // just-ended game if the auto dialog was dismissed.
+                              primary: true,
                             ),
                             const SizedBox(width: 4),
                             _refBtn(
@@ -815,19 +792,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                               _refBtn(
                                 Icons.pause_rounded,
                                 AppLocalizations.of(context)!.btnStop,
-                                () {
-                                  _matchTimerKey.currentState?.pause();
-                                  setState(() {});
-                                },
+                                _pauseMatch,
                               )
                             else if (timerState == ScrambleTimerState.paused)
                               _refBtn(
                                 Icons.play_arrow_rounded,
                                 AppLocalizations.of(context)!.btnResume,
-                                () {
-                                  _matchTimerKey.currentState?.resume();
-                                  setState(() {});
-                                },
+                                _resumeMatch,
                                 primary: true,
                               ),
                             const SizedBox(width: 4),
@@ -1113,16 +1084,12 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
               children: [
                 if (timerFinished) ...[
                   _refBtn(
-                    _adjusting ? Icons.check_rounded : Icons.edit_rounded,
-                    _adjusting
-                        ? AppLocalizations.of(context)!.btnDone
-                        : AppLocalizations.of(context)!.btnAdjustFinalScore,
-                    () => setState(() => _adjusting = !_adjusting),
-                    // Emphasize the button while locked, so it's obvious at a
-                    // glance — this is the step users most often miss when
-                    // re-entering a finished scorecard outside the Time's-up
-                    // dialog flow.
-                    primary: !_adjusting,
+                    Icons.edit_rounded,
+                    AppLocalizations.of(context)!.btnAdjustFinalScore,
+                    _showManualScoreDialog,
+                    // Emphasize it — this is the step to finalize the just-ended
+                    // game if the auto dialog was dismissed.
+                    primary: true,
                   ),
                   _refBtn(
                     Icons.replay_rounded,
@@ -1134,19 +1101,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     _refBtn(
                       Icons.pause_rounded,
                       AppLocalizations.of(context)!.btnStop,
-                      () {
-                        _matchTimerKey.currentState?.pause();
-                        setState(() {});
-                      },
+                      _pauseMatch,
                     )
                   else if (timerState == ScrambleTimerState.paused)
                     _refBtn(
                       Icons.play_arrow_rounded,
                       AppLocalizations.of(context)!.btnResume,
-                      () {
-                        _matchTimerKey.currentState?.resume();
-                        setState(() {});
-                      },
+                      _resumeMatch,
                       primary: true,
                     ),
                   _refBtn(
@@ -1173,7 +1134,7 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                 ],
               ],
             ),
-            if (timerFinished && !_adjusting) ...[
+            if (timerFinished) ...[
               const SizedBox(height: 6),
               Text(
                 AppLocalizations.of(context)!.scrambleAdjustHint,
@@ -1317,20 +1278,26 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
             Row(children: [
               Icon(Icons.schedule_rounded, size: 12, color: labelColor),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: labelColor,
-                      letterSpacing: 0.5)),
+              Expanded(
+                child: Text(AppLocalizations.of(context)!.overviewSectionSchedule.toUpperCase(),
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: labelColor,
+                        letterSpacing: 0.5)),
+              ),
             ]),
             const SizedBox(height: 6),
             Row(children: [
               const Icon(Icons.play_circle_outline_rounded,
                   size: 11, color: Colors.black38),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.scorecardPlannedStart,
-                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
+              Expanded(
+                child: Text(AppLocalizations.of(context)!.scorecardPlannedStart,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: Colors.black45)),
+              ),
             ]),
             const SizedBox(height: 2),
             Text(ScrambleService.formatTime(start),
@@ -1351,8 +1318,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                   size: 11,
                   color: isOverEnd ? Colors.red.shade300 : Colors.black38),
               const SizedBox(width: 4),
-              Text(AppLocalizations.of(context)!.scorecardPlannedEnd,
-                  style: const TextStyle(fontSize: 10, color: Colors.black45)),
+              Expanded(
+                child: Text(AppLocalizations.of(context)!.scorecardPlannedEnd,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: Colors.black45)),
+              ),
             ]),
             const SizedBox(height: 2),
             Text(ScrambleService.formatTime(end),
@@ -1715,8 +1685,11 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       cardContent = LayoutBuilder(
         builder: (context, constraints) {
           final h = constraints.maxHeight;
-          final nameH    = (h * 0.16).clamp(0.0, 24.0);
-          final btnH     = (h * 0.36).clamp(0.0, 48.0);
+          // Keep the score (the most important figure) as large as possible:
+          // trim the name and button budgets so the score's Expanded region
+          // keeps the lion's share of the card height.
+          final nameH    = (h * 0.13).clamp(0.0, 20.0);
+          final btnH     = (h * 0.28).clamp(0.0, 42.0);
           final iconSize = (btnH * 0.55).clamp(12.0, 24.0);
           final nameFontSize = (nameH * 0.75).clamp(10.0, 18.0);
 
@@ -2003,10 +1976,40 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
 
   void _onManualScore() {
     if (_scoreA != 0 || _scoreB != 0) {
-      _showManualScoreBlockedDialog();
+      _confirmOverrideThenEdit();
     } else {
       _showManualScoreDialog();
     }
+  }
+
+  /// Manual entry is allowed even when points already exist (or the game is
+  /// complete), but first warns that the current score will be replaced.
+  Future<void> _confirmOverrideThenEdit() async {
+    final l10n = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        title: Text(l10n.scorecardEditScoreOverrideTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+        content: Text(l10n.scorecardEditScoreOverrideBody,
+            style: const TextStyle(
+                fontSize: 14, color: Colors.black87, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.btnCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.btnContinue,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) _showManualScoreDialog();
   }
 
   void _openUpcomingGame(ScrambleGame game, ScrambleRound round) {
@@ -2030,8 +2033,10 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     final sideBLabel = _game.sideBPlayerIds
         .map((id) => scramblePlayerLabel(_t, id, l10n))
         .join(' & ');
-    final ctrlA = TextEditingController(text: '0');
-    final ctrlB = TextEditingController(text: '0');
+    // Prefill with the current score so the referee can accept it as-is (e.g.
+    // when the timer just ran out) or tweak it, rather than retyping from 0.
+    final ctrlA = TextEditingController(text: '$_scoreA');
+    final ctrlB = TextEditingController(text: '$_scoreB');
     try {
       await showDialog<void>(
         context: context,
@@ -2072,6 +2077,34 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
                     fontSize: 13,
                     color: Colors.black54,
                     height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: _kGoldLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline_rounded,
+                          size: 15, color: _kGold),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(ctx)!
+                              .scorecardManualScoreTimeUpNote,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: _kGold,
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -2177,67 +2210,6 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
     ],
   );
 
-  void _showManualScoreBlockedDialog() {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-        contentPadding: const EdgeInsets.fromLTRB(24, 14, 24, 0),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        title: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.block_rounded,
-                color: Colors.black45,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context)!.scorecardManualScoreBlockedTitle,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          AppLocalizations.of(context)!.scorecardManualScoreBlockedBody,
-          style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _kOlive,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(
-                AppLocalizations.of(context)!.btnOK,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _completeWithManualScore(
     int scoreA,
     int scoreB, {
@@ -2257,9 +2229,13 @@ class _ScrambleScorecardPageState extends State<ScrambleScorecardPage> {
       _scoreB = scoreB;
       _game = updatedGame;
       _matchCompleted = true;
-      _adjusting = false;
     });
     _persist(updated);
+    // Imported single-game scorecards don't belong to a full tournament on
+    // this device — skip the tournament-flow dialogs, same as the normal
+    // scoring-buttons completion path above. The header "Export result"
+    // action becomes available so the score can be sent back to the host.
+    if (widget.isImported) return;
     if (!showPostDialog) return;
     final allDone = updated.games.every((g) => g.isCompleted);
     if (allDone) {

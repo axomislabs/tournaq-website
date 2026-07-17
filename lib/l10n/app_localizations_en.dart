@@ -42,6 +42,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navContact => 'Contact & About';
 
   @override
+  String get navMore => 'More';
+
+  @override
   String get pageGames => 'Quick Games';
 
   @override
@@ -52,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageTournaments => 'TournaQ Arena';
+
+  @override
+  String get pageTournamentsSubtitle => 'Meet and compete for the court';
 
   @override
   String get pageClubs => 'Groups';
@@ -370,6 +376,70 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get landingAdminSubtitle => 'Manage players, teams & groups';
+
+  @override
+  String get landingMoreSubtitle => 'Sponsoring, contact & settings';
+
+  @override
+  String get moreSponsoringSubtitle => 'Sponsors, ads & promotions';
+
+  @override
+  String get moreContactSubtitle => 'Get in touch & app info';
+
+  @override
+  String get moreSettingsSubtitle => 'Language & preferences';
+
+  @override
+  String get navBecomeTester => 'Become a Tester';
+
+  @override
+  String get moreBecomeTesterSubtitle => 'Try new features early';
+
+  @override
+  String get testerIntro =>
+      'Help shape TournaQ by testing new features before they\'re released — on iOS via TestFlight, or on Android once you\'re added to the program.';
+
+  @override
+  String get testerSectionIOS => 'iOS';
+
+  @override
+  String get testerIOSDownloadTitle => 'Download via TestFlight';
+
+  @override
+  String get testerIOSDownloadSubtitle => 'Scan to install the beta directly';
+
+  @override
+  String get testerSectionSignup => 'iOS & Android';
+
+  @override
+  String get testerSignupQRTitle => 'Scan to Sign Up';
+
+  @override
+  String get testerSignupQRSubtitle => 'For iOS & Android testers';
+
+  @override
+  String get testerSignupLinkTitle => 'Open Sign-up Form';
+
+  @override
+  String get testerSignupLinkSubtitle => 'If you\'re already on this device';
+
+  @override
+  String get testerNoteIOS =>
+      'iOS: signing up is optional — you can install directly via TestFlight — but it helps us stay in touch.';
+
+  @override
+  String get testerNoteAndroid =>
+      'Android: signing up is required. We add testers to the program by hand afterwards, so there may be a short wait.';
+
+  @override
+  String get testerContactTitle => 'Got a Bigger Idea?';
+
+  @override
+  String get testerContactBody =>
+      'Organizing a big tournament, missing a mode or feature, or need support? Let us know — we prioritize tester requests.';
+
+  @override
+  String get testerContactButton => 'Contact Us';
 
   @override
   String get btnGotIt => 'Got it';
@@ -2070,8 +2140,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manual score entry is only available before live scoring has started. This prevents accidentally overwriting points that were already tracked.';
 
   @override
+  String get scorecardEditScoreOverrideTitle => 'Override current score?';
+
+  @override
+  String get scorecardEditScoreOverrideBody =>
+      'This game already has a score. Editing it will replace the current result.';
+
+  @override
+  String get scorecardEditWinnerLockedTitle => 'Winner can\'t change';
+
+  @override
+  String get scorecardEditWinnerLockedBody =>
+      'The next match has already started, so the winner of this match can\'t change. You can still correct the points as long as the same team wins.';
+
+  @override
   String get scorecardManualScoreDescription =>
       'Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.';
+
+  @override
+  String get scorecardManualScoreTimeUpNote =>
+      'If the game was still in play when the timer ran out, you can set the final score manually here.';
 
   @override
   String get btnOK => 'OK';
@@ -2437,6 +2525,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get kotcSetupPlayersHelp =>
       'Target number of players for the session. Used when auto-filling random players. Actual participants are added in the Players section below.';
+
+  @override
+  String autoAllplayLowPlayersWarning(int count) {
+    return 'Auto-Allplay works with fewer players, but rotation may feel clunky below $count players.';
+  }
 
   @override
   String get kotcSetupTimeHelp =>
@@ -2972,6 +3065,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Record this court\'s results now and end its round.';
 
   @override
+  String get scrambleKingUndoDiscardPointsTitle => 'Discard recorded points?';
+
+  @override
+  String scrambleKingUndoDiscardPointsBody(int points) {
+    return 'The team currently on court has $points point(s) recorded. Undoing will discard them.';
+  }
+
+  @override
+  String get scrambleKingUndoDiscardPointsConfirm => 'Discard and undo';
+
+  @override
   String get scrambleKingBackToSchedule => 'Back to schedule';
 
   @override
@@ -3020,11 +3124,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scrambleScanNotResult => 'This QR code is not a result.';
 
   @override
+  String get koBracketScanMatchHint => 'Point the camera at a match QR code.';
+
+  @override
+  String get koBracketScanNotMatch => 'This QR code is not a match.';
+
+  @override
+  String koBracketImportSuccess(String name) {
+    return 'Imported match from “$name”.';
+  }
+
+  @override
   String get scrambleResultImported => 'Result imported.';
 
   @override
   String get scrambleResultMismatch =>
       'This result is for a different tournament.';
+
+  @override
+  String get scrambleResultAlreadyRecorded =>
+      'A result has already been recorded for this game.';
 
   @override
   String scrambleImportSuccess(String name) {
@@ -3076,7 +3195,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scrambleAdjustHint =>
-      'Tap Adjust final score to change the score, then Complete.';
+      'Tap Adjust final score to enter the final result.';
 
   @override
   String get overviewSettingsTitle => 'Tournament Settings';
@@ -3126,6 +3245,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overviewScoreSaved => 'Score saved.';
+
+  @override
+  String get overviewSettingsSaved => 'Settings saved.';
 
   @override
   String get rosterMenuTooltip => 'Import / Export';
@@ -3190,4 +3312,229 @@ class AppLocalizationsEn extends AppLocalizations {
   String rosterImportDone(int created, int updated, int deleted) {
     return '$created added, $updated updated, $deleted removed.';
   }
+
+  @override
+  String get skSugTooFewRounds => 'At least 1 round is needed.';
+
+  @override
+  String get skSugZeroDuration => 'Round duration must be greater than zero.';
+
+  @override
+  String skSugMinPlayers(int min) {
+    return 'At least $min players are needed for one court.';
+  }
+
+  @override
+  String get skSugInvalidCombo =>
+      'This player/court combination can\'t form a valid court. Add more players or reduce courts.';
+
+  @override
+  String skSugCourtsUnfilled(int filled, int courts, int players) {
+    return 'Only $filled of $courts courts can be filled with $players players. Reduce courts or add players.';
+  }
+
+  @override
+  String get skSugFloaterSameTeam =>
+      'With this player count, the floater always partners with the same team on the rounds they float. Add players for more variety.';
+
+  @override
+  String get ssSugTooFewRounds =>
+      'At least 1 round is needed to build a schedule.';
+
+  @override
+  String get ssSugZeroDuration =>
+      'Match and break duration must be greater than zero.';
+
+  @override
+  String ssSugMinPlayers(int n, int perTeam) {
+    return 'At least $n players are needed for one ${perTeam}v$perTeam court. Add more players or switch to a smaller format.';
+  }
+
+  @override
+  String ssSugLargeGroup(int n) {
+    return 'With $n players the mixing becomes statistical — everyone-against-everyone is no longer guaranteed, but equal play time still is. This works well for large events.';
+  }
+
+  @override
+  String ssSugRepeatPartners(int rounds, int max) {
+    return 'With $rounds rounds, some partnerships will repeat. Up to $max rounds keeps every partnership unique.';
+  }
+
+  @override
+  String ssSugCoverageNote(int target) {
+    return ' Full coverage (everyone partners with everyone) would take $target rounds, but then some players would repeat partners.';
+  }
+
+  @override
+  String ssSugCapAction(int max) {
+    return 'Cap at $max rounds';
+  }
+
+  @override
+  String ssSugAllUniqueNoCoverage(int rounds, int target) {
+    return 'This setup keeps every partnership unique for all $rounds rounds. Full coverage (everyone partners with everyone) isn\'t possible without repeats for this player/court combination — it would need $target rounds.';
+  }
+
+  @override
+  String ssSugCourtsUnfilled(int active, int courts, int players, int perTeam) {
+    return 'Only $active of $courts courts can be filled with $players players in ${perTeam}v$perTeam. Reduce courts to $active or add more players.';
+  }
+
+  @override
+  String ssSugNoReferee(
+    int players,
+    int active,
+    int perTeam,
+    int sitting,
+    int without,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      active,
+      locale: localeName,
+      other: '$active courts',
+      one: '1 court',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      sitting,
+      locale: localeName,
+      other: '$sitting players',
+      one: '1 player',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      without,
+      locale: localeName,
+      other: '$without courts',
+      one: '1 court',
+    );
+    return 'With $players players filling $_temp0 in ${perTeam}v$perTeam, only $_temp1 sit out each round — $_temp2 won\'t have a dedicated referee and will need scores entered manually.';
+  }
+
+  @override
+  String ssSugBreakTooLong(String breakDur, String matchDur) {
+    return 'Break duration ($breakDur) is longer than match duration ($matchDur). Consider reducing breaks to allow more rounds.';
+  }
+
+  @override
+  String get bracketGenerationTitle => 'Bracket generation';
+
+  @override
+  String get bracketSeeding => 'Seeding';
+
+  @override
+  String get bracketSeedingRandomDesc => 'Shuffle teams into the bracket';
+
+  @override
+  String get bracketSeedingSeededDesc => 'Order by team skill rating';
+
+  @override
+  String get bracketOddTeamsSection => 'Odd teams';
+
+  @override
+  String get bracketOddByesDesc => 'Top teams skip the first round';
+
+  @override
+  String get bracketOddPlayInDesc => 'Extra teams fight into round 1';
+
+  @override
+  String get bracketOddPlayInPlusDesc => 'Play-in with a repechage back-in';
+
+  @override
+  String get bracketPlayInPlus => 'Play-in+';
+
+  @override
+  String get bracketRegenNote =>
+      'Regenerates the bracket. Available only before the first match starts.';
+
+  @override
+  String get bracketSetSchedule => 'Set schedule';
+
+  @override
+  String bracketEndsAt(String time) {
+    return 'Ends $time';
+  }
+
+  @override
+  String bracketRoundBreak(int minutes) {
+    return '${minutes}m break';
+  }
+
+  @override
+  String get bracketTargetScore => 'Target score';
+
+  @override
+  String get bracketSideChange => 'Side change';
+
+  @override
+  String get bracketSideChangeOff => 'Off';
+
+  @override
+  String bracketSideChangeEvery(int points) {
+    return 'Every $points points';
+  }
+
+  @override
+  String get bracketNotifyTarget => 'Notify at target score';
+
+  @override
+  String get bracketNotifyTargetDesc =>
+      'Prompt to finish when a side reaches the target';
+
+  @override
+  String bracketManualSet(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get bracketManualScore => 'Score';
+
+  @override
+  String get bracketTbd => 'TBD';
+
+  @override
+  String bracketRefs(String name) {
+    return '$name refs';
+  }
+
+  @override
+  String get bracketRoundFinal => 'Final';
+
+  @override
+  String get bracketRoundSemi => 'Semi-final';
+
+  @override
+  String get bracketRoundQuarter => 'Quarter-final';
+
+  @override
+  String bracketRoundNumbered(int round) {
+    return 'Round $round';
+  }
+
+  @override
+  String get bracketTagBye => 'BYE';
+
+  @override
+  String get bracketTagWalkover => 'W/O';
+
+  @override
+  String get bracketTagPlayIn => 'PLAY-IN';
+
+  @override
+  String get bracketTagRepechage => 'REPECHAGE';
+
+  @override
+  String get bracketAddBreak => 'Add break';
+
+  @override
+  String bracketBreakAfter(String round) {
+    return 'Break after $round';
+  }
+
+  @override
+  String bracketMatchNumber(int number) {
+    return 'Match $number';
+  }
+
+  @override
+  String get bracketFinishBeforeExport =>
+      'Finish the match before exporting the result.';
 }

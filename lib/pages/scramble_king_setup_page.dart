@@ -16,6 +16,13 @@ import '../widgets/tournaq_app_bar.dart';
 import 'scramble_king_overview_page.dart';
 import 'scorecard_splash_page.dart' show TournaqSplashPage;
 
+/// Below this many players, Auto-Allplay has no real spare capacity: with
+/// team size fixed at 2 and 3 team slots (Court/Challenger/Up Next) always
+/// reserved, fewer than 4 teams (8 players) leaves the admin's team as the
+/// sole pool occupant on every single rotation. 9 covers the floater case
+/// (4 teams + 1) and gives the rotation genuine breathing room.
+const _kMinAutoAllplayPlayers = 9;
+
 class ScrambleKingSetupPage extends StatefulWidget {
   final List<Player> existingPlayers;
   final List<Group> existingGroups;
@@ -122,7 +129,9 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
     });
   }
 
-  List<ScrambleSuggestion> get _suggestions => ScrambleKingService.validate(
+  List<ScrambleSuggestion> _suggestionsFor(AppLocalizations l10n) =>
+      ScrambleKingService.validate(
+        l10n: l10n,
         playerCount: _targetPlayerCount,
         courtCount: _courtCount,
         roundCount: _rounds,
@@ -134,7 +143,12 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
       _matchMinutes > 0 &&
       _rounds > 0 &&
       _players.length == _targetPlayerCount &&
-      !_suggestions.any((s) => s.isBlocking);
+      ScrambleKingService.isBuildable(
+        playerCount: _targetPlayerCount,
+        courtCount: _courtCount,
+        roundCount: _rounds,
+        matchDuration: _matchDuration,
+      );
 
   void _create() {
     if (!_canCreate) return;
@@ -631,7 +645,7 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final suggestions = _suggestions;
+    final suggestions = _suggestionsFor(l10n);
     final canCreate = _canCreate;
 
     return Scaffold(
@@ -738,9 +752,12 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
                 Expanded(child: _oddPlayerModeField()),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 14),
 
-            // Pace alerts toggle (mirrors Social Scramble)
+            // Schedule preview (live), with the pace-alerts toggle beneath it
+            // — schedule first, then the toggle (matches the Overview order).
+            _schedulePreview(),
+            const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: _paceAlertsEnabled,
@@ -751,10 +768,6 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
               subtitle: Text(l10n.timelinePaceAlertsSubtitle,
                   style: const TextStyle(fontSize: 12, color: Colors.black54)),
             ),
-            const SizedBox(height: 4),
-
-            // Schedule preview (live)
-            _schedulePreview(),
 
             // ── Suggestions ───────────────────────────────────────────────────
             if (suggestions.isNotEmpty) ...[
@@ -1026,6 +1039,31 @@ class _ScrambleKingSetupPageState extends State<ScrambleKingSetupPage> {
           onChanged: (v) {
             if (v != null) setState(() => _assignmentMode = v);
           },
+        ),
+        if (_assignmentMode == ScrambleKingAssignmentMode.automatedAllPlay &&
+            _targetPlayerCount < _kMinAutoAllplayPlayers) ...[
+          const SizedBox(height: 6),
+          _autoAllplayLowPlayersNote(l10n, _kMinAutoAllplayPlayers),
+        ],
+      ],
+    );
+  }
+
+  /// Advisory (non-blocking) note shown once Auto-Allplay is selected with
+  /// fewer than [minPlayers] configured — the mode still works below that,
+  /// it just leaves the rotating admin with no real spare capacity to hand
+  /// off to.
+  Widget _autoAllplayLowPlayersNote(AppLocalizations l10n, int minPlayers) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.info_outline_rounded, size: 14, color: Colors.orange.shade800),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            l10n.autoAllplayLowPlayersWarning(minPlayers),
+            style: TextStyle(fontSize: 11, color: Colors.orange.shade800),
+          ),
         ),
       ],
     );

@@ -1,8 +1,9 @@
-import 'dart:math';
-
 /// Picks the least-used id from a fairness-tracked rotation (e.g. an
 /// Auto-All-Play scorekeeper/admin turn), shared by King of the Court and
-/// Doghouse. Ties are broken by longest-since-last-turn, then randomly.
+/// Doghouse. Ties are broken by longest-since-last-turn, then by id —
+/// deterministic (not randomized), so re-deriving from the same candidates
+/// and turn history — e.g. right after an undo — always reaches the same
+/// pick instead of re-rolling it.
 class FairRotationPicker {
   FairRotationPicker._();
 
@@ -11,9 +12,8 @@ class FairRotationPicker {
   /// recorded before rotation was ever enabled — are ignored).
   static String? pickFairest(
     Iterable<String> candidateIds,
-    List<String?> turnHistory, {
-    Random? random,
-  }) {
+    List<String?> turnHistory,
+  ) {
     final list = candidateIds.toList();
     if (list.isEmpty) return null;
 
@@ -26,14 +26,14 @@ class FairRotationPicker {
       lastIndex[id] = i;
     }
 
-    list.shuffle(random ?? Random()); // random tie-break among equals (stable sort keeps it)
     list.sort((a, b) {
       final ca = counts[a] ?? 0;
       final cb = counts[b] ?? 0;
       if (ca != cb) return ca.compareTo(cb); // fewest turns first
       final la = lastIndex[a] ?? -1;
       final lb = lastIndex[b] ?? -1;
-      return la.compareTo(lb); // longest since last (or never) first
+      if (la != lb) return la.compareTo(lb); // longest since last (or never) first
+      return a.compareTo(b); // deterministic tie-break
     });
     return list.first;
   }

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import '../app/app_colors.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
-import '../widgets/app_drawer.dart';
+import '../widgets/language_menu_button.dart';
+import '../widgets/primary_action_card.dart';
 import '../widgets/scrollable_page.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'administration_page.dart';
 import 'coming_soon_page.dart';
+import 'more_page.dart';
 import 'tournaments_page.dart';
 
 class LandingPage extends StatefulWidget {
@@ -41,11 +43,10 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      drawer: AppDrawer(
-        appState: _localState,
-        onAppStateChanged: _updateState,
+      appBar: TournaQAppBar(
+        title: l10n.navHome,
+        actions: const [LanguageMenuButton()],
       ),
-      appBar: TournaQAppBar(title: l10n.navHome),
       body: ScrollablePage(
         padding: EdgeInsets.zero,
         child: Column(
@@ -68,7 +69,7 @@ class _LandingPageState extends State<LandingPage> {
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
       child: Column(
         children: [
-          _buildPrimaryCard(
+          PrimaryActionCard(
             title: l10n.navTournaments,
             subtitle: l10n.landingTournamentsSubtitle,
             icon: Icons.emoji_events_rounded,
@@ -82,7 +83,7 @@ class _LandingPageState extends State<LandingPage> {
             )),
           ),
           const SizedBox(height: 12),
-          _buildPrimaryCard(
+          PrimaryActionCard(
             title: l10n.navAdmin,
             subtitle: l10n.landingAdminSubtitle,
             icon: Icons.admin_panel_settings_rounded,
@@ -95,79 +96,21 @@ class _LandingPageState extends State<LandingPage> {
               ),
             )),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPrimaryCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required List<Color> gradientColors,
-    required Color shadowColor,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          const SizedBox(height: 12),
+          PrimaryActionCard(
+            title: l10n.navMore,
+            subtitle: l10n.landingMoreSubtitle,
+            icon: Icons.more_horiz_rounded,
+            gradientColors: const [AppColors.gold, AppColors.goldGradientEnd],
+            shadowColor: AppColors.gold,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => MorePage(
+                appState: _localState,
+                onAppStateChanged: _updateState,
+              ),
+            )),
           ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: shadowColor.withValues(alpha: 0.28),
-              blurRadius: 14,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: Colors.white, size: 26),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.1,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      fontSize: 13,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 24),
-          ],
-        ),
+        ],
       ),
     );
   }

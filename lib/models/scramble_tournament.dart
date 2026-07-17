@@ -83,6 +83,12 @@ class ScrambleGame {
   final String? teamNameA;
   final String? teamNameB;
 
+  /// Frozen match-timer remaining while the referee has the countdown paused.
+  /// Non-null only for an in-progress game that was paused; on re-entry the
+  /// scorecard shows this paused time instead of silently resuming the
+  /// wall-clock countdown derived from [actualStartTime].
+  final Duration? pausedRemaining;
+
   const ScrambleGame({
     required this.id,
     required this.roundId,
@@ -99,7 +105,12 @@ class ScrambleGame {
     this.arbitratorId,
     this.teamNameA,
     this.teamNameB,
+    this.pausedRemaining,
   });
+
+  /// True while the referee has this in-progress game's countdown paused.
+  bool get isPaused =>
+      status == ScrambleGameStatus.inProgress && pausedRemaining != null;
 
   /// Sentinel seat id for an ejected player's not-yet-played game that
   /// couldn't be reshuffled away — a real person fills it on the court, but
@@ -128,6 +139,8 @@ class ScrambleGame {
     DateTime? actualStartTime,
     DateTime? actualEndTime,
     String? firstServerId,
+    Duration? pausedRemaining,
+    bool clearPausedRemaining = false,
   }) =>
       ScrambleGame(
         id: id,
@@ -145,6 +158,8 @@ class ScrambleGame {
         arbitratorId: arbitratorId,
         teamNameA: teamNameA,
         teamNameB: teamNameB,
+        pausedRemaining:
+            clearPausedRemaining ? null : (pausedRemaining ?? this.pausedRemaining),
       );
 
   Map<String, dynamic> toJson() => {
@@ -163,6 +178,7 @@ class ScrambleGame {
         'arbitratorId': arbitratorId,
         'teamNameA': teamNameA,
         'teamNameB': teamNameB,
+        'pausedRemaining': pausedRemaining?.inMilliseconds,
       };
 
   factory ScrambleGame.fromJson(Map<String, dynamic> j) => ScrambleGame(
@@ -189,6 +205,9 @@ class ScrambleGame {
         arbitratorId: j['arbitratorId'] as String?,
         teamNameA: j['teamNameA'] as String?,
         teamNameB: j['teamNameB'] as String?,
+        pausedRemaining: j['pausedRemaining'] != null
+            ? Duration(milliseconds: j['pausedRemaining'] as int)
+            : null,
       );
 
   static String generateId() => _uuid.v4();

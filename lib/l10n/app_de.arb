@@ -5,7 +5,7 @@
   "appTagline": "Spielstand, Spiele und Turniere",
 
   "navHome": "Startseite",
-  "navQuickStart": "Schnellstart Spiel",
+  "navQuickStart": "Schnellstart",
   "navTournaments": "TournaQ Arena",
   "navTeams": "Teams",
   "navClubs": "Gruppen",
@@ -13,11 +13,13 @@
   "navAdmin": "Verwaltung",
   "navSponsoring": "Sponsoring & Promo",
   "navContact": "Kontakt & Info",
+  "navMore": "Mehr",
 
   "pageGames": "Spiele",
   "pageTeams": "Teams",
   "pagePlayers": "Spieler",
   "pageTournaments": "TournaQ Arena",
+  "pageTournamentsSubtitle": "Herrsche über den Platz",
   "pageClubs": "Gruppen",
   "pageGameScorecard": "Spielstand",
   "pageGameplayHistory": "Spielhistorie",
@@ -45,7 +47,7 @@
   "btnGenerate10RandomTeams": "10 zufällige Teams generieren",
   "btnGenerate10RandomPlayers": "10 zufällige Spieler generieren",
 
-  "quickStartTitle": "Schnellstart Spiel",
+  "quickStartTitle": "Schnelles Spiel",
   "quickStartFormatQuestion": "Wie viele Sets?",
   "quickStartTeamQuestion": "Wie möchtest du die Teams auswählen?",
 
@@ -163,6 +165,27 @@
 
   "landingTournamentsSubtitle": "Spiele und Turniere",
   "landingAdminSubtitle": "Spieler, Teams & Gruppen verwalten",
+  "landingMoreSubtitle": "Sponsoring, Kontakt & Einstellungen",
+  "moreSponsoringSubtitle": "Sponsoren, Werbung & Aktionen",
+  "moreContactSubtitle": "Kontakt & App-Infos",
+  "moreSettingsSubtitle": "Sprache & Einstellungen",
+
+  "navBecomeTester": "Tester werden",
+  "moreBecomeTesterSubtitle": "Neue Funktionen früher testen",
+  "testerIntro": "Hilf mit, TournaQ zu verbessern, indem du neue Funktionen vor der Veröffentlichung testest — auf iOS über TestFlight, auf Android sobald du im Programm bist.",
+  "testerSectionIOS": "iOS",
+  "testerIOSDownloadTitle": "Über TestFlight herunterladen",
+  "testerIOSDownloadSubtitle": "Scannen, um die Beta direkt zu installieren",
+  "testerSectionSignup": "iOS & Android",
+  "testerSignupQRTitle": "Zum Anmelden scannen",
+  "testerSignupQRSubtitle": "Für iOS- & Android-Tester",
+  "testerSignupLinkTitle": "Anmeldeformular öffnen",
+  "testerSignupLinkSubtitle": "Falls du schon auf diesem Gerät bist",
+  "testerNoteIOS": "iOS: Die Anmeldung ist optional — du kannst direkt über TestFlight installieren —, hilft uns aber, in Kontakt zu bleiben.",
+  "testerNoteAndroid": "Android: Die Anmeldung ist erforderlich. Wir fügen Tester danach manuell zum Programm hinzu, es kann also etwas dauern.",
+  "testerContactTitle": "Noch größere Pläne?",
+  "testerContactBody": "Planst du ein großes Turnier, vermisst du einen Modus oder eine Funktion, oder brauchst du Hilfe? Sag uns Bescheid — wir priorisieren Wünsche von Testern.",
+  "testerContactButton": "Kontakt aufnehmen",
 
   "btnGotIt": "Verstanden",
   "btnLearnMore": "Mehr erfahren",
@@ -465,7 +488,7 @@
   "statusSetup": "Einrichtung",
   "statusCompleted": "Abgeschlossen",
   "statusInProgress": "Laufend",
-  "statusDue": "Läuft",
+  "statusDue": "Fällig",
   "statusOverdue": "Überfällig",
   "statusUpcoming": "Ausstehend",
   "dateToday": "Heute",
@@ -879,7 +902,7 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
-  "overviewEjectTitle": "{name} ausschließen?",
+  "overviewEjectTitle": "{name} rauswerfen?",
   "@overviewEjectTitle": {
     "placeholders": { "name": { "type": "String" } }
   },
@@ -889,7 +912,7 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
-  "overviewEjectBtn": "Ausschließen",
+  "overviewEjectBtn": "Rauswerfen",
   "@overviewEjectBtn": {},
 
   "overviewEjectChoiceIntro": "{name} wird aus dem Line-up entfernt. Abgeschlossene Spiele bleiben in der Statistik. Wähle, wie mit den verbleibenden Spielen verfahren wird:",
@@ -940,10 +963,10 @@
     "placeholders": { "time": { "type": "String" } }
   },
 
-  "scrambleStatusSwappedOut": "ausgetauscht",
+  "scrambleStatusSwappedOut": "raus",
   "@scrambleStatusSwappedOut": {},
 
-  "scrambleStatusSwappedIn": "Einwechslung",
+  "scrambleStatusSwappedIn": "rein",
   "@scrambleStatusSwappedIn": {},
 
   "scrambleStatusLate": "spät",
@@ -952,7 +975,7 @@
   "tooltipEdit": "Bearbeiten",
   "@tooltipEdit": {},
 
-  "tooltipEject": "Ausschließen",
+  "tooltipEject": "Rauswerfen",
   "@tooltipEject": {},
 
   "tooltipSwap": "Ersetzen",
@@ -1002,7 +1025,7 @@
   "scorecardCompleteGame": "Spiel abschließen",
   "@scorecardCompleteGame": {},
 
-  "scorecardManualScore": "Score manuell eingeben",
+  "scorecardManualScore": "Ergebnis manuell eingeben",
   "@scorecardManualScore": {},
 
   "scorecardBackToSchedule": "Zurück zum Zeitplan",
@@ -1014,8 +1037,23 @@
   "scorecardManualScoreBlockedBody": "Manuelle Score-Eingabe ist nur verfügbar, bevor die Live-Wertung gestartet hat. Das verhindert das versehentliche Überschreiben bereits erfasster Punkte.",
   "@scorecardManualScoreBlockedBody": {},
 
+  "scorecardEditScoreOverrideTitle": "Score überschreiben?",
+  "@scorecardEditScoreOverrideTitle": {},
+
+  "scorecardEditScoreOverrideBody": "Dieses Spiel hat bereits einen Score. Beim Bearbeiten wird das aktuelle Ergebnis ersetzt.",
+  "@scorecardEditScoreOverrideBody": {},
+
+  "scorecardEditWinnerLockedTitle": "Sieger nicht änderbar",
+  "@scorecardEditWinnerLockedTitle": {},
+
+  "scorecardEditWinnerLockedBody": "Das nächste Spiel hat bereits begonnen, daher kann der Sieger dieses Spiels nicht geändert werden. Punkte lassen sich noch korrigieren, solange dasselbe Team gewinnt.",
+  "@scorecardEditWinnerLockedBody": {},
+
   "scorecardManualScoreDescription": "Verwende dies, wenn das Spiel ohne Live-Wertung gespielt wurde. Gib den Endstand für beide Seiten ein und schließe das Spiel ab.",
   "@scorecardManualScoreDescription": {},
+
+  "scorecardManualScoreTimeUpNote": "War das Spiel bei Ablauf der Zeit noch im Gange, kannst du den Endstand hier manuell eintragen.",
+  "@scorecardManualScoreTimeUpNote": {},
 
   "btnOK": "OK",
   "@btnOK": {},
@@ -1257,24 +1295,24 @@
     }
   },
 
-  "kotcEjectReturn": "Sie werden ausgeschlossen und kehren in die Warteschlange zurück.",
+  "kotcEjectReturn": "Sie werden rausgeworfen und kehren in die Warteschlange zurück.",
   "@kotcEjectReturn": {},
 
-  "kotcEjectTeamTitle": "Team ausschließen?",
+  "kotcEjectTeamTitle": "Team rauswerfen?",
   "@kotcEjectTeamTitle": {},
 
-  "kotcEjectTeamBodyPoints": "Das aktuelle Team wird ausgeschlossen. Ihre {pts} Punkte werden gespeichert.",
+  "kotcEjectTeamBodyPoints": "Das aktuelle Team wird rausgeworfen. Ihre {pts} Punkte werden gespeichert.",
   "@kotcEjectTeamBodyPoints": {
     "placeholders": { "pts": { "type": "int" } }
   },
 
-  "kotcEjectTeamBodyNoPoints": "Das aktuelle Team wird ausgeschlossen und kehrt in die Warteschlange zurück.",
+  "kotcEjectTeamBodyNoPoints": "Das aktuelle Team wird rausgeworfen und kehrt in die Warteschlange zurück.",
   "@kotcEjectTeamBodyNoPoints": {},
 
-  "kotcLeaveTitle": "Verlassen ohne auszuschließen?",
+  "kotcLeaveTitle": "Verlassen ohne rauszuwerfen?",
   "@kotcLeaveTitle": {},
 
-  "kotcLeaveBodyPoints": "Das Team hat {pts} nicht gespeicherte Punkte. Beim Verlassen gehen sie verloren. Schließe das Team zuerst aus, um den Spielstand zu speichern.",
+  "kotcLeaveBodyPoints": "Das Team hat {pts} nicht gespeicherte Punkte. Beim Verlassen gehen sie verloren. Wirf das Team zuerst raus, um den Spielstand zu speichern.",
   "@kotcLeaveBodyPoints": {
     "placeholders": { "pts": { "type": "int" } }
   },
@@ -1308,10 +1346,10 @@
   "kotcTeamEjected": "Team\nraus",
   "@kotcTeamEjected": {},
 
-  "kotcUndoEject": "Ausschluss\nrückgängig",
+  "kotcUndoEject": "Rauswurf\nrückgängig",
   "@kotcUndoEject": {},
 
-  "kotcUndoLastEjection": "Letzten Ausschluss rückgängig",
+  "kotcUndoLastEjection": "Letzten Rauswurf rückgängig",
   "@kotcUndoLastEjection": {},
 
   "kotcUpNext": "Als Nächstes",
@@ -1354,7 +1392,7 @@
   "kotcPlayerNameHint": "Spielername",
   "@kotcPlayerNameHint": {},
 
-  "labelEject": "Ausschließen",
+  "labelEject": "Rauswerfen",
   "@labelEject": {},
 
   "kotcSetupStyleLabel": "Stil",
@@ -1371,6 +1409,13 @@
 
   "kotcSetupPlayersHelp": "Zielvorgabe für die Spieleranzahl. Wird beim automatischen Auffüllen mit zufälligen Spielern verwendet. Tatsächliche Teilnehmer werden unten im Bereich Spieler hinzugefügt.",
   "@kotcSetupPlayersHelp": {},
+
+  "autoAllplayLowPlayersWarning": "Auto-Allplay funktioniert mit weniger Spielern, wird aber unter {count} Spielern etwas hakelig.",
+  "@autoAllplayLowPlayersWarning": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
 
   "kotcSetupTimeHelp": "Gesamte Sitzungsdauer. Der Timer zählt von diesem Wert herunter. Wenn die Zeit abläuft, wirst du aufgefordert, das Turnier abzuschließen oder weiterzuspielen.",
   "@kotcSetupTimeHelp": {},
@@ -1390,7 +1435,7 @@
   "kotcHistoryNoGamesSubtitle": "Spiele erscheinen hier, sobald ein Team ausgeschlossen wird.",
   "@kotcHistoryNoGamesSubtitle": {},
 
-  "setupPlayersPerSide": "Spieler pro Seite",
+  "setupPlayersPerSide": "Format",
   "@setupPlayersPerSide": {},
 
   "setupAppliesToLast": "Gilt für letzte",
@@ -1470,13 +1515,13 @@
   "koCreateNewTeamTitle": "Neues Team erstellen",
   "@koCreateNewTeamTitle": {},
 
-  "koImportFromHub": "Aus Teams Hub importieren",
+  "koImportFromHub": "Aus Teams-Hub importieren",
   "@koImportFromHub": {},
 
   "koImportFromHubSubtitle": "Ein vorhandenes Team auswählen – Name und Spieler werden automatisch übernommen",
   "@koImportFromHubSubtitle": {},
 
-  "koNoTeamsInHub": "Noch keine Teams im Teams Hub.\nErstelle Teams zuerst im Bereich Teams.",
+  "koNoTeamsInHub": "Noch keine Teams im Teams-Hub.\nErstelle Teams zuerst im Bereich Teams.",
   "@koNoTeamsInHub": {},
 
   "koPlayersSection": "Spieler",
@@ -1518,7 +1563,7 @@
   "koAddTeamSubtitle": "Wie möchtest du dieses Team hinzufügen?",
   "@koAddTeamSubtitle": {},
 
-  "koFromTeamsHub": "Aus Teams Hub",
+  "koFromTeamsHub": "Aus Teams-Hub",
   "@koFromTeamsHub": {},
 
   "koFromTeamsHubSubtitle": "Ein vorhandenes Team aus deinem Hub auswählen",
@@ -1698,11 +1743,23 @@
   "scrambleScanNotResult": "Dieser QR-Code ist kein Ergebnis.",
   "@scrambleScanNotResult": {},
 
+  "koBracketScanMatchHint": "Kamera auf einen Spiel-QR-Code richten.",
+  "@koBracketScanMatchHint": {},
+
+  "koBracketScanNotMatch": "Dieser QR-Code ist kein Spiel.",
+  "@koBracketScanNotMatch": {},
+
+  "koBracketImportSuccess": "Spiel aus „{name}“ importiert.",
+  "@koBracketImportSuccess": {},
+
   "scrambleResultImported": "Ergebnis importiert.",
   "@scrambleResultImported": {},
 
   "scrambleResultMismatch": "Dieses Ergebnis gehört zu einem anderen Turnier.",
   "@scrambleResultMismatch": {},
+
+  "scrambleResultAlreadyRecorded": "Für dieses Spiel wurde bereits ein Ergebnis erfasst.",
+  "@scrambleResultAlreadyRecorded": {},
 
   "scrambleImportSuccess": "Spielblatt von „{name}“ importiert.",
   "@scrambleImportSuccess": {
@@ -1751,7 +1808,7 @@
   "scrambleImportedScorecard": "Importiertes Spielblatt",
   "@scrambleImportedScorecard": {},
 
-  "scrambleAdjustHint": "Tippe auf „Endergebnis anpassen“, um den Stand zu ändern, dann auf „Spiel abschließen“.",
+  "scrambleAdjustHint": "Tippe auf „Endergebnis anpassen“, um das Endergebnis einzutragen.",
   "@scrambleAdjustHint": {},
 
   "overviewSettingsTitle": "Turniereinstellungen",
@@ -1801,6 +1858,9 @@
   "overviewScoreSaved": "Ergebnis gespeichert.",
   "@overviewScoreSaved": {},
 
+  "overviewSettingsSaved": "Einstellungen gespeichert.",
+  "@overviewSettingsSaved": {},
+
   "rosterMenuTooltip": "Import / Export",
   "@rosterMenuTooltip": {},
 
@@ -1844,5 +1904,276 @@
   "@rosterImportConfirmDelete": {},
 
   "rosterImportDone": "{created} hinzugefügt, {updated} aktualisiert, {deleted} entfernt.",
-  "@rosterImportDone": {}
+  "@rosterImportDone": {},
+
+  "skSugTooFewRounds": "Mindestens 1 Runde ist nötig.",
+  "@skSugTooFewRounds": {},
+
+  "skSugZeroDuration": "Die Rundendauer muss größer als null sein.",
+  "@skSugZeroDuration": {},
+
+  "skSugMinPlayers": "Für einen Court sind mindestens {min} Spieler nötig.",
+  "@skSugMinPlayers": {},
+
+  "skSugInvalidCombo": "Diese Spieler-/Court-Kombination ergibt keinen gültigen Court. Mehr Spieler hinzufügen oder Courts reduzieren.",
+  "@skSugInvalidCombo": {},
+
+  "skSugCourtsUnfilled": "Mit {players} Spielern lassen sich nur {filled} von {courts} Courts füllen. Courts reduzieren oder Spieler hinzufügen.",
+  "@skSugCourtsUnfilled": {},
+
+  "skSugFloaterSameTeam": "Bei dieser Spielerzahl spielt der Floater in seinen Floating-Runden immer mit demselben Team. Mehr Spieler sorgen für Abwechslung.",
+  "@skSugFloaterSameTeam": {},
+
+  "ssSugTooFewRounds": "Für einen Spielplan ist mindestens 1 Runde nötig.",
+  "@ssSugTooFewRounds": {},
+
+  "ssSugZeroDuration": "Spiel- und Pausendauer müssen größer als null sein.",
+  "@ssSugZeroDuration": {},
+
+  "ssSugMinPlayers": "Für einen {perTeam}v{perTeam}-Court sind mindestens {n} Spieler nötig. Mehr Spieler hinzufügen oder kleineres Format wählen.",
+  "@ssSugMinPlayers": {},
+
+  "ssSugLargeGroup": "Bei {n} Spielern wird das Mischen statistisch — Jeder-gegen-jeden ist nicht mehr garantiert, gleiche Spielzeit aber schon. Ideal für große Events.",
+  "@ssSugLargeGroup": {},
+
+  "ssSugRepeatPartners": "Bei {rounds} Runden wiederholen sich einige Paarungen. Bis zu {max} Runden bleibt jede Paarung einmalig.",
+  "@ssSugRepeatPartners": {},
+
+  "ssSugCoverageNote": " Volle Abdeckung (jeder mit jedem) bräuchte {target} Runden, dann würden sich aber Partner wiederholen.",
+  "@ssSugCoverageNote": {},
+
+  "ssSugCapAction": "Auf {max} Runden begrenzen",
+  "@ssSugCapAction": {},
+
+  "ssSugAllUniqueNoCoverage": "Diese Konfiguration hält alle {rounds} Runden jede Paarung einmalig. Volle Abdeckung (jeder mit jedem) ist bei dieser Spieler-/Court-Kombination nicht ohne Wiederholungen möglich — sie bräuchte {target} Runden.",
+  "@ssSugAllUniqueNoCoverage": {},
+
+  "ssSugCourtsUnfilled": "Mit {players} Spielern lassen sich in {perTeam}v{perTeam} nur {active} von {courts} Courts füllen. Courts auf {active} reduzieren oder Spieler hinzufügen.",
+  "@ssSugCourtsUnfilled": {},
+
+  "ssSugNoReferee": "Mit {players} Spielern auf {active, plural, =1{1 Court} other{{active} Courts}} in {perTeam}v{perTeam} setzen pro Runde nur {sitting, plural, =1{1 Spieler} other{{sitting} Spieler}} aus — {without, plural, =1{1 Court bleibt} other{{without} Courts bleiben}} ohne festen Schiedsrichter; dort werden Ergebnisse manuell eingetragen.",
+  "@ssSugNoReferee": {},
+
+  "ssSugBreakTooLong": "Die Pausendauer ({breakDur}) ist länger als die Spieldauer ({matchDur}). Kürzere Pausen ermöglichen mehr Runden.",
+  "@ssSugBreakTooLong": {},
+
+  "kotcEjectChallenger": "Herausforderer rauswerfen",
+  "@kotcEjectChallenger": {},
+  "btnEject": "Rauswerfen",
+  "@btnEject": {},
+  "modeScrambleKingName": "Scramble King",
+  "@modeScrambleKingName": {},
+  "modeScrambleKingDesc": "Scramble-Mix trifft King of the Court",
+  "@modeScrambleKingDesc": {},
+  "modeScrambleKingHelp": "Scramble King mischt in jeder Runde den gesamten Spielerpool in neue Courts und Teams und spielt dann in jedem Court für die Rundendauer King of the Court. Zwei Spieler bilden ein Team und bleiben die ganze Runde zusammen; sie rotieren auf und vom Court, je nachdem, ob sie gewinnen oder verlieren — nur das Team, das gerade auf dem Court steht, kann punkten.\n\nLäuft der Rundentimer ab, werden alle erneut in neue Courts und neue Partner für die nächste Runde gemischt.\n\nHat ein Court eine ungerade Spielerzahl, bekommt der übrige Spieler trotzdem ein eigenes Team und steht wie alle anderen in der Warteschlange — nur sein Partner wird anders bestimmt: ein fester zufälliger Partner für die ganze Runde (Platzhalter) oder jedes Mal ein neuer, fair gewählter Partner (Springer).\n\nSpieler hinzufügen, Anzahl der Runden und Courts festlegen und los.",
+  "@modeScrambleKingHelp": {},
+  "scrambleKingStatsRounds": "{completed}/{total} Runden",
+  "@scrambleKingStatsRounds": {},
+  "scrambleKingSetupPlayersHelp": "Wie viele Spieler du erwartest. Steuert die „Zufällig füllen“-Schnellauswahl und prüft, ob deine Court-/Rundeneinstellungen passen.",
+  "@scrambleKingSetupPlayersHelp": {},
+  "scrambleKingSetupRoundsHelp": "Wie oft der gesamte Spielerpool in neue Courts und Teams gemischt wird.",
+  "@scrambleKingSetupRoundsHelp": {},
+  "scrambleKingSetupDurationHelp": "Wie lange jede Runde läuft, bevor alle neu in Courts und Teams gemischt werden.",
+  "@scrambleKingSetupDurationHelp": {},
+  "scrambleKingSetupCourtsHelp": "Wie viele Courts gleichzeitig laufen, jeder mit eigener King-of-the-Court-Warteschlange für die Runde.",
+  "@scrambleKingSetupCourtsHelp": {},
+  "scrambleKingOddPlayerLabel": "Ungerader Spieler",
+  "@scrambleKingOddPlayerLabel": {},
+  "scrambleKingOddPlayerHelp": "Lässt sich ein Court nicht gleichmäßig in Zweierteams aufteilen, bekommt ein Spieler ein eigenes Team und steht wie alle in der Warteschlange — nur sein Partner wird über diese Einstellung bestimmt. Platzhalter wählt beim ersten Court-Einsatz einen zufälligen freien Spieler und behält ihn die restliche Runde. Springer wählt jedes Mal neu, per Fairness-Berechnung, damit die Spielzeit über die Runde ausgeglichen bleibt. So oder so punktet das eigene Team des ungeraden Spielers wie jedes andere Team.",
+  "@scrambleKingOddPlayerHelp": {},
+  "scrambleKingOddPlayerPlaceholderLabel": "Platzhalter",
+  "@scrambleKingOddPlayerPlaceholderLabel": {},
+  "scrambleKingOddPlayerJumperLabel": "Springer",
+  "@scrambleKingOddPlayerJumperLabel": {},
+  "scrambleKingJumperPartner": "Springer: {name}",
+  "@scrambleKingJumperPartner": {},
+  "scrambleKingNextAdminNote": "Fair aus Spielern gewählt, die nicht gleich dran sind.",
+  "@scrambleKingNextAdminNote": {},
+  "scrambleKingJumperAwaiting": "Springer · wartet auf Rauswurf",
+  "@scrambleKingJumperAwaiting": {},
+  "scrambleKingRoundLabel": "Runde {n}",
+  "@scrambleKingRoundLabel": {},
+  "scrambleKingRoundsProgress": "{completed} / {total} Runden fertig",
+  "@scrambleKingRoundsProgress": {},
+  "scrambleKingRoundsPill": "{n} Runden",
+  "@scrambleKingRoundsPill": {},
+  "scrambleKingCourtsPill": "{n} Courts",
+  "@scrambleKingCourtsPill": {},
+  "scrambleKingPlayersPill": "{n} Spieler",
+  "@scrambleKingPlayersPill": {},
+  "scrambleKingRoundsPillLabel": "Runden",
+  "@scrambleKingRoundsPillLabel": {},
+  "scrambleKingCourtsPillLabel": "Courts",
+  "@scrambleKingCourtsPillLabel": {},
+  "scrambleKingInvalidCourtCount": "So viele Courts passen nicht zur aktuellen Spielerzahl.",
+  "@scrambleKingInvalidCourtCount": {},
+  "scrambleKingOverallRanking": "Gesamtwertung",
+  "@scrambleKingOverallRanking": {},
+  "scrambleKingNoResultsYet": "Noch keine Ergebnisse.\nWertungen erscheinen hier, sobald Runden gespielt werden.",
+  "@scrambleKingNoResultsYet": {},
+  "scrambleKingRoundsPlayed": "{n} Runden gespielt",
+  "@scrambleKingRoundsPlayed": {},
+  "scrambleKingCourtLabel": "Court",
+  "@scrambleKingCourtLabel": {},
+  "scrambleKingReadyToStart": "Startbereit",
+  "@scrambleKingReadyToStart": {},
+  "scrambleKingStartCourt": "Court starten",
+  "@scrambleKingStartCourt": {},
+  "scrambleKingRoundEndedBody": "Runde fertig — zurück zu den Ergebnissen.",
+  "@scrambleKingRoundEndedBody": {},
+  "scrambleKingCompleteRound": "Runde abschließen",
+  "@scrambleKingCompleteRound": {},
+  "scrambleKingCourtPageTitle": "Court {n}",
+  "@scrambleKingCourtPageTitle": {},
+  "scrambleKingEjectCourt": "Court\nraus",
+  "@scrambleKingEjectCourt": {},
+  "scrambleKingEjectChallenger": "Gegner\nraus",
+  "@scrambleKingEjectChallenger": {},
+  "scrambleKingPickStartingTeam": "Wähle unten ein Team zum Start.",
+  "@scrambleKingPickStartingTeam": {},
+  "scrambleKingSendToCourt": "Auf den Court",
+  "@scrambleKingSendToCourt": {},
+  "scrambleKingQueueLabel": "Warteschlange",
+  "@scrambleKingQueueLabel": {},
+  "scrambleKingRefereeBanner": "{name} pfeift diesen Court",
+  "@scrambleKingRefereeBanner": {},
+  "scrambleKingPickFloaterPartner": "Partner für den Floater wählen",
+  "@scrambleKingPickFloaterPartner": {},
+  "scrambleKingScorecard": "Scorecard",
+  "@scrambleKingScorecard": {},
+  "scrambleKingExportCourt": "Court exportieren",
+  "@scrambleKingExportCourt": {},
+  "scrambleKingScanCourtHint": "Kamera auf einen Court-QR-Code richten.",
+  "@scrambleKingScanCourtHint": {},
+  "scrambleKingScanNotCourt": "Dieser QR-Code ist kein Court.",
+  "@scrambleKingScanNotCourt": {},
+  "scrambleKingImportSuccess": "Court aus „{name}“ importiert.",
+  "@scrambleKingImportSuccess": {},
+  "scrambleKingImportedCourts": "Importierte Courts",
+  "@scrambleKingImportedCourts": {},
+  "scrambleKingImportedUpcomingHint": "Weitere Courts siehe Host-Gerät.",
+  "@scrambleKingImportedUpcomingHint": {},
+  "scrambleKingSetResultTitle": "Court-Ergebnis setzen",
+  "@scrambleKingSetResultTitle": {},
+  "scrambleKingSetResultDescription": "Gib die Punkte jedes Teams ein, um diesen Court ohne Spiel abzuschließen.",
+  "@scrambleKingSetResultDescription": {},
+  "scrambleKingManuallyEdited": "Manuell bearbeitet",
+  "@scrambleKingManuallyEdited": {},
+  "scrambleKingEditTeamResult": "Ergebnis ändern",
+  "@scrambleKingEditTeamResult": {},
+  "scrambleKingGamesWonLabel": "Spiele gewonnen",
+  "@scrambleKingGamesWonLabel": {},
+  "scrambleKingPointsLabel": "Punkte",
+  "@scrambleKingPointsLabel": {},
+  "scrambleKingTeamsLabel": "Teams",
+  "@scrambleKingTeamsLabel": {},
+  "scrambleKingTeamsFilterAll": "Alle",
+  "@scrambleKingTeamsFilterAll": {},
+  "scrambleKingTeamsEmpty": "Noch keine Teams für diesen Filter.",
+  "@scrambleKingTeamsEmpty": {},
+  "scrambleKingEditFormatTitle": "Format",
+  "@scrambleKingEditFormatTitle": {},
+  "scrambleKingStatRounds": "Runden",
+  "@scrambleKingStatRounds": {},
+  "scrambleKingTeamsSummary": "{teams} Teams · {pts} Pkt. gesamt",
+  "@scrambleKingTeamsSummary": {},
+  "scrambleKingUndoFinishCourt": "Rückgängig",
+  "@scrambleKingUndoFinishCourt": {},
+  "scrambleKingCourtCompleteBanner": "Die Runde dieses Courts ist fertig",
+  "@scrambleKingCourtCompleteBanner": {},
+  "scrambleKingCourtCompleteHint": "Hier tippen, um Ergebnisse zu sehen/ändern",
+  "@scrambleKingCourtCompleteHint": {},
+  "scrambleKingEditResults": "Ergebnisse ansehen/ändern",
+  "@scrambleKingEditResults": {},
+  "scrambleKingRoundTimer": "Rundentimer",
+  "@scrambleKingRoundTimer": {},
+  "scrambleKingFinishCourt": "Court abschließen",
+  "@scrambleKingFinishCourt": {},
+  "scrambleKingFinishCourtTitle": "Diesen Court abschließen?",
+  "@scrambleKingFinishCourtTitle": {},
+  "scrambleKingFinishCourtBody": "Die Ergebnisse dieses Courts jetzt speichern und seine Runde beenden.",
+  "@scrambleKingFinishCourtBody": {},
+  "scrambleKingUndoDiscardPointsTitle": "Punkte verwerfen?",
+  "@scrambleKingUndoDiscardPointsTitle": {},
+  "scrambleKingUndoDiscardPointsBody": "Das Team auf dem Court hat {points} Punkt(e) erfasst, die beim Rückgängigmachen verloren gehen.",
+  "@scrambleKingUndoDiscardPointsBody": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "scrambleKingUndoDiscardPointsConfirm": "Verwerfen & rückgängig",
+  "@scrambleKingUndoDiscardPointsConfirm": {},
+  "scrambleKingBackToSchedule": "Zurück zum Plan",
+  "@scrambleKingBackToSchedule": {},
+
+  "bracketGenerationTitle": "Bracketaufbau",
+  "@bracketGenerationTitle": {},
+  "bracketSeeding": "Setzung",
+  "@bracketSeeding": {},
+  "bracketSeedingRandomDesc": "Teams zufällig einsetzen",
+  "@bracketSeedingRandomDesc": {},
+  "bracketSeedingSeededDesc": "Nach Team-Rating ordnen",
+  "@bracketSeedingSeededDesc": {},
+  "bracketOddTeamsSection": "Ungerade Teams",
+  "@bracketOddTeamsSection": {},
+  "bracketOddByesDesc": "Top-Teams überspringen Runde 1",
+  "@bracketOddByesDesc": {},
+  "bracketOddPlayInDesc": "Extra-Teams um Runde 1",
+  "@bracketOddPlayInDesc": {},
+  "bracketOddPlayInPlusDesc": "Play-in mit Hoffnungslauf",
+  "@bracketOddPlayInPlusDesc": {},
+  "bracketPlayInPlus": "Play-in+",
+  "@bracketPlayInPlus": {},
+  "bracketRegenNote": "Erzeugt den Bracket neu. Nur vor dem ersten Spiel möglich.",
+  "@bracketRegenNote": {},
+  "bracketSetSchedule": "Zeitplan",
+  "@bracketSetSchedule": {},
+  "bracketEndsAt": "Ende {time}",
+  "@bracketEndsAt": {},
+  "bracketRoundBreak": "{minutes} Min Pause",
+  "@bracketRoundBreak": {},
+  "bracketTargetScore": "Zielpunkte",
+  "@bracketTargetScore": {},
+  "bracketSideChange": "Seitenwechsel",
+  "@bracketSideChange": {},
+  "bracketSideChangeOff": "Aus",
+  "@bracketSideChangeOff": {},
+  "bracketSideChangeEvery": "Alle {points} Punkte",
+  "@bracketSideChangeEvery": {},
+  "bracketNotifyTarget": "Bei Zielpunkten melden",
+  "@bracketNotifyTarget": {},
+  "bracketNotifyTargetDesc": "Hinweis zum Beenden bei Zielpunkten",
+  "@bracketNotifyTargetDesc": {},
+  "bracketManualSet": "Satz {number}",
+  "@bracketManualSet": {},
+  "bracketManualScore": "Punkte",
+  "@bracketManualScore": {},
+  "bracketTbd": "offen",
+  "@bracketTbd": {},
+  "bracketRefs": "{name} pfeift",
+  "@bracketRefs": {},
+  "bracketRoundFinal": "Finale",
+  "@bracketRoundFinal": {},
+  "bracketRoundSemi": "Halbfinale",
+  "@bracketRoundSemi": {},
+  "bracketRoundQuarter": "Viertelfinale",
+  "@bracketRoundQuarter": {},
+  "bracketRoundNumbered": "Runde {round}",
+  "@bracketRoundNumbered": {},
+  "bracketTagBye": "FREI",
+  "@bracketTagBye": {},
+  "bracketTagWalkover": "W/O",
+  "@bracketTagWalkover": {},
+  "bracketTagPlayIn": "PLAY-IN",
+  "@bracketTagPlayIn": {},
+  "bracketTagRepechage": "HOFFNUNG",
+  "@bracketTagRepechage": {},
+  "bracketAddBreak": "Pause hinzufügen",
+  "@bracketAddBreak": {},
+  "bracketBreakAfter": "Pause nach {round}",
+  "@bracketBreakAfter": {},
+  "bracketMatchNumber": "Spiel {number}",
+  "@bracketMatchNumber": {},
+  "bracketFinishBeforeExport": "Erst das Spiel beenden, dann exportieren.",
+  "@bracketFinishBeforeExport": {}
 }

@@ -11,6 +11,7 @@ import 'imported_scorecard_storage_service.dart';
 import 'king_of_the_court_storage_service.dart';
 import 'doghouse_storage_service.dart';
 import 'ko_bracket_storage_service.dart';
+import 'imported_ko_bracket_match_storage_service.dart';
 import 'scramble_king_storage_service.dart';
 import 'imported_scramble_king_court_storage_service.dart';
 
@@ -59,6 +60,7 @@ class LocalStorageService {
     await KingOfTheCourtStorageService.init();
     await DoghouseStorageService.init();
     await KoBracketStorageService.init();
+    await ImportedKoBracketMatchStorageService.init();
     await ScrambleKingStorageService.init();
     await ImportedScrambleKingCourtStorageService.init();
   }

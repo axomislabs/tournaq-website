@@ -32,6 +32,8 @@
 		<string>We use your data to show personalized ads and measure ad performance.</string>
 		<key>NSCameraUsageDescription</key>
 		<string>Used to scan QR codes when importing scorecards from another device.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Used to let you choose a file from your device when importing scorecards and tournament data into TournaQ.</string>
 		<key>SKAdNetworkItems</key>
 		<array>
 			<dict>

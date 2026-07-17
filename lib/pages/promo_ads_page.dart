@@ -10,7 +10,6 @@ import '../services/consent_service.dart';
 import '../services/rating_service.dart';
 import '../state/app_state.dart';
 import '../utils/url_utils.dart';
-import '../widgets/app_drawer.dart';
 import '../widgets/tournaq_app_bar.dart';
 import 'coming_soon_page.dart';
 
@@ -91,10 +90,6 @@ class _PromoAdsPageState extends State<PromoAdsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(
-        appState: widget.appState,
-        onAppStateChanged: widget.onAppStateChanged,
-      ),
       appBar: const TournaQAppBar(title: 'Sponsoring & Promo'),
       body: Stack(
         children: [

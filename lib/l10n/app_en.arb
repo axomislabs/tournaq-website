@@ -34,6 +34,9 @@
   "navContact": "Contact & About",
   "@navContact": {},
 
+  "navMore": "More",
+  "@navMore": {},
+
   "pageGames": "Quick Games",
   "@pageGames": {},
 
@@ -45,6 +48,9 @@
 
   "pageTournaments": "TournaQ Arena",
   "@pageTournaments": {},
+
+  "pageTournamentsSubtitle": "Meet and compete for the court",
+  "@pageTournamentsSubtitle": {},
 
   "pageClubs": "Groups",
   "@pageClubs": {},
@@ -377,6 +383,66 @@
 
   "landingAdminSubtitle": "Manage players, teams & groups",
   "@landingAdminSubtitle": {},
+
+  "landingMoreSubtitle": "Sponsoring, contact & settings",
+  "@landingMoreSubtitle": {},
+
+  "moreSponsoringSubtitle": "Sponsors, ads & promotions",
+  "@moreSponsoringSubtitle": {},
+
+  "moreContactSubtitle": "Get in touch & app info",
+  "@moreContactSubtitle": {},
+
+  "moreSettingsSubtitle": "Language & preferences",
+  "@moreSettingsSubtitle": {},
+
+  "navBecomeTester": "Become a Tester",
+  "@navBecomeTester": {},
+
+  "moreBecomeTesterSubtitle": "Try new features early",
+  "@moreBecomeTesterSubtitle": {},
+
+  "testerIntro": "Help shape TournaQ by testing new features before they're released — on iOS via TestFlight, or on Android once you're added to the program.",
+  "@testerIntro": {},
+
+  "testerSectionIOS": "iOS",
+  "@testerSectionIOS": {},
+
+  "testerIOSDownloadTitle": "Download via TestFlight",
+  "@testerIOSDownloadTitle": {},
+
+  "testerIOSDownloadSubtitle": "Scan to install the beta directly",
+  "@testerIOSDownloadSubtitle": {},
+
+  "testerSectionSignup": "iOS & Android",
+  "@testerSectionSignup": {},
+
+  "testerSignupQRTitle": "Scan to Sign Up",
+  "@testerSignupQRTitle": {},
+
+  "testerSignupQRSubtitle": "For iOS & Android testers",
+  "@testerSignupQRSubtitle": {},
+
+  "testerSignupLinkTitle": "Open Sign-up Form",
+  "@testerSignupLinkTitle": {},
+
+  "testerSignupLinkSubtitle": "If you're already on this device",
+  "@testerSignupLinkSubtitle": {},
+
+  "testerNoteIOS": "iOS: signing up is optional — you can install directly via TestFlight — but it helps us stay in touch.",
+  "@testerNoteIOS": {},
+
+  "testerNoteAndroid": "Android: signing up is required. We add testers to the program by hand afterwards, so there may be a short wait.",
+  "@testerNoteAndroid": {},
+
+  "testerContactTitle": "Got a Bigger Idea?",
+  "@testerContactTitle": {},
+
+  "testerContactBody": "Organizing a big tournament, missing a mode or feature, or need support? Let us know — we prioritize tester requests.",
+  "@testerContactBody": {},
+
+  "testerContactButton": "Contact Us",
+  "@testerContactButton": {},
 
   "btnGotIt": "Got it",
   "@btnGotIt": {},
@@ -2064,8 +2130,23 @@
   "scorecardManualScoreBlockedBody": "Manual score entry is only available before live scoring has started. This prevents accidentally overwriting points that were already tracked.",
   "@scorecardManualScoreBlockedBody": {},
 
+  "scorecardEditScoreOverrideTitle": "Override current score?",
+  "@scorecardEditScoreOverrideTitle": {},
+
+  "scorecardEditScoreOverrideBody": "This game already has a score. Editing it will replace the current result.",
+  "@scorecardEditScoreOverrideBody": {},
+
+  "scorecardEditWinnerLockedTitle": "Winner can't change",
+  "@scorecardEditWinnerLockedTitle": {},
+
+  "scorecardEditWinnerLockedBody": "The next match has already started, so the winner of this match can't change. You can still correct the points as long as the same team wins.",
+  "@scorecardEditWinnerLockedBody": {},
+
   "scorecardManualScoreDescription": "Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.",
   "@scorecardManualScoreDescription": {},
+
+  "scorecardManualScoreTimeUpNote": "If the game was still in play when the timer ran out, you can set the final score manually here.",
+  "@scorecardManualScoreTimeUpNote": {},
 
   "btnOK": "OK",
   "@btnOK": {},
@@ -2424,6 +2505,13 @@
 
   "kotcSetupPlayersHelp": "Target number of players for the session. Used when auto-filling random players. Actual participants are added in the Players section below.",
   "@kotcSetupPlayersHelp": {},
+
+  "autoAllplayLowPlayersWarning": "Auto-Allplay works with fewer players, but rotation may feel clunky below {count} players.",
+  "@autoAllplayLowPlayersWarning": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
 
   "kotcSetupTimeHelp": "Total session duration. The timer counts down from this value. When time runs out you will be prompted to complete the tournament or keep scoring.",
   "@kotcSetupTimeHelp": {},
@@ -2922,6 +3010,19 @@
   "scrambleKingFinishCourtBody": "Record this court's results now and end its round.",
   "@scrambleKingFinishCourtBody": {},
 
+  "scrambleKingUndoDiscardPointsTitle": "Discard recorded points?",
+  "@scrambleKingUndoDiscardPointsTitle": {},
+
+  "scrambleKingUndoDiscardPointsBody": "The team currently on court has {points} point(s) recorded. Undoing will discard them.",
+  "@scrambleKingUndoDiscardPointsBody": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+
+  "scrambleKingUndoDiscardPointsConfirm": "Discard and undo",
+  "@scrambleKingUndoDiscardPointsConfirm": {},
+
   "scrambleKingBackToSchedule": "Back to schedule",
   "@scrambleKingBackToSchedule": {},
 
@@ -2967,11 +3068,25 @@
   "scrambleScanNotResult": "This QR code is not a result.",
   "@scrambleScanNotResult": {},
 
+  "koBracketScanMatchHint": "Point the camera at a match QR code.",
+  "@koBracketScanMatchHint": {},
+
+  "koBracketScanNotMatch": "This QR code is not a match.",
+  "@koBracketScanNotMatch": {},
+
+  "koBracketImportSuccess": "Imported match from “{name}”.",
+  "@koBracketImportSuccess": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
   "scrambleResultImported": "Result imported.",
   "@scrambleResultImported": {},
 
   "scrambleResultMismatch": "This result is for a different tournament.",
   "@scrambleResultMismatch": {},
+
+  "scrambleResultAlreadyRecorded": "A result has already been recorded for this game.",
+  "@scrambleResultAlreadyRecorded": {},
 
   "scrambleImportSuccess": "Imported scorecard from “{name}”.",
   "@scrambleImportSuccess": {
@@ -3020,7 +3135,7 @@
   "scrambleImportedScorecard": "Imported Scorecard",
   "@scrambleImportedScorecard": {},
 
-  "scrambleAdjustHint": "Tap Adjust final score to change the score, then Complete.",
+  "scrambleAdjustHint": "Tap Adjust final score to enter the final result.",
   "@scrambleAdjustHint": {},
 
   "overviewSettingsTitle": "Tournament Settings",
@@ -3069,6 +3184,9 @@
 
   "overviewScoreSaved": "Score saved.",
   "@overviewScoreSaved": {},
+
+  "overviewSettingsSaved": "Settings saved.",
+  "@overviewSettingsSaved": {},
 
   "rosterMenuTooltip": "Import / Export",
   "@rosterMenuTooltip": {},
@@ -3130,5 +3248,226 @@
       "updated": { "type": "int" },
       "deleted": { "type": "int" }
     }
-  }
+  },
+
+  "skSugTooFewRounds": "At least 1 round is needed.",
+  "@skSugTooFewRounds": {},
+
+  "skSugZeroDuration": "Round duration must be greater than zero.",
+  "@skSugZeroDuration": {},
+
+  "skSugMinPlayers": "At least {min} players are needed for one court.",
+  "@skSugMinPlayers": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+
+  "skSugInvalidCombo": "This player/court combination can't form a valid court. Add more players or reduce courts.",
+  "@skSugInvalidCombo": {},
+
+  "skSugCourtsUnfilled": "Only {filled} of {courts} courts can be filled with {players} players. Reduce courts or add players.",
+  "@skSugCourtsUnfilled": {
+    "placeholders": {
+      "filled": { "type": "int" },
+      "courts": { "type": "int" },
+      "players": { "type": "int" }
+    }
+  },
+
+  "skSugFloaterSameTeam": "With this player count, the floater always partners with the same team on the rounds they float. Add players for more variety.",
+  "@skSugFloaterSameTeam": {},
+
+  "ssSugTooFewRounds": "At least 1 round is needed to build a schedule.",
+  "@ssSugTooFewRounds": {},
+
+  "ssSugZeroDuration": "Match and break duration must be greater than zero.",
+  "@ssSugZeroDuration": {},
+
+  "ssSugMinPlayers": "At least {n} players are needed for one {perTeam}v{perTeam} court. Add more players or switch to a smaller format.",
+  "@ssSugMinPlayers": {
+    "placeholders": {
+      "n": { "type": "int" },
+      "perTeam": { "type": "int" }
+    }
+  },
+
+  "ssSugLargeGroup": "With {n} players the mixing becomes statistical — everyone-against-everyone is no longer guaranteed, but equal play time still is. This works well for large events.",
+  "@ssSugLargeGroup": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+
+  "ssSugRepeatPartners": "With {rounds} rounds, some partnerships will repeat. Up to {max} rounds keeps every partnership unique.",
+  "@ssSugRepeatPartners": {
+    "placeholders": {
+      "rounds": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+
+  "ssSugCoverageNote": " Full coverage (everyone partners with everyone) would take {target} rounds, but then some players would repeat partners.",
+  "@ssSugCoverageNote": {
+    "placeholders": { "target": { "type": "int" } }
+  },
+
+  "ssSugCapAction": "Cap at {max} rounds",
+  "@ssSugCapAction": {
+    "placeholders": { "max": { "type": "int" } }
+  },
+
+  "ssSugAllUniqueNoCoverage": "This setup keeps every partnership unique for all {rounds} rounds. Full coverage (everyone partners with everyone) isn't possible without repeats for this player/court combination — it would need {target} rounds.",
+  "@ssSugAllUniqueNoCoverage": {
+    "placeholders": {
+      "rounds": { "type": "int" },
+      "target": { "type": "int" }
+    }
+  },
+
+  "ssSugCourtsUnfilled": "Only {active} of {courts} courts can be filled with {players} players in {perTeam}v{perTeam}. Reduce courts to {active} or add more players.",
+  "@ssSugCourtsUnfilled": {
+    "placeholders": {
+      "active": { "type": "int" },
+      "courts": { "type": "int" },
+      "players": { "type": "int" },
+      "perTeam": { "type": "int" }
+    }
+  },
+
+  "ssSugNoReferee": "With {players} players filling {active, plural, =1{1 court} other{{active} courts}} in {perTeam}v{perTeam}, only {sitting, plural, =1{1 player} other{{sitting} players}} sit out each round — {without, plural, =1{1 court} other{{without} courts}} won't have a dedicated referee and will need scores entered manually.",
+  "@ssSugNoReferee": {
+    "placeholders": {
+      "players": { "type": "int" },
+      "active": { "type": "int" },
+      "perTeam": { "type": "int" },
+      "sitting": { "type": "int" },
+      "without": { "type": "int" }
+    }
+  },
+
+  "ssSugBreakTooLong": "Break duration ({breakDur}) is longer than match duration ({matchDur}). Consider reducing breaks to allow more rounds.",
+  "@ssSugBreakTooLong": {
+    "placeholders": {
+      "breakDur": { "type": "String" },
+      "matchDur": { "type": "String" }
+    }
+  },
+
+  "bracketGenerationTitle": "Bracket generation",
+  "@bracketGenerationTitle": {},
+
+  "bracketSeeding": "Seeding",
+  "@bracketSeeding": {},
+
+  "bracketSeedingRandomDesc": "Shuffle teams into the bracket",
+  "@bracketSeedingRandomDesc": {},
+
+  "bracketSeedingSeededDesc": "Order by team skill rating",
+  "@bracketSeedingSeededDesc": {},
+
+  "bracketOddTeamsSection": "Odd teams",
+  "@bracketOddTeamsSection": {},
+
+  "bracketOddByesDesc": "Top teams skip the first round",
+  "@bracketOddByesDesc": {},
+
+  "bracketOddPlayInDesc": "Extra teams fight into round 1",
+  "@bracketOddPlayInDesc": {},
+
+  "bracketOddPlayInPlusDesc": "Play-in with a repechage back-in",
+  "@bracketOddPlayInPlusDesc": {},
+
+  "bracketPlayInPlus": "Play-in+",
+  "@bracketPlayInPlus": {},
+
+  "bracketRegenNote": "Regenerates the bracket. Available only before the first match starts.",
+  "@bracketRegenNote": {},
+
+  "bracketSetSchedule": "Set schedule",
+  "@bracketSetSchedule": {},
+
+  "bracketEndsAt": "Ends {time}",
+  "@bracketEndsAt": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "bracketRoundBreak": "{minutes}m break",
+  "@bracketRoundBreak": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
+  "bracketTargetScore": "Target score",
+  "@bracketTargetScore": {},
+
+  "bracketSideChange": "Side change",
+  "@bracketSideChange": {},
+
+  "bracketSideChangeOff": "Off",
+  "@bracketSideChangeOff": {},
+
+  "bracketSideChangeEvery": "Every {points} points",
+  "@bracketSideChangeEvery": {
+    "placeholders": { "points": { "type": "int" } }
+  },
+
+  "bracketNotifyTarget": "Notify at target score",
+  "@bracketNotifyTarget": {},
+
+  "bracketNotifyTargetDesc": "Prompt to finish when a side reaches the target",
+  "@bracketNotifyTargetDesc": {},
+
+  "bracketManualSet": "Set {number}",
+  "@bracketManualSet": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "bracketManualScore": "Score",
+  "@bracketManualScore": {},
+
+  "bracketTbd": "TBD",
+  "@bracketTbd": {},
+
+  "bracketRefs": "{name} refs",
+  "@bracketRefs": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "bracketRoundFinal": "Final",
+  "@bracketRoundFinal": {},
+
+  "bracketRoundSemi": "Semi-final",
+  "@bracketRoundSemi": {},
+
+  "bracketRoundQuarter": "Quarter-final",
+  "@bracketRoundQuarter": {},
+
+  "bracketRoundNumbered": "Round {round}",
+  "@bracketRoundNumbered": {
+    "placeholders": { "round": { "type": "int" } }
+  },
+
+  "bracketTagBye": "BYE",
+  "@bracketTagBye": {},
+
+  "bracketTagWalkover": "W/O",
+  "@bracketTagWalkover": {},
+
+  "bracketTagPlayIn": "PLAY-IN",
+  "@bracketTagPlayIn": {},
+
+  "bracketTagRepechage": "REPECHAGE",
+  "@bracketTagRepechage": {},
+
+  "bracketAddBreak": "Add break",
+  "@bracketAddBreak": {},
+
+  "bracketBreakAfter": "Break after {round}",
+  "@bracketBreakAfter": {
+    "placeholders": { "round": { "type": "String" } }
+  },
+
+  "bracketMatchNumber": "Match {number}",
+  "@bracketMatchNumber": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "bracketFinishBeforeExport": "Finish the match before exporting the result.",
+  "@bracketFinishBeforeExport": {}
 }

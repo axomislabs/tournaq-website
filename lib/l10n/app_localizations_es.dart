@@ -42,6 +42,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navContact => 'Contacto e Info';
 
   @override
+  String get navMore => 'Más';
+
+  @override
   String get pageGames => 'Partidos';
 
   @override
@@ -52,6 +55,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get pageTournaments => 'TournaQ Arena';
+
+  @override
+  String get pageTournamentsSubtitle => 'Reúnete y reina en la pista';
 
   @override
   String get pageClubs => 'Grupos';
@@ -93,7 +99,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get btnGiveFeedback => 'Enviar comentarios';
 
   @override
-  String get btnEmailUs => 'Enviar correo electronico';
+  String get btnEmailUs => 'Escríbenos';
 
   @override
   String get btnRateTournaQ => 'Valorar TournaQ';
@@ -129,10 +135,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get btnGenerate10RandomPlayers => 'Generar 10 Jugadores Aleatorios';
 
   @override
-  String get quickStartTitle => 'Partido Rapido';
+  String get quickStartTitle => 'Partido Rápido';
 
   @override
-  String get quickStartFormatQuestion => '¿Cuánto dura el partido?';
+  String get quickStartFormatQuestion => '¿Cuántos sets?';
 
   @override
   String get quickStartTeamQuestion => '¿Cómo quieres elegir los equipos?';
@@ -175,7 +181,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get quickStartBack => 'Atrás';
 
   @override
-  String get quickStartReRoll => 'Regenerar Equipos';
+  String get quickStartReRoll => 'Volver a sortear';
 
   @override
   String get sectionMatchHistory => 'Historial de Partidos';
@@ -369,6 +375,71 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get landingAdminSubtitle => 'Gestiona jugadores, equipos y grupos';
+
+  @override
+  String get landingMoreSubtitle => 'Patrocinio, contacto y ajustes';
+
+  @override
+  String get moreSponsoringSubtitle => 'Patrocinadores, anuncios y promos';
+
+  @override
+  String get moreContactSubtitle => 'Contacto e info de la app';
+
+  @override
+  String get moreSettingsSubtitle => 'Idioma y preferencias';
+
+  @override
+  String get navBecomeTester => 'Sé probador';
+
+  @override
+  String get moreBecomeTesterSubtitle => 'Prueba funciones nuevas antes';
+
+  @override
+  String get testerIntro =>
+      'Ayuda a mejorar TournaQ probando nuevas funciones antes de su lanzamiento — en iOS mediante TestFlight, o en Android una vez que te añadamos al programa.';
+
+  @override
+  String get testerSectionIOS => 'iOS';
+
+  @override
+  String get testerIOSDownloadTitle => 'Descargar desde TestFlight';
+
+  @override
+  String get testerIOSDownloadSubtitle =>
+      'Escanea para instalar la beta directamente';
+
+  @override
+  String get testerSectionSignup => 'iOS y Android';
+
+  @override
+  String get testerSignupQRTitle => 'Escanea para inscribirte';
+
+  @override
+  String get testerSignupQRSubtitle => 'Para probadores de iOS y Android';
+
+  @override
+  String get testerSignupLinkTitle => 'Abrir formulario de inscripción';
+
+  @override
+  String get testerSignupLinkSubtitle => 'Si ya estás en este dispositivo';
+
+  @override
+  String get testerNoteIOS =>
+      'iOS: inscribirte es opcional — puedes instalar directamente desde TestFlight —, pero nos ayuda a mantener el contacto.';
+
+  @override
+  String get testerNoteAndroid =>
+      'Android: la inscripción es obligatoria. Añadimos a los probadores al programa a mano, así que puede tardar un poco.';
+
+  @override
+  String get testerContactTitle => '¿Tienes algo más grande en mente?';
+
+  @override
+  String get testerContactBody =>
+      '¿Organizas un torneo grande, echas en falta un modo o función, o necesitas soporte? Cuéntanoslo: priorizamos las peticiones de los probadores.';
+
+  @override
+  String get testerContactButton => 'Contáctanos';
 
   @override
   String get btnGotIt => 'Entendido';
@@ -1268,7 +1339,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get statusInProgress => 'En curso';
 
   @override
-  String get statusDue => 'En curso';
+  String get statusDue => 'Pendiente';
 
   @override
   String get statusOverdue => 'Retrasado';
@@ -1695,7 +1766,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get btnAddAnyway => 'Añadir de todas formas';
+  String get btnAddAnyway => 'Añadir igual';
 
   @override
   String get setupSectionPlayers => 'Jugadores';
@@ -1772,7 +1843,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get setupSeedingRandom => 'Aleatorio';
 
   @override
-  String get setupSeedingSeeded => 'Por clasificación';
+  String get setupSeedingSeeded => 'Preclasificado';
 
   @override
   String get setupOddTeamsByes => 'Bye';
@@ -2010,10 +2081,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get scrambleStatusSwappedOut => 'reemplazado';
+  String get scrambleStatusSwappedOut => 'sale';
 
   @override
-  String get scrambleStatusSwappedIn => 'suplente';
+  String get scrambleStatusSwappedIn => 'entra';
 
   @override
   String get scrambleStatusLate => 'tarde';
@@ -2073,7 +2144,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scorecardCompleteGame => 'Finalizar juego';
 
   @override
-  String get scorecardManualScore => 'Introducir resultado manualmente';
+  String get scorecardManualScore => 'Resultado manual';
 
   @override
   String get scorecardBackToSchedule => 'Volver al horario';
@@ -2087,8 +2158,26 @@ class AppLocalizationsEs extends AppLocalizations {
       'La entrada manual solo está disponible antes de que haya comenzado la puntuación en vivo. Esto evita sobrescribir accidentalmente los puntos ya registrados.';
 
   @override
+  String get scorecardEditScoreOverrideTitle => '¿Sobrescribir el resultado?';
+
+  @override
+  String get scorecardEditScoreOverrideBody =>
+      'Este partido ya tiene un resultado. Editarlo reemplazará el resultado actual.';
+
+  @override
+  String get scorecardEditWinnerLockedTitle => 'No se puede cambiar el ganador';
+
+  @override
+  String get scorecardEditWinnerLockedBody =>
+      'El siguiente partido ya ha comenzado, así que no se puede cambiar el ganador. Aún puedes corregir los puntos si gana el mismo equipo.';
+
+  @override
   String get scorecardManualScoreDescription =>
       'Úsalo cuando el juego fue jugado sin puntuación en vivo. Introduce el marcador final para ambos lados y completa el juego.';
+
+  @override
+  String get scorecardManualScoreTimeUpNote =>
+      'Si el juego seguía en curso cuando se acabó el tiempo, puedes introducir el marcador final manualmente aquí.';
 
   @override
   String get btnOK => 'OK';
@@ -2163,7 +2252,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get matchCompleteMatch => 'Completar partido';
 
   @override
-  String get matchSetScoreManually => 'Introducir resultado manualmente';
+  String get matchSetScoreManually => 'Resultado manual';
 
   @override
   String get matchBackToBracket => 'Volver al bracket';
@@ -2261,8 +2350,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get bracketSearchTeams => 'Buscar equipos…';
 
   @override
-  String get bracketNoTeamsInHub =>
-      'Aún no hay equipos en el centro de equipos.';
+  String get bracketNoTeamsInHub => 'Aún no hay equipos en el Hub de Equipos.';
 
   @override
   String get bracketAllTeamsInTournament =>
@@ -2393,7 +2481,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kotcUndoLastEjection => 'Deshacer última expulsión';
 
   @override
-  String get kotcUpNext => 'A continuación';
+  String get kotcUpNext => 'Siguiente';
 
   @override
   String get kotcChallengers => 'Retadores';
@@ -2412,7 +2500,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get kotcWaitingForPlayers => 'Esperando jugadores...';
 
   @override
-  String get kotcEjectChallenger => 'Eject challenger';
+  String get kotcEjectChallenger => 'Expulsar al retador';
 
   @override
   String get kotcEjectChallengerShort => 'Retador\nExpulsado';
@@ -2458,6 +2546,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Número objetivo de jugadores para la sesión. Se usa al rellenar con jugadores aleatorios. Los participantes reales se añaden en la sección Jugadores.';
 
   @override
+  String autoAllplayLowPlayersWarning(int count) {
+    return 'Auto-Allplay funciona con menos jugadores, pero la rotación puede ser torpe con menos de $count.';
+  }
+
+  @override
   String get kotcSetupTimeHelp =>
       'Duración total de la sesión. El temporizador cuenta regresivamente desde este valor. Cuando se acabe el tiempo, se te pedirá completar el torneo o seguir jugando.';
 
@@ -2479,7 +2572,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los juegos aparecerán aquí cuando se expulse un equipo.';
 
   @override
-  String get setupPlayersPerSide => 'Jugadores por lado';
+  String get setupPlayersPerSide => 'Formato';
 
   @override
   String get setupAppliesToLast => 'Se aplica a las últimas';
@@ -2749,249 +2842,262 @@ class AppLocalizationsEs extends AppLocalizations {
       'Doghouse es un torneo competitivo rápido donde la acción nunca se detiene. Un equipo lucha desde el doghouse — anota suficientes puntos para escapar y abrir paso a los próximos retadores.\n\nFormato corto, alta intensidad — genial como calentamiento o competición independiente.\n\nJusto por diseño. La asignación automática de TournaQ garantiza que todos jueguen con y contra personas distintas.\n\nCómo funciona un juego:\n• Ganar un rally → anotar un punto\n• Perder un rally → juego perdido, puntos reiniciados\n• Alcanzar el objetivo de Escape Points → escapado, de vuelta a la cola\n• Alcanzar el Límite de Derrotas → expulsado, entra el siguiente equipo\n\nAntes de empezar, acuerda:\n• Qué equipo saca cada rally\n• Configuración de Escape Points y Límite de Derrotas\n\nAgrega tus jugadores, configura el temporizador — y a jugar.';
 
   @override
-  String get btnEject => 'Eject';
+  String get btnEject => 'Expulsar';
 
   @override
   String get modeScrambleKingName => 'Scramble King';
 
   @override
-  String get modeScrambleKingDesc => 'Scramble mixing meets King of the Court';
+  String get modeScrambleKingDesc =>
+      'La mezcla Scramble se une a King of the Court';
 
   @override
   String get modeScrambleKingHelp =>
-      'Scramble King mixes the whole player pool into fresh courts and teams every round, then plays King of the Court within each court for the round\'s duration. Two players form a team and stay together for the whole round, cycling on and off the court as they win or lose — only the team currently on court can score.\n\nWhen a round\'s timer runs out, everyone is mixed again into new courts and new partners for the next round.\n\nIf a court ends up with an odd number of players, the leftover player still gets their own team and queues just like everyone else — only their partner is decided differently: a fixed random partner for the whole round (Placeholder), or a fresh fairness-balanced partner each time they\'re on court (Jumper).\n\nAdd your players, set the number of rounds and courts, and go.';
+      'Scramble King mezcla todo el grupo de jugadores en pistas y equipos nuevos cada ronda y luego juega King of the Court dentro de cada pista durante la ronda. Dos jugadores forman un equipo y siguen juntos toda la ronda, entrando y saliendo de la pista según ganen o pierdan: solo el equipo que está en la pista puede puntuar.\n\nCuando termina el tiempo de la ronda, todos se vuelven a mezclar en pistas y parejas nuevas para la siguiente ronda.\n\nSi una pista queda con un número impar de jugadores, el jugador sobrante tiene igualmente su propio equipo y hace cola como los demás: solo su pareja se decide de otra forma: una pareja aleatoria fija toda la ronda (Comodín) o una pareja nueva y equilibrada cada vez que sale a la pista (Saltador).\n\nAñade tus jugadores, indica el número de rondas y pistas, y empieza.';
 
   @override
   String scrambleKingStatsRounds(int completed, int total) {
-    return '$completed/$total rounds';
+    return '$completed/$total rondas';
   }
 
   @override
   String get scrambleKingSetupPlayersHelp =>
-      'How many players you plan to have. Used to size the \"fill random\" quick-add and to check your court/round settings make sense.';
+      'Cuántos jugadores prevés. Ajusta el «rellenar al azar» y comprueba que tus pistas y rondas encajan.';
 
   @override
   String get scrambleKingSetupRoundsHelp =>
-      'How many times the whole player pool gets mixed into new courts and teams.';
+      'Cuántas veces se mezcla todo el grupo en pistas y equipos nuevos.';
 
   @override
   String get scrambleKingSetupDurationHelp =>
-      'How long each round runs before everyone is reshuffled into new courts and teams.';
+      'Cuánto dura cada ronda antes de rebarajar a todos en pistas y equipos nuevos.';
 
   @override
   String get scrambleKingSetupCourtsHelp =>
-      'How many courts run at once, each with its own independent King of the Court queue for the round.';
+      'Cuántas pistas van a la vez, cada una con su propia cola de King of the Court en la ronda.';
 
   @override
-  String get scrambleKingOddPlayerLabel => 'Odd player handling';
+  String get scrambleKingOddPlayerLabel => 'Jugador impar';
 
   @override
   String get scrambleKingOddPlayerHelp =>
-      'When a court can\'t be split evenly into teams of two, one player gets their own team and queues like everyone else — only their partner is decided by this setting. Placeholder picks a random free player the first time they take the court, then keeps that same partner for the rest of the round. Jumper re-picks a partner every time, using a fairness calculation so playing time stays balanced across the round. Either way, the odd player\'s own team earns the points, just like every other team.';
+      'Cuando una pista no se divide en parejas exactas, un jugador tiene su propio equipo y hace cola como los demás: solo su pareja depende de este ajuste. Comodín elige un jugador libre al azar la primera vez que sale a la pista y lo mantiene el resto de la ronda. Saltador la reelige cada vez, con un cálculo de equidad para repartir el tiempo de juego en la ronda. En ambos casos, el equipo del jugador impar puntúa como cualquier otro.';
 
   @override
-  String get scrambleKingOddPlayerPlaceholderLabel => 'Placeholder';
+  String get scrambleKingOddPlayerPlaceholderLabel => 'Comodín';
 
   @override
-  String get scrambleKingOddPlayerJumperLabel => 'Jumper';
+  String get scrambleKingOddPlayerJumperLabel => 'Saltador';
 
   @override
   String scrambleKingJumperPartner(String name) {
-    return 'Jumper: $name';
+    return 'Saltador: $name';
   }
 
   @override
   String get scrambleKingNextAdminNote =>
-      'Suggested fairly from players not about to play.';
+      'Elegido con equidad entre quienes no juegan pronto.';
 
   @override
-  String get scrambleKingJumperAwaiting => 'Jumper · awaiting ejection';
+  String get scrambleKingJumperAwaiting => 'Saltador · espera expulsión';
 
   @override
   String scrambleKingRoundLabel(int n) {
-    return 'Round $n';
+    return 'Ronda $n';
   }
 
   @override
   String scrambleKingRoundsProgress(int completed, int total) {
-    return '$completed / $total rounds complete';
+    return '$completed / $total rondas hechas';
   }
 
   @override
   String scrambleKingRoundsPill(int n) {
-    return '$n rounds';
+    return '$n rondas';
   }
 
   @override
   String scrambleKingCourtsPill(int n) {
-    return '$n courts';
+    return '$n pistas';
   }
 
   @override
   String scrambleKingPlayersPill(int n) {
-    return '$n players';
+    return '$n jugadores';
   }
 
   @override
-  String get scrambleKingRoundsPillLabel => 'Rounds';
+  String get scrambleKingRoundsPillLabel => 'Rondas';
 
   @override
-  String get scrambleKingCourtsPillLabel => 'Courts';
+  String get scrambleKingCourtsPillLabel => 'Pistas';
 
   @override
   String get scrambleKingInvalidCourtCount =>
-      'That many courts doesn\'t work for the current player count.';
+      'Tantas pistas no encajan con el número de jugadores actual.';
 
   @override
-  String get scrambleKingOverallRanking => 'Overall Ranking';
+  String get scrambleKingOverallRanking => 'Clasificación general';
 
   @override
   String get scrambleKingNoResultsYet =>
-      'No results yet.\nRankings will appear here as rounds are played.';
+      'Aún no hay resultados.\nLas clasificaciones aparecerán aquí a medida que se jueguen rondas.';
 
   @override
   String scrambleKingRoundsPlayed(int n) {
-    return '$n rounds played';
+    return '$n rondas jugadas';
   }
 
   @override
-  String get scrambleKingCourtLabel => 'Court';
+  String get scrambleKingCourtLabel => 'Pista';
 
   @override
-  String get scrambleKingReadyToStart => 'Ready to start';
+  String get scrambleKingReadyToStart => 'Listo para empezar';
 
   @override
-  String get scrambleKingStartCourt => 'Start Court';
+  String get scrambleKingStartCourt => 'Iniciar pista';
 
   @override
   String get scrambleKingRoundEndedBody =>
-      'Round complete — head back to see the results.';
+      'Ronda completa: vuelve para ver los resultados.';
 
   @override
-  String get scrambleKingCompleteRound => 'Complete round';
+  String get scrambleKingCompleteRound => 'Completar ronda';
 
   @override
   String scrambleKingCourtPageTitle(int n) {
-    return 'Court $n';
+    return 'Pista $n';
   }
 
   @override
-  String get scrambleKingEjectCourt => 'Eject\nCourt';
+  String get scrambleKingEjectCourt => 'Pista\nfuera';
 
   @override
-  String get scrambleKingEjectChallenger => 'Eject\nChallenger';
+  String get scrambleKingEjectChallenger => 'Retador\nfuera';
 
   @override
   String get scrambleKingPickStartingTeam =>
-      'Pick a team below to start on court.';
+      'Elige abajo un equipo para empezar.';
 
   @override
-  String get scrambleKingSendToCourt => 'Send to court';
+  String get scrambleKingSendToCourt => 'A la pista';
 
   @override
-  String get scrambleKingQueueLabel => 'Queue';
+  String get scrambleKingQueueLabel => 'Cola';
 
   @override
   String scrambleKingRefereeBanner(String name) {
-    return '$name is refereeing this court';
+    return '$name arbitra esta pista';
   }
 
   @override
-  String get scrambleKingPickFloaterPartner => 'Pick a partner for the floater';
+  String get scrambleKingPickFloaterPartner =>
+      'Elige pareja para el jugador suelto';
 
   @override
-  String get scrambleKingScorecard => 'Scorecard';
+  String get scrambleKingScorecard => 'Tarjeta';
 
   @override
-  String get scrambleKingExportCourt => 'Export court';
+  String get scrambleKingExportCourt => 'Exportar pista';
 
   @override
   String get scrambleKingScanCourtHint =>
-      'Point the camera at a court QR code.';
+      'Apunta la cámara al código QR de una pista.';
 
   @override
-  String get scrambleKingScanNotCourt => 'This QR code is not a court.';
+  String get scrambleKingScanNotCourt => 'Este código QR no es una pista.';
 
   @override
   String scrambleKingImportSuccess(String name) {
-    return 'Imported court from “$name”.';
+    return 'Pista importada de «$name».';
   }
 
   @override
-  String get scrambleKingImportedCourts => 'Imported Courts';
+  String get scrambleKingImportedCourts => 'Pistas importadas';
 
   @override
   String get scrambleKingImportedUpcomingHint =>
-      'For other courts, see the host device.';
+      'Para otras pistas, mira el dispositivo anfitrión.';
 
   @override
-  String get scrambleKingSetResultTitle => 'Set Court Result';
+  String get scrambleKingSetResultTitle => 'Fijar resultado de pista';
 
   @override
   String get scrambleKingSetResultDescription =>
-      'Enter each team\'s points to complete this court without playing it.';
+      'Introduce los puntos de cada equipo para completar esta pista sin jugarla.';
 
   @override
-  String get scrambleKingManuallyEdited => 'Manually edited';
+  String get scrambleKingManuallyEdited => 'Editado a mano';
 
   @override
-  String get scrambleKingEditTeamResult => 'Edit result';
+  String get scrambleKingEditTeamResult => 'Editar resultado';
 
   @override
-  String get scrambleKingGamesWonLabel => 'Games Won';
+  String get scrambleKingGamesWonLabel => 'Juegos ganados';
 
   @override
-  String get scrambleKingPointsLabel => 'Points';
+  String get scrambleKingPointsLabel => 'Puntos';
 
   @override
-  String get scrambleKingTeamsLabel => 'Teams';
+  String get scrambleKingTeamsLabel => 'Equipos';
 
   @override
-  String get scrambleKingTeamsFilterAll => 'All';
+  String get scrambleKingTeamsFilterAll => 'Todos';
 
   @override
-  String get scrambleKingTeamsEmpty => 'No teams for this filter yet.';
+  String get scrambleKingTeamsEmpty => 'Aún no hay equipos para este filtro.';
 
   @override
-  String get scrambleKingEditFormatTitle => 'Format';
+  String get scrambleKingEditFormatTitle => 'Formato';
 
   @override
-  String get scrambleKingStatRounds => 'Rounds';
+  String get scrambleKingStatRounds => 'Rondas';
 
   @override
   String scrambleKingTeamsSummary(int teams, int pts) {
-    return '$teams teams · $pts pts total';
+    return '$teams equipos · $pts pts en total';
   }
 
   @override
-  String get scrambleKingUndoFinishCourt => 'Undo Finish';
+  String get scrambleKingUndoFinishCourt => 'Deshacer';
 
   @override
   String get scrambleKingCourtCompleteBanner =>
-      'This court\'s round is complete';
+      'La ronda de esta pista está completa';
 
   @override
   String get scrambleKingCourtCompleteHint =>
-      'Tap here to view or edit results';
+      'Toca aquí para ver o editar los resultados';
 
   @override
-  String get scrambleKingEditResults => 'View / edit results';
+  String get scrambleKingEditResults => 'Ver / editar resultados';
 
   @override
-  String get scrambleKingRoundTimer => 'Round Timer';
+  String get scrambleKingRoundTimer => 'Temporizador';
 
   @override
-  String get scrambleKingFinishCourt => 'Finish court';
+  String get scrambleKingFinishCourt => 'Finalizar pista';
 
   @override
-  String get scrambleKingFinishCourtTitle => 'Finish this court?';
+  String get scrambleKingFinishCourtTitle => '¿Finalizar esta pista?';
 
   @override
   String get scrambleKingFinishCourtBody =>
-      'Record this court\'s results now and end its round.';
+      'Guarda ya los resultados de esta pista y termina su ronda.';
 
   @override
-  String get scrambleKingBackToSchedule => 'Back to schedule';
+  String get scrambleKingUndoDiscardPointsTitle => '¿Descartar los puntos?';
+
+  @override
+  String scrambleKingUndoDiscardPointsBody(int points) {
+    return 'El equipo en pista tiene $points punto(s) registrados. Se perderán al deshacer.';
+  }
+
+  @override
+  String get scrambleKingUndoDiscardPointsConfirm => 'Descartar y deshacer';
+
+  @override
+  String get scrambleKingBackToSchedule => 'Volver al calendario';
 
   @override
   String get scrambleExportScorecard => 'Exportar planilla';
@@ -3041,10 +3147,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get scrambleScanNotResult => 'Este código QR no es un resultado.';
 
   @override
+  String get koBracketScanMatchHint =>
+      'Apunta la cámara al código QR de un partido.';
+
+  @override
+  String get koBracketScanNotMatch => 'Este código QR no es un partido.';
+
+  @override
+  String koBracketImportSuccess(String name) {
+    return 'Partido importado de «$name».';
+  }
+
+  @override
   String get scrambleResultImported => 'Resultado importado.';
 
   @override
   String get scrambleResultMismatch => 'Este resultado es de otro torneo.';
+
+  @override
+  String get scrambleResultAlreadyRecorded =>
+      'Ya se ha registrado un resultado para este partido.';
 
   @override
   String scrambleImportSuccess(String name) {
@@ -3098,7 +3220,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get scrambleAdjustHint =>
-      'Toca «Ajustar resultado final» para cambiar el marcador y luego «Finalizar juego».';
+      'Toca «Ajustar resultado final» para introducir el resultado final.';
 
   @override
   String get overviewSettingsTitle => 'Ajustes del torneo';
@@ -3148,6 +3270,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get overviewScoreSaved => 'Resultado guardado.';
+
+  @override
+  String get overviewSettingsSaved => 'Ajustes guardados.';
 
   @override
   String get rosterMenuTooltip => 'Importar / Exportar';
@@ -3213,4 +3338,230 @@ class AppLocalizationsEs extends AppLocalizations {
   String rosterImportDone(int created, int updated, int deleted) {
     return '$created añadidos, $updated actualizados, $deleted eliminados.';
   }
+
+  @override
+  String get skSugTooFewRounds => 'Se necesita al menos 1 ronda.';
+
+  @override
+  String get skSugZeroDuration =>
+      'La duración de la ronda debe ser mayor que cero.';
+
+  @override
+  String skSugMinPlayers(int min) {
+    return 'Se necesitan al menos $min jugadores para una pista.';
+  }
+
+  @override
+  String get skSugInvalidCombo =>
+      'Esta combinación de jugadores/pistas no forma una pista válida. Añade jugadores o reduce pistas.';
+
+  @override
+  String skSugCourtsUnfilled(int filled, int courts, int players) {
+    return 'Con $players jugadores solo se llenan $filled de $courts pistas. Reduce pistas o añade jugadores.';
+  }
+
+  @override
+  String get skSugFloaterSameTeam =>
+      'Con este número de jugadores, el jugador suelto siempre juega con el mismo equipo en sus rondas. Añade jugadores para más variedad.';
+
+  @override
+  String get ssSugTooFewRounds =>
+      'Se necesita al menos 1 ronda para crear un calendario.';
+
+  @override
+  String get ssSugZeroDuration =>
+      'La duración del partido y del descanso debe ser mayor que cero.';
+
+  @override
+  String ssSugMinPlayers(int n, int perTeam) {
+    return 'Se necesitan al menos $n jugadores para una pista ${perTeam}v$perTeam. Añade jugadores o elige un formato menor.';
+  }
+
+  @override
+  String ssSugLargeGroup(int n) {
+    return 'Con $n jugadores la mezcla se vuelve estadística: todos-contra-todos ya no está garantizado, pero el tiempo de juego igual sí. Ideal para eventos grandes.';
+  }
+
+  @override
+  String ssSugRepeatPartners(int rounds, int max) {
+    return 'Con $rounds rondas se repetirán algunas parejas. Hasta $max rondas mantiene cada pareja única.';
+  }
+
+  @override
+  String ssSugCoverageNote(int target) {
+    return ' La cobertura total (todos con todos) requeriría $target rondas, pero entonces se repetirían parejas.';
+  }
+
+  @override
+  String ssSugCapAction(int max) {
+    return 'Limitar a $max rondas';
+  }
+
+  @override
+  String ssSugAllUniqueNoCoverage(int rounds, int target) {
+    return 'Esta configuración mantiene cada pareja única durante las $rounds rondas. La cobertura total (todos con todos) no es posible sin repeticiones con esta combinación de jugadores/pistas: requeriría $target rondas.';
+  }
+
+  @override
+  String ssSugCourtsUnfilled(int active, int courts, int players, int perTeam) {
+    return 'Con $players jugadores en ${perTeam}v$perTeam solo se llenan $active de $courts pistas. Reduce las pistas a $active o añade jugadores.';
+  }
+
+  @override
+  String ssSugNoReferee(
+    int players,
+    int active,
+    int perTeam,
+    int sitting,
+    int without,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      active,
+      locale: localeName,
+      other: '$active pistas',
+      one: '1 pista',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      sitting,
+      locale: localeName,
+      other: '$sitting jugadores descansan',
+      one: '1 jugador descansa',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      without,
+      locale: localeName,
+      other: '$without pistas se quedan',
+      one: '1 pista se queda',
+    );
+    return 'Con $players jugadores en $_temp0 de ${perTeam}v$perTeam, solo $_temp1 por ronda: $_temp2 sin árbitro fijo; sus resultados se introducen a mano.';
+  }
+
+  @override
+  String ssSugBreakTooLong(String breakDur, String matchDur) {
+    return 'El descanso ($breakDur) es más largo que el partido ($matchDur). Reduce los descansos para permitir más rondas.';
+  }
+
+  @override
+  String get bracketGenerationTitle => 'Generación';
+
+  @override
+  String get bracketSeeding => 'Siembra';
+
+  @override
+  String get bracketSeedingRandomDesc => 'Mezclar equipos en el cuadro';
+
+  @override
+  String get bracketSeedingSeededDesc => 'Ordenar por nivel del equipo';
+
+  @override
+  String get bracketOddTeamsSection => 'Equipos impares';
+
+  @override
+  String get bracketOddByesDesc => 'Los mejores saltan la 1ª ronda';
+
+  @override
+  String get bracketOddPlayInDesc => 'Extras entran a la ronda 1';
+
+  @override
+  String get bracketOddPlayInPlusDesc => 'Play-in con repesca';
+
+  @override
+  String get bracketPlayInPlus => 'Play-in+';
+
+  @override
+  String get bracketRegenNote =>
+      'Regenera el cuadro. Solo antes del primer partido.';
+
+  @override
+  String get bracketSetSchedule => 'Programar';
+
+  @override
+  String bracketEndsAt(String time) {
+    return 'Fin $time';
+  }
+
+  @override
+  String bracketRoundBreak(int minutes) {
+    return '$minutes min pausa';
+  }
+
+  @override
+  String get bracketTargetScore => 'Puntos meta';
+
+  @override
+  String get bracketSideChange => 'Cambio de lado';
+
+  @override
+  String get bracketSideChangeOff => 'No';
+
+  @override
+  String bracketSideChangeEvery(int points) {
+    return 'Cada $points puntos';
+  }
+
+  @override
+  String get bracketNotifyTarget => 'Avisar al llegar a meta';
+
+  @override
+  String get bracketNotifyTargetDesc =>
+      'Aviso para terminar al llegar a la meta';
+
+  @override
+  String bracketManualSet(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get bracketManualScore => 'Marcador';
+
+  @override
+  String get bracketTbd => 'Pendiente';
+
+  @override
+  String bracketRefs(String name) {
+    return '$name arbitra';
+  }
+
+  @override
+  String get bracketRoundFinal => 'Final';
+
+  @override
+  String get bracketRoundSemi => 'Semifinal';
+
+  @override
+  String get bracketRoundQuarter => 'Cuartos';
+
+  @override
+  String bracketRoundNumbered(int round) {
+    return 'Ronda $round';
+  }
+
+  @override
+  String get bracketTagBye => 'BYE';
+
+  @override
+  String get bracketTagWalkover => 'W/O';
+
+  @override
+  String get bracketTagPlayIn => 'PLAY-IN';
+
+  @override
+  String get bracketTagRepechage => 'REPESCA';
+
+  @override
+  String get bracketAddBreak => 'Añadir pausa';
+
+  @override
+  String bracketBreakAfter(String round) {
+    return 'Pausa tras $round';
+  }
+
+  @override
+  String bracketMatchNumber(int number) {
+    return 'Partido $number';
+  }
+
+  @override
+  String get bracketFinishBeforeExport =>
+      'Termina el partido antes de exportar.';
 }
