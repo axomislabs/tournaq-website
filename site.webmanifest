@@ -1,0 +1,12 @@
+{
+  "name": "TournaQ – Scoring, Games and Tournament Management",
+  "short_name": "TournaQ",
+  "start_url": "/",
+  "display": "browser",
+  "theme_color": "#3A3E16",
+  "background_color": "#F9FAF6",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

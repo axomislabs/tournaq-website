@@ -22,6 +22,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Platform Features Hub – TournaQ</title>
+  <link rel="icon" href="../../favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+  <link rel="manifest" href="../../site.webmanifest">
+  <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../../css/style.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
@@ -29,7 +35,6 @@
   <style>
     html { scroll-behavior: smooth; }
 
-    main { max-width: 1280px; }
 
     .draft-banner {
       display: flex;
@@ -473,7 +478,7 @@
   (function () {
     // Bumped whenever the baked-in defaults below are regenerated, so a stale
     // browser state from the previous row set cannot override the new one.
-    var STORAGE_KEY = 'tq-feature-matrix-draft-v9';
+    var STORAGE_KEY = 'tq-feature-matrix-draft-v10';
 
     // Edit mode: the matrix doubles as the tool it was filled in with.
     //   ?edit=1  forces the editor on   (use this once the page is published)
@@ -530,7 +535,7 @@
     { id: "scoring-4", section: "scoring", status: "available",
       title: "Score correction",
       desc: "Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state." },
-    { id: "scoring-5", section: "scoring", status: "planned",
+    { id: "scoring-5", section: "scoring", status: "available",
       title: "Time Control",
       desc: "React to timeouts or other time affecting events by restarting , pausing, adding or removing time from the timer" },
     { id: "scoring-6", section: "scoring", status: "available",
@@ -539,25 +544,25 @@
     { id: "scoring-7", section: "scoring", status: "available",
       title: "Landscape scorecard",
       desc: "Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring." },
-    { id: "scoring-8", section: "scoring", status: "planned",
+    { id: "scoring-8", section: "scoring", status: "available",
       title: "Hard Session Timing",
       desc: "enforce time management" },
-    { id: "scoring-9", section: "scoring", status: "planned",
+    { id: "scoring-9", section: "scoring", status: "available",
       title: "Target Points Setting",
       desc: "Set individual Target Points, system will remind you that you have reached the target score" },
     { id: "scoring-10", section: "scoring", status: "available",
       title: "Side Change Automation",
       desc: "When the combined score reaches the side-change point, TournaQ shows the Side Change dialog and swaps the counters automatically. Switch the automation off to swap sides manually with gesture control." },
-    { id: "scoring-11", section: "scoring", status: "planned",
+    { id: "scoring-11", section: "scoring", status: "available",
       title: "Automatic Referee/Admin Suggestion",
       desc: "Get automatic and fair referee suggestions from the tournament player pool for all games in your tournament." },
-    { id: "scoring-12", section: "scoring", status: "planned",
+    { id: "scoring-12", section: "scoring", status: "available",
       title: "Manual Gameplays",
       desc: "Some formats require dynamic administration because players are constantly rotating. With Manual Gameplay the admin selects the new team or players manually after each selection" },
-    { id: "scoring-13", section: "scoring", status: "planned",
+    { id: "scoring-13", section: "scoring", status: "available",
       title: "Automated Gameplays",
       desc: "Some formats require dynamic administration because players are constantly rotating. With Automated Gameplay player or teams are queued fairly and the admin only needs to take care of scoring and ejecting." },
-    { id: "scoring-14", section: "scoring", status: "planned",
+    { id: "scoring-14", section: "scoring", status: "available",
       title: "Auto-Allplay Gameplay",
       desc: "Some formats require dynamic administration because players are constantly rotating. With Auto-Allplay Gameplay TournaQ automatically assignes and rotates game admins, so no one has to sit out." },
     { id: "tournament-1", section: "tournament", status: "available",
@@ -680,12 +685,12 @@
     { id: "administration-12", section: "administration", status: "available",
       title: "Stored on the device, no account needed",
       desc: "The whole administration library lives locally on the device and works without an internet connection or a sign-up." },
-    { id: "administration-13", section: "administration", status: "planned",
+    { id: "administration-13", section: "administration", status: "available",
       title: "Add Random Players or Team",
       desc: "Too Lazy to set up actual Players or teams? Let the system create random Players and Teams for you." },
   ];
 
-    // Availability baked in from split.csv — regenerate with
+    // Availability baked in from avail.csv — regenerate with
     // python3 tools/bake-feature-matrix.py
     var DEFAULT_CELLS = {
       "scoring-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },

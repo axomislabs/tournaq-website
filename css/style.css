@@ -13,6 +13,8 @@
     --gold: #F0D47A;
     --gold-dark: #A97800;
     --border: #D6E0C2;
+    --panel: #EEF2E6;
+    --panel-inset: #E2EAD3;
     --bg: #F9FAF6;
     --text: #1A1A1A;
     --muted: #666;
@@ -44,8 +46,11 @@ header {
     background-position: center;
 }
 
+/* The header keeps the old, tighter measure: at 1280 the logo drifts out over
+   the bracket artwork and leaves a gulf between logo and links. 1040 fits the
+   longest (German) nav with room to spare. */
 .nav {
-    max-width: 960px;
+    max-width: 1040px;
     margin: 0 auto 6px;
     display: flex;
     justify-content: space-between;
@@ -159,7 +164,7 @@ header {
 }
 
 main {
-    max-width: 960px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 40px 20px 80px;
     flex: 1;
@@ -183,7 +188,6 @@ section>h2 {
 }
 
 .section-text {
-    max-width: 680px;
     margin: 0 auto 28px;
     text-align: center;
     color: var(--muted);
@@ -215,6 +219,42 @@ li {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 18px;
     margin-top: 24px;
+}
+
+/* three across, never four — the wider layout would otherwise fit an extra column */
+.three-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+    .three-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+}
+
+/* ── Section panel ──────────────────────────────────────────────────────────
+   A section's heading, intro and boxes belong together, so they sit in one
+   panel instead of floating on the page background. Sections that are already
+   a card (.card) bring their own frame. */
+main > section:has(> .section-title) {
+    background: var(--panel);
+    /* boxes inside the frame would otherwise be the same tone as it — this
+       re-points --olive-light for descendants only, so they step deeper. */
+    --olive-light: var(--panel-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px 34px;
+    margin-bottom: 32px;
+}
+
+main > section:has(> .section-title) > .section-text:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+    main > section:has(> .section-title) {
+        padding: 24px 18px 26px;
+    }
 }
 
 .card,
@@ -474,7 +514,10 @@ footer a {
     margin: 0 6px;
 }
 
-@media (max-width: 760px) {
+/* The full nav row needs ~940px once the logo, six links and the language
+   switcher are laid out side by side, so it collapses to the burger well
+   before the rest of the layout changes. */
+@media (max-width: 1040px) {
     header {
         display: flex;
         flex-direction: column;
@@ -526,6 +569,20 @@ footer a {
         background: rgba(255, 255, 255, 0.08);
     }
 
+    /* hide the in-nav switcher, show the one between nav and hero */
+    .nav .lang-switcher {
+        display: none;
+    }
+
+    header > .lang-switcher {
+        display: flex;
+        justify-content: center;
+        padding: 8px 0 12px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 760px) {
     .hero {
         padding: 12px 16px 14px;
         margin: 0;
@@ -556,22 +613,9 @@ footer a {
     main {
         padding: 40px 16px 70px;
     }
-
-    /* hide the in-nav switcher on mobile */
-    .nav .lang-switcher {
-        display: none;
-    }
-
-    /* show the between-nav-and-hero switcher on mobile */
-    header > .lang-switcher {
-        display: flex;
-        justify-content: center;
-        padding: 8px 0 12px;
-        gap: 8px;
-    }
 }
 
-@media (min-width: 761px) {
+@media (min-width: 1041px) {
     /* show in-nav switcher on desktop */
     .nav .lang-switcher {
         display: flex;
