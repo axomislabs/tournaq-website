@@ -3,8 +3,16 @@
   var inFeaturesDir = path.indexOf('/features/') !== -1;
   var inModes = path.indexOf('/modes/') !== -1;
 
+  // Pages living outside the published tree (local drafts) can pin the link
+  // prefix with data-nav-base on <html>; everything else sniffs the path.
+  var navBase = document.documentElement.getAttribute('data-nav-base');
+
   var f, m, overview;
-  if (inFeaturesDir) {
+  if (navBase) {
+    f = navBase + 'features/';
+    m = navBase + 'modes/';
+    overview = navBase + 'features.html';
+  } else if (inFeaturesDir) {
     f = '';
     m = '../modes/';
     overview = '../features.html';
@@ -119,8 +127,10 @@
         <div class="subnav-group">
           <div class="subnav-group-label">Platform Features</div>
           <div class="subnav-group-links">
-            <a href="${f}scoring.html">Match Scoring</a>
+            <a href="${f}feature-matrix.html">Platform Features Hub</a>
+            <a href="${f}scoring.html">Match Controls</a>
             <a href="${f}tournament-features.html">Tournament Management</a>
+            <a href="${f}live-tournament.html">Live Tournament</a>
             <a href="${f}device-scalability.html">Device &amp; Screen</a>
             <a href="${f}navigation.html">Navigation</a>
             <a href="${f}user-administration.html">Player &amp; Team Administration</a>

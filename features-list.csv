@@ -1,32 +1,38 @@
 HTML File,Status,Title,Description
-scoring.html,Available,Live point-by-point scoring,"Tap to award points to either team in real time. The interface is optimised for one-handed use during active play."
-scoring.html,Available,Set management,"Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets without manual input."
-scoring.html,Available,Score correction,"Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state."
-scoring.html,Planned,Timeout tracking,"Record timeouts per team per set, in line with standard beach volleyball rules."
-scoring.html,Available,Match result & history,"Completed matches are saved locally on the device with full score history per set."
-scoring.html,Planned,Player point statistics,"Track individual player contributions within a match — points won, errors, and serve effectiveness."
-scoring.html,Planned,Historical match analytics,"Aggregated statistics and trends across matches and seasons for teams and individual players."
+scoring.html,Available,Live point-by-point scoring,Tap to award points to either team in real time. The interface is optimised for one-handed use during active play.
+scoring.html,Available,Set management,Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets without manual input.
+scoring.html,Available,Serving player tracking,The active server is highlighted within the team card. Service changes when the non-serving team scores. The serving player indicator updates automatically on every point.
+scoring.html,Available,Score correction,Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state.
+scoring.html,Planned,Time Control,"React to timeouts or other time affecting events by restarting , pausing, adding or removing time from the timer"
+scoring.html,Available,Match result & history,Completed matches are saved locally on the device with full score history per set.
+scoring.html,Available,Landscape scorecard,Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring.
+scoring.html,Planned,Hard Session Timing,enforce time management
+scoring.html,Planned,Target Points Setting,"Set individual Target Points, system will remind you that you have reached the target score"
+scoring.html,Available,Side Change Automation,"When the combined score reaches the side-change point, TournaQ shows the Side Change dialog and swaps the counters automatically. Switch the automation off to swap sides manually with gesture control."
+scoring.html,Planned,Automatic Referee/Admin Suggestion,Get automatic and fair referee suggestions from the tournament player pool for all games in your tournament.
+scoring.html,Planned,Manual Gameplays,Some formats require dynamic administration because players are constantly rotating. With Manual Gameplay the admin selects the new team or players manually after each selection
+scoring.html,Planned,Automated Gameplays,Some formats require dynamic administration because players are constantly rotating. With Automated Gameplay player or teams are queued fairly and the admin only needs to take care of scoring and ejecting.
+scoring.html,Planned,Auto-Allplay Gameplay,"Some formats require dynamic administration because players are constantly rotating. With Auto-Allplay Gameplay TournaQ automatically assignes and rotates game admins, so no one has to sit out."
 tournament-features.html,Available,Tournament creation & setup,"Define the event name, date, venue, number of courts, and participant list before play begins."
-tournament-features.html,Available,Match scheduling,"Assign matches to courts and time slots. Handle court changes and late adjustments without manual recalculation."
+tournament-features.html,Available,Match scheduling,Assign matches to courts and time slots. Handle court changes and late adjustments without manual recalculation.
 tournament-features.html,Available,Pace alerts,"Every scorecard tracks the scheduled time slot for its match, so players keep an overview of where they stand against the clock and stay on schedule."
-tournament-features.html,Available,Injury & withdrawal handling,"Mark teams as withdrawn mid-tournament and automatically adjust brackets and standings without corrupting results already recorded."
-tournament-features.html,Available,Singleplayer and Team Competitions,"Support for scramble draws, mixed-gender formats, and other non-standard competition structures common in recreational beach volleyball and trainings."
-tournament-features.html,Available,Share Scorecards and Results via QR Code,"Generate QR Codes to share Scorecards and Results even when offline."
+tournament-features.html,Available,Injury & withdrawal handling,Mark teams as withdrawn mid-tournament and automatically adjust brackets and standings without corrupting results already recorded.
+tournament-features.html,Available,Singleplayer Competitions,Individual Player scramble and randomization. Compete for points per player
+tournament-features.html,Available,Share Scorecards and Results via QR Code,Generate QR Codes to share Scorecards and Results even when offline.
 tournament-features.html,Available,Multi-court parallel tracking,"Run multiple simultaneous matches across courts within a single event, with results feeding into shared standings."
-tournament-features.html,Planned,Participant scaling (100+ players),"Infrastructure and UI optimisations to support large events with over 100 participants and dozens of simultaneous courts."
-device-scalability.html,Available,Mobile-first design,"Optimised for use on smartphones. Touch targets, layout, and navigation are designed for one-handed use during a live match."
-device-scalability.html,Available,Offline-first local storage,"All match data is stored on-device using local storage. TournaQ works fully without an internet connection — no signal required on court."
-device-scalability.html,Available,Portrait & landscape orientation,"The scoring interface adapts to both portrait and landscape orientations to suit different holding preferences and device types."
-device-scalability.html,Planned,Large screen tournament view,"A dedicated layout for larger screens that shows multiple courts or full bracket views simultaneously — designed for tournament control rooms."
-device-scalability.html,Planned,Cast to display,"Project the live scoreboard or bracket view to an external screen or TV at the venue — for spectators and team benches."
-live-tournament.html,Planned,Multi-device sync,"Keep match data in sync across multiple devices at the same event — so scorekeepers and organisers always see the same state."
-live-tournament.html,Planned,Live court score display,"A consolidated view showing current scores across all active courts — updated in real time as scorekeepers enter points."
+tournament-features.html,Available,Team Competitions,Compete focus on Partner Play and Team Standings
+tournament-features.html,Available,Inline Tournament Editing,Adjust Tournament parameters during the ongoing event.
+live-tournament.html,Planned,Multi-device sync,Keep match data in sync across multiple devices at the same event — so scorekeepers and organisers always see the same state.
+live-tournament.html,Planned,Live court score display,A consolidated view showing current scores across all active courts — updated in real time as scorekeepers enter points.
 live-tournament.html,Planned,Real-time standings,"Group standings and bracket positions update automatically as match results come in, without manual entry or refresh."
 live-tournament.html,Planned,Spectator view,"A read-only view of live scores, standings, and match schedules accessible to spectators — no account or app required."
 live-tournament.html,Planned,Public tournament URL,"Each event gets a shareable URL that spectators, players, and coaches can open on any device to follow the tournament live."
-live-tournament.html,Planned,Live Scoreboard access for Referees / Players / Tournament Administrators,"Manage tournaments paperless with live Scorecard and Results synchronization across all enrolled participants."
-live-tournament.html,Planned,Live bracket visualisation,"An interactive bracket diagram that updates live as matches complete — shareable with teams and displayable on venue screens."
-live-tournament.html,Planned,Public tournament archive,"Searchable archive of past events with final results, standings, and statistics accessible to anyone."
+live-tournament.html,Planned,Live bracket visualisation,An interactive bracket diagram that updates live as matches complete — shareable with teams and displayable on venue screens.
+device-scalability.html,Available,Mobile-first design,"Optimised for use on smartphones. Touch targets, layout, and navigation are designed for one-handed use during a live match."
+device-scalability.html,Available,Offline-first local storage,All match data is stored on-device using local storage. TournaQ works fully without an internet connection — no signal required on court.
+device-scalability.html,Available,Portrait & landscape orientation,The scoring interface adapts to both portrait and landscape orientations to suit different holding preferences and device types.
+device-scalability.html,Planned,Large screen tournament view,A dedicated layout for larger screens that shows multiple courts or full bracket views simultaneously — designed for tournament control rooms.
+device-scalability.html,Planned,Cast to display,Project the live scoreboard or bracket view to an external screen or TV at the venue — for spectators and team benches.
 navigation.html,Available,Three top-level destinations,"The Home screen splits the app into TournaQ Arena for all games and tournaments, Administration for players, teams, and groups, and More for everything alongside them. Everything else branches off these three."
 navigation.html,Available,More,"More collects the screens that sit beside the main flow: Contact & About (social links, support channels, legal documents, and the app version), Sponsoring & Promo (advertising and partnership opportunities), and Settings."
 navigation.html,Available,Straightforward navigation,"Every route follows the same shape — from a top-level destination into a hub, from the hub down to the next level of detail, and back the same way. No hidden paths and no dead ends."
@@ -40,7 +46,7 @@ navigation.html,Available,Coming Soon feature cards,"Modes and features still in
 navigation.html,Available,Language & privacy settings,"Settings offers four language options — Automatic, English, Deutsch, Español — and a Privacy Options link for managing ad consent choices."
 user-administration.html,Available,Reusable player & team library,"Players, teams, and groups are saved once and available in every mode — Quick Games, Social Scrambles, King of the Court, Doghouse, and Single Elimination. No re-entering names each session."
 user-administration.html,Available,Players hub with search & filters,"Every saved player in one searchable list, filterable by name, team, or tournament. Each entry shows how many teams, groups, and tournaments the player belongs to, and can be edited or deleted inline."
-user-administration.html,Available,Create players,"Add a player with a name — or a suggested one — and optionally assign them to existing teams and groups at the moment of creation."
+user-administration.html,Available,Create players,Add a player with a name — or a suggested one — and optionally assign them to existing teams and groups at the moment of creation.
 user-administration.html,Available,"Export & import players, groups & teams","Export your player, group, and team data and import it back — or onto another device — so setting up a bigger event doesn't mean re-entering every name by hand."
 user-administration.html,Available,Teams hub with saved rosters,"Pre-formed teams are stored with their player rosters and can be browsed by name, player, or tournament. Each entry shows the player count and group membership."
 user-administration.html,Available,Create teams,"Name a team, link it to existing player profiles, and assign it to one or more groups. It is immediately available in the Add Existing Teams list across all bracket modes."
@@ -48,10 +54,7 @@ user-administration.html,Available,"Groups for clubs, venues & series","Organise
 user-administration.html,Available,Group filtering during setup,"Every player and team import panel offers a group filter, so a club session can be set up by filtering to that group and adding its members in a few taps."
 user-administration.html,Available,Add existing players in-game,"During tournament setup, Add Existing Players opens the full saved library with search and group filter. Tap + on any name to add them, with a counter tracking the remaining spots."
 user-administration.html,Available,Add existing teams in-game,"In bracket modes, Add Existing Teams lists all saved teams with their player counts. Adding a team loads its player names automatically, ready to appear on scorecards."
-user-administration.html,Available,Inline player import in Quick Games,"Each player slot in a Quick Game team has a search icon that opens the Players Hub inline — find a saved player and drop them straight into the slot without leaving the screen."
-user-administration.html,Available,"Stored on the device, no account needed","The whole administration library lives locally on the device and works without an internet connection or a sign-up."
-user-administration.html,Planned,Organiser accounts,"Dedicated organiser accounts with persistent access to event history, team data, and tournament configurations."
-user-administration.html,Planned,Role-based access control,"Assign different permission levels to users — e.g. head organiser, scorekeeper, referee, read-only viewer — so each person sees and can do only what's appropriate for their role."
-user-administration.html,Planned,Multi-organiser events,"Allow multiple people to co-manage a single event — useful for large tournaments with separate court managers or a dedicated administration team."
-user-administration.html,Planned,Event-level permissions,"Control who can view, edit, or publish results for a specific event — independently of organisation-wide roles."
-user-administration.html,Planned,Audit log,"A timestamped log of actions taken during an event — score changes, bracket edits, withdrawals — for dispute resolution and record-keeping."
+user-administration.html,Available,Inline player import in Quick Games,Each player slot in a Quick Game team has a search icon that opens the Players Hub inline — find a saved player and drop them straight into the slot without leaving the screen.
+user-administration.html,Available,Edit players in ongoing tournaments,inline editing (quick game) or via tournament player management
+user-administration.html,Available,"Stored on the device, no account needed",The whole administration library lives locally on the device and works without an internet connection or a sign-up.
+user-administration.html,Planned,Add Random Players or Team,Too Lazy to set up actual Players or teams? Let the system create random Players and Teams for you.

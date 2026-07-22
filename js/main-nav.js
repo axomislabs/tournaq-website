@@ -3,7 +3,10 @@
   var inFeaturesDir = path.indexOf('/features/') !== -1;
   var inModes = path.indexOf('/modes/') !== -1;
   var isSubpage = inFeaturesDir || inModes;
-  var base = isSubpage ? '../' : '';
+  // Pages living outside the published tree (local drafts) can pin the link
+  // prefix with data-nav-base on <html>; everything else sniffs the path.
+  var navBase = document.documentElement.getAttribute('data-nav-base');
+  var base = navBase || (isSubpage ? '../' : '');
 
   var placeholder = document.getElementById('main-nav-links');
   if (!placeholder) return;
@@ -12,6 +15,7 @@
     <div class="nav-links">
       <a href="${base}index.html" data-i18n="nav.home">Home</a>
       <a href="${base}features.html" data-i18n="nav.features">Features</a>
+      <a href="${base}platform.html" data-i18n="nav.platform">Platform</a>
       <a href="${base}downloads.html" data-i18n="nav.downloads">Downloads</a>
       <a href="${base}legal.html" data-i18n="nav.legal">Legal</a>
       <a href="${base}contact.html" data-i18n="nav.contact">Contact</a>

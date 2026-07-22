@@ -1,67 +1,201 @@
 <!DOCTYPE html>
+<!--
+  TournaQ home page. Written for players and organisers, not partners: it sells
+  the feeling of a well-run session. The strategic "we do not replace your event
+  platform" message is kept to the single quiet partner line near the bottom —
+  the partner argument itself lives on platform.html.
+-->
 <html lang="en" data-i18n-base="../" data-i18n-title="page.index.title">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TournaQ – Scoring, Games and Tournament Management</title>
+  <title>TournaQ Volley – Just Play. We'll Keep the Score.</title>
 
   <link rel="stylesheet" href="../css/style.css">
   <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
 
   <style>
-    .feature-card {
+    .lead {
+      max-width: 700px;
+      margin: 0 auto 8px;
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .lead-links {
+      margin-top: 14px;
+    }
+
+    .lead a {
+      color: var(--olive);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 2px solid var(--border);
+      transition: border-color 0.15s;
+    }
+
+    .lead a:hover {
+      border-bottom-color: var(--olive);
+    }
+
+    /* mode-category reference beside a section headline, e.g. "(Quick Game)" */
+    .section-ref {
+      display: inline-block;
+      font-size: 0.6em;
+      font-weight: 400;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .lead em {
+      font-style: normal;
+      font-weight: 700;
+      color: var(--olive);
+    }
+
+    /* ── "What's the score again?" cards ── */
+    .ask-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    @media (max-width: 680px) {
+      .ask-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ask-card {
       background: white;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 24px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
     }
 
-    .feature-card h3 {
-      color: var(--olive);
-      font-size: 18px;
+    .ask-card .ask-icon {
+      font-size: 26px;
+      display: block;
       margin-bottom: 10px;
     }
 
-    .feature-card p {
+    .ask-card .ask-quote {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--olive-dark);
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    .ask-card p {
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* ── Format showcase ── */
+    /* 200px lets the four solo formats sit on one row; auto-fit collapses the
+       spare track so the three team formats still fill the width */
+    .format-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    /* two-card row: keep the cards phone-sized and centred instead of stretched */
+    .format-grid.is-pair {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
+      justify-content: center;
+    }
+
+    @media (max-width: 760px) {
+      .format-grid,
+      .format-grid.is-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .format-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .format-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+    }
+
+    .format-card h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .format-card p {
+      font-size: 14px;
+      line-height: 1.65;
       margin-bottom: 16px;
     }
 
-    .feature-card img {
-      max-width: 160px;
+    .card-more-link {
+      display: inline-block;
+      color: var(--olive);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      margin-bottom: 16px;
+    }
+
+    .card-more-link:hover {
+      text-decoration: underline;
+    }
+
+    .format-card img {
+      max-width: 170px;
       width: 100%;
       border-radius: 12px;
       border: 1px solid var(--border);
-      margin-top: auto;
+      margin: auto auto 0;
     }
 
+    /* same placeholder pattern as pages/index.html, sized to match the phone shots */
     .img-placeholder {
-      max-width: 160px;
+      max-width: 170px;
       width: 100%;
-      aspect-ratio: 9 / 16;
+      aspect-ratio: 1206 / 2622;
+      margin: auto auto 0;
       border-radius: 12px;
       border: 2px dashed var(--border);
       background: var(--olive-light);
-      margin-top: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      color: var(--olive);
     }
 
     .img-placeholder .ph-icon {
-      font-size: 28px;
-      opacity: 0.5;
+      font-size: 34px;
+      opacity: 0.55;
     }
 
     .img-placeholder .ph-label {
@@ -72,29 +206,222 @@
       color: var(--muted);
     }
 
-    .cta-row {
+    /* ── Session depth: text beside a screenshot ── */
+    .showcase {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 32px;
+      align-items: center;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 26px;
+    }
+
+    @media (max-width: 760px) {
+      .showcase {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .showcase-shots {
       display: flex;
-      gap: 16px;
+      gap: 10px;
       justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 32px;
     }
 
-    .btn-outline {
-      display: inline-block;
-      border: 2px solid var(--olive);
+    .showcase-shots img {
+      width: 100%;
+      max-width: 145px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .showcase ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .showcase li {
+      position: relative;
+      padding-left: 26px;
+      margin-bottom: 12px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .showcase li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      top: 0;
       color: var(--olive);
-      text-decoration: none;
-      font-size: 14px;
       font-weight: 700;
-      padding: 10px 20px;
-      border-radius: 10px;
-      transition: background 0.15s, color 0.15s;
     }
 
-    .btn-outline:hover {
+    .showcase li strong {
+      color: var(--olive-dark);
+    }
+
+    /* ── Offline strip ── */
+    .offline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-top: 26px;
+    }
+
+    .offline-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-align: center;
+    }
+
+    .offline-item .offline-icon {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .offline-item strong {
+      display: block;
+      font-size: 16px;
+      color: var(--olive-dark);
+      margin-bottom: 6px;
+    }
+
+    .offline-item p {
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.65;
+    }
+
+    /* ── Sport tags ── */
+    .sport-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .sport-tag {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--olive-light);
+      color: var(--olive);
+      border: 1px solid var(--border);
+    }
+
+    .sport-tag.is-primary {
       background: var(--olive);
       color: white;
+      border-color: var(--olive);
+    }
+
+    /* ── Closing CTA ── */
+    .closing {
+      background: var(--olive-dark);
+      border-radius: var(--radius);
+      padding: 38px 30px;
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    .closing h2 {
+      color: var(--gold);
+      font-size: clamp(22px, 2.4vw, 28px);
+      margin-bottom: 10px;
+    }
+
+    .closing p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 16px;
+      max-width: 560px;
+      margin: 0 auto 24px;
+    }
+
+    .closing .cta-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .closing .btn-gold {
+      background: var(--gold);
+      color: var(--olive-dark);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 13px 26px;
+      border-radius: 999px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .closing .btn-gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    }
+
+    .closing .btn-ghost {
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 11px 24px;
+      border-radius: 999px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .closing .btn-ghost:hover {
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* ── Quiet partner line ── */
+    .partner-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-top: 34px;
+    }
+
+    .partner-line p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .partner-line a {
+      flex-shrink: 0;
+      color: var(--olive);
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .partner-line a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 620px) {
+      .partner-line {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -115,99 +442,263 @@
       </label>
 
       <div id="main-nav-links"></div>
+
       <div class="lang-switcher"></div>
     </nav>
 
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="index.hero.title">TournaQ - Beach Volley</h1>
-      <p class="subtitle" data-i18n="index.hero.subtitle">More than a Scoreboard
-      </p>
+      <h1 data-i18n="index.hero.title">Just play. We'll keep the score.</h1>
+      <p class="subtitle" data-i18n="index.hero.subtitle">TournaQ Volley — beach volleyball games and tournaments that run themselves, from your
+        phone.</p>
     </div>
   </header>
 
   <main>
 
-    <!-- The Problem -->
-    <section class="highlight" id="problem">
-      <h2 data-i18n="index.problem.title">Play More. Organize Less.</h2>
-      <p data-i18n="index.problem.intro">TournaQ makes beach volleyball events effortless.</p>
-      <p data-i18n="index.problem.body">Create teams in seconds, launch social scramble formats, track every rally with
-        a beautiful live scoreboard, and keep players focused on what matters most: playing volleyball and having fun.
-      </p>
-      <p data-i18n="index.problem.nopaper">No paper score sheets. No spreadsheets. No confusion.</p>
-      <p style="margin-top: 16px;" data-i18n="index.problem.text">From casual beach sessions to competitive tournaments,
-        TournaQ helps players, organizers, and clubs create better volleyball experiences with less effort and more
-        excitement.</p>
-      <p data-i18n="index.problem.future">The future of beach volleyball game & tournament management starts here.</p>
-    </section>
+    <!-- 1 · The everyday pain, in the player's own voice -->
+    <section id="admin">
+      <h2 class="section-title" data-i18n="index.admin.title">The volleyball is great. The admin is not.</h2>
+      <p class="lead" data-i18n="index.admin.lead">It's 32 degrees. That last rally was unbelievable. And now nobody is quite sure whether it's
+        5–4 or 6–4 — or whose serve it is. Every session has this moment. TournaQ makes it disappear.</p>
 
-    <!-- What it does today -->
-    <section id="features">
-      <h2 class="section-title" data-i18n="index.features.title">Available Today</h2>
-      <p class="section-text" data-i18n="index.features.text">Everything you need to run a great beach volleyball session — right now, on your phone.</p>
+      <p class="lead lead-links" data-i18n-html="index.admin.links">Quickly <a href="#quick">set up a scoreboard</a>, run <a href="#mix">single player</a>
+        or <a href="#teams">team competitions</a>, and easily <a href="#session">manage your own tournament</a>.</p>
 
-      <div class="grid">
-        <div class="feature-card">
-          <h3 data-i18n="index.card.scoring.title">Match Scoring</h3>
-          <p data-i18n="index.card.scoring.text">Live scoring with a clean, distraction-free interface. Track sets, points, and match history without touching paper.</p>
-          <img src="../assets/scoreboard.PNG" alt="TournaQ scoreboard">
+      <div class="ask-grid">
+        <div class="ask-card">
+          <span class="ask-icon">🤔</span>
+          <span class="ask-quote" data-i18n="index.ask.score.q">"Wait — what was the score?"</span>
+          <p data-i18n="index.ask.score.text">Two taps per rally and the score lives on the phone instead of in someone's head. Got a call wrong? Undo
+            the last point and carry on.</p>
         </div>
 
-        <div class="feature-card">
-          <h3 data-i18n="index.card.teams.title">Teams &amp; Games</h3>
-          <p data-i18n="index.card.teams.text">Create teams, set up games, and manage your session in seconds. Built for the beach — fast, simple, and flexible.</p>
-          <img src="../assets/gamescard_winner_inprogress.PNG" alt="TournaQ games">
+        <div class="ask-card">
+          <span class="ask-icon">🔄</span>
+          <span class="ask-quote" data-i18n="index.ask.switch.q">"Weren't we supposed to switch?"</span>
+          <p data-i18n="index.ask.switch.text">Side changes and serving order are tracked for you. The game stops for good reasons — not because someone
+            lost count of the ends.</p>
         </div>
 
-        <div class="feature-card">
-          <h3 data-i18n="index.card.tournaments.title">Tournaments</h3>
-          <p data-i18n="index.card.tournaments.text">Run social scrambles and ad-hoc tournament formats that get players competing with minimal setup time.</p>
-          <img src="../assets/screenshots/arena1.png" alt="TournaQ Arena showing game modes and tournament options">
-        </div>
-      </div>
-
-      <div class="cta-row">
-        <a href="features.html" class="button">Feature List</a>
-        <a href="downloads.html" class="btn-outline" data-i18n="index.cta.downloads">View Downloads</a>
-      </div>
-    </section>
-
-    <!-- Roadmap -->
-    <section id="roadmap">
-      <h2 class="section-title" data-i18n="index.roadmap.title">Roadmap</h2>
-      <p class="section-text" data-i18n="index.roadmap.text">
-        The vision is to evolve from scoring into a complete tournament management platform.
-      </p>
-
-      <div class="roadmap">
-        <div class="roadmap-step">
-          <div class="phase-status completed-status" data-i18n="index.roadmap.phase1.status">✓ Completed</div>
-          <strong data-i18n="index.roadmap.phase1.label">Phase 1</strong>
-          <div data-i18n="index.roadmap.phase1.name">Scoring, Games and Selected Ad-Hoc Tournaments</div>
+        <div class="ask-card">
+          <span class="ask-icon">⏭️</span>
+          <span class="ask-quote" data-i18n="index.ask.next.q">"Who's playing next?"</span>
+          <p data-i18n="index.ask.next.text">The next round is drawn and on screen before anyone has to ask. No huddle around a piece of paper between
+            games.</p>
         </div>
 
-        <div class="roadmap-step">
-          <div class="phase-status planned-status" data-i18n="index.roadmap.phase2.status">Planned</div>
-          <strong data-i18n="index.roadmap.phase2.label">Phase 2</strong>
-          <div data-i18n="index.roadmap.phase2.name">Advanced Tournament Management &amp; Administration</div>
-        </div>
-
-        <div class="roadmap-step">
-          <div class="phase-status planned-status" data-i18n="index.roadmap.phase3.status">Planned</div>
-          <strong data-i18n="index.roadmap.phase3.label">Phase 3</strong>
-          <div data-i18n="index.roadmap.phase3.name">Live Tournament Features</div>
+        <div class="ask-card">
+          <span class="ask-icon">🏆</span>
+          <span class="ask-quote" data-i18n="index.ask.won.q">"So… who actually won?"</span>
+          <p data-i18n="index.ask.won.text">Standings and rankings update themselves after every match. The winner comes out of the results, not out
+            of the loudest memory.</p>
         </div>
       </div>
     </section>
 
+    <!-- 2 · Quick Game -->
+    <section id="quick">
+      <h2 class="section-title"><span data-i18n="index.quick.title">Just need a scoreboard?</span> <span class="section-ref" data-i18n="index.quick.ref">(Quick Game)</span></h2>
+      <p class="lead" data-i18n="index.quick.lead">Sometimes there is no tournament. Two teams, one match, and nobody wants to spend ten minutes
+        setting things up first.</p>
+
+      <div class="showcase">
+        <div>
+          <ul>
+            <li><strong data-i18n="index.quick.li1.title">On the scoreboard in seconds.</strong> <span data-i18n="index.quick.li1.text">Name the two sides yourself, pull in a saved team, or
+              tap Generate Random Teams and go straight to scoring.</span></li>
+            <li><strong data-i18n="index.quick.li2.title">Set the format, or don't.</strong> <span data-i18n="index.quick.li2.text">Target score and number of sets are there when you want
+              them — otherwise just start.</span></li>
+            <li><strong data-i18n="index.quick.li3.title">Two taps a rally.</strong> <span data-i18n="index.quick.li3.text">Points, sets, serve and side changes all tracked, with undo for
+              when a call goes the other way.</span></li>
+            <li><strong data-i18n="index.quick.li4.title">Saved when you're done.</strong> <span data-i18n="index.quick.li4.text">The finished match lands in your history with the full score
+              for every set.</span></li>
+          </ul>
+        </div>
+
+        <div class="showcase-shots">
+          <img src="../assets/screenshots/quickgames_setup_randomteams.png" alt="Random team name generation in Quick Game setup">
+          <img src="../assets/screenshots/quickgames_scorecard_0.png" alt="Quick Game scorecard">
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · The social heart -->
+    <section id="mix">
+      <h2 class="section-title"><span data-i18n="index.mix.title">Mix the people, not just the teams</span> <span class="section-ref" data-i18n="index.mix.ref">(Single Player Competitions)</span></h2>
+      <p class="lead" data-i18n="index.mix.lead">The best sessions are the ones where everyone plays with everyone. In these formats you enter as
+        a player rather than as a team — TournaQ draws the partners, balances the rounds, and keeps a ranking for every
+        individual player.</p>
+
+      <div class="format-grid">
+        <div class="format-card">
+          <h3 data-i18n="index.mode.scramble.title">Social Scramble</h3>
+          <p data-i18n="index.mode.scramble.text">A new partner every round. Everyone plays with everyone, and the draw is done before you've finished
+            stretching.</p>
+          <img src="../assets/screenshots/scramble_scorecard_ingame.png" alt="Social Scramble scorecard mid-match">
+        </div>
+
+        <div class="format-card">
+          <h3 data-i18n="index.mode.scrambleking.title">Scramble King</h3>
+          <p data-i18n="index.mode.scrambleking.text">The whole pool scrambled across every court, with King of the Court scoring on each one. Chaos, organised
+            round by round.</p>
+          <!-- placeholder until a Scramble King screenshot exists -->
+          <div class="img-placeholder">
+            <span class="ph-icon">👑</span>
+            <span class="ph-label" data-i18n="index.placeholder.label">Screenshot coming</span>
+          </div>
+        </div>
+
+        <div class="format-card">
+          <h3 data-i18n="index.mode.kotc.title">King of the Court</h3>
+          <p data-i18n="index.mode.kotc.text">Win and you stay on. Lose and you're straight back in the queue. Fast, loud, and impossible to stop
+            playing.</p>
+          <img src="../assets/screenshots/kotc_scorecard_manual_ingame.png" alt="King of the Court scorecard mid-match">
+        </div>
+
+        <div class="format-card">
+          <h3 data-i18n="index.mode.doghouse.title">Doghouse</h3>
+          <p data-i18n="index.mode.doghouse.text">Hold your nerve and get out of the doghouse. Continuous play, no downtime, and a running score that keeps
+            everybody honest.</p>
+          <img src="../assets/screenshots/dog_scorecard_manual_score1.png" alt="Doghouse scorecard mid-match">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 4 · Team competitions -->
+    <section id="teams">
+      <h2 class="section-title"><span data-i18n="index.teams.title">Or turn up with your partner</span> <span class="section-ref" data-i18n="index.teams.ref">(Team Competitions)</span></h2>
+      <p class="lead" data-i18n="index.teams.lead">Some days you play as a team. Fixed sides, a proper draw, and a title at the end — the same
+        engine, scored the same way.</p>
+
+      <div class="format-grid is-pair">
+        <div class="format-card">
+          <h3 data-i18n="index.mode.ko.title">Knockout Brackets</h3>
+          <p data-i18n="index.mode.ko.text">When it should count: a proper single-elimination draw, seeded and scheduled, with the bracket updating
+            itself as results come in.</p>
+          <img src="../assets/screenshots/singleko_tournament_schedulepreview1.png" alt="Knockout bracket schedule preview">
+        </div>
+
+        <div class="format-card">
+          <h3 data-i18n="index.mode.more.title">More Team Formats</h3>
+          <p data-i18n="index.mode.more.text">Leagues, double elimination, group stages and Swiss are on the way. Every mode lives in the TournaQ
+            Arena, which shows what is playable today and what is coming next.</p>
+          <a class="card-more-link" href="modes/games-and-tournaments.html" data-i18n="index.mode.more.link">See all modes →</a>
+          <img src="../assets/screenshots/arena2.png" alt="TournaQ Arena team competitions: League, Single Elimination, Double Elimination, Group stages and Swiss System">
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Depth: a real tournament from your pocket -->
+    <section id="session">
+      <h2 class="section-title" data-i18n="index.session.title">A real tournament, run from your pocket</h2>
+      <p class="lead" data-i18n-html="index.session.lead">Plenty of apps hand you a scoreboard. <em>TournaQ hands you the whole session.</em></p>
+
+      <div class="showcase">
+        <div>
+          <ul>
+            <li><strong data-i18n="index.session.li1.title">Set it up the way your session actually works.</strong> <span data-i18n="index.session.li1.text">Match length, number of rounds, how
+              many courts, how many players — not a fixed template you have to bend around.</span></li>
+            <li><strong data-i18n="index.session.li2.title">See the schedule before you commit.</strong> <span data-i18n="index.session.li2.text">The full round-by-round preview appears while you
+              are still setting up, so you know what the afternoon looks like.</span></li>
+            <li><strong data-i18n="index.session.li3.title">Get told when the draw isn't ideal.</strong> <span data-i18n="index.session.li3.text">TournaQ flags it when partner coverage is uneven
+              or the rounds don't balance — before anyone plays a point.</span></li>
+            <li><strong data-i18n="index.session.li4.title">Stay on schedule.</strong> <span data-i18n="index.session.li4.text">Every scorecard knows its time slot, so you can see at a glance
+              whether the session is running late.</span></li>
+            <li><strong data-i18n="index.session.li5.title">Handle the real world.</strong> <span data-i18n="index.session.li5.text">Someone twists an ankle, someone leaves early — mark them out
+              and the draw and standings adjust without losing what has already been played.</span></li>
+            <li><strong data-i18n="index.session.li6.title">Run several courts at once.</strong> <span data-i18n="index.session.li6.text">Parallel matches feed into one set of standings.</span></li>
+          </ul>
+        </div>
+
+        <div class="showcase-shots">
+          <img src="../assets/screenshots/scramble_setup_suggestionpartner.png" alt="Setup suggestions warning about partner coverage">
+          <img src="../assets/screenshots/scramble_tournament_finalranking.png" alt="Final ranking of a scramble tournament">
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top: 28px;">
+        <a href="features.html" class="button" data-i18n="index.session.cta">See Everything TournaQ Does</a>
+      </div>
+    </section>
+
+    <!-- 6 · Practical magic -->
+    <section id="offline">
+      <h2 class="section-title" data-i18n="index.offline.title">The beach doesn't have wifi. TournaQ doesn't need it.</h2>
+      <p class="lead" data-i18n="index.offline.lead">No signal, no account, no sign-up. Everything runs on the phone in your hand — and there is still
+        a way to get the results off it.</p>
+
+      <div class="offline-grid">
+        <div class="offline-item">
+          <div class="offline-icon">📴</div>
+          <strong data-i18n="index.offline.item1.title">Works with data off</strong>
+          <p data-i18n="index.offline.item1.text">Run an entire tournament in a dead spot. Nothing waits for a server, nothing spins, nothing is lost.</p>
+        </div>
+
+        <div class="offline-item">
+          <div class="offline-icon">📲</div>
+          <strong data-i18n="index.offline.item2.title">Share by QR code</strong>
+          <p data-i18n="index.offline.item2.text">Hand a scorecard or the final results to another phone with a QR code — no network involved at all.</p>
+        </div>
+
+        <div class="offline-item">
+          <div class="offline-icon">📋</div>
+          <strong data-i18n="index.offline.item3.title">Prepare on the sofa</strong>
+          <p data-i18n="index.offline.item3.text">Save your players, teams and groups once at home, then import them onto any device instead of typing every
+            name in the sand.</p>
+        </div>
+
+        <div class="offline-item">
+          <div class="offline-icon">🔁</div>
+          <strong data-i18n="index.offline.item4.title">Your regulars, one tap away</strong>
+          <p data-i18n="index.offline.item4.text">Group your club or your Tuesday crew, filter to them at setup, and the whole session is ready in seconds.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Sport scope -->
+    <section id="sports">
+      <h2 class="section-title" data-i18n="index.sports.title">Built for the volley family</h2>
+      <p class="lead" data-i18n="index.sports.lead">TournaQ Volley is made first and foremost for beach volleyball and footvolley. Anything scored
+        the same way — rallies, points and sets — plays just as well.</p>
+
+      <div class="sport-tags">
+        <span class="sport-tag is-primary" data-i18n="index.sports.tag1">Beach Volleyball</span>
+        <span class="sport-tag is-primary" data-i18n="index.sports.tag2">Footvolley</span>
+        <span class="sport-tag" data-i18n="index.sports.tag3">Spikeball</span>
+        <span class="sport-tag" data-i18n="index.sports.tag4">Indoor Volleyball</span>
+        <span class="sport-tag" data-i18n="index.sports.tag5">Other rally-scored formats</span>
+      </div>
+    </section>
+
+    <!-- 8 · Closing CTA -->
+    <div class="closing">
+      <h2 data-i18n="index.closing.title">Bring it to your next session</h2>
+      <p data-i18n="index.closing.text">TournaQ is in beta and being shaped by the people using it on court. Join in, run your next tournament with
+        it, and tell us what should change.</p>
+      <div class="cta-buttons">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog"
+          class="btn-gold" target="_blank" rel="noopener" data-i18n="index.closing.beta">Join the Beta</a>
+        <a href="downloads.html" class="btn-ghost" data-i18n="index.closing.downloads">Downloads</a>
+      </div>
+    </div>
+
+    <!-- 9 · Quiet partner line -->
+    <div class="partner-line">
+      <p data-i18n="index.partner.text">Already using a platform for registration and payments? Keep it — TournaQ takes over at the court and hands
+        the results back.</p>
+      <a href="platform.html" data-i18n="index.partner.link">For organisers &amp; platforms →</a>
+    </div>
+
+    <!-- 10 · Contact -->
     <div class="feedback-cta">
       <div class="feedback-cta-text">
-        <strong>Questions or Feedback?</strong>
-        <p>Interested in TournaQ, have a question, or want to share feedback? We'd love to hear from you.</p>
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="index.feedback.text">Interested in TournaQ, have a question, or want to share feedback? We'd love to hear from you.</p>
       </div>
-      <a href="contact.html" class="feedback-cta-btn">Get in Touch</a>
+      <a href="contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
 
   </main>
@@ -216,6 +707,7 @@
     <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
     <p>
       <a href="index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="platform.html" data-i18n="nav.platform">Platform</a> &nbsp;·&nbsp;
       <a href="legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
       <a href="contact.html" data-i18n="footer.contact">Contact</a>
     </p>

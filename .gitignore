@@ -1,1 +1,4 @@
 .DS_Store
+
+# Local drafts — pages under review, not part of the published site
+/drafts/

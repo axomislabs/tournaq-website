@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<!--
+  TournaQ Platform page — for event platform operators, clubs/federations and
+  developers. Supersedes the retired pages/product.html.
+
+  DELIBERATE FRAMING — do not undo without asking:
+  the hosted backend is presented ONLY as the pipe that carries API handovers,
+  never as "TournaQ Cloud" and never as a destination with its own event pages,
+  spectator audience or archive. Anything that reads like a rival event platform
+  (public tournament URLs, registration, audience-facing pages) stays off this
+  page, so partners are not scared off. Show that by omission, not by disclaiming
+  it — an explicit "we are not competing with you" note reads defensive and
+  plants the idea. Everything connected is badged "In design" — none of it ships
+  yet, and the page must not imply otherwise.
+-->
+<html lang="en" data-i18n-base="../" data-i18n-title="page.platform.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platform &amp; Integrations – TournaQ</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/main-nav.js" defer></script>
+  <script src="../js/i18n.js" defer></script>
+
+  <style>
+    /* ── Where TournaQ fits: three-stage flow ── */
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: stretch;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .flow-stage {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .flow-stage.is-tournaq {
+      background: var(--olive);
+      border-color: var(--olive-dark);
+    }
+
+    .flow-stage .flow-owner {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .flow-stage.is-tournaq .flow-owner {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .flow-stage h3 {
+      font-size: 16px;
+      color: var(--olive-dark);
+      margin-bottom: 10px;
+    }
+
+    .flow-stage.is-tournaq h3 {
+      color: var(--gold);
+    }
+
+    .flow-stage ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.9;
+      color: var(--muted);
+    }
+
+    .flow-stage.is-tournaq ul {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--olive);
+    }
+
+    @media (max-width: 760px) {
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    /* ── Layer cards ── */
+    .layer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 680px) {
+      .layer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .layer-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .layer-card.is-core {
+      border-color: #2e7d32;
+    }
+
+    .layer-card.is-scope {
+      border-style: dashed;
+      background: var(--olive-light);
+    }
+
+    .layer-card h3 {
+      font-size: 18px;
+      color: var(--olive-dark);
+      margin: 8px 0 6px;
+    }
+
+    .layer-card > p {
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .layer-card ul {
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    /* ── Exchange (integration model) ── */
+    .exchange-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 680px) {
+      .exchange-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .exchange-col {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+
+    .exchange-col h3 {
+      font-size: 15px;
+      color: var(--olive);
+      margin-bottom: 10px;
+    }
+
+    .exchange-col ul {
+      font-size: 14px;
+      margin-top: 0;
+    }
+
+    /* ── Partner CTA ── */
+    .partner-cta {
+      background: var(--olive-dark);
+      border-radius: var(--radius);
+      padding: 34px 30px;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .partner-cta h2 {
+      color: var(--gold);
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .partner-cta p {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 15px;
+      max-width: 620px;
+      margin: 0 auto 22px;
+    }
+
+    .partner-cta .cta-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .partner-cta .btn-gold {
+      background: var(--gold);
+      color: var(--olive-dark);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 999px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .partner-cta .btn-gold:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+    }
+
+    .partner-cta .btn-ghost {
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 999px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .partner-cta .btn-ghost:hover {
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="index.html">
+        <img src="../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+
+      <div id="main-nav-links"></div>
+
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="platform.hero.title">TournaQ Platform</h1>
+      <p class="subtitle" data-i18n="platform.hero.subtitle">The competition engine behind your event — for platforms, clubs and federations.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 1 · The TournaQ idea -->
+    <section id="idea">
+      <h2 class="section-title" data-i18n="platform.idea.title">The TournaQ Idea</h2>
+      <p class="section-text" data-i18n="platform.idea.text">Event management platforms already own registration, payments, ticketing and participant
+        communication — and they do it well. TournaQ is not built to replace any of that. It picks the event up at the
+        first whistle and hands the results straight back.</p>
+
+      <div class="flow">
+        <div class="flow-stage">
+          <span class="flow-owner" data-i18n="platform.flow.owner.yours">Your platform</span>
+          <h3 data-i18n="platform.flow.before.title">Before the event</h3>
+          <ul>
+            <li data-i18n="platform.flow.before.li1">Registration</li>
+            <li data-i18n="platform.flow.before.li2">Payments &amp; ticketing</li>
+            <li data-i18n="platform.flow.before.li3">Participant comms</li>
+            <li data-i18n="platform.flow.before.li4">Event pages</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-stage is-tournaq">
+          <span class="flow-owner" data-i18n="platform.flow.owner.tq">TournaQ</span>
+          <h3 data-i18n="platform.flow.tq.title">On the day</h3>
+          <ul>
+            <li data-i18n="platform.flow.tq.li1">Draw &amp; schedule</li>
+            <li data-i18n="platform.flow.tq.li2">Courts &amp; rounds</li>
+            <li data-i18n="platform.flow.tq.li3">Live scoring</li>
+            <li data-i18n="platform.flow.tq.li4">Standings &amp; brackets</li>
+          </ul>
+        </div>
+
+        <div class="flow-arrow">→</div>
+
+        <div class="flow-stage">
+          <span class="flow-owner" data-i18n="platform.flow.owner.yours">Your platform</span>
+          <h3 data-i18n="platform.flow.after.title">After the event</h3>
+          <ul>
+            <li data-i18n="platform.flow.after.li1">Final results</li>
+            <li data-i18n="platform.flow.after.li2">Rankings</li>
+            <li data-i18n="platform.flow.after.li3">Website &amp; archive</li>
+            <li data-i18n="platform.flow.after.li4">Reporting</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="margin-top: 24px; text-align: center;" data-i18n="platform.idea.summary">One event, two systems, a clean handover in both directions —
+        organisers keep the platform they already know and get a competition engine that works at the net.</p>
+    </section>
+
+    <!-- 2 · Scope -->
+    <section id="scope">
+      <h2 class="section-title" data-i18n="platform.engine.title">A Competition Engine</h2>
+      <p class="section-text" data-i18n="platform.engine.text">TournaQ runs the competition itself, entirely on the device — no network, no account and
+        no server required to do its job.</p>
+
+      <div class="layer-grid">
+        <div class="layer-card is-core">
+          <span class="phase-status completed-status" data-i18n="platform.badge.available">✓ Available today</span>
+          <h3 data-i18n="platform.runs.title">What TournaQ runs</h3>
+          <p data-i18n="platform.runs.text">Everything between the first whistle and the final result, working offline from start to finish.</p>
+          <ul>
+            <li data-i18n="platform.runs.li1">Tournament setup, draws, courts and scheduling</li>
+            <li data-i18n="platform.runs.li2">Live scoring, corrections and match history</li>
+            <li data-i18n="platform.runs.li3">Standings, brackets and final rankings</li>
+            <li data-i18n="platform.runs.li4">Player, team and group library with export and import</li>
+            <li data-i18n="platform.runs.li5">QR code exchange of scorecards and results between devices</li>
+            <li data-i18n="platform.runs.li6">Multi-court tracking and withdrawal handling</li>
+          </ul>
+        </div>
+
+        <div class="layer-card is-scope">
+          <span class="phase-status status-badge" data-i18n="platform.badge.bydesign">By design</span>
+          <h3 data-i18n="platform.leaves.title">What TournaQ leaves to you</h3>
+          <p data-i18n="platform.leaves.text">The event business stays where it already works. We have no plans to build any of this — it is your
+            product, not ours.</p>
+          <ul>
+            <li data-i18n="platform.leaves.li1">Registration and entry management</li>
+            <li data-i18n="platform.leaves.li2">Payments, ticketing and invoicing</li>
+            <li data-i18n="platform.leaves.li3">Participant communication and mailings</li>
+            <li data-i18n="platform.leaves.li4">Event pages, marketing and audience</li>
+            <li data-i18n="platform.leaves.li5">Memberships, licences and eligibility</li>
+            <li data-i18n="platform.leaves.li6">The relationship with the participant</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Integration model -->
+    <section id="integration">
+      <h2 class="section-title" data-i18n="platform.integration.title">The Integration Model</h2>
+      <p class="section-text" data-i18n="platform.integration.text">The intended integration is a two-way handover: an event platform passes in what it
+        already knows, TournaQ runs the competition, and the results flow back automatically.</p>
+
+      <div class="exchange-grid">
+        <div class="exchange-col">
+          <h3 data-i18n="platform.handsover.title">→ What your platform hands over</h3>
+          <ul>
+            <li data-i18n="platform.handsover.li1">Event identity — name, date, venue</li>
+            <li data-i18n="platform.handsover.li2">Participants: players, teams and categories</li>
+            <li data-i18n="platform.handsover.li3">Format and competition rules</li>
+            <li data-i18n="platform.handsover.li4">Court availability and time constraints</li>
+            <li data-i18n="platform.handsover.li5">Seeding or ranking input, where it exists</li>
+          </ul>
+        </div>
+
+        <div class="exchange-col">
+          <h3 data-i18n="platform.handsback.title">← What TournaQ hands back</h3>
+          <ul>
+            <li data-i18n="platform.handsback.li1">The generated draw and match schedule</li>
+            <li data-i18n="platform.handsback.li2">Live match state while the event runs</li>
+            <li data-i18n="platform.handsback.li3">Standings and bracket progression</li>
+            <li data-i18n="platform.handsback.li4">Final results and placements</li>
+            <li data-i18n="platform.handsback.li5">Ranking points and event statistics</li>
+          </ul>
+        </div>
+      </div>
+
+      <p style="margin-top: 20px;" data-i18n-html="platform.integration.cta">These interfaces are being designed right now. If your platform would use this
+        handover, <a href="mailto:team@tournaq.com?subject=TournaQ%20Platform%20Integration" class="email-link">get in
+          touch</a> — coming in early is how you make sure it fits your system when it lands.</p>
+
+      <h3 style="margin-top: 34px; color: var(--olive-dark); font-size: 18px;" data-i18n="platform.travels.title">How the handover travels</h3>
+      <p data-i18n="platform.travels.text">The app is offline, so the handover needs a route. Today that route is manual and already works. The next step
+        is to make the same exchange automatic.</p>
+
+      <div class="exchange-grid">
+        <div class="exchange-col">
+          <span class="phase-status completed-status" data-i18n="platform.badge.available">✓ Available today</span>
+          <h3 data-i18n="platform.manual.title">Manual exchange</h3>
+          <ul>
+            <li data-i18n="platform.manual.li1">QR code handover of scorecards and results between devices</li>
+            <li data-i18n="platform.manual.li2">File export and import of players, teams and groups</li>
+            <li data-i18n="platform.manual.li3">No infrastructure on either side — it works in a dead spot</li>
+          </ul>
+        </div>
+
+        <div class="exchange-col">
+          <span class="phase-status inprogress-status" data-i18n="platform.badge.indesign">In design</span>
+          <h3 data-i18n="platform.auto.title">Automatic exchange</h3>
+          <ul>
+            <li data-i18n="platform.auto.li1">A hosted endpoint your system calls to push an event in</li>
+            <li data-i18n="platform.auto.li2">Draw, live match state and results pushed back to you</li>
+            <li data-i18n="platform.auto.li3">Devices at the venue reconciled once they see a network again</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 4 · Principles -->
+    <section id="principles">
+      <h2 class="section-title" data-i18n="platform.principles.title">Design Principles</h2>
+
+      <div class="three-grid">
+        <div class="card">
+          <h3 data-i18n="platform.principle1.title">Offline First</h3>
+          <p data-i18n="platform.principle1.text">Every essential function works without connectivity. Coverage at a beach venue is never a safe assumption,
+            so it is never a dependency.</p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="platform.principle2.title">Connectivity Is Never Required</h3>
+          <p data-i18n="platform.principle2.text">Anything connected adds reach, not risk. A failed exchange or a dead hotspot must never stop a match from
+            being scored.</p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="platform.principle3.title">Open Interfaces</h3>
+          <p data-i18n="platform.principle3.text">TournaQ is designed to connect. Organisers can keep the platform they already chose.</p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="platform.principle4.title">Standalone or Connected</h3>
+          <p data-i18n="platform.principle4.text">Use the app on its own, exactly as it is. Or connect it to your system and hand players and results
+            across. Both are complete ways to use TournaQ.</p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="platform.principle5.title">Data Stays With the Organiser</h3>
+          <p data-i18n="platform.principle5.text">Offline, an event lives on the organiser's device. They decide what to share and with whom — or keep it
+            all on the device and share nothing at all.</p>
+        </div>
+
+        <div class="card">
+          <h3 data-i18n="platform.principle6.title">Practicality First</h3>
+          <p data-i18n="platform.principle6.text">Features are shaped by what referees, scorekeepers and organisers actually need on the day of the
+            event.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Partner CTA -->
+    <div class="partner-cta">
+      <h2 data-i18n="platform.cta.title">Connect Your Platform</h2>
+      <p data-i18n="platform.cta.text">We are building the handover interfaces now. If you run an event platform, a club system or a tour, get in
+        touch — early partners help set the priorities, get first access when it ships, and keep a direct line to the
+        team building it.</p>
+      <div class="cta-buttons">
+        <a href="mailto:team@tournaq.com?subject=TournaQ%20Platform%20Integration" class="btn-gold" data-i18n="platform.cta.btn">Talk to Us About Integration</a>
+        <a href="contact.html" class="btn-ghost" data-i18n="platform.cta.btn2">All Contact Options</a>
+      </div>
+    </div>
+
+    <!-- 6 · Contact -->
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="index.feedback.text">Interested in TournaQ, have a question, or want to share feedback? We'd love to hear from you.</p>
+      </div>
+      <a href="contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="platform.html" data-i18n="nav.platform">Platform</a> &nbsp;·&nbsp;
+      <a href="legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+</body>
+
+</html>

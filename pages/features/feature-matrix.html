@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<!--
+  The matrix is both the published page and the tool it is maintained with.
+
+  Visitors always get a read-only view with every section collapsed. Append
+  ?edit=1 to unlock editing (?edit=0 previews the visitor view). The identical
+  copy in drafts/features/ is edit-first — it needs no query string, and being
+  git-ignored it never ships. The read-only view never touches localStorage, so
+  it always shows the values baked into FEATURES / DEFAULT_CELLS further down.
+
+  UPDATING THE DATA — never hand-edit those two blocks:
+    1. open the page with ?edit=1 and change cells / titles / notes
+    2. Export CSV
+    3. python3 tools/bake-feature-matrix.py     (newest export in ~/Downloads)
+
+  Paths are written repo-root relative (../../) so the file also runs from
+  drafts/ unchanged, should it ever go back for a bigger rework.
+-->
+<html lang="en" data-i18n-title="page.features.feature-matrix.title">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platform Features Hub – TournaQ</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    main { max-width: 1280px; }
+
+    .draft-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fdf6e3;
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--gold-dark);
+      font-weight: 700;
+    }
+    .draft-banner span { font-weight: 400; color: #8a6b00; display: block; margin-top: 2px; }
+
+    /* ── Toolbar ── */
+    .matrix-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .tbtn {
+      background: var(--olive-light);
+      color: var(--olive);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tbtn:hover { background: var(--olive); color: white; }
+    .tbtn-danger { color: #a33; }
+    .tbtn-danger:hover { background: #a33; color: white; }
+    .tbar-sep { width: 1px; height: 22px; background: var(--border); }
+    .saved-flag {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .saved-flag.is-saved { color: #2e7d32; font-weight: 700; }
+
+    /* ── Legend ── */
+    .legend {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 22px;
+    }
+    .legend-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+    .legend-values { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+    .legend-values span { font-size: 12px; color: var(--muted); }
+    .legend-values b { font-size: 14px; margin-right: 4px; }
+    .legend-modes { display: flex; flex-wrap: wrap; gap: 6px; }
+    .legend-modes a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+    .legend-modes a:hover { background: var(--olive); color: white; }
+    .legend-modes a b { font-weight: 700; }
+    .legend-modes a.is-planned { opacity: 0.65; }
+
+    /* ── Section ── */
+    details.msec {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    details.msec > summary {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--olive-light);
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    details.msec > summary::-webkit-details-marker { display: none; }
+    .msec-caret { color: var(--olive); font-size: 12px; transition: transform 0.15s; flex-shrink: 0; }
+    details[open] .msec-caret { transform: rotate(90deg); }
+    .msec-title { font-size: 15px; font-weight: 700; color: var(--olive-dark); }
+    .msec-count { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 6px; }
+    .msec-link {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--olive);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--olive);
+    }
+    .msec-tally { margin-left: auto; display: flex; gap: 10px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .msec-tally b { font-weight: 700; }
+
+    /* ── Table ── */
+    .matrix-scroll { overflow: auto; max-height: 74vh; }
+    table.matrix {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
+      min-width: 100%;
+      font-size: 13px;
+    }
+    .matrix th, .matrix td {
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: white;
+      padding: 0;
+    }
+    .matrix thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: #F4F7EC;
+      padding: 8px 4px;
+      font-size: 11px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .matrix thead th a {
+      color: var(--olive-dark);
+      text-decoration: none;
+      font-weight: 700;
+      display: block;
+    }
+    .matrix thead th a:hover { color: var(--olive); text-decoration: underline; }
+    .mode-dot {
+      display: block;
+      width: 6px; height: 6px;
+      border-radius: 999px;
+      margin: 4px auto 0;
+      background: #2e7d32;
+    }
+    .mode-dot.is-planned { background: #C9C9C9; }
+    .matrix .col-feature {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      width: 360px;
+      min-width: 360px;
+      max-width: 360px;
+      text-align: left;
+      box-shadow: 1px 0 0 var(--border);
+    }
+    .matrix thead .col-feature { z-index: 4; padding: 8px 14px; text-align: left; }
+    .matrix tbody tr:hover td { background: #FBFCF8; }
+    .matrix .mode-col { width: 66px; min-width: 66px; }
+    /* the value fills the whole cell — a td won't stretch a child to its height on its own */
+    .matrix td.mode-col { position: relative; }
+
+    /* ── Feature cell ── */
+    .frow { display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; }
+    .ftext { flex: 1; min-width: 0; }
+    .ftitle-line { display: flex; align-items: baseline; gap: 6px; }
+    .ftitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      outline: none;
+      border-radius: 4px;
+    }
+    .fdesc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 3px;
+      outline: none;
+      border-radius: 4px;
+    }
+    .fnote {
+      font-size: 12px;
+      color: var(--olive);
+      line-height: 1.45;
+      margin-top: 4px;
+      outline: none;
+      border-radius: 4px;
+      min-height: 18px;
+    }
+    .fnote:empty::before {
+      content: attr(data-placeholder);
+      color: #C0C8B4;
+      font-style: italic;
+    }
+    [contenteditable]:hover { background: #F6F8F1; }
+    [contenteditable]:focus { background: #FFFDF2; box-shadow: 0 0 0 2px var(--gold); }
+    .fgo {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: var(--olive);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .fgo:hover { color: var(--olive-dark); }
+    .fstatus {
+      flex-shrink: 0;
+      border: 0;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-top: 2px;
+      min-width: 74px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .fstatus[data-s="available"] { background: #2e7d32; color: white; }
+    .fstatus[data-s="progress"]  { background: var(--gold); color: var(--gold-dark); }
+    .fstatus[data-s="planned"]   { background: rgba(85,107,47,0.12); color: var(--olive); }
+    .fdel {
+      flex-shrink: 0;
+      border: 0;
+      background: none;
+      color: #C9C9C9;
+      font-size: 16px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 6px;
+    }
+    .fdel:hover { color: #a33; background: #fbeaea; }
+
+    /* ── Cells ── */
+    .cell {
+      display: flex;              /* a <button> when editing, a <span> when read-only */
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      inset: 0;
+      min-height: 44px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      color: #C9D2B8;
+      transition: background 0.1s;
+    }
+    .cell:hover { box-shadow: inset 0 0 0 2px var(--gold); }
+
+    /* ── Preview bar (only ever shown for a draft viewed with ?edit=0) ── */
+    .preview-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--olive-dark);
+      color: rgba(255,255,255,0.9);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 22px;
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .preview-bar[hidden] { display: none; }
+    .preview-bar b { color: var(--gold); }
+    .preview-bar .preview-back {
+      flex-shrink: 0;
+      font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    .preview-bar:hover .preview-back { text-decoration: underline; }
+    #btn-preview { text-decoration: none; margin-left: 4px; }
+
+    /* ── Read-only view (published page, or ?edit=0) ── */
+    .is-readonly .edit-only { display: none; }
+    .is-readonly .cell { cursor: default; }
+    .is-readonly .cell:hover { box-shadow: none; }
+    .is-readonly .matrix-toolbar { justify-content: center; }
+    .cell[data-v="yes"]     { background: rgba(46,125,50,0.14); color: #2e7d32; }
+    .cell[data-v="planned"] { background: rgba(240,212,122,0.38); color: var(--gold-dark); }
+    .cell[data-v="na"]      { background: #F1F1F1; color: #B4B4B4; }
+
+    /* ── Section footer ── */
+    .msec-foot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      background: #FBFCF8;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .msec-foot .tbtn { padding: 5px 12px; }
+
+    /* ── Export panel ── */
+    .export-panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 22px;
+    }
+    .export-panel[hidden] { display: none; }
+    .export-panel h3 { font-size: 13px; color: var(--olive-dark); margin-bottom: 8px; }
+    .export-panel textarea {
+      width: 100%;
+      height: 220px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      resize: vertical;
+      background: var(--bg);
+    }
+
+    @media (max-width: 760px) {
+      .matrix .col-feature { width: 230px; min-width: 230px; max-width: 230px; }
+      .matrix-toolbar { position: static; }
+      .msec-tally { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../../pages/index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="features.feature-matrix.hero.title">Platform Features Hub</h1>
+      <p class="subtitle" data-i18n="features.feature-matrix.hero.subtitle">Every platform feature against every game and tournament mode — what works where, at a glance.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <div class="draft-banner edit-only">
+      <div>Edit mode
+        <span>Visitors see this page read-only. Anything you change here is stored in this browser only —
+          Export CSV, then run <code>python3 tools/bake-feature-matrix.py</code> to make it permanent.</span>
+      </div>
+    </div>
+
+    <a class="preview-bar" id="preview-bar" hidden>
+      <span><b>Preview</b> — this is exactly what a visitor sees. No toolbar, no editing, nothing saved.</span>
+      <span class="preview-back">← Back to editing</span>
+    </a>
+
+    <div class="matrix-toolbar edit-only">
+      <button class="tbtn" id="btn-expand">Expand all</button>
+      <button class="tbtn" id="btn-collapse">Collapse all</button>
+      <div class="tbar-sep"></div>
+      <button class="tbtn" id="btn-json">Export JSON</button>
+      <button class="tbtn" id="btn-csv">Export CSV</button>
+      <div class="tbar-sep"></div>
+      <button class="tbtn tbtn-danger" id="btn-reset">Reset</button>
+      <a class="tbtn" id="btn-preview">Preview live page →</a>
+      <div class="saved-flag" id="saved-flag">Showing the saved defaults</div>
+    </div>
+
+    <div class="export-panel" id="export-panel" hidden>
+      <h3 id="export-title">Export</h3>
+      <textarea id="export-text" readonly spellcheck="false"></textarea>
+    </div>
+
+    <div class="legend">
+      <div class="legend-label" id="cell-legend">Cell values — click to cycle, shift-click to go back</div>
+      <div class="legend-values">
+        <span class="edit-only"><b style="color:#C9D2B8">·</b>not set</span>
+        <span><b style="color:#2e7d32">✓</b>available in this mode</span>
+        <span><b style="color:#A97800">○</b>planned for this mode</span>
+        <span><b style="color:#B4B4B4">—</b>not applicable</span>
+      </div>
+      <div class="legend-label">Columns — game &amp; tournament modes</div>
+      <div class="legend-modes" id="legend-modes"></div>
+    </div>
+
+    <div id="matrix-root"></div>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p>Missing a feature, spotted something wrong, or want to suggest an improvement?</p>
+      </div>
+      <a href="../../pages/contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../../pages/index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../../pages/legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../../pages/contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
+  <script>
+  (function () {
+    // Bumped whenever the baked-in defaults below are regenerated, so a stale
+    // browser state from the previous row set cannot override the new one.
+    var STORAGE_KEY = 'tq-feature-matrix-draft-v9';
+
+    // Edit mode: the matrix doubles as the tool it was filled in with.
+    //   ?edit=1  forces the editor on   (use this once the page is published)
+    //   ?edit=0  forces it off          (preview what visitors will see)
+    // Default: on while the page is a local draft, off once it lives in pages/.
+    // The published page is always read-only unless ?edit=1 is asked for. The working
+    // copy in drafts/ (git-ignored) is edit-first — same file, behaviour follows location.
+    var IN_DRAFTS = location.pathname.indexOf('/drafts/') !== -1;
+    var forced = /[?&]edit=([01])/.exec(location.search);
+    var EDIT = forced ? forced[1] === '1' : IN_DRAFTS;
+    // Only an explicit ?edit=0 means "I was editing and want to see the visitor view",
+    // so that is the only case that offers a way back. A plain visit shows nothing.
+    var PREVIEWING = !!forced && forced[1] === '0';
+
+    // Column order follows the Games & Tournaments hub (pages/modes/games-and-tournaments.html)
+    var MODES = [
+      { id: 'quick-game',               short: 'Quick',  name: 'Quick Game',                 status: 'available' },
+      { id: 'social-scramble',          short: 'Social', name: 'Social Scramble',            status: 'available' },
+      { id: 'scramble-king',            short: 'ScrK',   name: 'Scramble King',              status: 'available' },
+      { id: 'doghouse',                 short: 'Dogh',   name: 'Doghouse',                   status: 'available' },
+      { id: 'king-of-the-court',        short: 'KotC',   name: 'King of the Court',          status: 'available' },
+      { id: 'ko-system',                short: 'KO',     name: 'KO System',                  status: 'available' },
+      { id: 'league',                   short: 'Leag',   name: 'League',                     status: 'planned' },
+      { id: 'double-elimination',       short: 'DE',     name: 'Double Elimination',         status: 'planned' },
+      { id: 'group-single-elimination', short: 'G+SE',   name: 'Group & Single Elimination', status: 'planned' },
+      { id: 'group-double-elimination', short: 'G+DE',   name: 'Group & Double Elimination', status: 'planned' },
+      { id: 'swiss-system',             short: 'Swiss',  name: 'Swiss System',               status: 'planned' },
+      { id: 'other-tournament-modes',   short: 'Other',  name: 'Other Tournament Modes',     status: 'planned' }
+    ];
+
+    // Row sections follow the Platform Features group in js/feature-subnav.js
+    var SECTIONS = [
+      { id: 'scoring',        label: 'Match Controls',                page: 'scoring.html' },
+      { id: 'tournament',     label: 'Tournament Management',         page: 'tournament-features.html' },
+      { id: 'live',           label: 'Live Tournament',               page: 'live-tournament.html' },
+      { id: 'device',         label: 'Device & Screen',               page: 'device-scalability.html' },
+      { id: 'navigation',     label: 'Navigation',                    page: 'navigation.html' },
+      { id: 'administration', label: 'Player & Team Administration',  page: 'user-administration.html' }
+    ];
+
+    var FEATURE_BASE = '../../pages/features/';
+    var MODE_BASE = '../../pages/modes/';
+
+  var FEATURES = [
+    { id: "scoring-1", section: "scoring", status: "available",
+      title: "Live point-by-point scoring",
+      desc: "Tap to award points to either team in real time. The interface is optimised for one-handed use during active play." },
+    { id: "scoring-2", section: "scoring", status: "available",
+      title: "Set management",
+      desc: "Automatic set tracking with configurable winning conditions. TournaQ handles the transition between sets without manual input." },
+    { id: "scoring-3", section: "scoring", status: "available",
+      title: "Serving player tracking",
+      desc: "The active server is highlighted within the team card. Service changes when the non-serving team scores. The serving player indicator updates automatically on every point." },
+    { id: "scoring-4", section: "scoring", status: "available",
+      title: "Score correction",
+      desc: "Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state." },
+    { id: "scoring-5", section: "scoring", status: "planned",
+      title: "Time Control",
+      desc: "React to timeouts or other time affecting events by restarting , pausing, adding or removing time from the timer" },
+    { id: "scoring-6", section: "scoring", status: "available",
+      title: "Match result & history",
+      desc: "Completed matches are saved locally on the device with full score history per set." },
+    { id: "scoring-7", section: "scoring", status: "available",
+      title: "Landscape scorecard",
+      desc: "Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring." },
+    { id: "scoring-8", section: "scoring", status: "planned",
+      title: "Hard Session Timing",
+      desc: "enforce time management" },
+    { id: "scoring-9", section: "scoring", status: "planned",
+      title: "Target Points Setting",
+      desc: "Set individual Target Points, system will remind you that you have reached the target score" },
+    { id: "scoring-10", section: "scoring", status: "available",
+      title: "Side Change Automation",
+      desc: "When the combined score reaches the side-change point, TournaQ shows the Side Change dialog and swaps the counters automatically. Switch the automation off to swap sides manually with gesture control." },
+    { id: "scoring-11", section: "scoring", status: "planned",
+      title: "Automatic Referee/Admin Suggestion",
+      desc: "Get automatic and fair referee suggestions from the tournament player pool for all games in your tournament." },
+    { id: "scoring-12", section: "scoring", status: "planned",
+      title: "Manual Gameplays",
+      desc: "Some formats require dynamic administration because players are constantly rotating. With Manual Gameplay the admin selects the new team or players manually after each selection" },
+    { id: "scoring-13", section: "scoring", status: "planned",
+      title: "Automated Gameplays",
+      desc: "Some formats require dynamic administration because players are constantly rotating. With Automated Gameplay player or teams are queued fairly and the admin only needs to take care of scoring and ejecting." },
+    { id: "scoring-14", section: "scoring", status: "planned",
+      title: "Auto-Allplay Gameplay",
+      desc: "Some formats require dynamic administration because players are constantly rotating. With Auto-Allplay Gameplay TournaQ automatically assignes and rotates game admins, so no one has to sit out." },
+    { id: "tournament-1", section: "tournament", status: "available",
+      title: "Tournament creation & setup",
+      desc: "Define the event name, date, venue, number of courts, and participant list before play begins." },
+    { id: "tournament-2", section: "tournament", status: "available",
+      title: "Match scheduling",
+      desc: "Assign matches to courts and time slots. Handle court changes and late adjustments without manual recalculation." },
+    { id: "tournament-3", section: "tournament", status: "available",
+      title: "Pace alerts",
+      desc: "Every scorecard tracks the scheduled time slot for its match, so players keep an overview of where they stand against the clock and stay on schedule." },
+    { id: "tournament-4", section: "tournament", status: "available",
+      title: "Injury & withdrawal handling",
+      desc: "Mark teams as withdrawn mid-tournament and automatically adjust brackets and standings without corrupting results already recorded." },
+    { id: "tournament-5", section: "tournament", status: "available",
+      title: "Singleplayer Competitions",
+      desc: "Individual Player scramble and randomization. Compete for points per player" },
+    { id: "tournament-6", section: "tournament", status: "available",
+      title: "Share Scorecards and Results via QR Code",
+      desc: "Generate QR Codes to share Scorecards and Results even when offline." },
+    { id: "tournament-7", section: "tournament", status: "available",
+      title: "Multi-court parallel tracking",
+      desc: "Run multiple simultaneous matches across courts within a single event, with results feeding into shared standings." },
+    { id: "tournament-8", section: "tournament", status: "available",
+      title: "Team Competitions",
+      desc: "Compete focus on Partner Play and Team Standings" },
+    { id: "tournament-9", section: "tournament", status: "available",
+      title: "Inline Tournament Editing",
+      desc: "Adjust Tournament parameters during the ongoing event." },
+    { id: "live-1", section: "live", status: "planned",
+      title: "Multi-device sync",
+      desc: "Keep match data in sync across multiple devices at the same event — so scorekeepers and organisers always see the same state." },
+    { id: "live-2", section: "live", status: "planned",
+      title: "Live court score display",
+      desc: "A consolidated view showing current scores across all active courts — updated in real time as scorekeepers enter points." },
+    { id: "live-3", section: "live", status: "planned",
+      title: "Real-time standings",
+      desc: "Group standings and bracket positions update automatically as match results come in, without manual entry or refresh." },
+    { id: "live-4", section: "live", status: "planned",
+      title: "Spectator view",
+      desc: "A read-only view of live scores, standings, and match schedules accessible to spectators — no account or app required." },
+    { id: "live-5", section: "live", status: "planned",
+      title: "Public tournament URL",
+      desc: "Each event gets a shareable URL that spectators, players, and coaches can open on any device to follow the tournament live." },
+    { id: "live-6", section: "live", status: "planned",
+      title: "Live bracket visualisation",
+      desc: "An interactive bracket diagram that updates live as matches complete — shareable with teams and displayable on venue screens." },
+    { id: "device-1", section: "device", status: "available",
+      title: "Mobile-first design",
+      desc: "Optimised for use on smartphones. Touch targets, layout, and navigation are designed for one-handed use during a live match." },
+    { id: "device-2", section: "device", status: "available",
+      title: "Offline-first local storage",
+      desc: "All match data is stored on-device using local storage. TournaQ works fully without an internet connection — no signal required on court." },
+    { id: "device-3", section: "device", status: "available",
+      title: "Portrait & landscape orientation",
+      desc: "The scoring interface adapts to both portrait and landscape orientations to suit different holding preferences and device types." },
+    { id: "device-4", section: "device", status: "planned",
+      title: "Large screen tournament view",
+      desc: "A dedicated layout for larger screens that shows multiple courts or full bracket views simultaneously — designed for tournament control rooms." },
+    { id: "device-5", section: "device", status: "planned",
+      title: "Cast to display",
+      desc: "Project the live scoreboard or bracket view to an external screen or TV at the venue — for spectators and team benches." },
+    { id: "navigation-1", section: "navigation", status: "available",
+      title: "Three top-level destinations",
+      desc: "The Home screen splits the app into TournaQ Arena for all games and tournaments, Administration for players, teams, and groups, and More for everything alongside them. Everything else branches off these three." },
+    { id: "navigation-2", section: "navigation", status: "available",
+      title: "More",
+      desc: "More collects the screens that sit beside the main flow: Contact & About (social links, support channels, legal documents, and the app version), Sponsoring & Promo (advertising and partnership opportunities), and Settings." },
+    { id: "navigation-3", section: "navigation", status: "available",
+      title: "Straightforward navigation",
+      desc: "Every route follows the same shape — from a top-level destination into a hub, from the hub down to the next level of detail, and back the same way. No hidden paths and no dead ends." },
+    { id: "navigation-4", section: "navigation", status: "available",
+      title: "TournaQ Arena mode hub",
+      desc: "Every game and tournament mode is grouped into three categories — Quick Games, Single Competitions & Socials, and Team Competitions — each a large tappable card." },
+    { id: "navigation-5", section: "navigation", status: "available",
+      title: "Built-in mode help",
+      desc: "An info icon on every mode card explains the format before you commit to it, with a \"Learn more\" link through to the website." },
+    { id: "navigation-6", section: "navigation", status: "available",
+      title: "Tournament dashboard",
+      desc: "Each tournament opens on a dashboard showing the full schedule grouped by round, with team names, courts, times, match status, and a completion percentage. Tap any match to score it." },
+    { id: "navigation-7", section: "navigation", status: "available",
+      title: "Tournament history by mode",
+      desc: "Past tournaments are saved on the device and listed in the Arena's history panel, grouped by mode with a total count — so any previous event is a couple of taps away." },
+    { id: "navigation-8", section: "navigation", status: "available",
+      title: "Language & privacy settings",
+      desc: "Settings offers four language options — Automatic, English, Deutsch, Español — and a Privacy Options link for managing ad consent choices." },
+    { id: "administration-1", section: "administration", status: "available",
+      title: "Reusable player & team library",
+      desc: "Players, teams, and groups are saved once and available in every mode — Quick Games, Social Scrambles, King of the Court, Doghouse, and Single Elimination. No re-entering names each session." },
+    { id: "administration-2", section: "administration", status: "available",
+      title: "Players hub with search & filters",
+      desc: "Every saved player in one searchable list, filterable by name, team, or tournament. Each entry shows how many teams, groups, and tournaments the player belongs to, and can be edited or deleted inline." },
+    { id: "administration-3", section: "administration", status: "available",
+      title: "Create players",
+      desc: "Add a player with a name — or a suggested one — and optionally assign them to existing teams and groups at the moment of creation." },
+    { id: "administration-4", section: "administration", status: "available",
+      title: "Export & import players, groups & teams",
+      desc: "Export your player, group, and team data and import it back — or onto another device — so setting up a bigger event doesn't mean re-entering every name by hand." },
+    { id: "administration-5", section: "administration", status: "available",
+      title: "Teams hub with saved rosters",
+      desc: "Pre-formed teams are stored with their player rosters and can be browsed by name, player, or tournament. Each entry shows the player count and group membership." },
+    { id: "administration-6", section: "administration", status: "available",
+      title: "Create teams",
+      desc: "Name a team, link it to existing player profiles, and assign it to one or more groups. It is immediately available in the Add Existing Teams list across all bracket modes." },
+    { id: "administration-7", section: "administration", status: "available",
+      title: "Groups for clubs, venues & series",
+      desc: "Organise players and teams into groups that represent a club, a venue, or a recurring event series. A player or team can belong to several groups at once." },
+    { id: "administration-8", section: "administration", status: "available",
+      title: "Group filtering during setup",
+      desc: "Every player and team import panel offers a group filter, so a club session can be set up by filtering to that group and adding its members in a few taps." },
+    { id: "administration-9", section: "administration", status: "available",
+      title: "Add existing players in-game",
+      desc: "During tournament setup, Add Existing Players opens the full saved library with search and group filter. Tap + on any name to add them, with a counter tracking the remaining spots." },
+    { id: "administration-10", section: "administration", status: "available",
+      title: "Add existing teams in-game",
+      desc: "In bracket modes, Add Existing Teams lists all saved teams with their player counts. Adding a team loads its player names automatically, ready to appear on scorecards." },
+    { id: "administration-11", section: "administration", status: "available",
+      title: "Edit players in ongoing tournaments",
+      desc: "inline editing (quick game) or via tournament player management" },
+    { id: "administration-12", section: "administration", status: "available",
+      title: "Stored on the device, no account needed",
+      desc: "The whole administration library lives locally on the device and works without an internet connection or a sign-up." },
+    { id: "administration-13", section: "administration", status: "planned",
+      title: "Add Random Players or Team",
+      desc: "Too Lazy to set up actual Players or teams? Let the system create random Players and Teams for you." },
+  ];
+
+    // Availability baked in from split.csv — regenerate with
+    // python3 tools/bake-feature-matrix.py
+    var DEFAULT_CELLS = {
+      "scoring-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-2": { "quick-game": "yes", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-3": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-4": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-5": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-6": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-7": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-8": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-9": { "quick-game": "yes", "social-scramble": "planned", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-10": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-11": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "scoring-12": { "quick-game": "na", "social-scramble": "na", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "scoring-13": { "quick-game": "na", "social-scramble": "na", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "scoring-14": { "quick-game": "na", "social-scramble": "na", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "tournament-1": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-2": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-3": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-4": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-5": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "tournament-6": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-7": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-8": { "quick-game": "yes", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "tournament-9": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-1": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-2": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-3": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-4": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-5": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "live-6": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "device-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "device-2": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "device-3": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "device-4": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "device-5": { "quick-game": "na", "social-scramble": "planned", "scramble-king": "planned", "doghouse": "na", "king-of-the-court": "na", "ko-system": "planned", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-2": { "quick-game": "na", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "navigation-3": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-4": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-5": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "yes", "double-elimination": "yes", "group-single-elimination": "yes", "group-double-elimination": "yes", "swiss-system": "yes", "other-tournament-modes": "yes" },
+      "navigation-6": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-7": { "quick-game": "na", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "navigation-8": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-2": { "quick-game": "na", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "administration-3": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-4": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-5": { "quick-game": "na", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "administration-6": { "quick-game": "yes", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-7": { "quick-game": "na", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "administration-8": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-9": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-10": { "quick-game": "yes", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-11": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
+      "administration-12": { "quick-game": "na", "social-scramble": "na", "scramble-king": "na", "doghouse": "na", "king-of-the-court": "na", "ko-system": "na", "league": "na", "double-elimination": "na", "group-single-elimination": "na", "group-double-elimination": "na", "swiss-system": "na", "other-tournament-modes": "na" },
+      "administration-13": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" }
+    };
+
+    var VALUES = ['', 'yes', 'planned', 'na'];
+    var GLYPH = { '': '·', yes: '✓', planned: '○', na: '—' };
+    var VALUE_LABEL = { '': 'not set', yes: 'available', planned: 'planned', na: 'not applicable' };
+    var STATUSES = ['available', 'progress', 'planned'];
+    var STATUS_LABEL = { available: 'Available', progress: 'In Progress', planned: 'Planned' };
+
+    // ── State ──────────────────────────────────────────────────────────────
+    function blank() {
+      return { v: 1, cells: JSON.parse(JSON.stringify(DEFAULT_CELLS)), edits: {}, custom: [], open: {}, seq: 0 };
+    }
+
+    var state = blank();
+    var restored = false;
+    if (EDIT) {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.v === 1) { state = parsed; restored = true; }
+        }
+      } catch (e) { /* corrupt or unavailable storage — start clean */ }
+    }
+
+    var saveTimer = null;
+    var flag = document.getElementById('saved-flag');
+
+    function save() {
+      if (!EDIT) return; // read-only view never writes, so visitors always see the baked values
+      clearTimeout(saveTimer);
+      flag.textContent = 'Saving…';
+      flag.classList.remove('is-saved');
+      saveTimer = setTimeout(function () {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          flag.textContent = 'Saved in this browser ✓';
+          flag.classList.add('is-saved');
+        } catch (e) {
+          flag.textContent = 'Could not save — storage unavailable';
+        }
+      }, 300);
+    }
+
+    function edits(id) {
+      if (!state.edits[id]) state.edits[id] = {};
+      return state.edits[id];
+    }
+
+    function field(f, key) {
+      var e = state.edits[f.id];
+      if (e && e[key] != null) return e[key];
+      return f[key] != null ? f[key] : '';
+    }
+
+    function cell(fid, mid) {
+      var row = state.cells[fid];
+      return (row && row[mid]) || '';
+    }
+
+    function setCell(fid, mid, v) {
+      if (!state.cells[fid]) state.cells[fid] = {};
+      if (v) state.cells[fid][mid] = v; else delete state.cells[fid][mid];
+      save();
+    }
+
+    function featuresOf(sectionId) {
+      var all = FEATURES.concat(state.custom);
+      return all.filter(function (f) {
+        return f.section === sectionId && !(state.edits[f.id] && state.edits[f.id].deleted);
+      });
+    }
+
+    function deletedCount(sectionId) {
+      var all = FEATURES.concat(state.custom);
+      return all.filter(function (f) {
+        return f.section === sectionId && state.edits[f.id] && state.edits[f.id].deleted;
+      }).length;
+    }
+
+    // ── Rendering ──────────────────────────────────────────────────────────
+    function el(tag, cls, text) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text != null) n.textContent = text;
+      return n;
+    }
+
+    function renderLegend() {
+      var box = document.getElementById('legend-modes');
+      MODES.forEach(function (m) {
+        var a = el('a', m.status === 'planned' ? 'is-planned' : '');
+        a.href = MODE_BASE + m.id + '.html';
+        a.innerHTML = '<b>' + m.short + '</b> · ' + m.name.replace('&', '&amp;');
+        box.appendChild(a);
+      });
+    }
+
+    function featureCell(f) {
+      var td = el('td', 'col-feature');
+      var row = el('div', 'frow');
+
+      var status = el(EDIT ? 'button' : 'span', 'fstatus');
+      var s = field(f, 'status') || 'planned';
+      status.setAttribute('data-s', s);
+      status.textContent = STATUS_LABEL[s];
+      if (EDIT) {
+        status.setAttribute('data-f', f.id);
+        status.setAttribute('data-role', 'status');
+        status.title = 'Feature status — click to cycle';
+      }
+      row.appendChild(status);
+
+      var text = el('div', 'ftext');
+
+      var line = el('div', 'ftitle-line');
+      var title = editable(el('span', 'ftitle', field(f, 'title')), f, 'title');
+      line.appendChild(title);
+
+      var go = el('a', 'fgo', '↗');
+      var sec = sectionById(f.section);
+      go.href = FEATURE_BASE + sec.page;
+      go.title = 'Open the ' + sec.label + ' page';
+      go.target = '_blank';
+      go.rel = 'noopener';
+      line.appendChild(go);
+      text.appendChild(line);
+
+      text.appendChild(editable(el('div', 'fdesc', field(f, 'desc')), f, 'desc'));
+
+      // a note is a working annotation — only shown to visitors if it has content
+      if (EDIT || field(f, 'note')) {
+        var note = editable(el('div', 'fnote', field(f, 'note')), f, 'note');
+        note.setAttribute('data-placeholder', 'Add a note…');
+        text.appendChild(note);
+      }
+
+      row.appendChild(text);
+
+      if (EDIT) {
+        var del = el('button', 'fdel', '×');
+        del.setAttribute('data-f', f.id);
+        del.setAttribute('data-role', 'delete');
+        del.title = 'Remove this row';
+        row.appendChild(del);
+      }
+
+      td.appendChild(row);
+      return td;
+    }
+
+    function editable(node, f, key) {
+      if (!EDIT) return node;
+      node.contentEditable = 'true';
+      node.spellcheck = false;
+      node.setAttribute('data-f', f.id);
+      node.setAttribute('data-k', key);
+      return node;
+    }
+
+    function sectionById(id) {
+      for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].id === id) return SECTIONS[i];
+      return SECTIONS[0];
+    }
+
+    function renderSection(sec) {
+      var box = el('details', 'msec');
+      box.id = 'sec-' + sec.id;
+      // Visitors get everything collapsed — the section headers are the hub, open what interests you.
+      if (EDIT && state.open[sec.id] !== false) box.open = true;
+      state.open[sec.id] = box.open; // record silently — setting .open fires a toggle event
+
+      var list = featuresOf(sec.id);
+
+      var sum = document.createElement('summary');
+      sum.appendChild(el('span', 'msec-caret', '▶'));
+      var t = el('span', 'msec-title', sec.label);
+      t.appendChild(el('span', 'msec-count', ' (' + list.length + ')'));
+      sum.appendChild(t);
+      var link = el('a', 'msec-link', 'open page ↗');
+      link.href = FEATURE_BASE + sec.page;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      sum.appendChild(link);
+      sum.appendChild(el('div', 'msec-tally'));
+      box.appendChild(sum);
+
+      var scroll = el('div', 'matrix-scroll');
+      var table = el('table', 'matrix');
+
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      var hf = el('th', 'col-feature', 'Feature');
+      htr.appendChild(hf);
+      MODES.forEach(function (m) {
+        var th = el('th', 'mode-col');
+        var a = el('a', null, m.short);
+        a.href = MODE_BASE + m.id + '.html';
+        a.title = m.name + (m.status === 'planned' ? ' (mode planned)' : '');
+        a.target = '_blank';
+        a.rel = 'noopener';
+        th.appendChild(a);
+        th.appendChild(el('span', 'mode-dot' + (m.status === 'planned' ? ' is-planned' : '')));
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+      table.appendChild(thead);
+
+      var tbody = document.createElement('tbody');
+      list.forEach(function (f) {
+        var tr = document.createElement('tr');
+        tr.appendChild(featureCell(f));
+        MODES.forEach(function (m) {
+          var td = el('td', 'mode-col');
+          var b = el(EDIT ? 'button' : 'span', 'cell');
+          var v = cell(f.id, m.id);
+          b.setAttribute('data-v', v);
+          if (EDIT) {
+            b.setAttribute('data-f', f.id);
+            b.setAttribute('data-m', m.id);
+            b.setAttribute('data-role', 'cell');
+          }
+          b.textContent = GLYPH[v];
+          b.title = m.name + ' — ' + VALUE_LABEL[v];
+          b.setAttribute('aria-label', field(f, 'title') + ' in ' + m.name + ': ' + VALUE_LABEL[v]);
+          td.appendChild(b);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      scroll.appendChild(table);
+      box.appendChild(scroll);
+
+      if (EDIT) {
+        var foot = el('div', 'msec-foot');
+        var add = el('button', 'tbtn', '+ Add feature');
+        add.setAttribute('data-role', 'add');
+        add.setAttribute('data-sec', sec.id);
+        foot.appendChild(add);
+        var removed = deletedCount(sec.id);
+        if (removed) {
+          foot.appendChild(el('span', null, removed + ' row' + (removed === 1 ? '' : 's') + ' removed'));
+          var undo = el('button', 'tbtn', 'Restore');
+          undo.setAttribute('data-role', 'restore');
+          undo.setAttribute('data-sec', sec.id);
+          foot.appendChild(undo);
+        }
+        box.appendChild(foot);
+      }
+
+      box.addEventListener('toggle', function () {
+        if (state.open[sec.id] === box.open) return; // the toggle from the initial render
+        state.open[sec.id] = box.open;
+        save();
+      });
+
+      return box;
+    }
+
+    function tally(sec, box) {
+      var counts = { '': 0, yes: 0, planned: 0, na: 0 };
+      featuresOf(sec.id).forEach(function (f) {
+        MODES.forEach(function (m) { counts[cell(f.id, m.id)]++; });
+      });
+      var out = box.querySelector('.msec-tally');
+      out.innerHTML =
+        '<span style="color:#2e7d32">✓ <b>' + counts.yes + '</b></span>' +
+        '<span style="color:#A97800">○ <b>' + counts.planned + '</b></span>' +
+        '<span>— <b>' + counts.na + '</b></span>' +
+        (counts[''] ? '<span>' + counts[''] + ' unset</span>' : '');
+    }
+
+    var root = document.getElementById('matrix-root');
+
+    function render() {
+      root.innerHTML = '';
+      SECTIONS.forEach(function (sec) {
+        var box = renderSection(sec);
+        root.appendChild(box);
+        tally(sec, box);
+      });
+    }
+
+    function retally(fid) {
+      var f = findFeature(fid);
+      if (!f) return;
+      var sec = sectionById(f.section);
+      var box = document.getElementById('sec-' + sec.id);
+      if (box) tally(sec, box);
+    }
+
+    function findFeature(id) {
+      var all = FEATURES.concat(state.custom);
+      for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+      return null;
+    }
+
+    // ── Interaction ────────────────────────────────────────────────────────
+    root.addEventListener('click', function (ev) {
+      var t = ev.target.closest('[data-role]');
+      if (!t) return;
+      var role = t.getAttribute('data-role');
+
+      if (role === 'cell') {
+        var step = ev.shiftKey ? -1 : 1;
+        var i = VALUES.indexOf(t.getAttribute('data-v'));
+        var v = VALUES[(i + step + VALUES.length) % VALUES.length];
+        t.setAttribute('data-v', v);
+        t.textContent = GLYPH[v];
+        var mode = t.getAttribute('data-m');
+        var mname = mode;
+        MODES.forEach(function (m) { if (m.id === mode) mname = m.name; });
+        t.title = mname + ' — ' + VALUE_LABEL[v];
+        setCell(t.getAttribute('data-f'), mode, v);
+        retally(t.getAttribute('data-f'));
+        return;
+      }
+
+      if (role === 'status') {
+        var si = STATUSES.indexOf(t.getAttribute('data-s'));
+        var s = STATUSES[(si + 1) % STATUSES.length];
+        t.setAttribute('data-s', s);
+        t.textContent = STATUS_LABEL[s];
+        edits(t.getAttribute('data-f')).status = s;
+        save();
+        return;
+      }
+
+      if (role === 'delete') {
+        edits(t.getAttribute('data-f')).deleted = true;
+        save();
+        render();
+        return;
+      }
+
+      if (role === 'restore') {
+        var secId = t.getAttribute('data-sec');
+        Object.keys(state.edits).forEach(function (id) {
+          var f = findFeature(id);
+          if (f && f.section === secId) delete state.edits[id].deleted;
+        });
+        save();
+        render();
+        return;
+      }
+
+      if (role === 'add') {
+        var sid = t.getAttribute('data-sec');
+        state.seq = (state.seq || 0) + 1;
+        state.custom.push({
+          id: 'custom-' + state.seq,
+          section: sid,
+          status: 'planned',
+          title: 'New feature',
+          desc: ''
+        });
+        save();
+        render();
+        var rows = document.querySelectorAll('#sec-' + sid + ' .ftitle');
+        if (rows.length) {
+          var last = rows[rows.length - 1];
+          last.focus();
+          document.execCommand && document.getSelection().selectAllChildren(last);
+        }
+      }
+    });
+
+    root.addEventListener('input', function (ev) {
+      var t = ev.target;
+      if (!t.hasAttribute || !t.hasAttribute('data-k')) return;
+      edits(t.getAttribute('data-f'))[t.getAttribute('data-k')] = t.textContent.trim();
+      save();
+    });
+
+    // keep pasted content plain
+    root.addEventListener('paste', function (ev) {
+      var t = ev.target;
+      if (!t.hasAttribute || !t.hasAttribute('data-k')) return;
+      ev.preventDefault();
+      var text = (ev.clipboardData || window.clipboardData).getData('text').replace(/\s+/g, ' ');
+      document.execCommand('insertText', false, text);
+    });
+
+    // Enter commits instead of inserting a line break
+    root.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter') return;
+      var t = ev.target;
+      if (!t.hasAttribute || !t.hasAttribute('data-k')) return;
+      ev.preventDefault();
+      t.blur();
+    });
+
+    // ── Toolbar ────────────────────────────────────────────────────────────
+    function setAllOpen(open) {
+      SECTIONS.forEach(function (sec) {
+        var box = document.getElementById('sec-' + sec.id);
+        if (box) box.open = open;
+        state.open[sec.id] = open;
+      });
+      save();
+    }
+
+    document.getElementById('btn-expand').addEventListener('click', function () { setAllOpen(true); });
+    document.getElementById('btn-collapse').addEventListener('click', function () { setAllOpen(false); });
+
+    function snapshot() {
+      var out = [];
+      SECTIONS.forEach(function (sec) {
+        featuresOf(sec.id).forEach(function (f) {
+          var av = {};
+          MODES.forEach(function (m) { av[m.id] = cell(f.id, m.id); });
+          out.push({
+            id: f.id,
+            section: sec.id,
+            page: sec.page,
+            status: field(f, 'status'),
+            title: field(f, 'title'),
+            description: field(f, 'desc'),
+            note: field(f, 'note'),
+            availability: av
+          });
+        });
+      });
+      return out;
+    }
+
+    function download(name, text, mime) {
+      var blob = new Blob([text], { type: mime + ';charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    }
+
+    function showExport(title, text) {
+      var panel = document.getElementById('export-panel');
+      document.getElementById('export-title').textContent = title;
+      var ta = document.getElementById('export-text');
+      ta.value = text;
+      panel.hidden = false;
+      ta.focus();
+      ta.select();
+    }
+
+    function stamp() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    document.getElementById('btn-json').addEventListener('click', function () {
+      var payload = JSON.stringify({
+        generated: new Date().toISOString(),
+        modes: MODES.map(function (m) { return { id: m.id, name: m.name }; }),
+        features: snapshot()
+      }, null, 2);
+      download('feature-matrix-' + stamp() + '.json', payload, 'application/json');
+      showExport('Exported JSON — also downloaded', payload);
+    });
+
+    function csvCell(v) {
+      v = v == null ? '' : String(v);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }
+
+    document.getElementById('btn-csv').addEventListener('click', function () {
+      var CSV_VALUE = { '': '', yes: 'Available', planned: 'Planned', na: 'N/A' };
+      // 'Section' is first so Tournament Management and Live Tournament stay
+      // distinguishable — they share tournament-features.html.
+      var head = ['Section', 'HTML File', 'Status', 'Title', 'Description', 'Note']
+        .concat(MODES.map(function (m) { return m.name; }));
+      var lines = [head.map(csvCell).join(',')];
+      snapshot().forEach(function (f) {
+        var row = [f.section, f.page, STATUS_LABEL[f.status] || f.status, f.title, f.description, f.note];
+        MODES.forEach(function (m) { row.push(CSV_VALUE[f.availability[m.id]]); });
+        lines.push(row.map(csvCell).join(','));
+      });
+      var payload = lines.join('\n') + '\n';
+      download('feature-matrix-' + stamp() + '.csv', payload, 'text/csv');
+      showExport('Exported CSV — also downloaded', payload);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      if (!confirm('Discard every change made in this browser and go back to the defaults baked into the page?')) return;
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+      state = blank();
+      document.getElementById('export-panel').hidden = true;
+      render();
+      flag.textContent = 'Showing the saved defaults';
+      flag.classList.remove('is-saved');
+    });
+
+    // ── Boot ───────────────────────────────────────────────────────────────
+    if (!EDIT) {
+      // Read-only view: keep the matrix and the mode/feature links, drop the editing chrome.
+      document.body.classList.add('is-readonly');
+      document.getElementById('cell-legend').textContent = 'Legend';
+    }
+    if (PREVIEWING) {
+      var bar = document.getElementById('preview-bar');
+      bar.href = location.pathname + '?edit=1';
+      bar.hidden = false;
+    }
+    document.getElementById('btn-preview').href = location.pathname + '?edit=0';
+
+    renderLegend();
+    render();
+    if (restored) {
+      flag.textContent = 'Saved in this browser ✓';
+      flag.classList.add('is-saved');
+    } else {
+      flag.textContent = 'Showing the saved defaults';
+    }
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,12 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-base="../../" data-i18n-title="page.features.live-tournament.title">
+
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=tournament-features.html">
-  <title>Redirecting…</title>
-  <link rel="canonical" href="tournament-features.html">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Tournament Features – TournaQ Features</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <script src="../../js/main-nav.js" defer></script>
+  <script src="../../js/i18n.js" defer></script>
+  <script src="../../js/feature-subnav.js" defer></script>
+  <style>
+    html { scroll-behavior: smooth; }
+
+    .features-subnav {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 40px;
+    }
+    .features-subnav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .features-subnav-links a {
+      background: var(--olive-light);
+      color: var(--olive);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .features-subnav-links a:hover,
+    .features-subnav-links a.active {
+      background: var(--olive);
+      color: white;
+    }
+
+    .coming-soon-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .pill {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+    .pill-available  { background: #2e7d32; color: white; }
+    .pill-soon       { background: var(--gold); color: var(--gold-dark); }
+    .pill-planned    { background: rgba(85,107,47,0.12); color: var(--olive); }
+    .in-progress-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: var(--gold);
+      color: var(--gold-dark);
+    }
+    .planned-status {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      background: rgba(85,107,47,0.12);
+      color: var(--olive);
+    }
+
+    /* ── Platform hint ── */
+    .platform-hint {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--olive-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-top: 32px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .platform-hint:hover { box-shadow: 0 3px 10px rgba(85,107,47,0.14); border-color: var(--olive); }
+    .platform-hint .hint-icon {
+      flex-shrink: 0;
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .platform-hint .hint-text { flex: 1; min-width: 0; }
+    .platform-hint h3 { font-size: 16px; color: var(--olive-dark); margin-bottom: 4px; }
+    .platform-hint p { font-size: 13px; color: var(--muted); margin: 0; line-height: 1.5; }
+    .platform-hint .hint-arrow { color: var(--olive); font-size: 18px; font-weight: 700; flex-shrink: 0; }
+    @media (max-width: 520px) { .platform-hint { flex-direction: column; align-items: flex-start; } }
+
+    .feature-text strong { display: block; font-size: 15px; margin-bottom: 4px; color: var(--text); }
+    .feature-text p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
+  </style>
 </head>
+
 <body>
-  <p>This page has moved. <a href="tournament-features.html">Go to Tournament Features</a>.</p>
+
+  <header>
+    <nav class="nav">
+      <a class="logo" href="../index.html">
+        <img src="../../assets/tournaq_logo_transparent_land.png" alt="TournaQ">
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </label>
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
+    <div class="lang-switcher"></div>
+
+    <div class="hero">
+      <h1 data-i18n="features.live-tournament.hero.title">Live Tournament Features</h1>
+      <p class="subtitle" data-i18n="features.live-tournament.hero.subtitle">Real-time visibility for organisers, referees, players, and spectators.</p>
+    </div>
+  </header>
+
+  <main>
+
+    <div id="feature-subnav"></div>
+
+    <section class="card">
+      <div class="planned-status" data-i18n="features.pill.planned">Planned</div>
+      <p data-i18n="features.live-tournament.feature.text">As TournaQ evolves into a full tournament platform, live visibility features will allow everyone at an event — organisers, referees, teams, and spectators — to follow what's happening in real time.</p>
+      <ul class="feature-list">
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li1.title">Multi-device sync</strong>
+            <p data-i18n="features.live-tournament.feature.li1.text">Keep match data in sync across multiple devices at the same event — so scorekeepers and organisers always see the same state.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li2.title">Live court score display</strong>
+            <p data-i18n="features.live-tournament.feature.li2.text">A consolidated view showing current scores across all active courts — updated in real time as scorekeepers enter points.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li3.title">Real-time standings</strong>
+            <p data-i18n="features.live-tournament.feature.li3.text">Group standings and bracket positions update automatically as match results come in, without manual entry or refresh.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li4.title">Spectator view</strong>
+            <p data-i18n="features.live-tournament.feature.li4.text">A read-only view of live scores, standings, and match schedules accessible to spectators — no account or app required.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li5.title">Public tournament URL</strong>
+            <p data-i18n="features.live-tournament.feature.li5.text">Each event gets a shareable URL that spectators, players, and coaches can open on any device to follow the tournament live.</p>
+          </div>
+        </li>
+        <li>
+          <span class="pill pill-planned" data-i18n="features.pill.planned">Planned</span>
+          <div class="feature-text">
+            <strong data-i18n="features.live-tournament.feature.li7.title">Live bracket visualisation</strong>
+            <p data-i18n="features.live-tournament.feature.li7.text">An interactive bracket diagram that updates live as matches complete — shareable with teams and displayable on venue screens.</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <a href="../platform.html" class="platform-hint">
+      <span class="hint-icon">⇄</span>
+      <div class="hint-text">
+        <h3 data-i18n="features.live-tournament.platform.title">Part of the platform story</h3>
+        <p data-i18n="features.live-tournament.platform.text">Live visibility is where TournaQ meets the systems around it — results flowing back to the platform that owns registration, ticketing and participant communication. See how the integration is designed.</p>
+      </div>
+      <span class="hint-arrow">→</span>
+    </a>
+
+    <div class="feedback-cta">
+      <div class="feedback-cta-text">
+        <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
+        <p data-i18n="features.live-tournament.feedback.text">Have a question about live tournament features, or want to tell us which one matters most to you?</p>
+      </div>
+      <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
+    </div>
+
+  </main>
+
+  <footer>
+    <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+    <p>
+      <a href="../index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="../legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="../contact.html" data-i18n="footer.contact">Contact</a>
+    </p>
+  </footer>
+
 </body>
 </html>
