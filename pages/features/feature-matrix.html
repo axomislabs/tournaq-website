@@ -478,7 +478,7 @@
   (function () {
     // Bumped whenever the baked-in defaults below are regenerated, so a stale
     // browser state from the previous row set cannot override the new one.
-    var STORAGE_KEY = 'tq-feature-matrix-draft-v10';
+    var STORAGE_KEY = 'tq-feature-matrix-draft-v11';
 
     // Edit mode: the matrix doubles as the tool it was filled in with.
     //   ?edit=1  forces the editor on   (use this once the page is published)
@@ -537,7 +537,7 @@
       desc: "Undo the last point at any time. Mistakes during fast play can be corrected immediately without losing match state." },
     { id: "scoring-5", section: "scoring", status: "available",
       title: "Time Control",
-      desc: "React to timeouts or other time affecting events by restarting , pausing, adding or removing time from the timer" },
+      desc: "React to timeouts and other time-affecting events — restart, pause, add or remove time on the timer." },
     { id: "scoring-6", section: "scoring", status: "available",
       title: "Match result & history",
       desc: "Completed matches are saved locally on the device with full score history per set." },
@@ -546,7 +546,7 @@
       desc: "Rotate the device at any point to switch to landscape mode. All controls remain accessible in the rearranged layout — designed for net-post placement or table-side scoring." },
     { id: "scoring-8", section: "scoring", status: "available",
       title: "Hard Session Timing",
-      desc: "enforce time management" },
+      desc: "Enforce a strict time limit on a session — the clock decides when it ends, not the players." },
     { id: "scoring-9", section: "scoring", status: "available",
       title: "Target Points Setting",
       desc: "Set individual Target Points, system will remind you that you have reached the target score" },
@@ -690,7 +690,7 @@
       desc: "Too Lazy to set up actual Players or teams? Let the system create random Players and Teams for you." },
   ];
 
-    // Availability baked in from avail.csv — regenerate with
+    // Availability baked in from desc.csv — regenerate with
     // python3 tools/bake-feature-matrix.py
     var DEFAULT_CELLS = {
       "scoring-1": { "quick-game": "yes", "social-scramble": "yes", "scramble-king": "yes", "doghouse": "yes", "king-of-the-court": "yes", "ko-system": "yes", "league": "planned", "double-elimination": "planned", "group-single-elimination": "planned", "group-double-elimination": "planned", "swiss-system": "planned", "other-tournament-modes": "planned" },
