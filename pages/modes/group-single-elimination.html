@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Group &amp; Single Elimination – TournaQ Game Modes</title>
+  <title>TournaQ Classics – TournaQ Game Modes</title>
   <link rel="icon" href="../../favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/favicon-16.png">
@@ -40,6 +40,33 @@
       font-weight: 400;
       font-size: 12px;
       color: #9e7500;
+      margin-top: 2px;
+    }
+
+    /* Mode-merge notice: olive, so it reads as a second, mode-specific note
+       next to the yellow "under construction" banner. */
+    .merge-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--olive-light);
+      border: 1px solid var(--olive);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+    }
+    .merge-banner .sign { font-size: 24px; flex-shrink: 0; }
+    .merge-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--olive-dark);
+      line-height: 1.4;
+    }
+    .merge-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--olive);
       margin-top: 2px;
     }
 
@@ -90,7 +117,7 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="modes.group-single-elimination.hero.title">Group &amp; Single Elimination</h1>
+      <h1 data-i18n="modes.group-single-elimination.hero.title">TournaQ Classics</h1>
       <p class="subtitle" data-i18n="modes.group-single-elimination.hero.subtitle">Pool play to sort the draw, then a knockout bracket to crown the winner.</p>
     </div>
   </header>
@@ -101,12 +128,20 @@
 
     <section class="card">
       <div class="planned-status status-badge" data-i18n="modes.group-single-elimination.status">Planned</div>
-      <h2 data-i18n="modes.group-single-elimination.hero.title">Group &amp; Single Elimination</h2>
+      <h2 data-i18n="modes.group-single-elimination.hero.title">TournaQ Classics</h2>
       <div class="under-construction-banner">
         <div class="sign">🚧</div>
         <div class="sign-text" data-i18n-html="modes.group-single-elimination.construction">
           Page Under Construction
           <span>This page is being updated. Content may be incomplete.</span>
+        </div>
+      </div>
+
+      <div class="merge-banner">
+        <div class="sign">🔀</div>
+        <div class="sign-text" data-i18n-html="modes.group-single-elimination.merge.banner">
+          Group formats are merging into TournaQ Classics
+          <span>This page currently reflects the content of Group &amp; Single Elimination. It will be updated to describe the new TournaQ Classics mode, which combines Group &amp; Single Elimination and Group &amp; Double Elimination into one mode.</span>
         </div>
       </div>
 
@@ -157,7 +192,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.group-single-elimination.feedback.text">Have a question about Group &amp; Single Elimination, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="modes.group-single-elimination.feedback.text">Have a question about TournaQ Classics, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

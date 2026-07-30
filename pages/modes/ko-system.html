@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Single Elimination – TournaQ</title>
+  <title>Eliminations – TournaQ</title>
   <link rel="icon" href="../../favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/favicon-16.png">
@@ -17,6 +17,33 @@
   <script src="../../js/feature-subnav.js" defer></script>
   <style>
     html { scroll-behavior: smooth; }
+
+    /* Mode-merge notice: olive, so it reads as a second, mode-specific note
+       next to the gold site-wide "updates on the way" banner. */
+    .merge-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--olive-light);
+      border: 1px solid var(--olive);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin: 12px 0 20px;
+    }
+    .merge-banner .sign { font-size: 24px; flex-shrink: 0; }
+    .merge-banner .sign-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--olive-dark);
+      line-height: 1.4;
+    }
+    .merge-banner .sign-text span {
+      display: block;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--olive);
+      margin-top: 2px;
+    }
 
     .guide-grid {
       display: grid;
@@ -149,7 +176,7 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="modes.ko-system.hero.title">Single Elimination</h1>
+      <h1 data-i18n="modes.ko-system.hero.title">Eliminations</h1>
       <p class="subtitle" data-i18n="modes.ko-system.hero.subtitle">One loss and you're out. The cleanest bracket in the game.</p>
     </div>
   </header>
@@ -166,10 +193,18 @@
       </div>
     </div>
 
+    <div class="merge-banner">
+      <div class="sign">🔀</div>
+      <div class="sign-text" data-i18n-html="modes.ko-system.merge.banner">
+        Single and Double Elimination are merging
+        <span>This page currently reflects the Single Elimination mode. It is under construction and will soon cover both Single Elimination and Double Elimination, which have been merged into the single Eliminations mode.</span>
+      </div>
+    </div>
+
     <!-- Overview -->
     <section class="card">
       <div class="completed-status phase-status" data-i18n="modes.ko-system.status">Available</div>
-      <h2 data-i18n="modes.ko-system.hero.title">Single Elimination</h2>
+      <h2 data-i18n="modes.ko-system.hero.title">Eliminations</h2>
       <p data-i18n="modes.ko-system.intro">Single Elimination is TournaQ's classic knockout tournament format. Teams are drawn into a bracket and compete in a series of rounds — Quarter-finals, Semi-finals, and a Final — with the loser of each match eliminated immediately. TournaQ generates the full bracket and match schedule automatically, handles odd team counts with Byes or Play-in rounds, tracks progress round by round, and produces a podium at the end. Match scorecards include player tracking, side change alerts, referee assignment, and a live schedule countdown.</p>
 
       <img src="../../assets/screenshots/singleko_hub.png" alt="Single Elimination hub showing tournament history with team counts, courts, match progress and status"
@@ -335,7 +370,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.ko-system.feedback.text">Have a question about Single Elimination, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="modes.ko-system.feedback.text">Have a question about Eliminations, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

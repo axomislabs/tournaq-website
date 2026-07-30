@@ -36,13 +36,11 @@ SECTION_ORDER = ['scoring', 'tournament', 'live', 'device', 'navigation', 'admin
 STATUS = {'Available': 'available', 'In Progress': 'progress', 'Planned': 'planned'}
 CELL = {'Available': 'yes', 'Planned': 'planned', 'N/A': 'na', '': ''}
 MODE_COL = {
-    'Quick Game': 'quick-game', 'Social Scramble': 'social-scramble',
-    'Scramble King': 'scramble-king', 'Doghouse': 'doghouse',
-    'King of the Court': 'king-of-the-court', 'KO System': 'ko-system',
-    'League': 'league', 'Double Elimination': 'double-elimination',
-    'Group & Single Elimination': 'group-single-elimination',
-    'Group & Double Elimination': 'group-double-elimination',
-    'Swiss System': 'swiss-system', 'Other Tournament Modes': 'other-tournament-modes',
+    'Quick Game': 'quick-game', 'Social Scrambles': 'social-scramble',
+    'Scramble Kings': 'scramble-king', 'Doghouses': 'doghouse',
+    'Kings of the Court': 'king-of-the-court', 'Eliminations': 'ko-system',
+    'Leagues': 'league', 'TournaQ Classics': 'group-single-elimination',
+    'Swiss Systems': 'swiss-system', 'Other Tournament Modes': 'other-tournament-modes',
 }
 
 
@@ -58,8 +56,9 @@ def read(path):
     head, body = rows[0], [r for r in rows[1:] if any(c.strip() for c in r)]
     col = {name: i for i, name in enumerate(head)}
     modes = [(i, MODE_COL[n]) for i, n in enumerate(head) if n in MODE_COL]
-    if len(modes) != 12:
-        sys.exit('expected 12 mode columns, found %d — is this a matrix export?' % len(modes))
+    if len(modes) != len(MODE_COL):
+        sys.exit('expected %d mode columns, found %d — is this a matrix export?'
+                 % (len(MODE_COL), len(modes)))
 
     features, cells, counter, in_live = [], {}, {}, False
     for r in body:

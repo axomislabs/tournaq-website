@@ -111,16 +111,14 @@
           <div class="subnav-group-links">
             <a href="${m}games-and-tournaments.html">Games &amp; Tournaments Hub</a>
             <a href="${m}quick-game.html">Quick Game</a>
-            <a href="${m}social-scramble.html">Social Scramble</a>
-            <a href="${m}scramble-king.html">Scramble King</a>
-            <a href="${m}doghouse.html">Doghouse</a>
-            <a href="${m}king-of-the-court.html">King of the Court</a>
-            <a href="${m}ko-system.html">Single Elimination</a>
-            <a href="${m}league.html">League</a>
-            <a href="${m}double-elimination.html">Double Elimination</a>
-            <a href="${m}group-single-elimination.html">Group &amp; Single Elim.</a>
-            <a href="${m}group-double-elimination.html">Group &amp; Double Elim.</a>
-            <a href="${m}swiss-system.html">Swiss System</a>
+            <a href="${m}social-scramble.html">Social Scrambles</a>
+            <a href="${m}scramble-king.html">Scramble Kings</a>
+            <a href="${m}doghouse.html">Doghouses</a>
+            <a href="${m}king-of-the-court.html">Kings of the Court</a>
+            <a href="${m}ko-system.html">Eliminations</a>
+            <a href="${m}league.html">Leagues</a>
+            <a href="${m}group-single-elimination.html">TournaQ Classics</a>
+            <a href="${m}swiss-system.html">Swiss Systems</a>
             <a href="${m}other-tournament-modes.html">Other Modes</a>
           </div>
         </div>
