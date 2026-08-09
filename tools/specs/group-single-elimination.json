@@ -1,0 +1,211 @@
+{
+  "slug": "group-single-elimination",
+  "out": "pages/modes/group-single-elimination.html",
+  "depth": 2,
+  "folder": "10_tournaq_classic",
+  "title": "TournaQ Classics",
+  "subtitle": "Group stage to sort the draw, then a bracket to crown the winner.",
+  "status": "available",
+  "hero": {
+    "shot": "04_schedule",
+    "alt": "A TournaQ Classic in progress showing the group stage schedule and progress"
+  },
+  "intro": [
+    "The format most tournaments actually use. Pool play first, so everyone gets a guaranteed run of matches and nobody travels an hour to lose once — then the qualifiers feed a knockout bracket where it starts to count.",
+    "TournaQ builds the groups, runs the pool schedule, works out who qualifies and seeds them into the bracket. With a bigger field it can carry a Silver bracket alongside the Gold, so the teams who miss the cut still have something to play for."
+  ],
+  "bestfor": [
+    "Day-long events where everyone should get a decent number of matches",
+    "Fields too big for a straight round robin and too good for a straight knockout",
+    "Tournaments that want a real winner and a fair route to it"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "TournaQ Classics live under Team Competitions in the Arena. The hub keeps every event you have run.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with TournaQ Classics under Team Competitions"
+        },
+        {
+          "h": "The Classics hub",
+          "p": "New Tournament starts an event. Below it sits your history, each entry showing the date, the team count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The TournaQ Classics hub listing past events above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "nav": "The format",
+      "title": "Groups first, then the bracket",
+      "text": "Two stages in one picture: the pools on the left, the knockout on the right, and labelled lines showing exactly which group place feeds which bracket slot.",
+      "cards": [
+        {
+          "h": "How a team gets to the final",
+          "p": "Finish first or second in your group and you are into the Gold bracket, in a slot decided by where you came. The labels — A1, B2, B1, A2 — are the qualification rule written on the diagram, so nobody has to be told how the draw was made.",
+          "shot": "11_standings_bracket",
+          "wide": true,
+          "alt": "Two groups feeding a Gold semi-final and final, with qualifying places labelled A1, B2, B1 and A2"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Add the teams and say how many groups you want. TournaQ divides the field, builds both stages and tells you what it will cost in time.",
+      "cards": [
+        {
+          "h": "Groups, courts, qualification",
+          "p": [
+            "Team count, number of groups, courts and match format, plus how many from each group go through. The Schedule Preview covers both stages, so the finish time you are shown is the real one.",
+            "An uneven field is handled rather than refused — the groups simply come out different sizes."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete TournaQ Classic setup form covering teams, groups, courts and qualification"
+        },
+        {
+          "h": "The schedule it produced",
+          "p": "Every pool match, grouped and timed, before a point is played. If it does not fit the day, change the courts or the match length and look again.",
+          "shot": "05_schedule_full",
+          "alt": "The full generated group-stage schedule"
+        }
+      ]
+    },
+    {
+      "id": "live",
+      "nav": "Running it",
+      "title": "Running the event",
+      "text": "The group stage looks like a league; the knockout looks like a bracket. The same screen carries both, in the order they happen.",
+      "cards": [
+        {
+          "h": "The schedule, live",
+          "p": "Pool matches grouped by round with their courts, times and scores, and a progress ring showing how much of the event has been played.",
+          "shot": "04_schedule",
+          "alt": "The live group-stage schedule with the progress ring and settings pills"
+        },
+        {
+          "h": "By court",
+          "p": "The same matches regrouped so each court lists its own sequence — the view to hand someone running one court all day.",
+          "shot": "06_schedule_by_court",
+          "alt": "The schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays the rounds against the courts, so you can see the shape of the day and where it will get tight.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which matches are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The same scorecard through both stages — a pool match and a semi-final are scored identically.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted and service passes automatically when the other side scores.",
+          "shot": "07_scorecard",
+          "alt": "The scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the controls rearrange for a net post or a side table. The layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same scorecard rotated to landscape"
+        },
+        {
+          "h": "Group standings",
+          "p": "Each group's table updates as its results land, so teams can see whether they are qualifying while the pool stage is still running.",
+          "shot": "10_standings_table",
+          "alt": "Group standings tables showing each pool's current order"
+        }
+      ]
+    },
+    {
+      "id": "standings",
+      "nav": "Result",
+      "title": "Deciding it",
+      "text": "When the pools finish the bracket fills itself from the qualification rule, and the final decides the event.",
+      "cards": [
+        {
+          "h": "The completed schedule",
+          "p": "Every pool match and every knockout tie played, with the progress ring at a hundred per cent.",
+          "shot": "12_schedule_completed",
+          "alt": "A completed TournaQ Classic with every match played"
+        },
+        {
+          "h": "Final standings",
+          "p": "The closing order across the whole event, placing every team by how far they got rather than only naming a winner.",
+          "shot": "13_final_standings",
+          "wide": true,
+          "alt": "The final standings for a completed TournaQ Classic"
+        }
+      ]
+    },
+    {
+      "id": "bigger",
+      "nav": "At scale",
+      "title": "The same format, under load",
+      "text": "Two groups and one bracket is the simple case. Fifteen teams in four uneven groups, with a Silver bracket for the teams who miss Gold, is where the format earns its keep.",
+      "cards": [
+        {
+          "h": "Gold and Silver, from uneven groups",
+          "p": "Four groups of four, four and three. First and second go to Gold, third and fourth to Silver — and because the short group has no fourth place, Silver draws seven qualifiers into eight slots and carries a real bye. TournaQ works that out rather than making you fudge it.",
+          "shot": "17_advanced_standings_bracket",
+          "wide": true,
+          "alt": "Four groups feeding a Gold bracket and a Silver bracket, with a real bye in the Silver draw"
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "nav": "Bigger fields",
+      "title": "Setting up the bigger event",
+      "text": "Nothing new to learn: the same form, the same schedule, the same tables — just more of them.",
+      "cards": [
+        {
+          "h": "Fifteen teams, four groups",
+          "p": "The setup form takes the larger field and divides it, unevenly where it has to. Nothing is refused for not being a round number.",
+          "shot": "14_advanced_setup_full",
+          "alt": "The setup form for a fifteen-team event divided into four groups"
+        },
+        {
+          "h": "The schedule it built",
+          "p": "Every pool match across four groups, timed and assigned to courts, before anyone plays.",
+          "shot": "15_advanced_schedule_full",
+          "alt": "The generated schedule for a fifteen-team, four-group event"
+        },
+        {
+          "h": "Four tables at once",
+          "p": "Each group keeps its own standings, and qualification is read off all four together.",
+          "shot": "16_advanced_standings_table",
+          "alt": "Standings tables for four groups side by side"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick TournaQ Classics.",
+    "Tap <strong>New Tournament</strong>.",
+    "Add the teams and choose how many groups to split them into.",
+    "Set the courts, match format and how many from each group qualify.",
+    "Check the schedule preview — it covers the pool stage and the bracket.",
+    "Name the event and tap <strong>Create Tournament</strong>.",
+    "Score the pool matches; each group's table updates as results land.",
+    "When the pools finish, the bracket fills itself from the qualification rule.",
+    "Play the knockout through to the final.",
+    "Read the final standings across the whole event."
+  ],
+  "feedback": "Have a question about TournaQ Classics, spotted something missing, or want to suggest an improvement?"
+}

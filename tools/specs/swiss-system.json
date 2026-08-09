@@ -1,0 +1,168 @@
+{
+  "slug": "swiss-system",
+  "out": "pages/modes/swiss-system.html",
+  "depth": 2,
+  "folder": "11_swiss_system",
+  "title": "Swiss Systems",
+  "subtitle": "Nobody is eliminated. Every round pairs you against someone on your own record.",
+  "status": "available",
+  "hero": {
+    "shot": "04_rounds",
+    "alt": "A Swiss system in progress showing the round schedule and current pairings"
+  },
+  "intro": [
+    "A full ranking from a handful of rounds, without knocking anyone out. After each round teams are re-paired against others with the same record, so the winners meet the winners and the field sorts itself.",
+    "It means every game stays close — you are always playing someone who has had the same kind of day as you — and everybody plays the same number of matches, right to the end. TournaQ does the pairing after each round, including the awkward cases where the numbers do not divide."
+  ],
+  "bestfor": [
+    "Large fields with limited time — a Swiss ranks everyone in far fewer rounds than a round robin",
+    "Events where knocking half the field out after one loss would empty the venue",
+    "Mixed-ability fields that sort themselves into competitive matches within a round or two"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Swiss Systems live under Team Competitions in the Arena. The hub keeps every event you have run.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with Swiss Systems under Team Competitions"
+        },
+        {
+          "h": "The Swiss hub",
+          "p": "New Tournament starts an event. Below it sits your history, each entry showing the date, the team count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Swiss Systems hub listing past events above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "nav": "The format",
+      "title": "Paired by record, round after round",
+      "text": "Everyone starts level. After round one the winners are in one bucket and the losers in another, and each round splits the field a little further.",
+      "cards": [
+        {
+          "h": "How the field sorts itself",
+          "p": "Read it left to right: round one is drawn at random, then every round after pairs teams inside their own score group. A dashed line is a team floated down because its group had an odd number. By the last round the buckets are the ranking, and every match along the way was between teams with the same record.",
+          "shot": "11_standings_chart",
+          "wide": true,
+          "alt": "Three Swiss rounds side by side, each grouping teams into score buckets, resolving into final standings"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Add the teams and choose how many rounds. That is the whole decision — the pairings are worked out as you go, not in advance.",
+      "cards": [
+        {
+          "h": "Teams, rounds, courts",
+          "p": [
+            "Team count, number of rounds, courts and match format. Fewer rounds is a rougher ranking, more rounds is a sharper one; the preview tells you what each costs in time.",
+            "There is no draw to seed, because after round one the results do the seeding."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete Swiss setup form covering teams, rounds, courts and match format"
+        },
+        {
+          "h": "Only round one is drawn",
+          "p": "The schedule shows round one in full and later rounds as \"paired after round 1\" and \"paired after round 2\". That is the format working as intended — it cannot know who plays whom until it knows who won.",
+          "shot": "05_rounds_full",
+          "alt": "The Swiss schedule with round one drawn and later rounds marked as not yet paired"
+        }
+      ]
+    },
+    {
+      "id": "live",
+      "nav": "Running it",
+      "title": "Running the rounds",
+      "text": "Score a round, and the next one is paired from the results. The schedule fills in ahead of you rather than existing from the start.",
+      "cards": [
+        {
+          "h": "Round by round",
+          "p": "The current round with its pairings, courts and scores, and a progress ring showing how far through the event you are.",
+          "shot": "04_rounds",
+          "alt": "The live Swiss round schedule with the progress ring and settings pills"
+        },
+        {
+          "h": "By court",
+          "p": "The same matches regrouped so each court lists its own sequence — the view to hand someone running one court all day.",
+          "shot": "06_schedule_by_court",
+          "alt": "The Swiss schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays the rounds against the courts, so a big field spread over a few courts stays legible.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which matches are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The same scorecard as everywhere else — and here it matters more, because each result decides who you play next.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted and service passes automatically when the other side scores.",
+          "shot": "07_scorecard",
+          "alt": "The Swiss scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the controls rearrange for a net post or a side table. The layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same Swiss scorecard rotated to landscape"
+        },
+        {
+          "h": "The table as it stands",
+          "p": "Standings update after every result, and they are what the next round's pairings will be built from — so the table is a preview of who you are about to play.",
+          "shot": "10_standings_table",
+          "alt": "The Swiss standings table partway through the event"
+        }
+      ]
+    },
+    {
+      "id": "standings",
+      "nav": "Result",
+      "title": "Finishing it",
+      "text": "After the last round the buckets are the ranking. Nobody was eliminated, and everyone played the same number of matches.",
+      "cards": [
+        {
+          "h": "Every round played",
+          "p": "The complete schedule with every pairing the format produced and every result recorded.",
+          "shot": "12_rounds_completed",
+          "alt": "A completed Swiss event with every round paired and played"
+        },
+        {
+          "h": "Final standings",
+          "p": "The closing order, with the winner at the top and the whole field placed — which is what a Swiss buys you that a knockout does not.",
+          "shot": "13_final_standings",
+          "alt": "The final Swiss standings with the whole field ranked"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Swiss Systems.",
+    "Tap <strong>New Tournament</strong>.",
+    "Add the teams and choose how many rounds to play.",
+    "Set the courts and match format, and check the preview.",
+    "Name the event and tap <strong>Create Tournament</strong>.",
+    "Round one is drawn immediately — score it.",
+    "When the round finishes, TournaQ pairs the next one from the results.",
+    "Repeat until the last round is played.",
+    "Read the final standings — the whole field is ranked, with nobody eliminated."
+  ],
+  "feedback": "Have a question about Swiss Systems, spotted something missing, or want to suggest an improvement?"
+}

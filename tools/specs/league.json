@@ -1,0 +1,195 @@
+{
+  "slug": "league",
+  "out": "pages/modes/league.html",
+  "depth": 2,
+  "folder": "07_league",
+  "title": "Leagues",
+  "subtitle": "Everyone plays everyone. Points decide it, not a lucky draw.",
+  "status": "available",
+  "hero": {
+    "shot": "04_table",
+    "alt": "A league in progress showing the standings table and the round schedule"
+  },
+  "intro": [
+    "Round-robin: every team meets every other team, and the table at the end is the honest one. Nobody goes home after one bad set, and nobody wins because the draw was kind to them.",
+    "TournaQ builds the fixture list, spreads it across your courts, keeps the table up to date as results land, and gives you a crosstable showing every pairing and who beat whom."
+  ],
+  "bestfor": [
+    "Club leagues and ladders where fairness matters more than drama",
+    "Small fields with plenty of time — everyone gets a full card of matches",
+    "Events where you want a defensible final ranking, not a knockout"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Leagues live under Team Competitions in the TournaQ Arena. The hub keeps every league you have run.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with Leagues under Team Competitions"
+        },
+        {
+          "h": "The Leagues hub",
+          "p": "New Tournament starts a league. Below it sits your history, each entry showing the date, the team count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Leagues hub listing past leagues above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "nav": "The format",
+      "title": "Everyone plays everyone",
+      "text": "The crosstable is the format in one picture: every team down the side, every team across the top, and the result of each meeting in the cell where they cross.",
+      "cards": [
+        {
+          "h": "The crosstable",
+          "p": "Read a row to see how one team has done against the whole field, or a column to see who has beaten them. The W-L and points-for columns on the right are what the final ranking is built from — no interpretation needed, just arithmetic everyone can check.",
+          "shot": "12_crosstable",
+          "wide": true,
+          "alt": "A league crosstable with six teams down the side and across the top, showing results, win-loss and points for"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Add the teams, say how many courts you have, and TournaQ generates the full fixture list and tells you when it will finish.",
+      "cards": [
+        {
+          "h": "Teams, courts, format",
+          "p": [
+            "Team count, courts, match format and duration. The Schedule Preview does the arithmetic — a six-team league is fifteen matches, and it will tell you what that costs in time before you commit to it.",
+            "Seeding and game format sit behind pills you can still change until play starts."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete league setup form, from teams and courts through match format and duration"
+        },
+        {
+          "h": "See the schedule before you commit",
+          "p": "The preview shows the fixture list the settings would produce, so you can check it fits the evening — and change the courts or the match length if it does not — before anyone has played a point.",
+          "shot": "90_features/13_schedule_preview_sheet",
+          "alt": "A sheet previewing the generated schedule before the tournament is created"
+        }
+      ]
+    },
+    {
+      "id": "live",
+      "nav": "Running it",
+      "title": "Running the league",
+      "text": "One screen carries the event: the table as it stands, the fixtures still to play, and which court each of them is on.",
+      "cards": [
+        {
+          "h": "The table, live",
+          "p": "Standings update as results land, with the progress ring showing how much of the league has been played. Nobody has to add anything up between rounds.",
+          "shot": "04_table",
+          "alt": "The live league table with the progress ring and settings pills"
+        },
+        {
+          "h": "Fixtures by round",
+          "p": "Every match grouped by round, with its court, its time slot and its score. Finished rounds collapse and the live one stays open.",
+          "shot": "06_schedule_by_round",
+          "alt": "The full league fixture list grouped by round"
+        },
+        {
+          "h": "Or by court",
+          "p": "The same fixtures regrouped so each court lists its own sequence — the view to hand someone running one court all afternoon.",
+          "shot": "07_schedule_by_court",
+          "alt": "The league fixtures regrouped so each court lists its own matches"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The same scorecard as everywhere else in TournaQ: big targets, the serving side marked, and undo when the call goes the other way.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted and service passes automatically when the other side scores.",
+          "shot": "08_scorecard",
+          "alt": "The league scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the controls rearrange for a net post or a side table. The layout changes, the functions do not.",
+          "shot": "09_scorecard_landscape",
+          "alt": "The same league scorecard rotated to landscape"
+        },
+        {
+          "h": "Standings any time",
+          "p": "The standings sheet is a tap away from anywhere in the league, so a team can check where they are without interrupting whoever is scoring.",
+          "shot": "11_standings_sheet",
+          "alt": "The league standings sheet showing the current table"
+        }
+      ]
+    },
+    {
+      "id": "courts",
+      "nav": "Courts",
+      "split": true,
+      "title": "Courts and conditions",
+      "text": "A league spread over several courts needs to know which court is which, and who is where.",
+      "cards": [
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays every round against every court, so you can see the shape of the afternoon and spot a team that has been given the far court four times running.",
+          "shot": "10_court_allocation",
+          "alt": "A grid of rounds against courts showing which teams are assigned where"
+        },
+        {
+          "h": "Name and manage the courts",
+          "p": "Courts can be named and taken in or out of use, which matters when one has the sun in your eyes or the club needs it back at four.",
+          "shot": "90_features/02_court_settings_sheet",
+          "alt": "The court settings sheet for naming and managing courts"
+        }
+      ]
+    },
+    {
+      "id": "standings",
+      "nav": "Result",
+      "title": "Finishing the league",
+      "text": "When the last fixture is in, the table is the result — every team has played every other, so there is nothing left to argue about.",
+      "cards": [
+        {
+          "h": "The completed table",
+          "p": "Every fixture played and every result recorded, with the progress ring at a hundred per cent.",
+          "shot": "13_table_completed",
+          "alt": "A completed league with every fixture played"
+        },
+        {
+          "h": "Final standings",
+          "p": "The closing table with the winner at the top, ordered by the record everyone could see building all afternoon.",
+          "shot": "14_final_standings",
+          "alt": "The final league standings with the winner at the top"
+        },
+        {
+          "h": "The whole picture",
+          "p": "The crosstable at the end is the archive of the event: who played whom, and what happened when they did.",
+          "shot": "12_crosstable",
+          "alt": "The completed crosstable showing every pairing and result"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Leagues.",
+    "Tap <strong>New Tournament</strong>.",
+    "Add the teams and set the courts, match format and duration.",
+    "Check the schedule preview — it shows every fixture the settings will produce.",
+    "Name the league and tap <strong>Create Tournament</strong>.",
+    "Open the first fixture and score it.",
+    "The table updates itself as each result lands.",
+    "Use the crosstable at any point to see who has beaten whom.",
+    "Play out the fixture list and read the final standings."
+  ],
+  "feedback": "Have a question about Leagues, spotted something missing, or want to suggest an improvement?"
+}

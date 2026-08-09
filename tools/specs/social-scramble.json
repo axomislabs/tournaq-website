@@ -1,6 +1,26 @@
 {
+  "slug": "social-scramble",
+  "out": "pages/modes/social-scramble.html",
   "depth": 2,
   "folder": "03_social_scramble",
+  "title": "Social Scrambles",
+  "subtitle": "Meet and connect. Compete for the top spot.",
+  "status": "available",
+  "hero": {
+    "image": "assets/brand/social-scramble-sketch-600.webp",
+    "w": 600,
+    "h": 1219,
+    "alt": "How a Social Scramble works: players gather, TournaQ shuffles them into new teams each round, and an individual ranking emerges"
+  },
+  "intro": [
+    "You turn up as a player, not as a team. TournaQ draws a new partner for you every round, balances the courts so nobody sits out more than anyone else, and keeps a ranking for every individual — so at the end there is a winner, even though the teams changed all evening.",
+    "Tell it how many players you have and how long you have got. It works out the number of rounds, the schedule, who referees, and when you will finish — and it says so up front if the plan you have asked for will not let everyone play with everyone."
+  ],
+  "bestfor": [
+    "Social beach volleyball sessions where mixing people is the whole point",
+    "Club training nights where every player should meet every other player",
+    "Groups of roughly 6 to 20 players with a fixed time slot"
+  ],
   "sections": [
     {
       "id": "find",
@@ -20,7 +40,8 @@
           "alt": "The Social Scrambles hub listing past sessions above a New Tournament button"
         }
       ],
-      "split": true
+      "split": true,
+      "nav": "Find it"
     },
     {
       "id": "setup",
@@ -43,7 +64,8 @@
           "shot": "14_setup_coverage_nudge",
           "alt": "A suggestion that six rounds will not let everyone partner with everyone, offering eighteen instead"
         }
-      ]
+      ],
+      "nav": "Set it up"
     },
     {
       "id": "overview",
@@ -69,7 +91,8 @@
           "shot": "09_court_allocation",
           "alt": "A grid of rounds against courts showing which players are assigned where"
         }
-      ]
+      ],
+      "nav": "The session"
     },
     {
       "id": "scorecard",
@@ -94,7 +117,8 @@
           "shot": "15_dialog_manual_result",
           "alt": "A dialog for entering a final score directly on the match card"
         }
-      ]
+      ],
+      "nav": "Scoring"
     },
     {
       "id": "rankings",
@@ -120,7 +144,8 @@
           "shot": "13_overview_completed",
           "alt": "A completed session with every round finished and every score recorded"
         }
-      ]
+      ],
+      "nav": "Standings"
     },
     {
       "id": "realworld",
@@ -140,7 +165,8 @@
           "shot": "90_features/05_eject_choice_dialog",
           "alt": "A dialog asking whether to re-pair the remaining rounds or leave the departing player's seat open"
         }
-      ]
+      ],
+      "nav": "When it changes"
     },
     {
       "id": "share",
@@ -166,7 +192,23 @@
           "shot": "90_features/22_hub_imported_scorecards",
           "alt": "The Social Scrambles hub with an Imported tab beside the tournament history"
         }
-      ]
+      ],
+      "nav": "Sharing"
     }
-  ]
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Social Scrambles.",
+    "Tap <strong>New Tournament</strong>.",
+    "Set the players, the time you have, the courts and the match length.",
+    "Check the schedule preview, and take the suggestion if it offers you better partner coverage.",
+    "Add the players — new names, saved ones from the Players hub, or a random fill to try it out.",
+    "Name the session and tap <strong>Create Tournament</strong>.",
+    "Tap the first match to open its scorecard, and start the timer.",
+    "Tap a side to award each point. Undo takes back the last one.",
+    "Finish the match and move straight to the next one.",
+    "Between rounds, pause anyone who needs it, or swap in someone else.",
+    "Play out the rounds and read the final rankings.",
+    "Export the tournament, or hand a single scorecard over by QR code."
+  ],
+  "feedback": "Have a question about Social Scrambles, spotted something missing, or want to suggest an improvement?"
 }

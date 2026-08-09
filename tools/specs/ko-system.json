@@ -1,0 +1,211 @@
+{
+  "slug": "ko-system",
+  "out": "pages/modes/ko-system.html",
+  "depth": 2,
+  "folder": "08_elimination_single",
+  "title": "Eliminations",
+  "subtitle": "Knockout bracket — one life, or two.",
+  "status": "available",
+  "hero": {
+    "shot": "04_bracket",
+    "alt": "An elimination bracket in progress with the first results filled in"
+  },
+  "intro": [
+    "The cleanest format there is: win and you go through, lose and you are done. Quarter-final to final in one tree that fills itself in as results land, so everyone can see exactly what they have to do next.",
+    "Choose double elimination and a first loss is not the end — it drops a team into a losers bracket, with a route back to a grand final. Same setup, same scorecard, one extra life."
+  ],
+  "bestfor": [
+    "Events with a title at the end and limited time to decide it",
+    "Fields where a seeded draw matters and the strongest teams should meet late",
+    "Doubles: giving everyone a second chance without doubling the schedule"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Eliminations live under Team Competitions in the TournaQ Arena. Single and double elimination are the same mode, chosen at setup.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with Eliminations under Team Competitions"
+        },
+        {
+          "h": "The Eliminations hub",
+          "p": "New Tournament starts a bracket. Below it sits your history, each entry showing the date, the team count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Eliminations hub listing past brackets above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "format",
+      "nav": "One life",
+      "title": "One loss and you are out",
+      "text": "The bracket is the format. Quarter-final on the left, final on the right, and every result pushing a team one step closer to it.",
+      "cards": [
+        {
+          "h": "The draw, filling itself in",
+          "p": "Teams enter on the left and the winners advance as results come in. Slots that are still undecided read TBD, so at any moment the tree shows exactly what is settled and what is not — which is the thing a printed bracket on a wall can never keep up with.",
+          "shot": "11_standings_bracket",
+          "wide": true,
+          "alt": "A single-elimination bracket from quarter-final through semi-final to the final, with two results already in"
+        }
+      ]
+    },
+    {
+      "id": "twolives",
+      "nav": "Two lives",
+      "title": "Or give everyone a second chance",
+      "text": "Double elimination runs two brackets at once. Lose in the winners bracket and you drop into the losers bracket rather than out of the event.",
+      "cards": [
+        {
+          "h": "Winners, losers, grand final",
+          "p": "The two halves run in parallel and converge on a grand final, so a team that lost early can still play its way back. It costs more matches than a straight knockout and delivers a fairer winner — which is the trade you are making when you pick it at setup.",
+          "shot": "09_elimination_double/04_bracket_canvas",
+          "wide": true,
+          "alt": "A double-elimination bracket with a winners bracket and a losers bracket converging on a grand final"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Add the teams, choose one life or two, and TournaQ builds the draw — byes included, where the field does not divide evenly.",
+      "cards": [
+        {
+          "h": "Teams, seeding, lives",
+          "p": [
+            "Team count, courts, match format, and whether a first loss ends the event. Seeding decides who meets whom, so the strongest teams do not knock each other out in round one.",
+            "Where the field is not a power of two, TournaQ works out the byes rather than making you draw them on paper."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete elimination setup form, covering teams, courts, seeding and single or double elimination"
+        },
+        {
+          "h": "The draw it produced",
+          "p": "Before a point is played you can see the whole bracket — every first-round pairing, every bye, and the path each team would take to the final.",
+          "shot": "05_bracket_full",
+          "alt": "The full generated bracket listing every round and pairing"
+        }
+      ]
+    },
+    {
+      "id": "live",
+      "nav": "Running it",
+      "title": "Running the bracket",
+      "text": "Round by round, or court by court — whichever matches how the day is actually being run.",
+      "cards": [
+        {
+          "h": "The bracket, live",
+          "p": "Standings and the tree update as results land, with the progress ring showing how much of the draw has been decided.",
+          "shot": "04_bracket",
+          "alt": "The live elimination bracket with the progress ring and settings pills"
+        },
+        {
+          "h": "By court",
+          "p": "The same matches regrouped so each court lists its own sequence — the view to hand someone running one court all day.",
+          "shot": "06_schedule_by_court",
+          "alt": "The elimination schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays the rounds against the courts, so you can see where the bottleneck is before it becomes one.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which matches are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The same scorecard as everywhere else, and the same escape hatch when a match was played while you were looking the other way.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted and service passes automatically when the other side scores.",
+          "shot": "07_scorecard",
+          "alt": "The elimination scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the controls rearrange for a net post or a side table. The layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same elimination scorecard rotated to landscape"
+        },
+        {
+          "h": "Or enter the result",
+          "p": "Type the final score straight in and the bracket advances exactly as if you had tapped through every rally.",
+          "shot": "90_features/20_manual_result_dialog",
+          "alt": "A dialog for entering a final score without opening the scorecard"
+        }
+      ]
+    },
+    {
+      "id": "standings",
+      "nav": "Result",
+      "title": "Deciding it",
+      "text": "The bracket resolves itself. When the final is played there is nothing to calculate — the tree already says who won.",
+      "cards": [
+        {
+          "h": "Standings alongside",
+          "p": "A table view sits next to the tree for anyone who would rather read a list than follow lines across a screen.",
+          "shot": "10_standings_table",
+          "alt": "The elimination standings as a table"
+        },
+        {
+          "h": "The completed bracket",
+          "p": "Every match played and every result in place, from the first round through to the final.",
+          "shot": "12_bracket_completed",
+          "alt": "A completed elimination bracket with every result filled in"
+        },
+        {
+          "h": "Final standings",
+          "p": "The closing order, with the winner at the top and everyone placed by how far they got.",
+          "shot": "13_final_standings",
+          "alt": "The final elimination standings with the winner at the top"
+        }
+      ]
+    },
+    {
+      "id": "share",
+      "nav": "Sharing",
+      "split": true,
+      "title": "Reusing and sharing it",
+      "text": "A bracket you run every month is worth keeping, and a result scored on someone else's phone is worth taking back.",
+      "cards": [
+        {
+          "h": "Run it again next time",
+          "p": "Copy a tournament and you get its settings, its courts and its format as a fresh event — so the monthly open takes a minute to set up rather than a rebuild from scratch.",
+          "shot": "90_features/19_copy_tournament_sheet",
+          "alt": "The copy tournament sheet, duplicating an event as a template for the next one"
+        },
+        {
+          "h": "Scores from another phone",
+          "p": "A scorecard scored on someone else's device arrives marked as imported, so a bracket run across two phones can be folded back into one.",
+          "shot": "90_features/21_imported_scorecard",
+          "alt": "A scorecard that arrived from another device, marked as imported"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Eliminations.",
+    "Tap <strong>New Tournament</strong>.",
+    "Add the teams, set the courts and match format, and choose single or double elimination.",
+    "Seed the draw if it matters who meets whom.",
+    "Check the generated bracket, byes included.",
+    "Name the event and tap <strong>Create Tournament</strong>.",
+    "Open the first match and score it — or enter the result directly.",
+    "Winners advance automatically; in double elimination, losers drop to the second bracket.",
+    "Play through to the final and read the final standings.",
+    "Copy the tournament if you want to run the same event again."
+  ],
+  "feedback": "Have a question about Eliminations, spotted something missing, or want to suggest an improvement?"
+}

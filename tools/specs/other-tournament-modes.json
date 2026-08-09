@@ -1,0 +1,24 @@
+{
+  "slug": "other-tournament-modes",
+  "out": "pages/modes/other-tournament-modes.html",
+  "depth": 2,
+  "folder": "00_shell",
+  "title": "Other Tournament Modes",
+  "subtitle": "The formats we have not built yet — and how to argue for yours.",
+  "hero": {
+    "shot": "04_arena",
+    "alt": "The TournaQ Arena showing the nine formats the app runs today"
+  },
+  "intro": [
+    "TournaQ runs nine formats today: Quick Games, four social formats where you enter as a player, and four team competitions. They are listed in the Arena, and each one has its own page here.",
+    "This page is for everything else. Beach volleyball is played a hundred different ways, and plenty of good formats are missing — pool-to-pool progressions, handicapped ladders, mixed-format days, whatever your club has been running on a whiteboard for years.",
+    "If a format you rely on is not here, tell us what it is and how it works. Formats get built because someone described the rules and the problem they solve, not because they appeared on a roadmap."
+  ],
+  "bestfor": [
+    "Telling us about a format your club runs that TournaQ cannot",
+    "Explaining the rule that makes an existing mode not quite fit",
+    "Asking whether something is planned before you build a workaround"
+  ],
+  "sections": [],
+  "feedback": "Running a format TournaQ does not support? Describe how it works and we will look at building it."
+}

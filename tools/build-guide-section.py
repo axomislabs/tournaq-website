@@ -59,7 +59,7 @@ def shot_markup(rel, depth, alt, wide, indent, sizes=None):
     # A landscape shot needs the opposite — the cap would shrink it to a stamp.
     portrait = aspect > 1
     cls = ' class="vertical"' if (portrait and not wide and not long_shot) else ''
-    if not portrait and sizes is None:
+    if not portrait and sizes is None and not wide:
         sizes = '(max-width: 760px) 90vw, 380px'
     img = (
         '%s<img src="%s%s"\n'
@@ -78,8 +78,8 @@ def shot_markup(rel, depth, alt, wide, indent, sizes=None):
     return img
 
 
-def main():
-    spec = json.load(open(sys.argv[1], encoding='utf-8'))
+def render(spec):
+    """The <section> blocks for one page, as HTML."""
     depth, folder = spec.get('depth', 2), spec.get('folder', '')
     out = []
 
@@ -126,7 +126,12 @@ def main():
         out.append('    </section>')
         out.append('')
 
-    print('\n'.join(out))
+    return '\n'.join(out)
+
+
+def main():
+    spec = json.load(open(sys.argv[1], encoding='utf-8'))
+    print(render(spec))
 
 
 if __name__ == '__main__':

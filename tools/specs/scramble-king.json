@@ -1,0 +1,181 @@
+{
+  "slug": "scramble-king",
+  "out": "pages/modes/scramble-king.html",
+  "depth": 2,
+  "folder": "04_scramble_king",
+  "title": "Scramble Kings",
+  "subtitle": "Fresh teams every round. King of the Court on every court. One pool, constant motion.",
+  "status": "available",
+  "hero": {
+    "shot": "04_overview",
+    "alt": "A Scramble Kings session in progress, showing paired teams, the strike target and the round schedule"
+  },
+  "intro": [
+    "Two formats at once. The whole pool is scrambled into fresh pairs every round, the way a Social Scramble does it — and then each court is played as King of the Court, so holding on is worth points.",
+    "It means you get a new partner all evening and still have something to defend while you are on court. TournaQ draws the pairs, runs the queue on every court at the same time, and keeps one individual ranking across the lot."
+  ],
+  "bestfor": [
+    "Bigger groups across several courts who want movement and a scoreboard",
+    "Sessions where a plain scramble feels too gentle and a straight king feels too static",
+    "Clubs mixing abilities — new pairs each round keep the games level"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Scramble Kings lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena, with Scramble Kings under Single Competitions and Socials"
+        },
+        {
+          "h": "The Scramble Kings hub",
+          "p": "New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Scramble Kings hub listing past sessions above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Set the pool, the courts and the strike target. TournaQ draws the pairs and works out how many rounds fit in the time you have.",
+      "cards": [
+        {
+          "h": "One form for both halves",
+          "p": [
+            "The scramble settings — players, rounds, how often partners change — sit next to the king settings: the strike target, the swap rule and the jumper. Every field feeds the Schedule Preview, so the finish time moves as you decide.",
+            "Nothing is mandatory beyond players and time; the defaults produce a sensible session on their own."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete Scramble Kings setup form, from the pool and courts through the strike target and swap rule"
+        },
+        {
+          "h": "The pairs it drew",
+          "p": "Each round produces a fresh set of teams, and the teams sheet shows exactly who has been put with whom. It is the answer to \"who am I with this round?\" without anyone having to ask.",
+          "shot": "14_teams_sheet",
+          "alt": "The teams sheet showing the pairs drawn for the round"
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "nav": "The session",
+      "title": "The session at a glance",
+      "text": "One screen carries several courts at once: how far along you are, which pairs are where, who is queuing, and when you will finish.",
+      "cards": [
+        {
+          "h": "Progress and settings in one row",
+          "p": "Rounds complete, a progress ring and a row of pills — standings, allocation, teams, player count, format, strike target, swap rule and estimated finish. A pill with a pencil can still be changed; one with a lock was fixed when play started.",
+          "shot": "04_overview",
+          "alt": "Scramble Kings overview showing one of four rounds complete, thirteen players and the settings pills"
+        },
+        {
+          "h": "Round by round, or court by court",
+          "p": "The schedule groups by round out of the box. Switch it to Court and each court lists its own sequence — which is the view you want when three courts are running their own king at once.",
+          "shot": "06_overview_by_court",
+          "alt": "The Scramble Kings schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays every round against every court. With a big pool spread over several courts, this is the screen that shows whether the draw is treating everyone equally.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which pairs are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "Each court runs its own king: the pair on, the pair challenging, and the queue behind them, with the scoring controls under your thumb.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "The court, the challengers and the queue on one screen, with the session timer in the header. Tap to score, undo to take it back, and the strike count updates as you go.",
+          "shot": "07_scorecard",
+          "alt": "The Scramble Kings court card in portrait, showing the pairs on court, the challengers and the queue"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same Scramble Kings court card rotated to landscape"
+        },
+        {
+          "h": "Strikes",
+          "p": "A strike is what ends a hold. TournaQ announces it, banks the points and moves the court on, so nobody has to keep a tally in their head while playing.",
+          "shot": "16_dialog_strike",
+          "alt": "A dialog announcing a strike and moving the court on"
+        }
+      ]
+    },
+    {
+      "id": "rotation",
+      "nav": "The queue",
+      "split": true,
+      "title": "Fresh pairs, moving queue",
+      "text": "Two things rotate here: the partners between rounds, and the challengers within a round. Both are handled for you.",
+      "cards": [
+        {
+          "h": "Challengers rotate automatically",
+          "p": "When a hold ends the next pair comes on and the card says who they are. Nobody has to remember whose turn it was, and nobody quietly skips the queue.",
+          "shot": "15_dialog_challenger_rotated",
+          "alt": "A dialog confirming that the next pair has rotated onto court"
+        },
+        {
+          "h": "The player list is the control panel",
+          "p": "Everyone in the session with their games played and points so far. Each row carries the four things you need mid-evening: pause a player, correct a name, swap them with someone else, or take them out.",
+          "shot": "10_roster_sheet",
+          "alt": "The player sheet listing everyone with games played, points and per-player actions"
+        }
+      ]
+    },
+    {
+      "id": "rankings",
+      "nav": "Standings",
+      "title": "Standings, live and final",
+      "text": "Partners change every round, so the ranking is individual — points follow the player, not the pair.",
+      "cards": [
+        {
+          "h": "Live standings",
+          "p": "Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.",
+          "shot": "11_rankings",
+          "alt": "Live individual standings partway through a Scramble Kings session"
+        },
+        {
+          "h": "Final rankings",
+          "p": "When the last round is in, the table closes with the winner at the top: the player who held court most across every partner they were given.",
+          "shot": "12_final_rankings",
+          "alt": "The final individual ranking table at the end of a Scramble Kings session"
+        },
+        {
+          "h": "The finished session",
+          "p": "The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month's session has an answer.",
+          "shot": "13_overview_completed",
+          "alt": "A completed Scramble Kings session with every round played and every score recorded"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Scramble Kings.",
+    "Tap <strong>New Tournament</strong>.",
+    "Set the players, courts and match length, then the strike target and the swap rule.",
+    "Add the players and name the session.",
+    "Tap <strong>Create Tournament</strong>.",
+    "Check the teams sheet to see the pairs it drew for round one.",
+    "Open a court and start the timer.",
+    "Tap to award each point; undo takes back the last one.",
+    "A strike ends the hold — the next pair rotates on automatically.",
+    "New partners are drawn for the next round; play it out and read the final rankings."
+  ],
+  "feedback": "Have a question about Scramble Kings, spotted something missing, or want to suggest an improvement?"
+}

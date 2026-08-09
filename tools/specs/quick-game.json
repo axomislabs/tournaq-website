@@ -1,0 +1,128 @@
+{
+  "slug": "quick-game",
+  "out": "pages/modes/quick-game.html",
+  "depth": 2,
+  "folder": "02_quick_games",
+  "title": "Quick Game",
+  "subtitle": "Two teams, one court. Start scoring in seconds — no tournament setup needed.",
+  "status": "available",
+  "hero": {
+    "shot": "06_scorecard",
+    "alt": "A Quick Game scorecard mid-rally, with the serving side highlighted"
+  },
+  "intro": [
+    "Sometimes there is no tournament. Two teams, one match, and nobody wants to spend ten minutes setting things up first.",
+    "Name the sides or let TournaQ generate them, pick a target score if you care, and start. Points, sets, serve and side changes are all tracked, and the finished match lands in your history with the full score for every set."
+  ],
+  "bestfor": [
+    "A single match where a tournament would be overkill",
+    "Training games where you just want the score kept honestly",
+    "Trying the app out before running a real session"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Quick Games sit at the top of the TournaQ Arena, above the tournament formats. The list keeps every match you have scored.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with Quick Games at the top"
+        },
+        {
+          "h": "Your matches",
+          "p": "Every game you have scored, most recent first, with the final score and the date. Tap one to see the full set-by-set result.",
+          "shot": "01_games",
+          "alt": "The Quick Games list showing previously scored matches"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Start one",
+      "split": true,
+      "title": "Starting a match",
+      "text": "One sheet, and most of it is optional. The only thing you truly need is two team names — and TournaQ will invent those if you want.",
+      "cards": [
+        {
+          "h": "The quick start sheet",
+          "p": [
+            "Target score, number of sets, and who serves first. Leave them alone and the defaults are a normal game; change them and the scorecard follows.",
+            "There is no schedule to build and no players to register — this is the shortest path in the app between opening it and keeping score."
+          ],
+          "shot": "03_quick_start_sheet",
+          "alt": "The quick start sheet with target score, sets and serve settings"
+        },
+        {
+          "h": "Name the sides, or don't",
+          "p": "Type the two team names, pull in a pair you have saved, or tap generate and let TournaQ name them. It is the difference between starting now and starting in a minute.",
+          "shot": "04_quick_start_teams",
+          "alt": "Team naming in Quick Game setup, with an option to generate random names"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring the match",
+      "text": "Built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted, service passes automatically when the other side scores, and the set score sits above the running total.",
+          "shot": "06_scorecard",
+          "alt": "The Quick Game scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "07_scorecard_landscape",
+          "alt": "The same Quick Game scorecard rotated to landscape"
+        },
+        {
+          "h": "Change ends",
+          "p": "When the combined score reaches the side-change point TournaQ says so and swaps the counters for you, so the scoreboard still matches which side of the net each team is standing on.",
+          "shot": "09_dialog_switch_sides",
+          "alt": "A dialog prompting the teams to change ends, with the counters swapping automatically"
+        }
+      ]
+    },
+    {
+      "id": "finish",
+      "nav": "Finishing",
+      "split": true,
+      "title": "Finishing and keeping it",
+      "text": "The match ends itself when someone reaches the target, and what happened is kept on the device without you saving anything.",
+      "cards": [
+        {
+          "h": "Game won",
+          "p": "Reach the target and TournaQ calls it, showing the final score for the set and the match. Nothing is submitted anywhere — the result is simply recorded on the phone that kept it.",
+          "shot": "10_dialog_game_won",
+          "alt": "A dialog announcing the winning team and the final score"
+        },
+        {
+          "h": "Your history",
+          "p": "Every finished match stays in the list with the full score for each set, so a disagreement about last Tuesday has an answer. It works with no signal, because nothing ever left the device.",
+          "shot": "02_games_full",
+          "alt": "The full Quick Games history with the score of every recorded match"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and tap Quick Games.",
+    "Tap <strong>New Game</strong>.",
+    "Name the two sides, or tap generate.",
+    "Set a target score and number of sets if you want something other than the default.",
+    "Start the match.",
+    "Tap a side to award each point; undo takes back the last one.",
+    "Change ends when TournaQ prompts — the counters swap themselves.",
+    "The match ends when a side reaches the target.",
+    "The result is saved to your history automatically."
+  ],
+  "feedback": "Have a question about Quick Games, spotted something missing, or want to suggest an improvement?"
+}

@@ -1,0 +1,207 @@
+{
+  "slug": "king-of-the-court",
+  "out": "pages/modes/king-of-the-court.html",
+  "depth": 2,
+  "folder": "05_king_of_the_court",
+  "title": "Kings of the Court",
+  "subtitle": "Hold the court. Score points. Stay on top — until someone knocks you off.",
+  "status": "available",
+  "hero": {
+    "shot": "04_overview",
+    "alt": "A Kings of the Court session in progress, showing the strike target, the challenger queue and the round schedule"
+  },
+  "intro": [
+    "Win and you stay on. Lose and you go straight to the back of the queue. Points only count while you are holding the court, so the pressure sits with whoever is winning — which is what makes it hard to stop playing.",
+    "TournaQ keeps the queue, rotates the challengers, counts the strikes and tracks who has been on court longest. You set the strike target and the rotation rule; the app handles who is up next so nobody has to referee the order."
+  ],
+  "bestfor": [
+    "High-energy sessions where the queue never stops moving",
+    "Mixed-ability groups — a strong pair holding court raises everyone's level",
+    "Warm-ups and open sessions where people arrive and leave throughout"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Kings of the Court lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena, with every format grouped by the kind of session it suits",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run."
+        },
+        {
+          "h": "The Kings of the Court hub",
+          "p": "New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Kings of the Court hub listing past sessions above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Set the strike target and how often the court swaps, and TournaQ works out the rounds, the queue and the finish time.",
+      "cards": [
+        {
+          "h": "Strikes, swaps and the clock",
+          "p": [
+            "The strike target decides how long a pair can hold the court before the sides change, and the swap rule decides how the queue feeds in. Both sit alongside the usual players, courts and match duration.",
+            "Every field feeds the Schedule Preview, so the predicted finish moves as you change your mind — no working out how many rounds fit in the time you have."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete Kings of the Court setup form, from players and courts through the strike target and swap rule"
+        },
+        {
+          "h": "Who is playing",
+          "p": "Add players by name, pull them from your saved Players hub, or fill the session with random names to try the format out. The list stays editable all the way through.",
+          "shot": "10_roster_sheet",
+          "alt": "The player sheet listing everyone in the session with their games played and points"
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "nav": "The session",
+      "title": "The session at a glance",
+      "text": "One screen carries the session: how far along you are, who is holding each court, who is queuing, and when you will be done.",
+      "cards": [
+        {
+          "h": "Progress and settings in one row",
+          "p": "Rounds complete, a progress ring, and a row of pills — standings, allocation, players, format, strike target, swap rule and estimated finish. A pill with a pencil can still be changed; one with a lock was fixed when play started.",
+          "shot": "04_overview",
+          "alt": "Kings of the Court overview showing one of four rounds complete, a 25% ring and the settings pills"
+        },
+        {
+          "h": "Round by round, or court by court",
+          "p": "The schedule groups by round out of the box. Switch it to Court and each court lists its own sequence — useful when several courts run at once and each has its own king.",
+          "shot": "06_overview_by_court",
+          "alt": "The Kings of the Court schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays every round against every court, so you can see the shape of the session and spot a player who has spent the evening in the queue.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which players are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The court card shows who is on, who is challenging and who is up next, with the scoring controls under your thumb.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "The court, the challengers and the queue on one screen, with the session timer in the header. Tap to score, undo to take it back, and the strike count updates as you go.",
+          "shot": "07_scorecard",
+          "alt": "The Kings of the Court card in portrait, showing the court, the challengers and the queue"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same Kings of the Court card rotated to landscape"
+        },
+        {
+          "h": "Game won",
+          "p": "When a game is won TournaQ says so, banks the points and moves the queue on. The court knows immediately who stays and who steps off.",
+          "shot": "15_dialog_game_won",
+          "alt": "A dialog announcing the winner of a game and moving the queue on"
+        }
+      ]
+    },
+    {
+      "id": "rotation",
+      "nav": "The queue",
+      "split": true,
+      "title": "Keeping the queue honest",
+      "text": "The queue is the format. TournaQ runs it, and lets you override it when the evening does not go to plan.",
+      "cards": [
+        {
+          "h": "Challengers rotate automatically",
+          "p": "When a game ends the next challengers come on and the card tells you who they are. Nobody has to remember whose turn it was, and nobody quietly skips the queue.",
+          "shot": "14_dialog_challenger_rotated",
+          "alt": "A dialog confirming that the next challengers have rotated onto court"
+        },
+        {
+          "h": "Or change them yourself",
+          "p": "Somebody is tying a shoelace, somebody else has just arrived. Swap the challenging pair by hand and the queue picks up from there without losing anyone's place.",
+          "shot": "90_features/09_challenger_change_dialog",
+          "alt": "A dialog for swapping the challenging pair by hand"
+        }
+      ]
+    },
+    {
+      "id": "realworld",
+      "nav": "When it changes",
+      "title": "When the session changes",
+      "text": "People arrive late, roll an ankle, or have to leave at six. A session that cannot absorb that is one someone ends up re-planning on paper.",
+      "cards": [
+        {
+          "h": "Someone needs a break",
+          "p": "Put a player on a break for one round or until you bring them back. Their seat becomes an open placeholder so the court still plays, and every point they have already banked stays with them.",
+          "shot": "90_features/06_take_a_break_dialog",
+          "alt": "A dialog putting a player on a break for one round or until they are brought back"
+        },
+        {
+          "h": "And comes back",
+          "p": "Return them and they slot back into the queue. Nothing is reshuffled and nobody else's position moves.",
+          "shot": "90_features/07_return_from_break_dialog",
+          "alt": "A dialog bringing a player back from a break"
+        },
+        {
+          "h": "Someone steps in",
+          "p": "A stand-in can take an open seat on a live court, so a round runs on time instead of playing three against four while you find somebody.",
+          "shot": "90_features/08_stand_in_seat",
+          "alt": "A stand-in occupying an open seat on a live court"
+        }
+      ]
+    },
+    {
+      "id": "rankings",
+      "nav": "Standings",
+      "title": "Standings, live and final",
+      "text": "Points are banked while you hold the court, so the ranking rewards staying on — and everyone's record is individual.",
+      "cards": [
+        {
+          "h": "Live standings",
+          "p": "Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.",
+          "shot": "11_rankings",
+          "alt": "Live individual standings partway through the session"
+        },
+        {
+          "h": "Final rankings",
+          "p": "When the session ends the table closes with the winner at the top: whoever held the court longest and scored most while they were on it.",
+          "shot": "12_final_rankings",
+          "alt": "The final ranking table at the end of the session"
+        },
+        {
+          "h": "The finished session",
+          "p": "The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month's session has an answer.",
+          "shot": "13_overview_completed",
+          "alt": "A completed session with every round played and every score recorded"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Kings of the Court.",
+    "Tap <strong>New Tournament</strong>.",
+    "Set the players, courts and match length, then the strike target and the swap rule.",
+    "Add the players and name the session.",
+    "Tap <strong>Create Tournament</strong>.",
+    "Open the first court and start the timer.",
+    "Tap to award each point; undo takes back the last one.",
+    "Finish the game — the winner stays on and the next challengers rotate in.",
+    "Put anyone who needs it on a break, or swap the challengers by hand.",
+    "Play out the rounds and read the final rankings."
+  ],
+  "feedback": "Have a question about Kings of the Court, spotted something missing, or want to suggest an improvement?"
+}

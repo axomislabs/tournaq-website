@@ -1,0 +1,181 @@
+{
+  "slug": "doghouse",
+  "out": "pages/modes/doghouse.html",
+  "depth": 2,
+  "folder": "06_doghouse",
+  "title": "Doghouses",
+  "subtitle": "Lose to enter. Score to escape. Keep the heat on.",
+  "status": "available",
+  "hero": {
+    "shot": "04_overview",
+    "alt": "A Doghouse session in progress, showing the escape target, the loss limit and the round schedule"
+  },
+  "intro": [
+    "Lose a game and you are in the doghouse. Get back out by scoring your way clear — and if you cannot, the loss limit eventually ejects you. It is continuous play with a running consequence, which is what stops a social session drifting into pat-ball.",
+    "Set the escape points and the loss limit, and TournaQ runs the rest: who is on court, who is queuing, who has just gone in and who has just got out. Every player carries their own record, so the ranking at the end is individual."
+  ],
+  "bestfor": [
+    "Sessions with a competitive edge where nobody wants an easy game",
+    "Groups that want continuous play with no downtime between rounds",
+    "Anywhere a bit of jeopardy makes people try harder"
+  ],
+  "sections": [
+    {
+      "id": "find",
+      "nav": "Find it",
+      "split": true,
+      "title": "Finding it in the app",
+      "text": "Doghouses lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.",
+      "cards": [
+        {
+          "h": "The Arena",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena, with every format grouped by the kind of session it suits",
+          "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run."
+        },
+        {
+          "h": "The Doghouses hub",
+          "p": "New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.",
+          "shot": "01_hub",
+          "alt": "The Doghouses hub listing past sessions above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "nav": "Set it up",
+      "split": true,
+      "title": "Setting it up",
+      "text": "Two numbers define a Doghouse: how many points get you out, and how many losses put you out for good. Everything else is the usual — players, courts, time.",
+      "cards": [
+        {
+          "h": "The rules, and the arithmetic",
+          "p": [
+            "Escape points and the loss limit sit alongside players, courts, rounds and match duration. Change any of them and the Schedule Preview re-does the sums, so the predicted finish time moves as you decide how long you want to play.",
+            "Set the escape target low and the doghouse empties fast; set it high and people stay in it, which is usually where the shouting starts."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete Doghouse setup form, from players and courts through escape points and the loss limit"
+        },
+        {
+          "h": "Who is playing",
+          "p": "Add players by name, pull them from your saved Players hub, or fill the session with random names to try the format out. The list is editable all the way through the session, not just at the start.",
+          "shot": "10_roster_sheet",
+          "alt": "The player sheet listing everyone in the session with their games played and points"
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "nav": "The session",
+      "title": "The session at a glance",
+      "text": "Once it starts, one screen carries the session: how far along you are, who is on which court, who is sitting out, and when you will be done.",
+      "cards": [
+        {
+          "h": "Progress and settings in one row",
+          "p": "Rounds complete, a progress ring, and a row of pills — standings, allocation, players, format, escape points, loss limit and estimated finish. A pill with a pencil can still be changed; one with a lock was fixed when play started.",
+          "shot": "04_overview",
+          "alt": "Doghouse overview showing one of four rounds complete, a 25% ring and the settings pills"
+        },
+        {
+          "h": "Round by round, or court by court",
+          "p": "The schedule groups by round out of the box. Switch it to Court and each court lists its own sequence instead — the view to hand someone refereeing one court all session.",
+          "shot": "06_overview_by_court",
+          "alt": "The Doghouse schedule regrouped so each court lists its own matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays every round against every court. It is the whole session on one screen, and the place you notice someone has been sitting out too often.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which players are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "nav": "Scoring",
+      "title": "Scoring a match",
+      "text": "The scorecard is built for one hand at the side of a court: big targets, the running score, and the rotation handled for you as games finish.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The timer runs in the header, the doghouse state is visible on the card, and undo takes back the last point when the call goes the other way.",
+          "shot": "07_scorecard",
+          "alt": "The Doghouse scorecard in portrait with the running score and the session timer"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same Doghouse scorecard rotated to landscape"
+        },
+        {
+          "h": "The queue moves itself",
+          "p": "When a game ends the next players are rotated in automatically and the card tells you who is up. Nobody has to remember whose turn it was.",
+          "shot": "14_dialog_challenger_rotated",
+          "alt": "A dialog confirming that the next players have rotated onto court"
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "nav": "In and out",
+      "split": true,
+      "title": "Into the doghouse, and out again",
+      "text": "The two moments that define the format, and TournaQ announces both so the court knows where it stands without anyone keeping count.",
+      "cards": [
+        {
+          "h": "Escaped",
+          "p": "Score your way to the escape target and you are out, back into normal play with a clean slate. The dialog names who got out, so the rest of the court knows the pecking order has changed.",
+          "shot": "15_dialog_escaped",
+          "alt": "A dialog announcing that a player has escaped the doghouse"
+        },
+        {
+          "h": "Out on the loss limit",
+          "p": "Hit the loss limit and you are ejected from the session. Games already played still count towards the ranking, so a bad run does not erase what came before it.",
+          "shot": "16_dialog_ejected_loss_limit",
+          "alt": "A dialog announcing that a player has been ejected after reaching the loss limit"
+        }
+      ]
+    },
+    {
+      "id": "rankings",
+      "nav": "Standings",
+      "title": "Standings, live and final",
+      "text": "Every player carries their own record, so the ranking is individual even though the teams change all session.",
+      "cards": [
+        {
+          "h": "Live standings",
+          "p": "Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.",
+          "shot": "11_rankings",
+          "alt": "Live individual standings partway through the session"
+        },
+        {
+          "h": "Final rankings",
+          "p": "When the last game is in, the table closes with the winner at the top — the player who spent the least time in the doghouse and the most time scoring.",
+          "shot": "12_final_rankings",
+          "alt": "The final ranking table at the end of the session"
+        },
+        {
+          "h": "The finished session",
+          "p": "The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month's session has an answer.",
+          "shot": "13_overview_completed",
+          "alt": "A completed session with every round played and every score recorded"
+        }
+      ]
+    }
+  ],
+  "workflow": [
+    "Open the <strong>TournaQ Arena</strong> and pick Doghouses.",
+    "Tap <strong>New Tournament</strong>.",
+    "Set the players, courts and match length, then the escape points and the loss limit.",
+    "Add the players and name the session.",
+    "Tap <strong>Create Tournament</strong>.",
+    "Open the first match and start the timer.",
+    "Tap a side to award each point; undo takes back the last one.",
+    "Finish the game — the next players rotate on automatically.",
+    "Watch for the escape and ejection announcements as the session runs.",
+    "Play out the rounds and read the final rankings."
+  ],
+  "feedback": "Have a question about Doghouses, spotted something missing, or want to suggest an improvement?"
+}
