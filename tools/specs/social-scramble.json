@@ -6,7 +6,6 @@
       "id": "find",
       "title": "Finding it in the app",
       "text": "Social Scrambles lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every scramble you have run, so last week's session is two taps away.",
-      "cols": 2,
       "cards": [
         {
           "h": "The Arena",
@@ -20,7 +19,8 @@
           "shot": "01_hub",
           "alt": "The Social Scrambles hub listing past sessions above a New Tournament button"
         }
-      ]
+      ],
+      "split": true
     },
     {
       "id": "setup",
@@ -75,7 +75,6 @@
       "id": "scorecard",
       "title": "Scoring a match",
       "text": "Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — the scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.",
-      "cols": 2,
       "cards": [
         {
           "h": "Portrait",

@@ -60,7 +60,7 @@ def shot_markup(rel, depth, alt, wide, indent, sizes=None):
     portrait = aspect > 1
     cls = ' class="vertical"' if (portrait and not wide and not long_shot) else ''
     if not portrait and sizes is None:
-        sizes = '(max-width: 760px) 90vw, 520px'
+        sizes = '(max-width: 760px) 90vw, 380px'
     img = (
         '%s<img src="%s%s"\n'
         '%s     srcset="%s"\n'
