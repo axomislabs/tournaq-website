@@ -760,9 +760,11 @@ footer a {
 }
 
 /* A portrait phone screen. Without the cap it would render ~1180px tall in a
-   full-width card — two and a half screens of scrolling for one picture. */
+   full-width card — two and a half screens of scrolling for one picture.
+   The cap matches .shot-scroll below so that a row mixing single screens and
+   long captures reads as one set of phones rather than two sizes. */
 .guide-card img.vertical {
-    max-width: 230px;
+    max-width: 280px;
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -773,12 +775,13 @@ footer a {
    screens. Shrinking one to fit makes it unreadable and cropping it throws
    away the reason it exists, so it scrolls inside a fixed window instead. */
 .shot-scroll {
+    max-width: 280px;
     max-height: 520px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: 12px;
     background: var(--olive-light);
-    margin-top: 8px;
+    margin: 8px auto 0;
     box-shadow: inset 0 -12px 12px -12px rgba(0, 0, 0, 0.18);
 }
 
@@ -830,6 +833,6 @@ footer a {
 @media (max-width: 760px) {
     .guide-grid,
     .guide-grid-2 { grid-template-columns: 1fr; }
-    .guide-card img.vertical { max-width: 280px; }
+    /* less of the viewport goes to one capture when the grid is a single column */
     .shot-scroll { max-height: 420px; }
 }
