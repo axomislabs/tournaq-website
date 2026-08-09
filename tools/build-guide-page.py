@@ -23,6 +23,7 @@ import importlib
 _sec = importlib.import_module('build-guide-section')
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+rv = _sec.rv
 
 HEAD = '''<!DOCTYPE html>
 <!--
@@ -66,8 +67,8 @@ HEAD = '''<!DOCTYPE html>
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1>{title}</h1>
-      <p class="subtitle">{subtitle}</p>
+      <h1{rv_title}>{title}</h1>
+      <p class="subtitle"{rv_subtitle}>{subtitle}</p>
     </div>
   </header>
 
@@ -80,7 +81,7 @@ HEAD = '''<!DOCTYPE html>
 FOOT = '''    <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="{feedback_key}">{feedback}</p>
+        <p data-i18n="{feedback_key}"{rv_feedback}>{feedback}</p>
       </div>
       <a href="{contact}" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>
@@ -121,13 +122,13 @@ def lead_card(spec, depth):
 
     hero = spec.get('hero')
     copy = []
-    for para in spec.get('intro', []):
-        copy.append('          <p>%s</p>' % para)
+    for i, para in enumerate(spec.get('intro', [])):
+        copy.append('          <p%s>%s</p>' % (rv('intro/%d' % i), para))
     if spec.get('bestfor'):
         copy.append('          <h3 style="color: var(--olive-dark); margin: 22px 0 10px;">Best for</h3>')
         copy.append('          <ul style="padding-left: 20px; line-height: 1.9; font-size: 14px; margin-bottom: 0;">')
-        for item in spec['bestfor']:
-            copy.append('            <li>%s</li>' % item)
+        for i, item in enumerate(spec['bestfor']):
+            copy.append('            <li%s>%s</li>' % (rv('bestfor/%d' % i), item))
         copy.append('          </ul>')
     if spec.get('sections'):
         copy.append('')
@@ -150,7 +151,7 @@ def lead_card(spec, depth):
             out.append('               width="%d" height="%d"' % (hero['w'], hero['h']))
             out.append('               loading="eager" fetchpriority="high" decoding="async"')
             out.append('               style="width:100%; border-radius:14px; border:1px solid var(--border);"')
-            out.append('               alt="%s">' % hero['alt'])
+            out.append('               alt="%s"%s>' % (hero['alt'], rv('hero/alt', 'alt')))
         else:
             # same rule as the section cards: a bare name belongs to this page's
             # own folder, a slash means it comes from somewhere else
@@ -158,7 +159,7 @@ def lead_card(spec, depth):
             if '/' not in rel:
                 rel = '%s/%s' % (spec.get('folder', ''), rel)
             out.append(_sec.shot_markup(rel, depth, hero['alt'], False, 10,
-                                        sizes='(max-width: 760px) 90vw, 260px'))
+                                        sizes='(max-width: 760px) 90vw, 260px', path='hero'))
         out.append('        </div>')
         out.append('        <div class="split-copy">')
         out.extend(copy)
@@ -211,14 +212,17 @@ def workflow(spec):
            '      <h2 class="section-title">%s</h2>' % spec.get('workflow_title', 'Start to finish'),
            '      <div class="workflow-card">',
            '        <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">']
-    for step in spec['workflow']:
-        out.append('          <li>%s</li>' % step)
+    for i, step in enumerate(spec['workflow']):
+        out.append('          <li%s>%s</li>' % (rv('workflow/%d' % i), step))
     out += ['        </ol>', '      </div>', '    </section>', '']
     return '\n'.join(out)
 
 
 def build(path):
-    spec = json.load(open(path, encoding='utf-8'))
+    build_from_spec(json.load(open(path, encoding='utf-8')))
+
+
+def build_from_spec(spec):
     depth = spec.get('depth', 2)
     up = '../' * depth
     ctx = {
@@ -230,6 +234,9 @@ def build(path):
         'title': spec['title'],
         'subtitle': spec['subtitle'],
         'i18n_page': spec.get('i18n_page', 'modes.' + spec['slug']),
+        'rv_title': rv('title'),
+        'rv_subtitle': rv('subtitle'),
+        'rv_feedback': rv('feedback'),
         'feedback': spec.get('feedback',
                              'Spotted something missing, or want to suggest an improvement?'),
         # these keys already exist for the pages that had them; a missing one
