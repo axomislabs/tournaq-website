@@ -20,5 +20,6 @@
     "Asking whether something is planned before you build a workaround"
   ],
   "sections": [],
-  "feedback": "Running a format TournaQ does not support? Describe how it works and we will look at building it."
+  "feedback": "Running a format TournaQ does not support? Describe how it works and we will look at building it.",
+  "feedback_key": "modes.other-tournament-modes.feedback.text2"
 }

@@ -1,0 +1,123 @@
+{
+  "slug": "scoring",
+  "out": "pages/features/scoring.html",
+  "depth": 2,
+  "folder": "02_quick_games",
+  "i18n_page": "features.scoring",
+  "title": "Match Controls",
+  "subtitle": "One scorecard, every format — built for one hand at the side of a court.",
+  "status": "available",
+  "hero": {
+    "shot": "06_scorecard",
+    "alt": "The TournaQ scorecard mid-rally with the serving side highlighted"
+  },
+  "intro": [
+    "Whatever you are running — a quick game, a scramble, a knockout final — the scorecard is the same. Big targets, the serving side marked, the timer in the header, and undo for when the call goes the other way.",
+    "That consistency is the point. Someone handed a phone to referee a court does not need to be told which format they are scoring; the controls are where they were last time."
+  ],
+  "bestfor": [
+    "Scoring with one hand while standing at a net post",
+    "Handing the phone to whoever is refereeing without explaining it",
+    "Sessions where the score has to be right and nobody wants to argue"
+  ],
+  "sections": [
+    {
+      "id": "scorecards",
+      "nav": "The card",
+      "title": "The scorecard",
+      "text": "Tap a side to award the point. Service passes automatically when the other side scores, and the set score sits above the running total.",
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "The two sides, the score, the timer and the match controls on one screen. Undo takes back the last point without unwinding anything else.",
+          "shot": "06_scorecard",
+          "alt": "The scorecard in portrait with both teams and the running score"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "07_scorecard_landscape",
+          "alt": "The same scorecard rotated to landscape for a net post"
+        },
+        {
+          "h": "Splash before the whistle",
+          "p": "A match opens on its own card showing who is playing and on which court, so the phone can be handed over before anyone starts tapping.",
+          "shot": "05_scorecard_splash",
+          "alt": "The scorecard opening screen showing the teams and the court"
+        }
+      ]
+    },
+    {
+      "id": "prompts",
+      "nav": "Prompts",
+      "split": true,
+      "title": "The prompts that keep it honest",
+      "text": "Two things a paper scoresheet always gets wrong: which end each team is on, and when the game actually ended.",
+      "cards": [
+        {
+          "h": "Change ends",
+          "p": "When the combined score reaches the side-change point TournaQ says so and swaps the counters for you, so the scoreboard still matches which side of the net each team is standing on. Turn the automation off and you can swap by hand instead.",
+          "shot": "09_dialog_switch_sides",
+          "alt": "A dialog prompting the teams to change ends, with the counters swapping automatically"
+        },
+        {
+          "h": "Game won",
+          "p": "Reach the target and TournaQ calls it, showing the final score and banking the result. Nobody has to decide whether that last point finished it.",
+          "shot": "10_dialog_game_won",
+          "alt": "A dialog announcing the winning team and the final score"
+        }
+      ]
+    },
+    {
+      "id": "formats",
+      "nav": "Every format",
+      "title": "The same card, every format",
+      "text": "The scorecard adapts to the format around it without changing what the buttons do.",
+      "cards": [
+        {
+          "h": "In a scramble",
+          "p": "The card carries the round, the court and who is refereeing, plus the sitting-out list — because in a rotation format the question is always who is next.",
+          "shot": "03_social_scramble/07_scorecard",
+          "alt": "The scorecard as it appears in a Social Scramble, with the round and referee"
+        },
+        {
+          "h": "On a king court",
+          "p": "The court, the challengers and the queue behind them, with the strike count updating as you score.",
+          "shot": "05_king_of_the_court/07_scorecard",
+          "alt": "The court card in Kings of the Court, showing the challengers and the queue"
+        },
+        {
+          "h": "In a bracket",
+          "p": "The same controls under a knockout tie, with the round label and what winning it means.",
+          "shot": "08_elimination_single/07_scorecard",
+          "alt": "The scorecard as it appears in an elimination bracket"
+        }
+      ]
+    },
+    {
+      "id": "without",
+      "nav": "Without scoring",
+      "split": true,
+      "title": "When nobody scored it live",
+      "text": "A court finishes while you are refereeing another one. That should not leave a hole in the results.",
+      "cards": [
+        {
+          "h": "Enter the result directly",
+          "p": "Type the final score into the match card and the standings, brackets and tables update exactly as if the scorecard had been used. It is the same result, arrived at differently.",
+          "shot": "90_features/20_manual_result_dialog",
+          "alt": "A dialog for entering a final score without opening the scorecard"
+        },
+        {
+          "h": "Or take it from another phone",
+          "p": "A scorecard scored on someone else's device arrives marked as imported, so a session run across several phones ends up in one place.",
+          "shot": "90_features/21_imported_scorecard",
+          "alt": "A scorecard that arrived from another device, marked as imported"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/scoring.html",
+  "feature_list_title": "Every match control",
+  "feedback": "Something about scoring that does not work the way your matches do? Tell us how you score them.",
+  "feedback_key": "features.scoring.feedback.text2"
+}

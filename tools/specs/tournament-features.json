@@ -1,0 +1,168 @@
+{
+  "slug": "tournament-features",
+  "out": "pages/features/tournament-features.html",
+  "depth": 2,
+  "folder": "90_features",
+  "i18n_page": "features.tournament-features",
+  "title": "Tournament Management",
+  "subtitle": "From first draw to final result — everything an organiser touches.",
+  "status": "available",
+  "hero": {
+    "shot": "03_social_scramble/04_overview",
+    "alt": "A tournament overview with the settings pills across the top"
+  },
+  "intro": [
+    "Every tournament in TournaQ opens on the same screen: how far along you are, and a row of pills carrying every setting the event runs on — teams, players, courts, format, seeding, finish time.",
+    "Those pills are not labels. Each one opens the sheet that changes it, right up until play starts and the setting locks. This page is what sits behind each of them, and what happens to a tournament after the last match."
+  ],
+  "bestfor": [
+    "Organisers setting an event up and adjusting it once it is running",
+    "Anyone who has had to rebuild a schedule because one thing changed",
+    "Clubs running the same event repeatedly"
+  ],
+  "sections": [
+    {
+      "id": "pills",
+      "nav": "The pills",
+      "title": "The settings row",
+      "text": "The pills across the top of a tournament are the controls. A pencil means it can still be changed; a padlock means play has started and it cannot.",
+      "cards": [
+        {
+          "h": "Teams",
+          "p": "Who is in the event, and which players make up each team. Add a team, drop one, or fix a name that was typed wrong at registration.",
+          "shot": "10_teams_sheet",
+          "alt": "The teams sheet listing every team in the tournament"
+        },
+        {
+          "h": "Seeding",
+          "p": "The order teams enter the draw, which decides who meets whom and how late the strongest teams collide. Seed by hand or leave it as entered.",
+          "shot": "11_seeding_sheet",
+          "alt": "The seeding sheet setting the order teams enter the draw"
+        },
+        {
+          "h": "Courts",
+          "p": "How many courts the event has to play with. Change it mid-event and the schedule redistributes rather than breaking.",
+          "shot": "12_court_count_sheet",
+          "alt": "The court count sheet for changing how many courts the event uses"
+        },
+        {
+          "h": "Game format",
+          "p": "Points target, sets, and the shape of a match. Set once for the event so every scorecard opens with the right rules.",
+          "shot": "14_game_format_sheet",
+          "alt": "The game format sheet setting the points target and match shape"
+        },
+        {
+          "h": "Schedule preview",
+          "p": "The fixture list the current settings would produce, before anyone plays. If it does not fit the day, change the courts or the match length and look again.",
+          "shot": "13_schedule_preview_sheet",
+          "alt": "A preview of the generated schedule before the tournament is created"
+        },
+        {
+          "h": "Why a pill locks",
+          "p": "Once results exist, changing the team count or the format would invalidate them. TournaQ says so rather than silently corrupting a half-played event.",
+          "shot": "15_pill_locked_dialog",
+          "alt": "A dialog explaining why a locked setting cannot be changed once play has started"
+        }
+      ]
+    },
+    {
+      "id": "courts",
+      "nav": "Courts",
+      "title": "Courts and allocation",
+      "text": "Multi-court events live or die on who is where. TournaQ assigns the courts and shows you the whole plan on one screen.",
+      "cards": [
+        {
+          "h": "The allocation grid",
+          "p": "Every round against every court, so the shape of the day is visible at a glance — including the team that has been given the far court three times running.",
+          "shot": "01_court_allocation_grid",
+          "alt": "A grid of rounds against courts showing which teams are assigned where"
+        },
+        {
+          "h": "Name and manage courts",
+          "p": "Courts can be named and taken in or out of use, which matters when one has the sun in your eyes or the club wants it back at four.",
+          "shot": "02_court_settings_sheet",
+          "alt": "The court settings sheet for naming and managing courts"
+        },
+        {
+          "h": "Match details",
+          "p": "Tap any match for its teams, court, time slot and referee — and to reassign any of them without leaving the screen.",
+          "shot": "03_match_details_sheet",
+          "alt": "A match detail sheet showing teams, court, time slot and referee"
+        }
+      ]
+    },
+    {
+      "id": "results",
+      "nav": "Results",
+      "split": true,
+      "title": "Getting results in",
+      "text": "Not every match is scored live on the phone that owns the tournament. Both of the other routes are supported rather than tolerated.",
+      "cards": [
+        {
+          "h": "Enter a result directly",
+          "p": "Type the final score into the match card and the standings, brackets and tables update exactly as if the scorecard had been used. This is how a tournament survives a court that ran ahead while you were refereeing another.",
+          "shot": "20_manual_result_dialog",
+          "alt": "A dialog for entering a final score without opening the scorecard"
+        },
+        {
+          "h": "Or take one from another phone",
+          "p": "A scorecard scored on a second device arrives marked as imported, so an event run across several phones can be folded back into one without anyone retyping scores.",
+          "shot": "21_imported_scorecard",
+          "alt": "A scorecard that arrived from another device, marked as imported"
+        }
+      ]
+    },
+    {
+      "id": "transfer",
+      "nav": "Export",
+      "title": "Off the phone and back again",
+      "text": "A tournament lives on the device that runs it, and nothing needs a signal. There are two ways out: a spreadsheet for the whole event, or a QR code for one match.",
+      "cards": [
+        {
+          "h": "The whole event, as a spreadsheet",
+          "p": "Export writes a real .xlsx — schedule, teams and results, one row per match. Watch the event from a laptop, fill in scores away from the phone, then import the file back. TournaQ reports what it recorded, replaced and skipped rather than applying it silently.",
+          "shot": "18_workbook_menu",
+          "alt": "The tournament menu offering Import result, Export tournament and Import tournament"
+        },
+        {
+          "h": "One match, by QR",
+          "p": "Every match card carries a QR button. Show the code on one phone, scan it on another, and the scorecard travels between them — no reception, no account, nothing uploaded.",
+          "shot": "16_qr_export_sheet",
+          "alt": "A QR code sheet for handing a single scorecard to another device"
+        },
+        {
+          "h": "Importing over existing results",
+          "p": "When an import would replace results already recorded, TournaQ shows what is about to change and asks first.",
+          "shot": "17_import_override_confirm",
+          "alt": "A confirmation showing which existing results an import would replace"
+        }
+      ]
+    },
+    {
+      "id": "reuse",
+      "nav": "Reuse",
+      "split": true,
+      "title": "Running it again",
+      "text": "The event you run every month should not need rebuilding every month.",
+      "cards": [
+        {
+          "h": "Copy a tournament",
+          "p": "Duplicate a finished event and you get its settings, courts and format as a fresh one, ready for a new set of teams. The monthly open takes a minute instead of a rebuild.",
+          "shot": "19_copy_tournament_sheet",
+          "alt": "The copy tournament sheet, duplicating an event as a template for the next one"
+        },
+        {
+          "h": "Imported scorecards, kept apart",
+          "p": "Results that arrived from other devices sit on their own tab in the hub, next to your own history, so it stays obvious which were scored here and which were not.",
+          "shot": "22_hub_imported_scorecards",
+          "alt": "A mode hub with an Imported tab beside the tournament history"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/tournament-features.html",
+  "feature_list_title": "Every tournament management feature",
+  "feature_list_text": "What is live today and what is on the way, per format. The full grid is on the Platform Features Hub.",
+  "feedback": "Have a question about running a tournament in TournaQ, or something you need that is not here yet?",
+  "feedback_key": "features.tournament-features.feedback.text2"
+}

@@ -172,6 +172,37 @@ def lead_card(spec, depth):
     return '\n'.join(out)
 
 
+def preserved(spec):
+    """Lift the existing <ul class="feature-list"> off a page being rebuilt.
+
+    Those lists carry i18n keys and, on some pages, wording generated from the
+    feature matrix. Rewriting them by hand would drop the German and Spanish and
+    let the matrix and the page drift apart, so they are moved across intact.
+    """
+    src = spec.get('keep_feature_list')
+    if not src:
+        return ''
+    html = open(os.path.join(REPO, src), encoding='utf-8').read()
+    start = html.find('<ul class="feature-list">')
+    if start < 0:
+        raise SystemExit('no feature-list found in ' + src)
+    end = html.index('</ul>', start) + len('</ul>')
+    body = html[start:end]
+
+    title = spec.get('feature_list_title', 'Every feature on this page')
+    text = spec.get('feature_list_text', '')
+    out = ['    <!-- Feature list (preserved from the previous page) -->',
+           '    <section id="features" style="margin-top: 40px;">',
+           '      <h2 class="section-title">%s</h2>' % title]
+    if text:
+        out.append('      <p class="section-text">%s</p>' % text)
+    out.append('')
+    out.append('\n'.join('      ' + ln.strip() if ln.strip() else ln
+                          for ln in body.split('\n')))
+    out += ['    </section>', '']
+    return '\n'.join(out)
+
+
 def workflow(spec):
     if not spec.get('workflow'):
         return ''
@@ -213,7 +244,7 @@ def build(path):
         ctx['legal'] = '../legal.html'
 
     body = HEAD.format(**ctx) + lead_card(spec, depth)
-    body += _sec.render(spec) + workflow(spec) + FOOT.format(**ctx)
+    body += _sec.render(spec) + preserved(spec) + workflow(spec) + FOOT.format(**ctx)
 
     out_path = os.path.join(REPO, spec['out'])
     open(out_path, 'w', encoding='utf-8').write(body)

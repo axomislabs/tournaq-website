@@ -1,0 +1,124 @@
+{
+  "slug": "device-scalability",
+  "out": "pages/features/device-scalability.html",
+  "depth": 2,
+  "folder": "99_marketing",
+  "i18n_page": "features.device-scalability",
+  "title": "Device &amp; Screen",
+  "subtitle": "A phone in one hand at the net, and the same session on a bigger screen.",
+  "status": "available",
+  "hero": {
+    "shot": "04_live_scorecard",
+    "alt": "TournaQ scoring a live match on a phone"
+  },
+  "intro": [
+    "TournaQ is a phone app first, because that is what is actually at the side of a court. Every screen is built for one-handed use, and every scorecard rotates to landscape for a net post or a table.",
+    "It works with no signal at all. Data lives on the device, so a beach with no reception is a normal working environment rather than a problem to plan around."
+  ],
+  "bestfor": [
+    "Scoring outdoors with one hand and no reception",
+    "Propping a phone on a net post in landscape",
+    "Long screens — schedules and brackets — on a small display"
+  ],
+  "sections": [
+    {
+      "id": "hand",
+      "nav": "In the hand",
+      "title": "Built for one hand",
+      "text": "The controls that matter during a rally sit where a thumb reaches, on the device you already have with you.",
+      "cards": [
+        {
+          "h": "Scoring",
+          "p": "Big targets, the serving side marked, undo within reach. Everything else on the card is secondary to the two buttons you press forty times a set.",
+          "shot": "04_live_scorecard",
+          "alt": "The live scorecard on a phone, with large scoring targets"
+        },
+        {
+          "h": "Running the session",
+          "p": "Progress, settings and the schedule on one screen, so the organiser's view is a phone screen rather than a spreadsheet.",
+          "shot": "03_social_scramble_overview",
+          "alt": "A session overview on a phone showing progress and the round schedule"
+        },
+        {
+          "h": "Court allocation",
+          "p": "The whole plan — every round against every court — legible on a phone rather than requiring a laptop.",
+          "shot": "07_court_allocation",
+          "alt": "The court allocation grid on a phone"
+        }
+      ]
+    },
+    {
+      "id": "rotate",
+      "nav": "Landscape",
+      "title": "Turn it sideways",
+      "text": "Every scorecard rotates. In landscape the numbers get bigger and the layout suits a phone propped on a post, where it is read from two metres away rather than held.",
+      "cards": [
+        {
+          "h": "A quick game, rotated",
+          "p": "The same match, laid out for a net post. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "02_quick_games/07_scorecard_landscape",
+          "alt": "A Quick Game scorecard in landscape"
+        },
+        {
+          "h": "A rotation format, rotated",
+          "p": "The court, the score and the controls, sized to be read from the sideline.",
+          "shot": "03_social_scramble/08_scorecard_landscape",
+          "alt": "A Social Scramble scorecard in landscape"
+        },
+        {
+          "h": "A bracket match, rotated",
+          "p": "Same again under a knockout tie — one layout learned once, used everywhere.",
+          "shot": "08_elimination_single/08_scorecard_landscape",
+          "alt": "An elimination scorecard in landscape"
+        }
+      ]
+    },
+    {
+      "id": "long",
+      "nav": "Long screens",
+      "split": true,
+      "title": "When the screen is smaller than the content",
+      "text": "A fifteen-match schedule or a full bracket is longer than any phone. Rather than shrink it to nothing, TournaQ lets it scroll.",
+      "cards": [
+        {
+          "h": "A whole league fixture list",
+          "p": "Every fixture, every court, every time slot — several screens of it, scrolled rather than squeezed. The same page on a tablet simply shows more of it at once.",
+          "shot": "07_league/06_schedule_by_round",
+          "alt": "A full league fixture list, several phone screens long"
+        },
+        {
+          "h": "A bracket that pans and zooms",
+          "p": "Brackets and crosstables get their own canvas: pinch to zoom, drag to pan, and tap a team to trace its path. A structure that needs width gets width, instead of being folded into a list.",
+          "shot": "08_elimination_single/11_standings_bracket",
+          "alt": "An elimination bracket on a pan-and-zoom canvas"
+        }
+      ]
+    },
+    {
+      "id": "offline",
+      "nav": "Offline",
+      "split": true,
+      "title": "No signal, no account",
+      "text": "Everything above works with the phone in aeroplane mode. That is a design decision, not a limitation.",
+      "cards": [
+        {
+          "h": "It lives on the device",
+          "p": "Tournaments, players and results are stored locally. There is no sign-up, no sync to wait for and nothing to lose when the reception goes — which on a beach it will.",
+          "shot": "01_home",
+          "alt": "The TournaQ home screen on a phone"
+        },
+        {
+          "h": "Sharing without a network",
+          "p": "When something does need to move, it moves directly: a QR code between two phones, or an exported file. Nothing is uploaded anywhere.",
+          "shot": "90_features/16_qr_export_sheet",
+          "alt": "A QR code sheet for handing a scorecard to another device"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/device-scalability.html",
+  "feature_list_title": "Every device feature",
+  "feature_list_text": "Phone support ships today. Dedicated large-screen and cast-to-display layouts are on the way.",
+  "feedback": "Using TournaQ on a device that does not suit it? Tell us what you are running it on.",
+  "feedback_key": "features.device-scalability.feedback.text2"
+}

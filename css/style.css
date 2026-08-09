@@ -882,3 +882,40 @@ footer a {
     /* less of the viewport goes to one capture when the grid is a single column */
     .shot-scroll { max-height: 420px; }
 }
+
+/* ── Feature lists ──────────────────────────────────────────────────────────
+   A status pill beside a name and a sentence. Was copy-pasted inline into all
+   six feature pages plus both hubs; some of these rows are generated from the
+   feature matrix, so the markup has to stay stable. */
+.feature-list { list-style: none; margin-top: 20px; }
+
+.feature-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.feature-list li:last-child { border-bottom: 0; }
+
+.pill {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    margin-top: 2px;
+}
+
+.pill-available { background: #E8F0DC; color: #4A6B1F; }
+.pill-planned   { background: rgba(85, 107, 47, 0.12); color: var(--olive); }
+
+.feature-text { flex: 1; min-width: 0; }
+.feature-text strong { display: block; color: var(--olive-dark); font-size: 15px; margin-bottom: 3px; }
+.feature-text p { font-size: 14px; line-height: 1.6; color: var(--muted); margin: 0; }
+
+@media (max-width: 520px) {
+    .feature-list li { flex-direction: column; gap: 8px; }
+}

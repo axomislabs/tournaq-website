@@ -1,0 +1,141 @@
+{
+  "slug": "navigation",
+  "out": "pages/features/navigation.html",
+  "depth": 2,
+  "folder": "00_shell",
+  "i18n_page": "features.navigation",
+  "title": "App Navigation",
+  "subtitle": "Three destinations, and everything branches off them.",
+  "status": "available",
+  "hero": {
+    "shot": "02_home",
+    "alt": "The TournaQ home screen with its three top-level destinations"
+  },
+  "intro": [
+    "The home screen splits the app into three: TournaQ Arena for every game and tournament, Administration for players, teams and groups, and More for everything alongside them.",
+    "Every route follows the same shape — a top-level destination, then a hub, then the detail, and back the same way. No hidden paths and no dead ends, which matters when you are holding a phone in one hand at the side of a court."
+  ],
+  "bestfor": [
+    "Getting oriented before running your first session",
+    "Finding a screen you have seen once and cannot place",
+    "Knowing what lives where before you need it mid-match"
+  ],
+  "sections": [
+    {
+      "id": "home",
+      "nav": "Home",
+      "split": true,
+      "title": "Opening the app",
+      "text": "Two screens between launching TournaQ and choosing what to run.",
+      "cards": [
+        {
+          "h": "Home",
+          "p": "TournaQ Arena, Administration and More. Three cards, and everything in the app sits under one of them.",
+          "shot": "02_home",
+          "alt": "The TournaQ home screen with Arena, Administration and More"
+        },
+        {
+          "h": "The whole screen",
+          "p": "Below the three destinations sit the shortcuts to whatever you were last doing, so a session in progress is one tap from launch.",
+          "shot": "03_home_full",
+          "alt": "The full home screen including shortcuts to recent activity"
+        }
+      ]
+    },
+    {
+      "id": "arena",
+      "nav": "The Arena",
+      "title": "The Arena",
+      "text": "Every format the app can run, grouped by the kind of session it suits — and everything you have already run, underneath.",
+      "cards": [
+        {
+          "h": "Nine formats, three groups",
+          "p": "Quick Games at the top, then Single Competitions &amp; Socials where you enter as a player, then Team Competitions. The number on a card is how many of those you have run.",
+          "shot": "04_arena",
+          "alt": "The TournaQ Arena listing every format grouped into three categories"
+        },
+        {
+          "h": "History underneath",
+          "p": "The same screen carries your tournament history, grouped by mode with a count against each, so a previous event is a couple of taps away.",
+          "shot": "05_arena_full",
+          "alt": "The full Arena screen with the format cards above the tournament history"
+        },
+        {
+          "h": "Filtered history",
+          "p": "Pick a mode and the history narrows to it — the fastest route back into something you ran last month.",
+          "shot": "07_tournament_history_filtered",
+          "alt": "Tournament history filtered to a single mode"
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "nav": "History",
+      "split": true,
+      "title": "Finding an old event",
+      "text": "Nothing is deleted when a session ends. Every tournament stays on the device with all its results.",
+      "cards": [
+        {
+          "h": "All tournaments",
+          "p": "The full list across every mode, with the date, the player or team count and how far each got. Completed and in-progress events sit together, marked.",
+          "shot": "06_tournament_history",
+          "alt": "The full tournament history listing events across every mode"
+        },
+        {
+          "h": "Administration",
+          "p": "The other top-level destination: players, teams and groups saved once and reused in every format. It has its own page here.",
+          "shot": "08_administration",
+          "alt": "The Administration screen with players, teams and groups"
+        }
+      ]
+    },
+    {
+      "id": "more",
+      "nav": "More",
+      "title": "Everything else",
+      "text": "The screens that sit beside the main flow — settings, contact, and the things you look at once.",
+      "cards": [
+        {
+          "h": "More",
+          "p": "Contact &amp; About, Sponsoring &amp; Promo, and Settings. The screens you need occasionally, kept out of the way of the ones you need mid-match.",
+          "shot": "09_more",
+          "alt": "The More screen listing Contact, Sponsoring and Settings"
+        },
+        {
+          "h": "Settings",
+          "p": "Four language options — Automatic, English, Deutsch, Español — and a Privacy Options link for managing ad consent.",
+          "shot": "10_settings",
+          "alt": "The Settings screen with language options and privacy controls"
+        },
+        {
+          "h": "Contact &amp; About",
+          "p": "Social links, support channels, the legal documents and the app version, in one place.",
+          "shot": "11_contact_and_about",
+          "alt": "The Contact and About screen with support links and the app version"
+        },
+        {
+          "h": "Sponsoring &amp; Promo",
+          "p": "Advertising and partnership options, for clubs and events that want to put their name on a session.",
+          "shot": "12_sponsoring_and_promo",
+          "alt": "The Sponsoring and Promo screen"
+        },
+        {
+          "h": "Become a tester",
+          "p": "The route into the beta, for people who want the next formats before they ship.",
+          "shot": "13_become_a_tester",
+          "alt": "The Become a Tester screen"
+        },
+        {
+          "h": "Coming soon",
+          "p": "Where a format that is not built yet takes you, so the Arena never has a card that does nothing.",
+          "shot": "14_coming_soon",
+          "alt": "The Coming Soon screen shown for formats not yet built"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/navigation.html",
+  "feature_list_title": "Every navigation feature",
+  "feedback": "Lost in the app, or think a screen should be somewhere else? Tell us where you looked.",
+  "feedback_key": "features.navigation.feedback.text2"
+}

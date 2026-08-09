@@ -124,5 +124,6 @@
     "The match ends when a side reaches the target.",
     "The result is saved to your history automatically."
   ],
-  "feedback": "Have a question about Quick Games, spotted something missing, or want to suggest an improvement?"
+  "feedback": "Have a question about Quick Games, spotted something missing, or want to suggest an improvement?",
+  "feedback_key": "modes.quick-game.feedback.text2"
 }

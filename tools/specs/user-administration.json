@@ -1,0 +1,126 @@
+{
+  "slug": "user-administration",
+  "out": "pages/features/user-administration.html",
+  "depth": 2,
+  "folder": "01_admin",
+  "i18n_page": "features.user-administration",
+  "title": "Player &amp; Team Administration",
+  "subtitle": "Save players, teams and groups once — reuse them in every format.",
+  "status": "available",
+  "hero": {
+    "shot": "02_players",
+    "alt": "The Players hub listing every saved player with search and filters"
+  },
+  "intro": [
+    "Type a name once. Players, teams and groups are saved on the device and available in every mode, so setting up next week's session is a matter of picking people rather than typing them again.",
+    "It all works with no account and no signal — the library lives on the phone. When you do need it elsewhere, it exports to an Excel file and imports back."
+  ],
+  "bestfor": [
+    "Clubs running the same faces every week",
+    "Events big enough that typing names at the net is not viable",
+    "Anyone who has re-entered the same twelve players four sessions running"
+  ],
+  "sections": [
+    {
+      "id": "players",
+      "nav": "Players",
+      "title": "Players",
+      "text": "The searchable library of everyone you have ever entered, with what they belong to and what they have played.",
+      "cards": [
+        {
+          "h": "The Players hub",
+          "p": "Every saved player in one list, filterable by name, team or tournament. Each entry shows how many teams, groups and tournaments they belong to.",
+          "shot": "02_players",
+          "alt": "The Players hub with the full searchable player list"
+        },
+        {
+          "h": "The whole list",
+          "p": "Scroll the library, edit or delete inline. This is the screen a club with sixty members actually lives in.",
+          "shot": "03_players_full",
+          "alt": "The full scrollable list of saved players"
+        },
+        {
+          "h": "Create a player",
+          "p": "Add a name — or take a suggested one — and optionally assign them to existing teams and groups at the moment of creation.",
+          "shot": "04_player_create",
+          "alt": "The create player sheet with name and optional team and group assignment"
+        },
+        {
+          "h": "A player's detail",
+          "p": "What they belong to and what they have played, with everything editable from the same screen.",
+          "shot": "05_player_detail",
+          "alt": "A player detail page showing their teams, groups and tournament history"
+        },
+        {
+          "h": "Assign to a team",
+          "p": "Put an existing player into an existing team without going through either hub — the assignment works from both ends.",
+          "shot": "06_player_assign_to_team",
+          "alt": "A dialog assigning a player to an existing team"
+        },
+        {
+          "h": "Add players in-game",
+          "p": "During tournament setup, Add Existing Players opens the same library with search and group filter, and a counter tracking the spots left.",
+          "shot": "10_team_add_player",
+          "alt": "Adding an existing player to a team during setup"
+        }
+      ]
+    },
+    {
+      "id": "teams",
+      "nav": "Teams",
+      "title": "Teams",
+      "text": "Pre-formed pairs and squads, stored with their rosters, ready to drop into any bracket format.",
+      "cards": [
+        {
+          "h": "The Teams hub",
+          "p": "Every saved team, browsable by name, player or tournament, each showing its player count and group membership.",
+          "shot": "07_teams",
+          "alt": "The Teams hub listing saved teams with their player counts"
+        },
+        {
+          "h": "Create a team",
+          "p": "Name it, link it to existing player profiles, and assign it to one or more groups. It is immediately available in Add Existing Teams across every bracket mode.",
+          "shot": "08_team_create",
+          "alt": "The create team sheet with name, players and group assignment"
+        },
+        {
+          "h": "A team's detail",
+          "p": "The roster, the groups it belongs to and the events it has played, all editable in place.",
+          "shot": "09_team_detail",
+          "alt": "A team detail page showing its roster and history"
+        }
+      ]
+    },
+    {
+      "id": "groups",
+      "nav": "Groups",
+      "title": "Groups",
+      "text": "A club, a venue, a Tuesday night regulars list. Groups are how you avoid scrolling past everyone else to find the eight people who actually turned up.",
+      "cards": [
+        {
+          "h": "The Groups hub",
+          "p": "Every group you have made, with what belongs to it. A player or a team can be in several at once.",
+          "shot": "11_groups",
+          "alt": "The Groups hub listing saved groups"
+        },
+        {
+          "h": "Create a group",
+          "p": "Name it and add the players and teams that belong to it — a club, a venue, or a recurring series.",
+          "shot": "12_group_create",
+          "alt": "The create group sheet"
+        },
+        {
+          "h": "A group's detail",
+          "p": "Its members, and the filter that makes setup fast: pick the group during tournament setup and add its people in a few taps.",
+          "shot": "13_group_detail",
+          "alt": "A group detail page listing its players and teams"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/user-administration.html",
+  "feature_list_title": "Every administration feature",
+  "feature_list_text": "Includes exporting your players, groups and teams to an Excel file and importing them back — on this device or another one.",
+  "feedback": "Managing a club roster in TournaQ and hitting a limit? Tell us what you are trying to do.",
+  "feedback_key": "features.user-administration.feedback.text2"
+}

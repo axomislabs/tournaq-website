@@ -1,0 +1,101 @@
+{
+  "slug": "live-tournament",
+  "out": "pages/features/live-tournament.html",
+  "depth": 2,
+  "folder": "90_features",
+  "i18n_page": "features.live-tournament",
+  "title": "Live Tournament",
+  "subtitle": "Keeping a session honest while it is still moving.",
+  "status": "available",
+  "hero": {
+    "shot": "03_social_scramble/04_overview",
+    "alt": "A live session showing progress, the current round and who is sitting out"
+  },
+  "intro": [
+    "A tournament on paper assumes everyone who signed up turns up, stays fit and leaves at the end. Real sessions do none of that: people arrive late, roll an ankle, take a call, or have to go at six.",
+    "These are the controls for the middle of a session — pausing a player, bringing them back, standing someone in, taking someone out — designed so that using them does not corrupt the results already recorded."
+  ],
+  "bestfor": [
+    "Drop-in sessions where the player list changes as the evening goes on",
+    "Organisers who have had to redraw a schedule by hand mid-event",
+    "Anyone running a session while also playing in it"
+  ],
+  "sections": [
+    {
+      "id": "breaks",
+      "nav": "Breaks",
+      "title": "Sitting a round out",
+      "text": "A break is not the same as leaving. TournaQ keeps a player's place and their points, and puts them back where they were.",
+      "cards": [
+        {
+          "h": "Choose who, and for how long",
+          "p": "Pick the player and whether they are out for this round only or until you bring them back. Everything they have already banked stays with them.",
+          "shot": "04_break_picker",
+          "alt": "The break picker for choosing which player sits out and for how long"
+        },
+        {
+          "h": "What happens to their seat",
+          "p": "Their spot becomes an anonymous placeholder so anyone courtside can step in, and nothing else is reshuffled — the rest of the draw is untouched.",
+          "shot": "06_take_a_break_dialog",
+          "alt": "A dialog explaining that a player's seat becomes a placeholder while they are on a break"
+        },
+        {
+          "h": "Bringing them back",
+          "p": "Return them and they slot back into the rotation. Nobody else's position moves, and the schedule does not have to be rebuilt.",
+          "shot": "07_return_from_break_dialog",
+          "alt": "A dialog bringing a player back from a break"
+        }
+      ]
+    },
+    {
+      "id": "standins",
+      "nav": "Stand-ins",
+      "split": true,
+      "title": "Someone steps in",
+      "text": "An open seat should not stop a court. Somebody courtside can take it for the round.",
+      "cards": [
+        {
+          "h": "A stand-in on a live court",
+          "p": "The placeholder left by a break or an ejection can be filled by whoever is available, so the round runs on time instead of playing three against four while you find somebody.",
+          "shot": "08_stand_in_seat",
+          "alt": "A stand-in occupying an open seat on a live court"
+        },
+        {
+          "h": "Changing the challengers",
+          "p": "In the rotation formats, the pair due on next can be swapped by hand — for the player still tying a shoelace, or the one who has just walked in.",
+          "shot": "09_challenger_change_dialog",
+          "alt": "A dialog for swapping the challenging pair by hand"
+        }
+      ]
+    },
+    {
+      "id": "leaving",
+      "nav": "Leaving",
+      "split": true,
+      "title": "Someone has to leave",
+      "text": "The hard case. A player going home mid-session has to be handled without invalidating the evening so far.",
+      "cards": [
+        {
+          "h": "Two ways to absorb it",
+          "p": [
+            "Re-pair the remaining rounds without them, or leave their seat as a placeholder so nobody else's pairings move. TournaQ asks which you want rather than choosing for you, because the right answer depends on how much of the session is left.",
+            "Either way, the games they have already played still count towards the ranking."
+          ],
+          "shot": "05_eject_choice_dialog",
+          "alt": "A dialog asking whether to re-pair the remaining rounds or leave the departing player's seat open"
+        },
+        {
+          "h": "The player list is the control panel",
+          "p": "Everyone in the session with their games and points, and on each row the four things you need mid-evening: pause, rename, swap, remove.",
+          "shot": "03_social_scramble/10_roster_sheet",
+          "alt": "The player sheet listing everyone with games played, points and per-player actions"
+        }
+      ]
+    }
+  ],
+  "keep_feature_list": "pages/features/live-tournament.html",
+  "feature_list_title": "What is live, and what is coming",
+  "feature_list_text": "Mid-session controls ship today. Multi-device sync and spectator views are the next step.",
+  "feedback": "Running into a mid-session situation TournaQ does not handle? Tell us what happened.",
+  "feedback_key": "features.live-tournament.feedback.text2"
+}
