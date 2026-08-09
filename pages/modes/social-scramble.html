@@ -59,10 +59,10 @@
       <!-- The sketch, not a screenshot: it says what the format IS in one look,
            which a phone screen cannot. Beside the copy rather than above it, so
            the explanation is visible without scrolling past a tall picture. -->
-      <div class="guide-split" style="margin-top: 22px;">
+      <div class="guide-split is-lead" style="margin-top: 22px;">
         <div class="split-media">
           <img src="../../assets/brand/social-scramble-sketch-600.webp"
-               sizes="(max-width: 760px) 90vw, 300px"
+               sizes="(max-width: 760px) 90vw, 260px"
                width="600" height="1219"
                loading="eager" fetchpriority="high" decoding="async"
                style="width:100%; border-radius:14px; border:1px solid var(--border);"
@@ -83,23 +83,23 @@
             <li>Club training nights where every player should meet every other player</li>
             <li>Groups of roughly 6 to 20 players with a fixed time slot</li>
           </ul>
+
+          <div class="card-nav" style="margin-bottom: 0;">
+            <div class="card-nav-label">Jump to section</div>
+            <div class="card-nav-links">
+              <a href="#find">Find it</a>
+              <a href="#setup">Set it up</a>
+              <a href="#overview">The session</a>
+              <a href="#scorecard">Scoring</a>
+              <a href="#rankings">Standings</a>
+              <a href="#realworld">When it changes</a>
+              <a href="#share">Sharing</a>
+              <a href="#workflow">Workflow</a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card-nav">
-        <div class="card-nav-label">Jump to section</div>
-        <div class="card-nav-links">
-          <a href="#find">Find it</a>
-          <a href="#setup">Set it up</a>
-          <a href="#overview">The session</a>
-          <a href="#gamecard">Game card</a>
-          <a href="#scorecard">Scorecard</a>
-          <a href="#rankings">Standings</a>
-          <a href="#realworld">When it changes</a>
-          <a href="#share">Sharing</a>
-          <a href="#workflow">Workflow</a>
-        </div>
-      </div>
     </section>
 
     <!-- Finding it in the app -->
@@ -138,13 +138,14 @@
       <h2 class="section-title">Setting it up</h2>
       <p class="section-text">Tell TournaQ how many players you have, how long you have got and how many courts. It works out the rest — the number of rounds, when you will finish, and whether the plan actually plays well.</p>
 
+      <div class="guide-split-grid">
       <div class="guide-card guide-split">
         <div class="split-media">
           <div class="shot-scroll">
             <img src="../../assets/guide/03_social_scramble/03_setup_full-430.webp"
                  srcset="../../assets/guide/03_social_scramble/03_setup_full-430.webp 430w,
                     ../../assets/guide/03_social_scramble/03_setup_full-645.webp 645w"
-                 sizes="(max-width: 760px) 90vw, 300px"
+                 sizes="(max-width: 1040px) 45vw, 240px"
                  width="430" height="999"
                  loading="lazy" decoding="async"
                  alt="The complete Social Scramble setup form, from the player and court fields through to Create Tournament">
@@ -162,7 +163,7 @@
             <img src="../../assets/guide/03_social_scramble/14_setup_coverage_nudge-430.webp"
                  srcset="../../assets/guide/03_social_scramble/14_setup_coverage_nudge-430.webp 430w,
                     ../../assets/guide/03_social_scramble/14_setup_coverage_nudge-645.webp 645w"
-                 sizes="(max-width: 760px) 90vw, 300px"
+                 sizes="(max-width: 1040px) 45vw, 240px"
                  width="430" height="999"
                  loading="lazy" decoding="async"
                  alt="A suggestion that six rounds will not let everyone partner with everyone, offering eighteen instead">
@@ -172,6 +173,7 @@
           <h3>It tells you when the plan will not work</h3>
           <p>Six rounds with twelve players means some pairs never play together. TournaQ says so before you start, and offers the number of rounds that would fix it — one tap to accept. That is the difference between a session that felt fair and one that actually was.</p>
         </div>
+      </div>
       </div>
     </section>
 
@@ -219,32 +221,10 @@
       </div>
     </section>
 
-    <!-- The game card -->
-    <section id="gamecard" style="margin-top: 40px;">
-      <h2 class="section-title">The game card</h2>
-      <p class="section-text">Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — or, when the match was played while you were looking the other way, just enter the result.</p>
-
-      <div class="guide-card guide-split">
-        <div class="split-media">
-          <img src="../../assets/guide/03_social_scramble/15_dialog_manual_result-430.webp"
-               srcset="../../assets/guide/03_social_scramble/15_dialog_manual_result-430.webp 430w,
-                  ../../assets/guide/03_social_scramble/15_dialog_manual_result-860.webp 860w"
-               sizes="(max-width: 760px) 90vw, 300px"
-               width="430" height="932"
-               loading="lazy" decoding="async" class="vertical"
-               alt="A dialog for entering a final score directly on the match card">
-        </div>
-        <div class="split-copy">
-          <h3>Not every match gets scored live</h3>
-          <p>Someone forgets to open the scorecard, or a court finishes while you are refereeing another one. Type the final score straight into the card and the standings update exactly as if you had tapped through every rally.</p>
-        </div>
-      </div>
-    </section>
-
     <!-- Scoring a match -->
     <section id="scorecard" style="margin-top: 40px;">
       <h2 class="section-title">Scoring a match</h2>
-      <p class="section-text">The scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.</p>
+      <p class="section-text">Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — the scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.</p>
 
       <div class="guide-grid-2">
         <div class="guide-card">
@@ -270,6 +250,17 @@
                width="860" height="397"
                loading="lazy" decoding="async"
                alt="The same scorecard rotated to landscape, laid out for a net post or side table">
+        </div>
+        <div class="guide-card">
+          <h3>Not every match gets scored live</h3>
+          <p>Someone forgets to open the scorecard, or a court finishes while you are refereeing another one. Type the final score straight into the card and the standings update exactly as if you had tapped through every rally.</p>
+          <img src="../../assets/guide/03_social_scramble/15_dialog_manual_result-430.webp"
+               srcset="../../assets/guide/03_social_scramble/15_dialog_manual_result-430.webp 430w,
+                  ../../assets/guide/03_social_scramble/15_dialog_manual_result-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 280px"
+               width="430" height="932"
+               loading="lazy" decoding="async" class="vertical"
+               alt="A dialog for entering a final score directly on the match card">
         </div>
       </div>
     </section>
@@ -323,12 +314,13 @@
       <h2 class="section-title">When the session changes</h2>
       <p class="section-text">People arrive late, roll an ankle, or have to leave at six. A session that cannot absorb that is a session someone ends up re-planning on paper.</p>
 
+      <div class="guide-split-grid">
       <div class="guide-card guide-split">
         <div class="split-media">
           <img src="../../assets/guide/03_social_scramble/10_roster_sheet-430.webp"
                srcset="../../assets/guide/03_social_scramble/10_roster_sheet-430.webp 430w,
                   ../../assets/guide/03_social_scramble/10_roster_sheet-860.webp 860w"
-               sizes="(max-width: 760px) 90vw, 300px"
+               sizes="(max-width: 1040px) 45vw, 240px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
                alt="The player sheet listing twelve players with games played, points and per-player actions">
@@ -343,7 +335,7 @@
           <img src="../../assets/guide/90_features/05_eject_choice_dialog-430.webp"
                srcset="../../assets/guide/90_features/05_eject_choice_dialog-430.webp 430w,
                   ../../assets/guide/90_features/05_eject_choice_dialog-860.webp 860w"
-               sizes="(max-width: 760px) 90vw, 300px"
+               sizes="(max-width: 1040px) 45vw, 240px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
                alt="A dialog asking whether to re-pair the remaining rounds or leave the departing player's seat open">
@@ -352,6 +344,7 @@
           <h3>Someone has to leave</h3>
           <p>Ejecting a player asks what should happen to the matches they were already drawn into, rather than silently corrupting the rest of the schedule. Re-pair the remaining rounds without them, or leave their seat open so nobody else's pairings move. Games already played keep counting.</p>
         </div>
+      </div>
       </div>
     </section>
 

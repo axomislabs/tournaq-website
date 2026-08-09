@@ -72,23 +72,9 @@
       ]
     },
     {
-      "id": "gamecard",
-      "title": "The game card",
-      "text": "Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — or, when the match was played while you were looking the other way, just enter the result.",
-      "split": true,
-      "cards": [
-        {
-          "h": "Not every match gets scored live",
-          "p": "Someone forgets to open the scorecard, or a court finishes while you are refereeing another one. Type the final score straight into the card and the standings update exactly as if you had tapped through every rally.",
-          "shot": "15_dialog_manual_result",
-          "alt": "A dialog for entering a final score directly on the match card"
-        }
-      ]
-    },
-    {
       "id": "scorecard",
       "title": "Scoring a match",
-      "text": "The scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.",
+      "text": "Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — the scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.",
       "cols": 2,
       "cards": [
         {
@@ -102,6 +88,12 @@
           "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
           "shot": "08_scorecard_landscape",
           "alt": "The same scorecard rotated to landscape, laid out for a net post or side table"
+        },
+        {
+          "h": "Not every match gets scored live",
+          "p": "Someone forgets to open the scorecard, or a court finishes while you are refereeing another one. Type the final score straight into the card and the standings update exactly as if you had tapped through every rally.",
+          "shot": "15_dialog_manual_result",
+          "alt": "A dialog for entering a final score directly on the match card"
         }
       ]
     },

@@ -36,7 +36,7 @@ DEFAULT_SRC, LONG_ASPECT = _imp.DEFAULT_SRC, _imp.LONG_ASPECT
 
 CARD_SIZES = '(max-width: 760px) 90vw, 280px'
 WIDE_SIZES = '(max-width: 760px) 92vw, 1120px'
-SPLIT_SIZES = '(max-width: 760px) 90vw, 300px'
+SPLIT_SIZES = '(max-width: 1040px) 45vw, 240px'
 
 
 def shot_markup(rel, depth, alt, wide, indent, sizes=None):
@@ -91,8 +91,9 @@ def main():
         out.append('      <p class="section-text">%s</p>' % sec['text'])
         out.append('')
         if sec.get('split'):
-            # one full-width row per card: screenshot in a fixed column with the
-            # words beside it, rather than stacked above them
+            # screenshot in a fixed column with the words beside it, rather than
+            # stacked above them — two cards per row so a wide page stays filled
+            out.append('      <div class="guide-split-grid">')
             for card in sec['cards']:
                 rel = card['shot'] if '/' in card['shot'] else '%s/%s' % (folder, card['shot'])
                 out.append('      <div class="guide-card guide-split">')
@@ -106,6 +107,7 @@ def main():
                     out.append('          <p>%s</p>' % para)
                 out.append('        </div>')
                 out.append('      </div>')
+            out.append('      </div>')
             out.append('    </section>')
             out.append('')
             continue
