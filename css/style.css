@@ -770,6 +770,35 @@ footer a {
     margin-right: auto;
 }
 
+/* ── Screenshot beside its explanation ──────────────────────────────────────
+   A phone screenshot stacked above its paragraph pushes the words below the
+   fold on a laptop: you see a tall picture and have to scroll to find out what
+   it is. This puts the picture in a fixed column with the text alongside, so
+   the card is read in one glance. Used for the shots that deserve room; the
+   three-across .guide-grid still handles sets of related screens. */
+.guide-split {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 30px;
+    /* top-aligned, not centred: a phone screenshot is much taller than its
+       paragraph, and centring leaves the words hovering in the middle of the
+       whitespace instead of starting where the eye does */
+    align-items: start;
+    margin-top: 18px;
+}
+
+.guide-split .split-media { margin: 0; }
+.guide-split .split-media img { margin-top: 0; }
+.guide-split .split-media .shot-scroll { margin-top: 0; }
+.guide-split .split-copy h3 { margin-top: 0; }
+.guide-split .split-copy > :last-child { margin-bottom: 0; }
+
+@media (max-width: 760px) {
+    .guide-split { grid-template-columns: 1fr; gap: 18px; }
+    /* words first once it stacks — the picture means little without them */
+    .guide-split .split-copy { order: -1; }
+}
+
 /* ── Long captures ──────────────────────────────────────────────────────────
    Some shots are full-page rolling captures — up to 4347px tall, six phone
    screens. Shrinking one to fit makes it unreadable and cropping it throws

@@ -34,11 +34,12 @@ _imp = importlib.import_module('import-guide-shots')
 Image, CROPS, classify, derivatives = _imp.Image, _imp.CROPS, _imp.classify, _imp.derivatives
 DEFAULT_SRC, LONG_ASPECT = _imp.DEFAULT_SRC, _imp.LONG_ASPECT
 
-CARD_SIZES = '(max-width: 760px) 90vw, 230px'
+CARD_SIZES = '(max-width: 760px) 90vw, 280px'
 WIDE_SIZES = '(max-width: 760px) 92vw, 1120px'
+SPLIT_SIZES = '(max-width: 760px) 90vw, 300px'
 
 
-def shot_markup(rel, depth, alt, wide, indent):
+def shot_markup(rel, depth, alt, wide, indent, sizes=None):
     path = os.path.join(DEFAULT_SRC, rel + '.png')
     if not os.path.exists(path):
         raise SystemExit('no such shot: %s' % rel)
@@ -54,7 +55,12 @@ def shot_markup(rel, depth, alt, wide, indent):
     pad = ' ' * indent
     srcset = (',\n' + pad + '        ').join(
         '%s%s %dw' % (base, d[0], d[1]) for d in derivs)
-    cls = '' if (wide or long_shot) else ' class="vertical"'
+    # .vertical caps a portrait phone screen so it does not tower over its card.
+    # A landscape shot needs the opposite — the cap would shrink it to a stamp.
+    portrait = aspect > 1
+    cls = ' class="vertical"' if (portrait and not wide and not long_shot) else ''
+    if not portrait and sizes is None:
+        sizes = '(max-width: 760px) 90vw, 520px'
     img = (
         '%s<img src="%s%s"\n'
         '%s     srcset="%s"\n'
@@ -63,7 +69,7 @@ def shot_markup(rel, depth, alt, wide, indent):
         '%s     loading="lazy" decoding="async"%s\n'
         '%s     alt="%s">'
         % (pad, base, small[0], pad, srcset, pad,
-           WIDE_SIZES if wide else CARD_SIZES,
+           sizes or (WIDE_SIZES if wide else CARD_SIZES),
            pad, small[1], small[2], pad, cls, pad, alt))
 
     if long_shot:
@@ -84,6 +90,26 @@ def main():
         out.append('      <h2 class="section-title">%s</h2>' % sec['title'])
         out.append('      <p class="section-text">%s</p>' % sec['text'])
         out.append('')
+        if sec.get('split'):
+            # one full-width row per card: screenshot in a fixed column with the
+            # words beside it, rather than stacked above them
+            for card in sec['cards']:
+                rel = card['shot'] if '/' in card['shot'] else '%s/%s' % (folder, card['shot'])
+                out.append('      <div class="guide-card guide-split">')
+                out.append('        <div class="split-media">')
+                out.append(shot_markup(rel, depth, card.get('alt', ''), False, 10,
+                                       sizes=SPLIT_SIZES))
+                out.append('        </div>')
+                out.append('        <div class="split-copy">')
+                out.append('          <h3>%s</h3>' % card['h'])
+                for para in card['p'] if isinstance(card['p'], list) else [card['p']]:
+                    out.append('          <p>%s</p>' % para)
+                out.append('        </div>')
+                out.append('      </div>')
+            out.append('    </section>')
+            out.append('')
+            continue
+
         out.append('      <div class="%s">' % grid)
         for card in sec['cards']:
             rel = card['shot'] if '/' in card['shot'] else '%s/%s' % (folder, card['shot'])

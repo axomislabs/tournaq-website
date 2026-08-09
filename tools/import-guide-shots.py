@@ -84,6 +84,9 @@ CROPS = {
 BRAND = [
     ('assets/tournaq_logo_transparent_land.png', 'assets/brand/tournaq-logo-land-450.webp', 450, 85),
     ('assets/tournaq-background-banner-2.png',   'assets/brand/tournaq-banner-1871.webp', 1871, 85),
+    # hand-drawn explainers: not screenshots, but they head a mode page and are
+    # rendered at ~300px, so they go through the same resize
+    ('assets/social_scramble_sketch.png', 'assets/brand/social-scramble-sketch-600.webp', 600, 85),
 ]
 
 # `sizes` presets matching the site's real CSS slots, so a phone downloads the
@@ -98,8 +101,10 @@ SLOTS = {
 }
 
 # Anything taller than this relative to its width needs the .shot-scroll wrapper
-# rather than being dropped into a card at full height.
-LONG_ASPECT = 2.6
+# rather than being dropped into a card at full height. The boundary sits just
+# above a single phone screen (860x1864 renders 1:2.17), so one screen is shown
+# whole and anything that scrolled during capture scrolls on the page too.
+LONG_ASPECT = 2.25
 
 
 def classify(w, h):

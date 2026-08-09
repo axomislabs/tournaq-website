@@ -1,0 +1,181 @@
+{
+  "depth": 2,
+  "folder": "03_social_scramble",
+  "sections": [
+    {
+      "id": "find",
+      "title": "Finding it in the app",
+      "text": "Social Scrambles lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every scramble you have run, so last week's session is two taps away.",
+      "cols": 2,
+      "cards": [
+        {
+          "h": "The Arena",
+          "p": "Every format the app can run, grouped by the kind of session it suits: quick games, single competitions and socials, and team competitions. The number on a card is how many of those you have run.",
+          "shot": "00_shell/04_arena",
+          "alt": "The TournaQ Arena with Social Scrambles under Single Competitions and Socials"
+        },
+        {
+          "h": "The Social Scrambles hub",
+          "p": "New Tournament starts a session. Below it sits your history — each entry showing the date, the player count and how far it got, so you can reopen a session or copy its settings.",
+          "shot": "01_hub",
+          "alt": "The Social Scrambles hub listing past sessions above a New Tournament button"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "title": "Setting it up",
+      "text": "Tell TournaQ how many players you have, how long you have got and how many courts. It works out the rest — the number of rounds, when you will finish, and whether the plan actually plays well.",
+      "split": true,
+      "cards": [
+        {
+          "h": "One form, and it does the arithmetic",
+          "p": [
+            "Target players, courts, style, rounds, match duration and the break between them. Every field feeds the Schedule Preview, so the predicted finish time moves as you change your mind — no working out how many rounds fit in ninety minutes.",
+            "Further down sit pace alerts, the player list and the tournament name. Nothing is mandatory beyond players and time; the defaults produce a sensible session on their own."
+          ],
+          "shot": "03_setup_full",
+          "alt": "The complete Social Scramble setup form, from the player and court fields through to Create Tournament"
+        },
+        {
+          "h": "It tells you when the plan will not work",
+          "p": "Six rounds with twelve players means some pairs never play together. TournaQ says so before you start, and offers the number of rounds that would fix it — one tap to accept. That is the difference between a session that felt fair and one that actually was.",
+          "shot": "14_setup_coverage_nudge",
+          "alt": "A suggestion that six rounds will not let everyone partner with everyone, offering eighteen instead"
+        }
+      ]
+    },
+    {
+      "id": "overview",
+      "title": "The session at a glance",
+      "text": "Once it starts, one screen carries the whole session: how far along you are, who is on which court, who is sitting out, and when you will be done.",
+      "cols": 3,
+      "cards": [
+        {
+          "h": "Progress and settings in one row",
+          "p": "Games completed, a progress ring and a row of pills — standings, allocation, teams, player count, format, rounds, courts and estimated finish. A pill with a pencil can still be changed; one with a lock has been fixed by play already starting.",
+          "shot": "04_overview",
+          "alt": "Session overview showing two of eight games complete, a 25% ring and the settings pills"
+        },
+        {
+          "h": "Round by round, or court by court",
+          "p": "The schedule groups by round out of the box. Switch it to Court and each court lists its own sequence instead — the view to hand someone refereeing one court all session who does not care what is happening on the others.",
+          "shot": "06_overview_by_court",
+          "alt": "The schedule regrouped so each court lists its own sequence of matches"
+        },
+        {
+          "h": "Who is on which court",
+          "p": "The allocation grid lays every round against every court. It is the whole game plan on one screen — the shape of the session, and the place you notice that someone has been sitting out too often.",
+          "shot": "09_court_allocation",
+          "alt": "A grid of rounds against courts showing which players are assigned where"
+        }
+      ]
+    },
+    {
+      "id": "gamecard",
+      "title": "The game card",
+      "text": "Every match in the schedule is a card carrying its court, its players, its referee and its score. Tap it to score it — or, when the match was played while you were looking the other way, just enter the result.",
+      "split": true,
+      "cards": [
+        {
+          "h": "Not every match gets scored live",
+          "p": "Someone forgets to open the scorecard, or a court finishes while you are refereeing another one. Type the final score straight into the card and the standings update exactly as if you had tapped through every rally.",
+          "shot": "15_dialog_manual_result",
+          "alt": "A dialog for entering a final score directly on the match card"
+        }
+      ]
+    },
+    {
+      "id": "scorecard",
+      "title": "Scoring a match",
+      "text": "The scorecard is built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.",
+      "cols": 2,
+      "cards": [
+        {
+          "h": "Portrait",
+          "p": "Tap a side to award the point. The server is highlighted, service passes automatically when the other side scores, and the round timer runs in the header so everyone knows how long is left.",
+          "shot": "07_scorecard",
+          "alt": "The Social Scramble scorecard in portrait with both teams, the score and the round timer"
+        },
+        {
+          "h": "Landscape",
+          "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
+          "shot": "08_scorecard_landscape",
+          "alt": "The same scorecard rotated to landscape, laid out for a net post or side table"
+        }
+      ]
+    },
+    {
+      "id": "rankings",
+      "title": "Standings, live and final",
+      "text": "Because everyone plays with everyone, the ranking is individual. It updates as results land, so the table is always current — no waiting for the organiser to add it up.",
+      "cols": 3,
+      "cards": [
+        {
+          "h": "Live standings",
+          "p": "Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.",
+          "shot": "11_rankings",
+          "alt": "Live individual standings partway through a session"
+        },
+        {
+          "h": "Final rankings",
+          "p": "When the last match is in, the table closes with the winner at the top. This is the screen to hold up at the end of the evening.",
+          "shot": "12_final_rankings",
+          "alt": "The final individual ranking table at the end of a Social Scramble"
+        },
+        {
+          "h": "The finished session",
+          "p": "The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month's ranking has an answer.",
+          "shot": "13_overview_completed",
+          "alt": "A completed session with every round finished and every score recorded"
+        }
+      ]
+    },
+    {
+      "id": "realworld",
+      "title": "When the session changes",
+      "text": "People arrive late, roll an ankle, or have to leave at six. A session that cannot absorb that is a session someone ends up re-planning on paper.",
+      "split": true,
+      "cards": [
+        {
+          "h": "The player list is the control panel",
+          "p": "Everyone in the session with their games played and points so far. Each row carries the four things you actually need mid-evening: pause a player, correct a name, swap them with someone else, or take them out.",
+          "shot": "10_roster_sheet",
+          "alt": "The player sheet listing twelve players with games played, points and per-player actions"
+        },
+        {
+          "h": "Someone has to leave",
+          "p": "Ejecting a player asks what should happen to the matches they were already drawn into, rather than silently corrupting the rest of the schedule. Re-pair the remaining rounds without them, or leave their seat open so nobody else's pairings move. Games already played keep counting.",
+          "shot": "90_features/05_eject_choice_dialog",
+          "alt": "A dialog asking whether to re-pair the remaining rounds or leave the departing player's seat open"
+        }
+      ]
+    },
+    {
+      "id": "share",
+      "title": "Getting it off your phone",
+      "text": "The session lives on the device that runs it and nothing needs a signal. Sharing is deliberate — a QR code between two phones, no account and no upload.",
+      "cols": 3,
+      "cards": [
+        {
+          "h": "Export, import, share",
+          "p": "Import a result from another phone, or move the whole tournament. On a beach with no reception this still works, because nothing leaves the two devices.",
+          "shot": "90_features/18_workbook_menu",
+          "alt": "The tournament menu offering Import result, Export tournament and Import tournament"
+        },
+        {
+          "h": "Scores from another phone",
+          "p": "A scorecard scored on someone else's device arrives marked as imported, so results from two phones can be folded back into one session without anyone retyping them.",
+          "shot": "16_imported_scorecard",
+          "alt": "A scorecard that arrived from another device, marked as imported"
+        },
+        {
+          "h": "Where they land",
+          "p": "The hub keeps imported scorecards on their own tab, next to your own history, so it is obvious which results came from somewhere else.",
+          "shot": "90_features/22_hub_imported_scorecards",
+          "alt": "The Social Scrambles hub with an Imported tab beside the tournament history"
+        }
+      ]
+    }
+  ]
+}
