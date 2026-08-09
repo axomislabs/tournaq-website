@@ -4108,6 +4108,12 @@
       var key = el.getAttribute('data-i18n-html');
       if (t[key] != null) el.innerHTML = t[key];
     });
+    // Image alt text. Written in English inline like every other string; this
+    // handler stays dormant until the DE/ES keys are backfilled.
+    document.querySelectorAll('[data-i18n-alt]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-alt');
+      if (t[key] != null) el.setAttribute('alt', t[key]);
+    });
     var titleKey = html.getAttribute('data-i18n-title');
     if (titleKey && t[titleKey]) document.title = t[titleKey];
     document.body.style.visibility = 'visible';
