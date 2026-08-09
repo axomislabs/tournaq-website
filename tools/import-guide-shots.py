@@ -92,7 +92,7 @@ SLOTS = {
     'format':    '(max-width: 760px) 90vw, 170px',
     'showcase':  '(max-width: 760px) 90vw, 145px',
     'card':      '(max-width: 760px) 90vw, 230px',
-    'explainer': '(max-width: 860px) 90vw, 430px',
+    'explainer': '(max-width: 860px) 92vw, 850px',
     'hero':      '(max-width: 760px) 90vw, 380px',
     'full':      '100vw',
 }

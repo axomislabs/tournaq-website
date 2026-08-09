@@ -119,15 +119,8 @@
       margin-top: 26px;
     }
 
-    /* two-card row: keep the cards phone-sized and centred instead of stretched */
-    .format-grid.is-pair {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
-      justify-content: center;
-    }
-
     @media (max-width: 760px) {
-      .format-grid,
-      .format-grid.is-pair {
+      .format-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -182,33 +175,87 @@
       margin: auto auto 0;
     }
 
-    /* same placeholder pattern as pages/index.html, sized to match the phone shots */
-    .img-placeholder {
-      max-width: 170px;
-      width: 100%;
-      aspect-ratio: 1206 / 2622;
-      margin: auto auto 0;
-      border-radius: 12px;
-      border: 2px dashed var(--border);
-      background: var(--olive-light);
-      display: flex;
-      flex-direction: column;
+    /* ── Team-format explainers ────────────────────────────────────────────
+       A bracket is a shape, and the shape is the argument for the format — so
+       these rows show the diagram itself rather than a phone screen. They are
+       wide (roughly 2:1), which is why they cannot reuse .format-card, whose
+       images are capped at 170px for a portrait phone shot.
+
+       Alternating sides rather than a grid: the four diagrams have different
+       proportions, and a fixed grid would have to letterbox or crop them. */
+    .explainer {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 28px;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 26px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 18px;
     }
 
-    .img-placeholder .ph-icon {
-      font-size: 34px;
-      opacity: 0.55;
+    .explainer:nth-of-type(even) {
+      grid-template-columns: 1fr 300px;
     }
 
-    .img-placeholder .ph-label {
-      font-size: 10px;
+    .explainer:nth-of-type(even) .explainer-copy {
+      order: 2;
+    }
+
+    .explainer h3 {
+      color: var(--olive);
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .explainer .explainer-lead {
+      display: block;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
+      color: var(--gold-dark);
+      margin-bottom: 6px;
+    }
+
+    .explainer p {
+      font-size: 14px;
+      line-height: 1.65;
+      margin-bottom: 0;
+    }
+
+    .explainer figure {
+      margin: 0;
+    }
+
+    .explainer figure img {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+
+    .explainer figcaption {
+      font-size: 12px;
       color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 860px) {
+
+      .explainer,
+      .explainer:nth-of-type(even) {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .explainer:nth-of-type(even) .explainer-copy {
+        order: 0;
+      }
     }
 
     /* ── Session depth: text beside a screenshot ── */
@@ -523,8 +570,20 @@
         </div>
 
         <div class="showcase-shots">
-          <img src="../assets/screenshots/quickgames_setup_randomteams.png" alt="Random team name generation in Quick Game setup">
-          <img src="../assets/screenshots/quickgames_scorecard_0.png" alt="Quick Game scorecard">
+          <img src="../assets/guide/02_quick_games/04_quick_start_teams-430.webp"
+               srcset="../assets/guide/02_quick_games/04_quick_start_teams-430.webp 430w,
+                       ../assets/guide/02_quick_games/04_quick_start_teams-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 145px"
+               width="430" height="932"
+               loading="eager" fetchpriority="high" decoding="async"
+               alt="Quick Game setup: two teams named and ready, with target score and number of sets">
+          <img src="../assets/guide/02_quick_games/06_scorecard-430.webp"
+               srcset="../assets/guide/02_quick_games/06_scorecard-430.webp 430w,
+                       ../assets/guide/02_quick_games/06_scorecard-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 145px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="Quick Game scorecard mid-rally, with the serving side highlighted">
         </div>
       </div>
     </section>
@@ -541,32 +600,52 @@
           <h3 data-i18n="index.mode.scramble.title">Social Scrambles</h3>
           <p data-i18n="index.mode.scramble.text">A new partner every round. Everyone plays with everyone, and the draw is done before you've finished
             stretching.</p>
-          <img src="../assets/screenshots/scramble_scorecard_ingame.png" alt="Social Scrambles scorecard mid-match">
+          <img src="../assets/guide/03_social_scramble/04_overview-430.webp"
+               srcset="../assets/guide/03_social_scramble/04_overview-430.webp 430w,
+                       ../assets/guide/03_social_scramble/04_overview-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 170px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="A Social Scramble in progress: round 1 complete, round 2 on court, 12 players">
         </div>
 
         <div class="format-card">
           <h3 data-i18n="index.mode.scrambleking.title">Scramble Kings</h3>
           <p data-i18n="index.mode.scrambleking.text">The whole pool scrambled across every court, with King of the Court scoring on each one. Chaos, organised
             round by round.</p>
-          <!-- placeholder until a Scramble King screenshot exists -->
-          <div class="img-placeholder">
-            <span class="ph-icon">👑</span>
-            <span class="ph-label" data-i18n="index.placeholder.label">Screenshot coming</span>
-          </div>
+          <img src="../assets/guide/04_scramble_king/04_overview-430.webp"
+               srcset="../assets/guide/04_scramble_king/04_overview-430.webp 430w,
+                       ../assets/guide/04_scramble_king/04_overview-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 170px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="A Scramble Kings session with 13 players, paired teams and a 5-point strike target">
         </div>
 
         <div class="format-card">
           <h3 data-i18n="index.mode.kotc.title">Kings of the Court</h3>
           <p data-i18n="index.mode.kotc.text">Win and you stay on. Lose and you're straight back in the queue. Fast, loud, and impossible to stop
             playing.</p>
-          <img src="../assets/screenshots/kotc_scorecard_manual_ingame.png" alt="Kings of the Court scorecard mid-match">
+          <img src="../assets/guide/05_king_of_the_court/04_overview-430.webp"
+               srcset="../assets/guide/05_king_of_the_court/04_overview-430.webp 430w,
+                       ../assets/guide/05_king_of_the_court/04_overview-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 170px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="A Kings of the Court session with the challenger queue and a 5-point strike target">
         </div>
 
         <div class="format-card">
           <h3 data-i18n="index.mode.doghouse.title">Doghouses</h3>
           <p data-i18n="index.mode.doghouse.text">Hold your nerve and get out of the doghouse. Continuous play, no downtime, and a running score that keeps
             everybody honest.</p>
-          <img src="../assets/screenshots/dog_scorecard_manual_score1.png" alt="Doghouses scorecard mid-match">
+          <img src="../assets/guide/06_doghouse/04_overview-430.webp"
+               srcset="../assets/guide/06_doghouse/04_overview-430.webp 430w,
+                       ../assets/guide/06_doghouse/04_overview-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 170px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="A Doghouse session with a 5-point escape, a 3-loss limit and 12 players">
         </div>
       </div>
 
@@ -575,23 +654,121 @@
     <!-- 4 · Team competitions -->
     <section id="teams">
       <h2 class="section-title"><span data-i18n="index.teams.title">Or turn up with your partner</span> <span class="section-ref" data-i18n="index.teams.ref">(Team Competitions)</span></h2>
-      <p class="lead" data-i18n="index.teams.lead">Some days you play as a team. Fixed sides, a proper draw, and a title at the end — the same
-        engine, scored the same way.</p>
+      <!-- Key renamed from index.teams.lead: the old copy promised "a title at the
+           end", which is now only one of four formats. Reusing the key would have
+           left the German and Spanish text describing knockout only. -->
+      <p class="lead" data-i18n="index.teams.lead2">Some days you play as a team. Four formats, all playable today — each one a different
+        answer to the same question: who is actually best, and how much time have you got to find out?</p>
 
-      <div class="format-grid is-pair">
-        <div class="format-card">
-          <h3 data-i18n="index.mode.ko.title">Knockout Brackets</h3>
-          <p data-i18n="index.mode.ko.text">When it should count: a proper single-elimination draw, seeded and scheduled, with the bracket updating
-            itself as results come in.</p>
-          <img src="../assets/screenshots/singleko_tournament_schedulepreview1.png" alt="Knockout bracket schedule preview">
+      <div class="explainer">
+        <div class="explainer-copy">
+          <h3 data-i18n="index.teams.league.title">Leagues</h3>
+          <span class="explainer-lead" data-i18n="index.teams.league.kicker">Points-based standings</span>
+          <p data-i18n="index.teams.league.text">Everyone plays everyone. Nobody goes home after one bad set, and the table at the end
+            is the honest one — the crosstable shows every pairing, every result, and who beat whom.</p>
+        </div>
+        <figure>
+          <a href="../assets/guide/07_league/12_crosstable-1600.webp" target="_blank" rel="noopener"
+             aria-label="Open the full-size diagram">
+            <img src="../assets/guide/07_league/12_crosstable-860.webp"
+                 srcset="../assets/guide/07_league/12_crosstable-860.webp 860w,
+                         ../assets/guide/07_league/12_crosstable-1600.webp 1600w"
+                 sizes="(max-width: 860px) 92vw, 850px"
+                 width="860" height="505"
+                 loading="lazy" decoding="async"
+                 alt="A league crosstable: six teams down the side and across the top, with results, win-loss and points for">
+          </a>
+        </figure>
+      </div>
+
+      <div class="explainer">
+        <div class="explainer-copy">
+          <h3 data-i18n="index.teams.elimination.title">Eliminations</h3>
+          <span class="explainer-lead" data-i18n="index.teams.elimination.kicker">Knockout bracket — one or two lives</span>
+          <p data-i18n="index.teams.elimination.text">Quarter-final to final in one tree, filling itself in as results land. Choose double
+            elimination and a first loss drops a team into the losers bracket instead of out of the event.</p>
+        </div>
+        <figure>
+          <a href="../assets/guide/08_elimination_single/11_standings_bracket-1600.webp" target="_blank" rel="noopener"
+             aria-label="Open the full-size diagram">
+            <img src="../assets/guide/08_elimination_single/11_standings_bracket-860.webp"
+                 srcset="../assets/guide/08_elimination_single/11_standings_bracket-860.webp 860w,
+                         ../assets/guide/08_elimination_single/11_standings_bracket-1600.webp 1600w"
+                 sizes="(max-width: 860px) 92vw, 850px"
+                 width="860" height="549"
+                 loading="lazy" decoding="async"
+                 alt="A single-elimination bracket from quarter-final through semi-final to the final, with two results already in">
+          </a>
+        </figure>
+      </div>
+
+      <div class="explainer">
+        <div class="explainer-copy">
+          <h3 data-i18n="index.teams.classic.title">TournaQ Classics</h3>
+          <span class="explainer-lead" data-i18n="index.teams.classic.kicker">Group stage · Eliminations</span>
+          <p data-i18n="index.teams.classic.text">Pool play first, so everyone gets a guaranteed run of matches, then the qualifiers feed
+            a Gold bracket. A bigger field can carry a Silver bracket too, so the teams who miss the cut still have
+            something to play for.</p>
+        </div>
+        <figure>
+          <a href="../assets/guide/10_tournaq_classic/11_standings_bracket-1600.webp" target="_blank" rel="noopener"
+             aria-label="Open the full-size diagram">
+            <img src="../assets/guide/10_tournaq_classic/11_standings_bracket-860.webp"
+                 srcset="../assets/guide/10_tournaq_classic/11_standings_bracket-860.webp 860w,
+                         ../assets/guide/10_tournaq_classic/11_standings_bracket-1600.webp 1600w"
+                 sizes="(max-width: 860px) 92vw, 850px"
+                 width="860" height="359"
+                 loading="lazy" decoding="async"
+                 alt="Two groups feeding a Gold semi-final and final, with the qualifying places labelled A1, B2, B1 and A2">
+          </a>
+        </figure>
+      </div>
+
+      <div class="explainer">
+        <div class="explainer-copy">
+          <h3 data-i18n="index.teams.swiss.title">Swiss Systems</h3>
+          <span class="explainer-lead" data-i18n="index.teams.swiss.kicker">Paired rounds by score</span>
+          <p data-i18n="index.teams.swiss.text">Nobody is eliminated. After each round teams are re-paired against others on the same
+            record, so the field sorts itself and the games stay close right to the end — a full ranking from a
+            handful of rounds.</p>
+        </div>
+        <figure>
+          <a href="../assets/guide/11_swiss_system/11_standings_chart-1600.webp" target="_blank" rel="noopener"
+             aria-label="Open the full-size diagram">
+            <img src="../assets/guide/11_swiss_system/11_standings_chart-860.webp"
+                 srcset="../assets/guide/11_swiss_system/11_standings_chart-860.webp 860w,
+                         ../assets/guide/11_swiss_system/11_standings_chart-1600.webp 1600w"
+                 sizes="(max-width: 860px) 92vw, 850px"
+                 width="860" height="365"
+                 loading="lazy" decoding="async"
+                 alt="Three Swiss rounds side by side, each grouping teams into score buckets, resolving into final standings">
+          </a>
+          <figcaption data-i18n="index.teams.swiss.caption">Two teams in a box play each other. Pick a team to trace its
+            path through the rounds.</figcaption>
+        </figure>
+      </div>
+
+      <div class="showcase" style="margin-top: 26px;">
+        <div>
+          <ul>
+            <li><strong data-i18n="index.teams.arena.li1.title">Every format, one place.</strong> <span data-i18n="index.teams.arena.li1.text">The TournaQ Arena groups
+              quick games, social formats and team competitions, with your tournament history under each.</span></li>
+            <li><strong data-i18n="index.teams.arena.li2.title">Same engine underneath.</strong> <span data-i18n="index.teams.arena.li2.text">Whichever format you pick,
+              matches are scored the same way and the standings keep themselves up to date.</span></li>
+            <li><strong data-i18n="index.teams.arena.li3.title">Not sure which to run?</strong> <span data-i18n="index.teams.arena.li3.text">Every mode card carries an
+              info button explaining the format before you commit to it.</span></li>
+          </ul>
+          <a class="card-more-link" href="modes/games-and-tournaments.html" data-i18n="index.teams.arena.link">See all modes →</a>
         </div>
 
-        <div class="format-card">
-          <h3 data-i18n="index.mode.more.title">More Team Formats</h3>
-          <p data-i18n="index.mode.more.text">Leagues, TournaQ Classics and Swiss Systems are on the way. Every mode lives in the TournaQ
-            Arena, which shows what is playable today and what is coming next.</p>
-          <a class="card-more-link" href="modes/games-and-tournaments.html" data-i18n="index.mode.more.link">See all modes →</a>
-          <img src="../assets/screenshots/arena2.png" alt="TournaQ Arena team competitions: Eliminations available, Leagues, TournaQ Classics and Swiss Systems coming">
+        <div class="showcase-shots">
+          <img src="../assets/guide/00_shell/04_arena-430.webp"
+               srcset="../assets/guide/00_shell/04_arena-430.webp 430w,
+                       ../assets/guide/00_shell/04_arena-860.webp 860w"
+               sizes="(max-width: 760px) 90vw, 145px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="The TournaQ Arena listing quick games, social formats and the four team competitions">
         </div>
       </div>
     </section>
@@ -619,8 +796,20 @@
         </div>
 
         <div class="showcase-shots">
-          <img src="../assets/screenshots/scramble_setup_suggestionpartner.png" alt="Setup suggestions warning about partner coverage">
-          <img src="../assets/screenshots/scramble_tournament_finalranking.png" alt="Final ranking of a scramble tournament">
+          <img src="../assets/guide/03_social_scramble/14_setup_coverage_nudge-430.webp"
+               srcset="../assets/guide/03_social_scramble/14_setup_coverage_nudge-430.webp 430w,
+                       ../assets/guide/03_social_scramble/14_setup_coverage_nudge-645.webp 645w"
+               sizes="(max-width: 760px) 90vw, 145px"
+               width="430" height="999"
+               loading="lazy" decoding="async"
+               alt="Setup warning that six rounds will not let everyone partner with everyone, offering to use eighteen">
+          <img src="../assets/guide/03_social_scramble/12_final_rankings-430.webp"
+               srcset="../assets/guide/03_social_scramble/12_final_rankings-430.webp 430w,
+                       ../assets/guide/03_social_scramble/12_final_rankings-645.webp 645w"
+               sizes="(max-width: 760px) 90vw, 145px"
+               width="430" height="932"
+               loading="lazy" decoding="async"
+               alt="Final individual rankings at the end of a Social Scramble">
         </div>
       </div>
 
