@@ -527,10 +527,13 @@ footer a {
     margin: 0 6px;
 }
 
-/* The full nav row needs ~940px once the logo, six links and the language
+/* The full nav row needs ~1185px once the logo, seven links and the language
    switcher are laid out side by side, so it collapses to the burger well
-   before the rest of the layout changes. */
-@media (max-width: 1040px) {
+   before the rest of the layout changes. User Guide is the seventh link, and
+   it is what moved this from 1040: measured with the German labels, the row
+   overflows the viewport by 11px at 1145 and only clears at 1185. 1200 keeps
+   a little headroom. */
+@media (max-width: 1200px) {
     header {
         display: flex;
         flex-direction: column;
@@ -918,4 +921,181 @@ footer a {
 
 @media (max-width: 520px) {
     .feature-list li { flex-direction: column; gap: 8px; }
+}
+
+/* ══ Section rail ═════════════════════════════════════════════════════════
+   The left rail that answers "where am I inside this section". Lifted out of
+   the guide's own .g-map (pages/guide.html) so the feature and mode pages
+   navigate the same way, and so the guide can drop its private copy later
+   without a redesign. The rule the site follows once both use it:
+
+       the top row says which section you are in,
+       the rail says where you are inside it.
+
+   The rail is a grid item of <main>, not a wrapper around its children:
+   style.css targets `main > section` in half a dozen places, and moving the
+   sections into a column div would silently drop the panel framing off every
+   one of them.
+   ═══════════════════════════════════════════════════════════════════════ */
+main.has-section-nav {
+    display: grid;
+    grid-template-columns: 262px minmax(0, 1fr);
+    column-gap: 22px;
+    row-gap: 0;
+}
+
+/* Everything that is not the rail stacks in the content column. */
+main.has-section-nav > *:not(.section-nav) {
+    grid-column: 2;
+    min-width: 0;
+}
+
+.section-nav {
+    grid-column: 1;
+    /* Spanning every row gives sticky a tall containing block to travel in;
+       align-self keeps the rail its own height instead of stretching to fill
+       it, which would leave sticky nothing to do. */
+    grid-row: 1 / -1;
+    align-self: start;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 14px 20px;
+}
+
+.section-nav a { text-decoration: none; }
+
+.section-nav-head {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--olive);
+    margin: 0 0 2px;
+    padding: 0 8px;
+}
+
+.section-nav-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 14px;
+    padding: 0 8px;
+}
+
+.section-nav nav { display: flex; flex-direction: column; gap: 1px; }
+
+.section-nav-group {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: #8C8C80;
+    margin: 16px 0 6px;
+    padding: 0 8px;
+}
+
+.section-nav nav a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    line-height: 1.3;
+    color: var(--olive-dark);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.section-nav .section-nav-ic {
+    width: 1em;
+    height: 1em;
+    font-size: 15px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: none;
+    color: var(--olive);
+    opacity: 0.75;
+}
+
+.section-nav nav a:hover { background: rgba(85, 107, 47, 0.10); }
+.section-nav nav a[aria-current="page"] { background: var(--olive); color: white; }
+.section-nav nav a[aria-current="page"] .section-nav-ic { color: var(--gold); opacity: 1; }
+.section-nav nav a.sub { margin-left: 14px; font-size: 13px; }
+
+/* The site links only ever appear inside the rail once it is a drawer — on a
+   phone there is no room for two navigations, so the burger opens one panel
+   holding both levels. */
+.section-nav-site { display: none; }
+
+/* ── Drawer ───────────────────────────────────────────────────────────────
+   Same 900px the guide picked: below it the 262px rail costs the content
+   column more than it gives. Note this is not the header's 1200px burger
+   breakpoint — between the two, the rail is open on the left and the burger
+   still carries only the site links, which is exactly right: the drawer holds
+   whatever is not already on screen. */
+@media (max-width: 900px) {
+    main.has-section-nav {
+        display: block;
+    }
+
+    .section-nav {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 288px;
+        max-height: none;
+        z-index: 60;
+        border: 0;
+        border-right: 1px solid var(--border);
+        border-radius: 0;
+        padding: 20px 14px 40px;
+        transform: translateX(-101%);
+        transition: transform 0.2s ease;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .section-nav.open { transform: none; }
+
+    .section-nav-site { display: block; }
+    .section-nav-group-first { margin-top: 0; }
+
+    .section-nav-site nav a {
+        color: var(--olive-dark);
+        font-weight: 700;
+    }
+
+    .section-nav-site nav a.active {
+        background: var(--olive);
+        color: white;
+    }
+
+    .section-nav-sep {
+        height: 1px;
+        background: var(--border);
+        margin: 16px 8px 0;
+    }
+
+    .section-nav-scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 26, 26, 0.42);
+        z-index: 59;
+    }
+
+    /* The header's own drop-down list would be a second copy of the site
+       links, stacked over the drawer that already holds them. */
+    body.section-nav-drawer .nav-toggle:checked + .nav-burger + .nav-links {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-nav { transition: none; }
 }

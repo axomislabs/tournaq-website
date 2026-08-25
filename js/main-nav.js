@@ -16,6 +16,7 @@
       <a href="${base}index.html" data-i18n="nav.home">Home</a>
       <a href="${base}features.html" data-i18n="nav.features">Features</a>
       <a href="${base}platform.html" data-i18n="nav.platform">Platform</a>
+      <a href="${base}guide.html" data-i18n="nav.guide">User Guide</a>
       <a href="${base}downloads.html" data-i18n="nav.downloads">Downloads</a>
       <a href="${base}legal.html" data-i18n="nav.legal">Legal</a>
       <a href="${base}contact.html" data-i18n="nav.contact">Contact</a>

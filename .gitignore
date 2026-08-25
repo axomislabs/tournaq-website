@@ -2,3 +2,7 @@
 
 # Local drafts — pages under review, not part of the published site
 /drafts/
+
+# Zwischenstände der Kartenpipeline — die HTML und das Master-PNG lassen sich
+# jederzeit aus cards.json neu bauen. Ausgeliefert wird assets/cards/*.webp.
+/tools/cards/build/

@@ -1,0 +1,376 @@
+{
+  "quelle": "../TournaQ Bilder",
+  "nicht_verwendet": {
+    "Courts.png": "Infografik mit eigenem deutschem Text auf Weiss, dunkelblaue Marke — traegt die Posterbehandlung nicht.",
+    "Format.png": "Infografik auf Weiss, 2:1, eigener Text — dito."
+  },
+  "karten": [
+    {
+      "slug": "administration",
+      "bild": "Administration.png",
+      "titel": "Administration",
+      "sub": "Set up players, teams and clubs to easily\nassign them to your tournaments.",
+      "ziel": "administration",
+      "alt": "Administration — Set up players, teams and clubs to easily assign them to your tournaments.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "kurz": "Players, teams and clubs, set up once."
+    },
+    {
+      "slug": "arena",
+      "bild": "TournaQArena.png",
+      "titel": "TournaQ Arena",
+      "sub": "Browse the TournaQ Arena and find\nyour favourite game mode.",
+      "ziel": "arena",
+      "alt": "TournaQ Arena — Browse the TournaQ Arena and find your favourite game mode.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "kurz": "Find your favourite game mode."
+    },
+    {
+      "slug": "quick-game",
+      "bild": "Quick Game.png",
+      "titel": "Quick Game",
+      "sub": "Easily keep track\nof any game.",
+      "ziel": "quick-game",
+      "alt": "Quick Game — easily keep track of any game.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten"
+    },
+    {
+      "slug": "tournament-hub",
+      "bild": "Tournament Hub.png",
+      "titel": "Tournament Hub",
+      "sub": "Maintain and set up\nnew tournaments.",
+      "ziel": "tournament-hub",
+      "alt": "Tournament Hub — Maintain and set up new tournaments.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "kurz": "Set up a new tournament."
+    },
+    {
+      "slug": "tournament",
+      "bild": "Tournament.png",
+      "titel": "Running a Tournament",
+      "sub": "Keep control over your tournament and change\nsettings as needed. Track results and progress.",
+      "ziel": "tournament",
+      "alt": "Running a Tournament — Keep control over your tournament and change settings as needed. Track results and progress.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-h1": "108px",
+      "t-sub": "42px",
+      "kurz": "Your control desk once it starts."
+    },
+    {
+      "slug": "scorecards",
+      "bild": "Scorecards.png",
+      "titel": "Scorecards",
+      "sub": "The referee's best friend. Easily keep track of the\nresults, supported by time keeping, automatic\nside changes and serving indication.",
+      "ziel": "scorecards",
+      "alt": "Scorecards — The referee's best friend. Easily keep track of the results, supported by time keeping, automatic side changes and serving indication.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-sub": "38px",
+      "kurz": "The referee's best friend."
+    },
+    {
+      "slug": "exported",
+      "bild": "Scorecard QRexchange.png",
+      "titel": "Exported Scorecard",
+      "sub": "Leverage the offline functions of TournaQ and hand\nscorecards of your tournament over to your\nassigned referees by QR code.",
+      "ziel": "exported",
+      "alt": "Exported Scorecard — Leverage the offline functions of TournaQ and hand scorecards of your tournament over to your assigned referees by QR code.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-h1": "112px",
+      "t-sub": "38px",
+      "kurz": "Hand scorecards over by QR code."
+    },
+    {
+      "slug": "team-competitions",
+      "bild": "Team Competions.png",
+      "titel": "Team Competitions",
+      "sub": "Play and win tournaments\ntogether with your partner.",
+      "ziel": "brackets",
+      "alt": "Team Competitions — Play and win tournaments together with your partner.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-h1": "112px"
+    },
+    {
+      "slug": "scramble-competitions",
+      "bild": "Scramble Competions.png",
+      "titel": "Scramble Competitions",
+      "sub": "Play and win tournaments on your own account.\nTemporarily team up with everyone in your group.",
+      "ziel": "scrambles",
+      "alt": "Scramble Competitions — Play and win tournaments on your own account. Temporarily team up with everyone in your group.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-h1": "102px",
+      "t-sub": "42px"
+    },
+    {
+      "slug": "queue-modes",
+      "bild": "Queue Modes.png",
+      "titel": "Queue Modes",
+      "sub": "Queue up and play nonstop.\nCan you handle the pressure?",
+      "ziel": "queue-modes",
+      "alt": "Queue Modes — Queue up and play nonstop. Can you handle the pressure?",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "links"
+    },
+    {
+      "slug": "social-scramble",
+      "bild": "Social Scramble.png",
+      "titel": "Social Scrambles",
+      "sub": "Team up for timed games with everyone in your group.\nPlay a full tournament in less than an hour.",
+      "ziel": "m-social-scramble",
+      "alt": "Social Scrambles — Team up for timed games with everyone in your group. Play a full tournament in less than an hour.",
+      "foto": {
+        "x": "50%",
+        "y": "96%",
+        "zoom": "1.18"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-sub": "42px"
+    },
+    {
+      "slug": "royal-rotation",
+      "bild": "Royal Rotation.png",
+      "titel": "Royal Rotations",
+      "sub": "King of the Court. Stick with a partner\nfor one round — but never for two.",
+      "ziel": "m-scramble-king",
+      "alt": "Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten"
+    },
+    {
+      "slug": "royal-shuffle",
+      "bild": "Royal Shuffle.png",
+      "titel": "Royal Shuffles",
+      "sub": "King of the Court.\nChange your partner with every rally.",
+      "ziel": "m-kotc",
+      "alt": "Royal Shuffles — King of the Court. Change your partner with every rally.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "links",
+      "hinweis": "Zielseite m-kotc heisst im Guide noch 'King of the Court'. Umbenennen auf 'Royal Shuffle' steht aus."
+    },
+    {
+      "slug": "royal-duo",
+      "bild": "Royal Duo.png",
+      "titel": "Royal Duos",
+      "sub": "King of the Court.\nWin as a team.",
+      "ziel": "m-royal-duo",
+      "alt": "Royal Duos — King of the Court. Win as a team.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "links"
+    },
+    {
+      "slug": "doghouse",
+      "bild": "DogHouse.png",
+      "titel": "Doghouses",
+      "sub": "Get out of the Doghouse —\nif you can.",
+      "ziel": "m-doghouse",
+      "alt": "Doghouses — Get out of the Doghouse — if you can.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "links",
+      "hinweis": "Der Guide nennt m-doghouse derzeit noch 'Royal Shuffle'. Dieser Name gehoert zu m-kotc. Bis der Guide umbenannt ist, sagt die Karte etwas anderes als die verlinkte Seite."
+    },
+    {
+      "slug": "league",
+      "bild": "Leagues.png",
+      "titel": "Leagues",
+      "sub": "Play against everybody.\nOnce or twice. No excuses.",
+      "kurz": "Everybody plays everybody.",
+      "ziel": "m-league",
+      "alt": "Leagues — Play against everybody. Once or twice. No excuses.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten"
+    },
+    {
+      "slug": "elimination",
+      "bild": "Eliminations.png",
+      "titel": "Eliminations",
+      "sub": "Win or get knocked out.\nA game of nerves.",
+      "kurz": "A plain knockout.",
+      "ziel": "m-elimination",
+      "alt": "Eliminations — Win or get knocked out. A game of nerves.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-sub": "42px"
+    },
+    {
+      "slug": "classic",
+      "bild": "TournaQClassics.png",
+      "titel": "TournaQ Classics",
+      "sub": "Qualify for the gold tier, or make it through in bronze.\nSecure your spot on the podium.",
+      "kurz": "Qualification first, then knockout.",
+      "ziel": "m-classic",
+      "alt": "TournaQ Classics — Qualify for the gold tier, or make it through in bronze. Secure your spot on the podium.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-h1": "112px",
+      "t-sub": "38px"
+    },
+    {
+      "slug": "swiss",
+      "bild": "Swiss Systems.png",
+      "titel": "Swiss Systems",
+      "sub": "Win and play against winners.\nUntil it gets lonely at the top.",
+      "kurz": "Paired against someone on your score.",
+      "ziel": "m-swiss",
+      "alt": "Swiss Systems — Win and play against winners. Until it gets lonely at the top.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "t-sub": "42px"
+    }
+  ]
+}

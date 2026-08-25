@@ -1,0 +1,146 @@
+/* Die Bildkarte — Foto aus assets/cards/, Text als HTML darueber.
+   Geladen von pages/guide.html und von den Werkzeugen unter tools/cards/,
+   damit es die Gestaltung nur an einer Stelle gibt.
+
+   Warum der Text nicht im Bild steckt: die Sublines muessen uebersetzbar
+   bleiben. Gebrannt braeuchte es drei Bildsaetze (126 statt 42 Dateien) und
+   einen sprachabhaengigen Bildpfad, den js/i18n.js gar nicht kennt — es gibt
+   dort data-i18n, -html, -alt und -title, aber kein -src. Als HTML ist es
+   normales i18n, bleibt bei jeder Groesse scharf und markierbar, und im Hero
+   laesst man den Text weg, statt den Titel doppelt zu zeigen.
+
+   Die Groessen stehen in cqw — ein Prozent der Kartenbreite. Damit skaliert
+   der Text exakt so mit wie frueher der eingebrannte, egal ob die Karte
+   300 px oder 1600 px breit ist. Die Werte sind die alten px-Werte geteilt
+   durch 16, weil das Rendermass 1600 px war: Titel 128px -> 8cqw. */
+
+.tq-card {
+    position: relative;
+    display: block;
+    container-type: inline-size;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    background: var(--olive-dark);
+
+    --tq-t: 8cqw;      /* Titel   — je Karte ueberschreibbar */
+    --tq-s: 2.875cqw;  /* Subline — je Karte ueberschreibbar */
+}
+
+.tq-card > img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.tq-card-text {
+    position: absolute;
+    inset: 0;
+    padding: 5.625cqw;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    text-align: left;
+    /* Der Text darf den Klick auf die Karte nicht abfangen. */
+    pointer-events: none;
+}
+
+.tq-card-body {
+    padding-left: 2.125cqw;
+    border-left: 0.3125cqw solid var(--gold);
+    /* Ohne die volle Breite ist der Block nur so breit wie der Titel, und
+       das max-width an .tq-s bezoege sich dann auf die Titelbreite statt
+       auf die Karte — die Subline braeche mitten im Satz um. */
+    width: 100%;
+}
+
+.tq-t {
+    display: block;
+    font-size: var(--tq-t);
+    font-weight: 800;
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    color: var(--gold);
+    /* Gold hat gegen hellen Sand weniger Reserve als Weiss: der erste
+       Schatten traegt die Kante, der zweite legt den Grund dahinter ab. */
+    text-shadow: 0 0.125cqw 0.5cqw rgba(0, 0, 0, 0.8),
+                 0 0.25cqw 1.875cqw rgba(0, 0, 0, 0.65);
+}
+
+.tq-s {
+    display: block;
+    font-size: var(--tq-s);
+    font-weight: 500;
+    line-height: 1.36;
+    letter-spacing: 0.005em;
+    color: #E8EEDC;
+    /* Nur eine Notbremse — die Umbrueche setzt das <br> im Markup. 80 %
+       war zu eng: im 2er-Raster riss sie "…everyone in your / group." auf,
+       obwohl der Umbruch erst danach stehen sollte. */
+    max-width: 92%;
+    margin-top: 1.25cqw;
+    text-shadow: 0 0.125cqw 1.125cqw rgba(0, 0, 0, 0.6);
+}
+
+/* Der Hero traegt denselben Text wie die Karte. Die Seite wiederholt den
+   Titel darunter als Ueberschrift — das ist gewollt, wie im Magazin. */
+.tq-card.tq-hero { border-radius: var(--radius); }
+
+/* Kleine Fassung fuer das Prinzip-Diagramm. Dort sind die Karten rund
+   250px breit; in cqw waere der Titel dann 20px und die Subline 8px — zu
+   klein. Deshalb hier feste Groessen statt mitskalierender. */
+.tq-card.tq-mini { --tq-t: 21px; --tq-s: 12px; border-radius: 12px; }
+.tq-card.tq-mini .tq-card-text {
+    padding: 13px;
+    /* Der gebrannte Scrim im Bild ist auf einen Textblock von rund 40 %
+       Hoehe ausgelegt. In der kleinen Karte nimmt derselbe Text mehr als
+       die Haelfte ein und der Titel landet sonst im hellen Sand. Dieser
+       Verlauf legt genau dort nach — er gehoert zur Textebene, nicht ins
+       Bild, damit das Bild fuer alle Groessen dasselbe bleibt. */
+    background: linear-gradient(180deg,
+        rgba(20, 22, 10, 0) 0%,
+        rgba(20, 22, 10, 0.30) 26%,
+        rgba(20, 22, 10, 0.72) 52%,
+        rgba(20, 22, 10, 0.90) 76%,
+        rgba(20, 22, 10, 0.95) 100%);
+}
+
+.tq-card.tq-mini .tq-card-body {
+    padding-left: 11px;
+    border-left-width: 3px;
+}
+
+.tq-card.tq-mini .tq-t {
+    letter-spacing: -0.005em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85), 0 2px 14px rgba(0, 0, 0, 0.65);
+}
+
+.tq-card.tq-mini .tq-s {
+    max-width: 100%;
+    margin-top: 4px;
+    line-height: 1.28;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
+}
+
+/* Nur die verlinkte Fassung hebt an. */
+a.tq-card {
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+a.tq-card:hover {
+    border-color: var(--olive);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+}
+
+.tq-grid {
+    display: grid;
+    /* Der Text skaliert jetzt mit der Karte, nicht mehr in fester Groesse —
+       die Zweispaltigkeit war nur wegen des eingebrannten Textes noetig.
+       Trotzdem 300px Untergrenze: darunter wird die Subline zu klein zum
+       Lesen, ganz gleich wie sauber sie skaliert. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 14px;
+}
