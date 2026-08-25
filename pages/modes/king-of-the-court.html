@@ -9,7 +9,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kings of the Court – TournaQ</title>
+  <title>Royal Shuffles – TournaQ</title>
   <link rel="icon" href="../../favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/favicon-16.png">
@@ -17,9 +17,15 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/guide.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
-  <script src="../../js/feature-subnav.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="../../js/guide/tree.js" defer></script>
+  <script src="../../js/guide/sprite.js" defer></script>
+  <script src="../../js/guide/render.js" defer></script>
+  <script src="../../js/site-map.js" defer></script>
 </head>
 
 <body>
@@ -40,7 +46,7 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1>Kings of the Court</h1>
+      <h1>Royal Shuffles</h1>
       <p class="subtitle">Hold the court. Score points. Stay on top — until someone knocks you off.</p>
     </div>
   </header>
@@ -52,7 +58,7 @@
     <!-- Overview -->
     <section class="card">
       <div class="completed-status phase-status" data-i18n="features.pill.available">Available</div>
-      <h2>Kings of the Court</h2>
+      <h2>Royal Shuffles</h2>
 
       <div class="guide-split is-lead" style="margin-top: 22px;">
         <div class="split-media">
@@ -62,7 +68,7 @@
                sizes="(max-width: 760px) 90vw, 260px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="A Kings of the Court session in progress, showing the strike target, the challenger queue and the round schedule">
+               alt="A Royal Shuffles session in progress, showing the strike target, the challenger queue and the round schedule">
         </div>
         <div class="split-copy">
           <p>Win and you stay on. Lose and you go straight to the back of the queue. Points only count while you are holding the court, so the pressure sits with whoever is winning — which is what makes it hard to stop playing.</p>
@@ -93,7 +99,7 @@
     <!-- Finding it in the app -->
     <section id="find" style="margin-top: 40px;">
       <h2 class="section-title">Finding it in the app</h2>
-      <p class="section-text">Kings of the Court lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.</p>
+      <p class="section-text">Royal Shuffles lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.</p>
 
       <div class="guide-split-grid">
       <div class="guide-card guide-split">
@@ -119,10 +125,10 @@
                sizes="(max-width: 1040px) 45vw, 240px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="The Kings of the Court hub listing past sessions above a New Tournament button">
+               alt="The Royal Shuffles hub listing past sessions above a New Tournament button">
         </div>
         <div class="split-copy">
-          <h3>The Kings of the Court hub</h3>
+          <h3>The Royal Shuffles hub</h3>
           <p>New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.</p>
         </div>
       </div>
@@ -144,7 +150,7 @@
                  sizes="(max-width: 1040px) 45vw, 240px"
                  width="430" height="1243"
                  loading="lazy" decoding="async"
-                 alt="The complete Kings of the Court setup form, from players and courts through the strike target and swap rule">
+                 alt="The complete Royal Shuffles setup form, from players and courts through the strike target and swap rule">
           </div>
         </div>
         <div class="split-copy">
@@ -186,7 +192,7 @@
                sizes="(max-width: 760px) 90vw, 280px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="Kings of the Court overview showing one of four rounds complete, a 25% ring and the settings pills">
+               alt="Royal Shuffles overview showing one of four rounds complete, a 25% ring and the settings pills">
         </div>
         <div class="guide-card">
           <h3>Round by round, or court by court</h3>
@@ -198,7 +204,7 @@
                  sizes="(max-width: 760px) 90vw, 280px"
                  width="430" height="1389"
                  loading="lazy" decoding="async"
-                 alt="The Kings of the Court schedule regrouped so each court lists its own matches">
+                 alt="The Royal Shuffles schedule regrouped so each court lists its own matches">
           </div>
         </div>
         <div class="guide-card">
@@ -231,7 +237,7 @@
                  sizes="(max-width: 760px) 90vw, 280px"
                  width="430" height="1139"
                  loading="lazy" decoding="async"
-                 alt="The Kings of the Court card in portrait, showing the court, the challengers and the queue">
+                 alt="The Royal Shuffles card in portrait, showing the court, the challengers and the queue">
           </div>
         </div>
         <div class="guide-card">
@@ -243,7 +249,7 @@
                sizes="(max-width: 760px) 90vw, 380px"
                width="860" height="397"
                loading="lazy" decoding="async"
-               alt="The same Kings of the Court card rotated to landscape">
+               alt="The same Royal Shuffles card rotated to landscape">
         </div>
         <div class="guide-card">
           <h3>Game won</h3>
@@ -390,7 +396,7 @@
       <h2 class="section-title">Start to finish</h2>
       <div class="workflow-card">
         <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
-          <li>Open the <strong>TournaQ Arena</strong> and pick Kings of the Court.</li>
+          <li>Open the <strong>TournaQ Arena</strong> and pick Royal Shuffles — still labelled <strong>King of the Court</strong> in the app.</li>
           <li>Tap <strong>New Tournament</strong>.</li>
           <li>Set the players, courts and match length, then the strike target and the swap rule.</li>
           <li>Add the players and name the session.</li>
@@ -406,7 +412,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.king-of-the-court.feedback.text">Have a question about Kings of the Court, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="modes.king-of-the-court.feedback.text">Have a question about Royal Shuffles, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

@@ -37,8 +37,11 @@ STATUS = {'Available': 'available', 'In Progress': 'progress', 'Planned': 'plann
 CELL = {'Available': 'yes', 'Planned': 'planned', 'N/A': 'na', '': ''}
 MODE_COL = {
     'Quick Game': 'quick-game', 'Social Scrambles': 'social-scramble',
-    'Scramble Kings': 'scramble-king', 'Doghouses': 'doghouse',
-    'Kings of the Court': 'king-of-the-court', 'Eliminations': 'ko-system',
+    'Royal Rotations': 'scramble-king', 'Doghouses': 'doghouse',
+    'Royal Shuffles': 'king-of-the-court', 'Eliminations': 'ko-system',
+    # Die alten Namen bleiben gueltig: der Export kommt von aussen und wurde
+    # womoeglich noch nicht umbenannt. Dateinamen und Slugs aendern sich nie.
+    'Scramble Kings': 'scramble-king', 'Kings of the Court': 'king-of-the-court',
     'Leagues': 'league', 'TournaQ Classics': 'group-single-elimination',
     'Swiss Systems': 'swiss-system', 'Other Tournament Modes': 'other-tournament-modes',
 }

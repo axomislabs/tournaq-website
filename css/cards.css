@@ -88,6 +88,27 @@
    Titel darunter als Ueberschrift — das ist gewollt, wie im Magazin. */
 .tq-card.tq-hero { border-radius: var(--radius); }
 
+/* Gespiegelte Fassung. Gebraucht vom Startseiten-Hero: dort steht das Telefon
+   links unten im Sand, also genau dort, wo der Textblock sonst sitzt. Das Bild
+   enger zu schneiden hilft nicht — das Telefon steht am unteren Bildrand und
+   bleibt bei jedem Zoom dort, und nach rechts geschoben faellt die Sonne aus
+   dem Bild. Also wandert der Text auf die freie Haelfte, und die Goldkante
+   mit ihm: eine Kante links an rechtsbuendigem Text haengt in der Luft. */
+.tq-card--rechts .tq-card-text {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.tq-card--rechts .tq-card-body {
+    padding-left: 0;
+    padding-right: 2.125cqw;
+    border-left: 0;
+    border-right: 0.3125cqw solid var(--gold);
+}
+
+/* max-width an .tq-s schneidet sonst links ab, wo der Text gerade anfaengt. */
+.tq-card--rechts .tq-s { margin-left: auto; }
+
 /* Kleine Fassung fuer das Prinzip-Diagramm. Dort sind die Karten rund
    250px breit; in cqw waere der Titel dann 20px und die Subline 8px — zu
    klein. Deshalb hier feste Groessen statt mitskalierender. */

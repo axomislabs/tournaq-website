@@ -9,7 +9,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scramble Kings – TournaQ</title>
+  <title>Royal Rotations – TournaQ</title>
   <link rel="icon" href="../../favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../../assets/favicon-16.png">
@@ -17,9 +17,15 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/guide.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
-  <script src="../../js/feature-subnav.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="../../js/guide/tree.js" defer></script>
+  <script src="../../js/guide/sprite.js" defer></script>
+  <script src="../../js/guide/render.js" defer></script>
+  <script src="../../js/site-map.js" defer></script>
 </head>
 
 <body>
@@ -40,7 +46,7 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1>Scramble Kings</h1>
+      <h1>Royal Rotations</h1>
       <p class="subtitle">Fresh teams every round. King of the Court on every court. One pool, constant motion.</p>
     </div>
   </header>
@@ -52,7 +58,7 @@
     <!-- Overview -->
     <section class="card">
       <div class="completed-status phase-status" data-i18n="features.pill.available">Available</div>
-      <h2>Scramble Kings</h2>
+      <h2>Royal Rotations</h2>
 
       <div class="guide-split is-lead" style="margin-top: 22px;">
         <div class="split-media">
@@ -62,7 +68,7 @@
                sizes="(max-width: 760px) 90vw, 260px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="A Scramble Kings session in progress, showing paired teams, the strike target and the round schedule">
+               alt="A Royal Rotations session in progress, showing paired teams, the strike target and the round schedule">
         </div>
         <div class="split-copy">
           <p>Two formats at once. The whole pool is scrambled into fresh pairs every round, the way a Social Scramble does it — and then each court is played as King of the Court, so holding on is worth points.</p>
@@ -92,7 +98,7 @@
     <!-- Finding it in the app -->
     <section id="find" style="margin-top: 40px;">
       <h2 class="section-title">Finding it in the app</h2>
-      <p class="section-text">Scramble Kings lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.</p>
+      <p class="section-text">Royal Rotations lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.</p>
 
       <div class="guide-split-grid">
       <div class="guide-card guide-split">
@@ -103,7 +109,7 @@
                sizes="(max-width: 1040px) 45vw, 240px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="The TournaQ Arena, with Scramble Kings under Single Competitions and Socials">
+               alt="The TournaQ Arena, with Royal Rotations under Single Competitions and Socials">
         </div>
         <div class="split-copy">
           <h3>The Arena</h3>
@@ -118,10 +124,10 @@
                sizes="(max-width: 1040px) 45vw, 240px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="The Scramble Kings hub listing past sessions above a New Tournament button">
+               alt="The Royal Rotations hub listing past sessions above a New Tournament button">
         </div>
         <div class="split-copy">
-          <h3>The Scramble Kings hub</h3>
+          <h3>The Royal Rotations hub</h3>
           <p>New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.</p>
         </div>
       </div>
@@ -143,7 +149,7 @@
                  sizes="(max-width: 1040px) 45vw, 240px"
                  width="430" height="1330"
                  loading="lazy" decoding="async"
-                 alt="The complete Scramble Kings setup form, from the pool and courts through the strike target and swap rule">
+                 alt="The complete Royal Rotations setup form, from the pool and courts through the strike target and swap rule">
           </div>
         </div>
         <div class="split-copy">
@@ -187,7 +193,7 @@
                sizes="(max-width: 760px) 90vw, 280px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="Scramble Kings overview showing one of four rounds complete, thirteen players and the settings pills">
+               alt="Royal Rotations overview showing one of four rounds complete, thirteen players and the settings pills">
         </div>
         <div class="guide-card">
           <h3>Round by round, or court by court</h3>
@@ -199,7 +205,7 @@
                  sizes="(max-width: 760px) 90vw, 280px"
                  width="430" height="1507"
                  loading="lazy" decoding="async"
-                 alt="The Scramble Kings schedule regrouped so each court lists its own matches">
+                 alt="The Royal Rotations schedule regrouped so each court lists its own matches">
           </div>
         </div>
         <div class="guide-card">
@@ -232,7 +238,7 @@
                  sizes="(max-width: 760px) 90vw, 280px"
                  width="430" height="2130"
                  loading="lazy" decoding="async"
-                 alt="The Scramble Kings court card in portrait, showing the pairs on court, the challengers and the queue">
+                 alt="The Royal Rotations court card in portrait, showing the pairs on court, the challengers and the queue">
           </div>
         </div>
         <div class="guide-card">
@@ -244,7 +250,7 @@
                sizes="(max-width: 760px) 90vw, 380px"
                width="860" height="397"
                loading="lazy" decoding="async"
-               alt="The same Scramble Kings court card rotated to landscape">
+               alt="The same Royal Rotations court card rotated to landscape">
         </div>
         <div class="guide-card">
           <h3>Strikes</h3>
@@ -314,7 +320,7 @@
                sizes="(max-width: 760px) 90vw, 280px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="Live individual standings partway through a Scramble Kings session">
+               alt="Live individual standings partway through a Royal Rotations session">
         </div>
         <div class="guide-card">
           <h3>Final rankings</h3>
@@ -325,7 +331,7 @@
                sizes="(max-width: 760px) 90vw, 280px"
                width="430" height="932"
                loading="lazy" decoding="async" class="vertical"
-               alt="The final individual ranking table at the end of a Scramble Kings session">
+               alt="The final individual ranking table at the end of a Royal Rotations session">
         </div>
         <div class="guide-card">
           <h3>The finished session</h3>
@@ -337,7 +343,7 @@
                  sizes="(max-width: 760px) 90vw, 280px"
                  width="430" height="1121"
                  loading="lazy" decoding="async"
-                 alt="A completed Scramble Kings session with every round played and every score recorded">
+                 alt="A completed Royal Rotations session with every round played and every score recorded">
           </div>
         </div>
       </div>
@@ -347,7 +353,7 @@
       <h2 class="section-title">Start to finish</h2>
       <div class="workflow-card">
         <ol style="padding-left: 22px; color: var(--muted); line-height: 1.9; font-size: 14px;">
-          <li>Open the <strong>TournaQ Arena</strong> and pick Scramble Kings.</li>
+          <li>Open the <strong>TournaQ Arena</strong> and pick Royal Rotations — still labelled <strong>Scramble King</strong> in the app.</li>
           <li>Tap <strong>New Tournament</strong>.</li>
           <li>Set the players, courts and match length, then the strike target and the swap rule.</li>
           <li>Add the players and name the session.</li>
@@ -363,7 +369,7 @@
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>
-        <p data-i18n="modes.scramble-king.feedback.text">Have a question about Scramble Kings, spotted something missing, or want to suggest an improvement?</p>
+        <p data-i18n="modes.scramble-king.feedback.text">Have a question about Royal Rotations, spotted something missing, or want to suggest an improvement?</p>
       </div>
       <a href="../contact.html" class="feedback-cta-btn" data-i18n="feedback.cta.btn">Get in Touch</a>
     </div>

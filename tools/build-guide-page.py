@@ -44,9 +44,15 @@ HEAD = '''<!DOCTYPE html>
   <link rel="manifest" href="{up}site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="{up}css/style.css">
+  <link rel="stylesheet" href="{up}css/guide.css">
   <script src="{up}js/main-nav.js" defer></script>
   <script src="{up}js/i18n.js" defer></script>
-  <script src="{up}js/feature-subnav.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="{up}js/guide/tree.js" defer></script>
+  <script src="{up}js/guide/sprite.js" defer></script>
+  <script src="{up}js/guide/render.js" defer></script>
+  <script src="{up}js/site-map.js" defer></script>
 </head>
 
 <body>

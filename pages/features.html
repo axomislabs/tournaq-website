@@ -12,9 +12,15 @@
   <link rel="manifest" href="../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/guide.css">
   <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
-  <script src="../js/feature-subnav.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="../js/guide/tree.js" defer></script>
+  <script src="../js/guide/sprite.js" defer></script>
+  <script src="../js/guide/render.js" defer></script>
+  <script src="../js/site-map.js" defer></script>
   <style>
     html {
       scroll-behavior: smooth;
@@ -214,7 +220,7 @@
           <a href="modes/scramble-king.html" class="hub-item">
             <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
             <div class="item-info">
-              <span class="item-title" data-i18n="features.hub.item.scramble-king.title">Scramble Kings</span>
+              <span class="item-title" data-i18n="features.hub.item.scramble-king.title">Royal Rotations</span>
               <span class="item-desc" data-i18n="features.hub.item.scramble-king.desc">Whole-pool scramble combined with King of the Court scoring on every court, round by round.</span>
             </div>
             <span class="item-arrow">→</span>
@@ -232,7 +238,7 @@
           <a href="modes/king-of-the-court.html" class="hub-item">
             <span class="pill pill-available" data-i18n="features.pill.available">Available</span>
             <div class="item-info">
-              <span class="item-title" data-i18n="features.hub.item.king-of-the-court.title">Kings of the Court</span>
+              <span class="item-title" data-i18n="features.hub.item.king-of-the-court.title">Royal Shuffles</span>
               <span class="item-desc" data-i18n="features.hub.item.king-of-the-court.desc">Score and hold the court — until you don't. Most cumulative wins takes the crown.</span>
             </div>
             <span class="item-arrow">→</span>

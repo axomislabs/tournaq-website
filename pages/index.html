@@ -19,8 +19,16 @@
   <meta name="theme-color" content="#3A3E16">
 
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/cards.css">
+  <link rel="stylesheet" href="../css/guide.css">
   <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="../js/guide/tree.js" defer></script>
+  <script src="../js/guide/sprite.js" defer></script>
+  <script src="../js/guide/render.js" defer></script>
+  <script src="../js/site-map.js" defer></script>
 
   <style>
     .lead {
@@ -64,6 +72,12 @@
       font-style: normal;
       font-weight: 700;
       color: var(--olive);
+    }
+
+    /* Die Bildkarte, mit der die Seite aufmacht. Sie steht vor dem ersten
+       <section>, das seinen Abstand selbst mitbringt — also hier setzen. */
+    .hero-card {
+      margin-bottom: 44px;
     }
 
     /* ── "What's the score again?" cards ── */
@@ -509,6 +523,28 @@
 
   <main>
 
+    <!-- 0 · Das Bild, mit dem die Seite aufmacht. Dieselbe Bildkarte wie im
+         Guide: Foto aus assets/cards/, Titel und Subline als HTML darueber,
+         damit sie uebersetzbar bleiben. Gebaut aus "TournaQ Bilder/TournaQ
+         Start.png" mit tools/cards/build-cards.py --only start. -->
+    <div class="tq-card tq-hero tq-card--rechts hero-card" style="--tq-t: 6cqw">
+      <img src="../assets/cards/start-960.webp"
+           srcset="../assets/cards/start-480.webp 480w,
+                   ../assets/cards/start-960.webp 960w,
+                   ../assets/cards/start-1600.webp 1600w"
+           sizes="(max-width: 900px) 92vw, 960px"
+           width="1600" height="1000"
+           loading="eager" fetchpriority="high" decoding="async"
+           data-i18n-alt="index.card.hero.alt"
+           alt="A phone standing in the sand with a live TournaQ scorecard, beach volleyball courts behind it at sunset">
+      <div class="tq-card-text">
+        <div class="tq-card-body">
+          <span class="tq-t" data-i18n="index.card.hero.title">TournaQ Volley</span>
+          <span class="tq-s" data-i18n-html="index.card.hero.sub">Scoring, Games and<br>Tournament Management</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 1 · The everyday pain, in the player's own voice -->
     <section id="admin">
       <h2 class="section-title" data-i18n="index.admin.title">The volleyball is great. The admin is not.</h2>
@@ -575,7 +611,7 @@
                        ../assets/guide/02_quick_games/04_quick_start_teams-860.webp 860w"
                sizes="(max-width: 760px) 90vw, 145px"
                width="430" height="932"
-               loading="eager" fetchpriority="high" decoding="async"
+               loading="eager" decoding="async"
                alt="Quick Game setup: two teams named and ready, with target score and number of sets">
           <img src="../assets/guide/02_quick_games/06_scorecard-430.webp"
                srcset="../assets/guide/02_quick_games/06_scorecard-430.webp 430w,
@@ -610,7 +646,7 @@
         </div>
 
         <div class="format-card">
-          <h3 data-i18n="index.mode.scrambleking.title">Scramble Kings</h3>
+          <h3 data-i18n="index.mode.scrambleking.title">Royal Rotations</h3>
           <p data-i18n="index.mode.scrambleking.text">The whole pool scrambled across every court, with King of the Court scoring on each one. Chaos, organised
             round by round.</p>
           <img src="../assets/guide/04_scramble_king/04_overview-430.webp"
@@ -619,11 +655,11 @@
                sizes="(max-width: 760px) 90vw, 170px"
                width="430" height="932"
                loading="lazy" decoding="async"
-               alt="A Scramble Kings session with 13 players, paired teams and a 5-point strike target">
+               alt="A Royal Rotations session with 13 players, paired teams and a 5-point strike target">
         </div>
 
         <div class="format-card">
-          <h3 data-i18n="index.mode.kotc.title">Kings of the Court</h3>
+          <h3 data-i18n="index.mode.kotc.title">Royal Shuffles</h3>
           <p data-i18n="index.mode.kotc.text">Win and you stay on. Lose and you're straight back in the queue. Fast, loud, and impossible to stop
             playing.</p>
           <img src="../assets/guide/05_king_of_the_court/04_overview-430.webp"
@@ -632,7 +668,7 @@
                sizes="(max-width: 760px) 90vw, 170px"
                width="430" height="932"
                loading="lazy" decoding="async"
-               alt="A Kings of the Court session with the challenger queue and a 5-point strike target">
+               alt="A Royal Shuffles session with the challenger queue and a 5-point strike target">
         </div>
 
         <div class="format-card">

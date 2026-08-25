@@ -3,12 +3,12 @@
   "out": "pages/modes/king-of-the-court.html",
   "depth": 2,
   "folder": "05_king_of_the_court",
-  "title": "Kings of the Court",
+  "title": "Royal Shuffles",
   "subtitle": "Hold the court. Score points. Stay on top — until someone knocks you off.",
   "status": "available",
   "hero": {
     "shot": "04_overview",
-    "alt": "A Kings of the Court session in progress, showing the strike target, the challenger queue and the round schedule"
+    "alt": "A Royal Shuffles session in progress, showing the strike target, the challenger queue and the round schedule"
   },
   "intro": [
     "Win and you stay on. Lose and you go straight to the back of the queue. Points only count while you are holding the court, so the pressure sits with whoever is winning — which is what makes it hard to stop playing.",
@@ -25,7 +25,7 @@
       "nav": "Find it",
       "split": true,
       "title": "Finding it in the app",
-      "text": "Kings of the Court lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.",
+      "text": "Royal Shuffles lives under Single Competitions &amp; Socials in the TournaQ Arena. The hub keeps every session you have run, so last week's is two taps away.",
       "cards": [
         {
           "h": "The Arena",
@@ -34,10 +34,10 @@
           "p": "Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run."
         },
         {
-          "h": "The Kings of the Court hub",
+          "h": "The Royal Shuffles hub",
           "p": "New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.",
           "shot": "01_hub",
-          "alt": "The Kings of the Court hub listing past sessions above a New Tournament button"
+          "alt": "The Royal Shuffles hub listing past sessions above a New Tournament button"
         }
       ]
     },
@@ -55,7 +55,7 @@
             "Every field feeds the Schedule Preview, so the predicted finish moves as you change your mind — no working out how many rounds fit in the time you have."
           ],
           "shot": "03_setup_full",
-          "alt": "The complete Kings of the Court setup form, from players and courts through the strike target and swap rule"
+          "alt": "The complete Royal Shuffles setup form, from players and courts through the strike target and swap rule"
         },
         {
           "h": "Who is playing",
@@ -75,13 +75,13 @@
           "h": "Progress and settings in one row",
           "p": "Rounds complete, a progress ring, and a row of pills — standings, allocation, players, format, strike target, swap rule and estimated finish. A pill with a pencil can still be changed; one with a lock was fixed when play started.",
           "shot": "04_overview",
-          "alt": "Kings of the Court overview showing one of four rounds complete, a 25% ring and the settings pills"
+          "alt": "Royal Shuffles overview showing one of four rounds complete, a 25% ring and the settings pills"
         },
         {
           "h": "Round by round, or court by court",
           "p": "The schedule groups by round out of the box. Switch it to Court and each court lists its own sequence — useful when several courts run at once and each has its own king.",
           "shot": "06_overview_by_court",
-          "alt": "The Kings of the Court schedule regrouped so each court lists its own matches"
+          "alt": "The Royal Shuffles schedule regrouped so each court lists its own matches"
         },
         {
           "h": "Who is on which court",
@@ -101,13 +101,13 @@
           "h": "Portrait",
           "p": "The court, the challengers and the queue on one screen, with the session timer in the header. Tap to score, undo to take it back, and the strike count updates as you go.",
           "shot": "07_scorecard",
-          "alt": "The Kings of the Court card in portrait, showing the court, the challengers and the queue"
+          "alt": "The Royal Shuffles card in portrait, showing the court, the challengers and the queue"
         },
         {
           "h": "Landscape",
           "p": "Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.",
           "shot": "08_scorecard_landscape",
-          "alt": "The same Kings of the Court card rotated to landscape"
+          "alt": "The same Royal Shuffles card rotated to landscape"
         },
         {
           "h": "Game won",
@@ -192,7 +192,7 @@
     }
   ],
   "workflow": [
-    "Open the <strong>TournaQ Arena</strong> and pick Kings of the Court.",
+    "Open the <strong>TournaQ Arena</strong> and pick Royal Shuffles — still labelled <strong>King of the Court</strong> in the app.",
     "Tap <strong>New Tournament</strong>.",
     "Set the players, courts and match length, then the strike target and the swap rule.",
     "Add the players and name the session.",
@@ -203,5 +203,5 @@
     "Put anyone who needs it on a break, or swap the challengers by hand.",
     "Play out the rounds and read the final rankings."
   ],
-  "feedback": "Have a question about Kings of the Court, spotted something missing, or want to suggest an improvement?"
+  "feedback": "Have a question about Royal Shuffles, spotted something missing, or want to suggest an improvement?"
 }

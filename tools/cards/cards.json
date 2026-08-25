@@ -6,6 +6,25 @@
   },
   "karten": [
     {
+      "slug": "start",
+      "bild": "TournaQ Start.png",
+      "titel": "TournaQ Volley",
+      "sub": "Scoring, Games and\nTournament Management",
+      "alt": "TournaQ Volley — Scoring, Games and Tournament Management: a phone standing in the sand with a live TournaQ scorecard, beach volleyball courts behind it at sunset.",
+      "hinweis": "Hero auf pages/index.html. Keine Guide-Karte, deshalb kein ziel.",
+      "foto": {
+        "x": "0%",
+        "y": "65%",
+        "zoom": "1.16"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "scrim": "unten",
+      "kurz": "Just play. We'll keep the score."
+    },
+    {
       "slug": "administration",
       "bild": "Administration.png",
       "titel": "Administration",

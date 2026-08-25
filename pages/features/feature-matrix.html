@@ -29,9 +29,15 @@
   <link rel="manifest" href="../../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/guide.css">
   <script src="../../js/main-nav.js" defer></script>
   <script src="../../js/i18n.js" defer></script>
-  <script src="../../js/feature-subnav.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
+  <script src="../../js/guide/tree.js" defer></script>
+  <script src="../../js/guide/sprite.js" defer></script>
+  <script src="../../js/guide/render.js" defer></script>
+  <script src="../../js/site-map.js" defer></script>
   <style>
     html { scroll-behavior: smooth; }
 
@@ -497,9 +503,9 @@
     var MODES = [
       { id: 'quick-game',               short: 'Quick',  name: 'Quick Game',             status: 'available' },
       { id: 'social-scramble',          short: 'Social', name: 'Social Scrambles',       status: 'available' },
-      { id: 'scramble-king',            short: 'ScrK',   name: 'Scramble Kings',         status: 'available' },
+      { id: 'scramble-king',            short: 'Rota',   name: 'Royal Rotations',         status: 'available' },
       { id: 'doghouse',                 short: 'Dogh',   name: 'Doghouses',              status: 'available' },
-      { id: 'king-of-the-court',        short: 'KotC',   name: 'Kings of the Court',     status: 'available' },
+      { id: 'king-of-the-court',        short: 'Shfl',   name: 'Royal Shuffles',     status: 'available' },
       { id: 'ko-system',                short: 'Elim',   name: 'Eliminations',           status: 'available' },
       { id: 'league',                   short: 'Leag',   name: 'Leagues',                status: 'available' },
       { id: 'group-single-elimination', short: 'Clsc',   name: 'TournaQ Classics',       status: 'available' },
@@ -507,7 +513,7 @@
       { id: 'other-tournament-modes',   short: 'Other',  name: 'Other Tournament Modes', status: 'planned' }
     ];
 
-    // Row sections follow the Platform Features group in js/feature-subnav.js
+    // Row sections follow the Platform Features group in EXTERN, js/guide/pages.js
     var SECTIONS = [
       { id: 'scoring',        label: 'Match Controls',                page: 'scoring.html' },
       { id: 'tournament',     label: 'Tournament Management',         page: 'tournament-features.html' },
@@ -661,7 +667,7 @@
       desc: "Make flexible adjustments to players, courts schedule or gameplay while you are already running the Tournament" },
     { id: "administration-1", section: "administration", status: "available",
       title: "Reusable player & team library",
-      desc: "Players, teams, and groups are saved once and available in every mode — Quick Games, Social Scrambles, Kings of the Court, Doghouses, and Eliminations. No re-entering names each session." },
+      desc: "Players, teams, and groups are saved once and available in every mode — Quick Games, Social Scrambles, Royal Shuffles, Doghouses, and Eliminations. No re-entering names each session." },
     { id: "administration-2", section: "administration", status: "available",
       title: "Players hub with search & filters",
       desc: "Every saved player in one searchable list, filterable by name, team, or tournament. Each entry shows how many teams, groups, and tournaments the player belongs to, and can be edited or deleted inline." },

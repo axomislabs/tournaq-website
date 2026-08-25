@@ -66,7 +66,11 @@ def zeile(k):
 
 def main():
     trocken = "--dry-run" in sys.argv
-    karten = json.loads(DATEN.read_text(encoding="utf8"))["karten"]
+    # Karten ohne ziel gehoeren der Website, nicht dem Guide - der Hero auf
+    # pages/index.html etwa. Sie stehen in cards.json, weil build-cards.py sie
+    # baut; hier haetten sie nichts zu verlinken.
+    karten = [k for k in json.loads(DATEN.read_text(encoding="utf8"))["karten"]
+              if k.get("ziel")]
     block = "\n".join([START, "const CARDS = {"]
                       + [zeile(k) for k in karten]
                       + ["};",

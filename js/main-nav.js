@@ -23,8 +23,11 @@
     </div>
   `;
 
-  // Highlight active link by filename
-  var currentFile = path.split('/').pop();
+  // Highlight active link by filename. Pages that do not want the filename
+  // sniffed — the baked guide pages live under /guide/modes/ and would be read
+  // as feature sub-pages — name their nav entry with data-nav-active on <html>.
+  var currentFile = document.documentElement.getAttribute('data-nav-active')
+                 || path.split('/').pop();
   var matched = false;
   document.querySelectorAll('.nav-links a').forEach(function (a) {
     if (a.getAttribute('href').split('/').pop() === currentFile) {

@@ -16,6 +16,8 @@
   --muted: #555;
   --border: #D6E0C2;
   --radius: 12px;
+  /* Fuer die Karte aus css/guide.css, die hier ohne style.css laeuft. */
+  --panel: #EEF2E6;
 }
 
 body {
@@ -278,4 +280,35 @@ footer a {
   header .app-name {
     font-size: 20px;
   }
+}
+
+/* ══ Die Karte ══════════════════════════════════════════════════════════
+   js/site-map.js haengt dieselbe Navigation ein wie auf jeder anderen Seite.
+   Das Aussehen der Zeilen und des Kastens kommt aus css/guide.css; hier steht
+   nur, wie sich der Kasten in das Raster dieser Seite legt. css/style.css,
+   das den Rest der Website damit versorgt, bleibt hier absichtlich aussen vor.
+   ══════════════════════════════════════════════════════════════════════ */
+main.has-section-nav {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  column-gap: 22px;
+  align-items: start;
+}
+
+main.has-section-nav > *:not(.g-map) {
+  grid-column: 2;
+  min-width: 0;
+}
+
+main.has-section-nav > .g-map {
+  grid-column: 1;
+  /* span statt 1 / -1: ohne explizit gesetzte Zeilen meint -1 die letzte
+     Linie des *expliziten* Rasters, also Zeile 1 — die Karte belegte dann
+     nur die erste Zeile und riss sie auf ihre eigene Hoehe auf. */
+  grid-row: 1 / span 200;
+  align-self: start;
+}
+
+@media (max-width: 900px) {
+  main.has-section-nav { display: block; }
 }
