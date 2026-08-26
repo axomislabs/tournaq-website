@@ -44,7 +44,8 @@ MODE_COL = {
     # Dateiname der Modusseite — die Matrix baut ihren Link daraus.
     'Scramble Kings': 'royal-rotation', 'Kings of the Court': 'royal-shuffle',
     'Leagues': 'league', 'TournaQ Classics': 'group-single-elimination',
-    'Swiss Systems': 'swiss-system', 'Other Tournament Modes': 'other-tournament-modes',
+    'Swiss Systems': 'swiss-system', 'Royal Duos': 'royal-duo',
+    'Other Tournament Modes': 'other-tournament-modes',
 }
 
 

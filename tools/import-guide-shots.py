@@ -34,6 +34,7 @@ actually changed in the UI.
 """
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
@@ -45,7 +46,7 @@ except ImportError:
     sys.exit('Pillow is required: pip3 install --user Pillow')
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_SRC = os.path.join(os.path.dirname(REPO), 'tournaq/screenshots/guide')
+DEFAULT_SRC = os.path.join(os.path.dirname(REPO), 'tournaq/screenshots/guide_v2')
 OUT = os.path.join(REPO, 'assets/guide')
 MANIFEST = os.path.join(OUT, '.import-manifest.json')
 SKIP_DIRS = {'_smoke'}
@@ -66,16 +67,19 @@ CLASSES = {
 # trustworthy here (the app bar spans the full width, the FABs anchor a corner),
 # so each one carries an explicit box. Regenerate suggestions with --suggest-crop.
 CROPS = {
-    '07_league/12_crosstable.png':                          (415, 447, 2144, 1463),
-    '08_elimination_single/11_standings_bracket.png':       (208, 471, 1810, 1494),
-    '09_elimination_double/04_bracket_canvas.png':          (136, 393, 2041, 1536),
-    '09_elimination_double/05_bracket_completed.png':       (136, 422, 2423, 1536),
-    '10_tournaq_classic/11_standings_bracket.png':          (146, 646, 1957, 1401),
-    '10_tournaq_classic/13_final_standings.png':            (146, 646, 2413, 1401),
-    '10_tournaq_classic/17_advanced_standings_bracket.png': (229, 349, 1981, 1713),
-    '10_tournaq_classic/18_advanced_final_standings.png':   (229, 369, 2330, 1713),
+    '08_league/12_crosstable.png':                          (417, 449, 2142, 1461),
+    '09_elimination_single/11_standings_bracket.png':       (211, 624, 1806, 1509),
+    '10_elimination_double/04_bracket_canvas.png':          (138, 394, 2039, 1535),
+    '10_elimination_double/05_bracket_completed.png':       (138, 394, 2325, 1535),
+    '11_tournaq_classic/11_standings_bracket.png':          (150, 644, 1953, 1397),
+    '11_tournaq_classic/13_final_standings.png':            (150, 644, 2325, 1397),
+    # The advanced event is four groups deep, so its diagram runs right up under
+    # the Table/Bracket toggle with no blank band between them. Left and top are
+    # the sibling shots' offsets rather than measured ones.
+    '11_tournaq_classic/17_advanced_standings_bracket.png': (150, 336, 1977, 1709),
+    '11_tournaq_classic/18_advanced_final_standings.png':   (150, 336, 2325, 1709),
     # cropped above the in-image legend — it is reproduced as the figcaption
-    '11_swiss_system/11_standings_chart.png':               (115, 507, 2386, 1470),
+    '12_swiss_system/11_standings_chart.png':               (119, 573, 2325, 1475),
 }
 
 # Brand art. Not screenshots, but the same problem: the logo ships 2.1 MB to
@@ -343,6 +347,31 @@ def cmd_check(args):
 
     img_re = re.compile(r'<img\b[^>]*>', re.I | re.S)
     src_re = re.compile(r'\bsrc="([^"]+)"')
+    # The guide's own pages are rendered client-side from js/guide/pages.js, so
+    # their `shot(...)` entries never appear in any HTML file and walking pages/
+    # alone would pass a guide full of broken images. Each entry also carries the
+    # derivative widths and an aspect ratio, and a wrong one makes the page jump
+    # as the image loads — so check the numbers too, not just that a file exists.
+    pages_js = os.path.join(REPO, 'js/guide/pages.js')
+    if os.path.exists(pages_js):
+        with io.open(pages_js, encoding='utf-8') as fh:
+            src_js = fh.read()
+        for src, w, h, widths in re.findall(
+                r"shot\('([^']+)',(\d+),(\d+),\[([0-9, ]+)\]", src_js):
+            ws = [int(x) for x in widths.split(',')]
+            for wd in ws:
+                f = os.path.join(OUT, '%s-%d.webp' % (src[len('guide/'):], wd))
+                if not os.path.exists(f):
+                    problems.append('js/guide/pages.js: %s has no %dw derivative'
+                                    % (src, wd))
+            first = os.path.join(OUT, '%s-%d.webp' % (src[len('guide/'):], ws[0]))
+            if os.path.exists(first):
+                with Image.open(first) as probe:
+                    if (probe.width, probe.height) != (int(w), int(h)):
+                        problems.append(
+                            'js/guide/pages.js: %s declares %sx%s, image is %dx%d'
+                            % (src, w, h, probe.width, probe.height))
+
     for root, _, files in os.walk(os.path.join(REPO, 'pages')):
         for name in files:
             if not name.endswith('.html'):

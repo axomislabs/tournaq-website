@@ -112,13 +112,14 @@
             <a href="${m}games-and-tournaments.html">Games &amp; Tournaments Hub</a>
             <a href="${m}quick-game.html">Quick Game</a>
             <a href="${m}social-scramble.html">Social Scrambles</a>
-            <a href="${m}royal-rotation.html">Royal Rotations</a>
-            <a href="${m}doghouse.html">Doghouses</a>
             <a href="${m}royal-shuffle.html">Royal Shuffles</a>
+            <a href="${m}royal-rotation.html">Royal Rotations</a>
+            <a href="${m}doghouse.html">Doghouse Shuffles</a>
             <a href="${m}ko-system.html">Eliminations</a>
             <a href="${m}league.html">Leagues</a>
             <a href="${m}group-single-elimination.html">TournaQ Classics</a>
             <a href="${m}swiss-system.html">Swiss Systems</a>
+            <a href="${m}royal-duo.html">Royal Duos</a>
             <a href="${m}other-tournament-modes.html">Other Modes</a>
           </div>
         </div>

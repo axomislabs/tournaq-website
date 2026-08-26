@@ -55,13 +55,14 @@
           { href: m + 'games-and-tournaments.html', icon: 'i-arena',   label: 'Games &amp; Tournaments Hub' },
           { href: m + 'quick-game.html',            icon: 'i-bolt',    label: 'Quick Game' },
           { href: m + 'social-scramble.html',       icon: 'i-people',  label: 'Social Scrambles' },
+          { href: m + 'royal-shuffle.html',         icon: 'i-crown',   label: 'Royal Shuffles' },
           { href: m + 'royal-rotation.html',         icon: 'i-crown',   label: 'Royal Rotations' },
-          { href: m + 'doghouse.html',              icon: 'i-shield',  label: 'Doghouses' },
-          { href: m + 'royal-shuffle.html',     icon: 'i-crown',   label: 'Royal Shuffles' },
+          { href: m + 'doghouse.html',              icon: 'i-shield',  label: 'Doghouse Shuffles' },
           { href: m + 'ko-system.html',             icon: 'i-bracket', label: 'Eliminations' },
           { href: m + 'league.html',                icon: 'i-grid',    label: 'Leagues' },
           { href: m + 'group-single-elimination.html', icon: 'i-trophy', label: 'TournaQ Classics' },
           { href: m + 'swiss-system.html',          icon: 'i-swap',    label: 'Swiss Systems' },
+          { href: m + 'royal-duo.html',            icon: 'i-people',  label: 'Royal Duos' },
           { href: m + 'other-tournament-modes.html', icon: 'i-star',   label: 'Other Modes' }
         ]
       },

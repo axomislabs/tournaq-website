@@ -217,12 +217,12 @@
       }
     },
     {
-      "slug": "royal-rotation",
-      "bild": "Royal Rotation.png",
-      "titel": "Royal Rotations",
-      "sub": "King of the Court. Stick with a partner\nfor one round — but never for two.",
-      "ziel": "m-royal-rotation",
-      "alt": "Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.",
+      "slug": "royal-shuffle",
+      "bild": "Royal Shuffle.png",
+      "titel": "Royal Shuffles",
+      "sub": "King of the Court.\nChange your partner with every rally.",
+      "ziel": "m-royal-shuffle",
+      "alt": "Royal Shuffles — King of the Court. Change your partner with every rally.",
       "foto": {
         "x": "50%",
         "y": "50%",
@@ -234,12 +234,12 @@
       }
     },
     {
-      "slug": "royal-shuffle",
-      "bild": "Royal Shuffle.png",
-      "titel": "Royal Shuffles",
-      "sub": "King of the Court.\nChange your partner with every rally.",
-      "ziel": "m-royal-shuffle",
-      "alt": "Royal Shuffles — King of the Court. Change your partner with every rally.",
+      "slug": "royal-rotation",
+      "bild": "Royal Rotation.png",
+      "titel": "Royal Rotations",
+      "sub": "King of the Court. Stick with a partner\nfor one round — but never for two.",
+      "ziel": "m-royal-rotation",
+      "alt": "Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.",
       "foto": {
         "x": "50%",
         "y": "50%",
@@ -270,10 +270,10 @@
     {
       "slug": "doghouse",
       "bild": "DogHouse.png",
-      "titel": "Doghouses",
+      "titel": "Doghouse Shuffles",
       "sub": "Get out of the Doghouse —\nif you can.",
       "ziel": "m-doghouse",
-      "alt": "Doghouses — Get out of the Doghouse — if you can.",
+      "alt": "Doghouse Shuffles — Get out of the Doghouse — if you can.",
       "foto": {
         "x": "50%",
         "y": "50%",
