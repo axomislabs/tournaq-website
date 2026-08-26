@@ -223,6 +223,24 @@
   text-transform: uppercase;
 }
 
+/* Verweis aus der Einleitung auf einen Block weiter unten. */
+.g-jump {
+  color: var(--olive);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--olive) 40%, transparent);
+  cursor: pointer;
+}
+.g-jump:hover { border-bottom-color: var(--olive); }
+
+/* Nach dem Sprung kurz aufleuchten, damit klar ist, wo man gelandet ist. */
+@keyframes g-flash {
+  from { box-shadow: 0 0 0 3px color-mix(in srgb, var(--olive) 45%, transparent); }
+  to   { box-shadow: 0 0 0 3px transparent; }
+}
+.g-flash { animation: g-flash 1.4s ease-out 1; }
+@media (prefers-reduced-motion: reduce) { .g-flash { animation: none; } }
+
 .g-panel-sub { font-size: 13px; color: var(--muted); margin: 10px 2px 0; line-height: 1.5; }
 .g-panel-body { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 
@@ -331,6 +349,31 @@ a.g-card:hover {
 
 .g-split-label { font-size: 12.5px; font-weight: 800; color: var(--olive); }
 
+/* Fork = zwei parallele Straenge in einem Panel. auto-fit statt Medienabfrage:
+   die Spalten fallen untereinander, sobald der Panelrumpf zu schmal wird —
+   auch dann, wenn die Seitenleiste ihn schmal macht und nicht das Fenster. */
+.g-fork { display: grid; grid-template-columns: repeat(auto-fit, minmax(236px, 1fr)); gap: 16px; }
+.g-fork-arm { display: flex; flex-direction: column; gap: 10px; }
+.g-fork-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 9px;
+  border-top: 2px solid var(--g-rail);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--olive);
+}
+.g-fork-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--olive-light);
+  border: 1.5px solid var(--g-rail);
+  flex: none;
+}
+.g-fork-body { display: flex; flex-direction: column; gap: 10px; }
+
 .g-sect { display: flex; align-items: center; gap: 11px; margin: 6px 0 0; }
 
 .g-sect .dot {
@@ -347,6 +390,54 @@ a.g-card:hover {
 }
 
 .g-sect span { font-size: 12.5px; font-weight: 800; color: var(--olive); letter-spacing: 0.02em; }
+
+/* Screenshot mit Bildunterschrift — kein Gegenstueck in
+   explainer_blocks.dart, wie schon `opts`. Zwei Formen aus derselben Auszeichnung:
+   gestapelt als Vorgabe, zweispaltig sobald der umgebende g-stack .shots-side
+   traegt. Das Hochformat wird gedeckelt, damit ein Telefonbild die Spalte nicht
+   auffrisst; Querformat darf die Breite nehmen, die es braucht. */
+.g-shot {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 16px;
+  margin: 0;
+}
+
+.g-shot-media { display: flex; justify-content: center; }
+
+.g-shot img {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--g-rail);
+}
+
+.g-shot.quer img { max-width: 420px; border-radius: 10px; }
+
+.g-shot figcaption { margin-top: 14px; }
+.g-shot-title { font-size: 14.5px; font-weight: 800; color: var(--olive-dark); line-height: 1.3; }
+.g-shot-body  { font-size: 13px; line-height: 1.6; color: var(--muted); margin-top: 5px; }
+
+/* Zweispaltig: Bild links, Text rechts — die Form der Modus-Seiten. */
+.shots-side .g-shot {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 20px;
+}
+
+.shots-side .g-shot.quer { grid-template-columns: 300px minmax(0, 1fr); }
+.shots-side .g-shot figcaption { margin-top: 0; }
+
+/* Auf schmalen Schirmen fallen beide Formen zusammen: der Text kommt zuerst,
+   das Bild darunter — lesen vor schauen, wie auf der Website. */
+@media (max-width: 620px) {
+  .shots-side .g-shot { display: block; }
+  .shots-side .g-shot figcaption { margin-top: 14px; }
+}
 
 /* Feature box = ExplainerFeatureBox */
 .g-fbox {

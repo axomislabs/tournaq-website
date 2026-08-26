@@ -29,25 +29,36 @@
           : 'pages/';
   }
 
-  /* Von hier aus ist der Guide eine Seite mit Hash-Routen. Sobald v2 die
-     Wurzel uebernimmt, zeigen dieselben Knoten auf ihre eigenen Dateien —
-     dann liefert das Backskript diese Karte gleich mit. */
+  /* Guide-Knoten zeigen auf ihre gebackene Datei — die Zuordnung kommt aus
+     tree.js, erzeugt vom selben Backskript, das die Dateien schreibt. Wer
+     keine eigene Datei hat, haengt als Hash an der seines Vorfahren. Der
+     Rueckfall auf die Hash-Fassung greift nur, wenn tree.js aelter ist als
+     der Guide. */
   setzeKontext({
     nachbar: basis,
     link: function (id) {
-      return basis + 'guide.html#/' + (id === 'home' ? '' : id);
+      var ziel = typeof GUIDE_DATEI === 'object' && GUIDE_DATEI[id];
+      return basis + (ziel || 'guide.html#/' + (id === 'home' ? '' : id));
     }
   });
 
   /* Welche Zeile die aktuelle Seite ist: die EXTERN-Adresse, die auf den
-     Pfad passt. Ein data-nav-active auf <html> geht vor. */
+     Pfad passt. Ein data-map-active auf <html> geht vor — nicht das
+     data-nav-active daneben: das benennt die Zeile der oberen Reihe, und die
+     ist auf einer Unterseite gerade nicht dieselbe. Die Rechtsseiten sind der
+     Fall: oben leuchtet "Legal", in der Karte ihr eigener Eintrag.
+
+     Verglichen werden die letzten zwei Stuecke des Pfades. Ein fuehrendes
+     ../ in der Adresse faellt vorher weg — es sagt nur, wo die Datei relativ
+     zu pages/ liegt, und nicht, wie die Seite heisst. */
   function aktiv() {
-    var wunsch = document.documentElement.getAttribute('data-nav-active');
+    var wunsch = document.documentElement.getAttribute('data-map-active');
     var datei = (wunsch || pfad).split('/').slice(-2).join('/');
+    var blatt = datei.split('/').pop();
     var treffer = null;
     Object.keys(EXTERN).forEach(function (id) {
-      var url = EXTERN[id].url;
-      if (datei === url || datei.split('/').pop() === url) treffer = id;
+      var url = EXTERN[id].url.replace(/^(\.\.\/)+/, '');
+      if (datei === url || blatt === url) treffer = id;
       else if (url.indexOf('/') < 0 && pfad.split('/').pop() === url) treffer = treffer || id;
     });
     return treffer;

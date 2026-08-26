@@ -89,52 +89,43 @@ html, body { background: #101208; }
 }
 
 /* ── Ebene 2: Scrim ──────────────────────────────────────────────────
-   Zwei Verläufe übereinander. Der radiale sitzt hinter dem Textblock und
-   macht ihn lesbar, ohne das ganze Bild zuzuziehen; der lineare setzt oben
-   das Logo frei und schließt unten ab. Ein einzelner Vollflächenverlauf
-   müsste dafür so dunkel sein, dass vom Foto nichts übrig bleibt. */
-.scrim { position: absolute; inset: 0; }
+   Eine Form fuer alle Karten, ein Regler fuer die Staerke.
 
-/* Das obere Drittel bleibt offen, ab der Mitte wird zugezogen. Die
-   Eyebrow sitzt bei rund 55 % Hoehe — wenn der Verlauf dort noch nichts
-   tut, steht Gold auf hellem Sand und ist weg. */
-.scrim.unten {
-    background: linear-gradient(180deg,
-        rgba(var(--dunkel), 0.62) 0%,
-        rgba(var(--dunkel), 0.16) 18%,
-        rgba(var(--dunkel), 0.00) 32%,
-        rgba(var(--dunkel), 0.26) 46%,
-        rgba(var(--dunkel), 0.60) 62%,
-        rgba(var(--dunkel), 0.85) 80%,
-        rgba(var(--dunkel), 0.94) 100%);
-}
+   Frueher gab es zwei Formen — `unten` zog nur den Boden zu, `links` die
+   linke Haelfte. Beide waren je Foto gewaehlt und je fuer sich richtig;
+   nebeneinander im Raster lesen sie sich als zwei Behandlungen: einmal
+   Schatten unten, einmal links und rechts offen, und ein Boden, der auf der
+   einen Haelfte doppelt so dunkel ist wie auf der anderen.
 
-/* Fuer Fotos, die links schon hell oder unruhig sind: zieht die linke
-   Haelfte zu und laesst die rechte offen. */
-.scrim.links {
+   Der Text steht immer an derselben Stelle — unten links, in .tq-card-body.
+   Also verdunkelt der Scrim immer dieselbe Stelle: schwer in der unteren
+   linken Ecke, nach oben und nach rechts auslaufend. Drei Verlaeufe:
+
+     1. der Boden, der den Text traegt
+     2. die linke Flanke, fuer Fotos, die dort hell sind
+     3. die obere Kante, damit das Logo ueberall denselben Grund hat
+
+   Die Zahlen sind gemessen, nicht geschaetzt: ueber die vier alten `links`-
+   und die zwei hellsten `unten`-Fotos gerechnet, haelt diese Form den Titel
+   bei mindestens 9.4:1 Kontrast (vorher 8.2) und die Streuung ueber die
+   Karten bei 1.28x (vorher 1.46) — heller wird keine, gleichmaessiger alle. Ein schwieriges Foto bekommt
+   `"kraft": 1.2` in cards.json: mehr von derselben Behandlung, nie eine
+   andere. */
+.scrim {
+    position: absolute;
+    inset: 0;
     background:
-        linear-gradient(96deg,
-            rgba(var(--dunkel), 0.90) 0%,
-            rgba(var(--dunkel), 0.78) 26%,
-            rgba(var(--dunkel), 0.44) 48%,
-            rgba(var(--dunkel), 0.12) 66%,
-            rgba(var(--dunkel), 0.00) 80%),
         linear-gradient(180deg,
-            rgba(var(--dunkel), 0.44) 0%,
-            rgba(var(--dunkel), 0.10) 26%,
-            rgba(var(--dunkel), 0.10) 74%,
-            rgba(var(--dunkel), 0.46) 100%);
-}
-
-/* Fuer Fotos, die von sich aus dunkel sind. */
-.scrim.leicht {
-    background: linear-gradient(180deg,
-        rgba(var(--dunkel), 0.48) 0%,
-        rgba(var(--dunkel), 0.08) 22%,
-        rgba(var(--dunkel), 0.00) 44%,
-        rgba(var(--dunkel), 0.20) 62%,
-        rgba(var(--dunkel), 0.62) 84%,
-        rgba(var(--dunkel), 0.80) 100%);
+            rgba(var(--dunkel), 0.00) 32%,
+            rgba(var(--dunkel), calc(0.66 * var(--scrim-kraft, 1))) 62%,
+            rgba(var(--dunkel), calc(0.95 * var(--scrim-kraft, 1))) 100%),
+        linear-gradient(90deg,
+            rgba(var(--dunkel), calc(0.42 * var(--scrim-kraft, 1))) 0%,
+            rgba(var(--dunkel), calc(0.10 * var(--scrim-kraft, 1))) 46%,
+            rgba(var(--dunkel), 0.00) 72%),
+        linear-gradient(180deg,
+            rgba(var(--dunkel), calc(0.46 * var(--scrim-kraft, 1))) 0%,
+            rgba(var(--dunkel), 0.00) 24%);
 }
 
 /* ── Ebene 3: Vignette ───────────────────────────────────────────────

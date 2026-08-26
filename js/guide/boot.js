@@ -16,8 +16,21 @@ function toggleNav(id){
    staende die Seitenleiste beim ersten Klick auf der falschen Zeile. */
 let NAV_ACTIVE = window.__guideNode || 'home';
 
+/* Alte Hash-Routen aus der Zeit vor den Modusnamen. Beide Knoten heissen im
+   Guide laengst Royal Shuffles und Royal Rotations, ihre Kennungen hiessen es
+   nicht — und ein Link auf #/m-kotc waere stumm auf der Startseite gelandet.
+   Statt dessen einmal auf die heutige Adresse umgeschrieben, damit auch die
+   Zeile im Browser stimmt. Kann weg, sobald draussen niemand mehr so verweist. */
+const ALT_ID = {'m-kotc':'m-royal-shuffle', 'm-scramble-king':'m-royal-rotation'};
+const heute = raw => {
+  const m = raw.match(/^(m-kotc|m-scramble-king)(-hub|-run|-score)?$/);
+  return m && ALT_ID[m[1]] + (m[2] || '');
+};
+
 function render(){
   const raw = location.hash.replace(/^#\/?/, '');
+  const neu = heute(raw);
+  if (neu && PAGES[neu]) return location.replace(href(neu));
   const id = PAGES[raw] ? raw : 'home';
 
   NAV_ACTIVE = id;
@@ -72,6 +85,21 @@ document.getElementById('g-mapnav').addEventListener('keydown', e => {
   if (!tw) return;
   e.preventDefault();
   toggleNav(tw.dataset.tw);
+});
+
+/* Verweise aus der Einleitung auf einen Block derselben Seite. Der Hash
+   gehoert dem Router, also darf ein Ankerklick ihn nicht anfassen: hier
+   abgefangen, das Ziel zentriert und kurz hervorgehoben. */
+document.getElementById('g-body').addEventListener('click', e => {
+  const a = e.target.closest('a[data-jump]');
+  if (!a) return;
+  const ziel = document.getElementById(a.dataset.jump);
+  if (!ziel) return;
+  e.preventDefault();
+  ziel.scrollIntoView({behavior:'smooth', block:'center'});
+  ziel.classList.remove('g-flash');
+  void ziel.offsetWidth;            /* Neustart der Animation erzwingen */
+  ziel.classList.add('g-flash');
 });
 
 window.addEventListener('hashchange', render);

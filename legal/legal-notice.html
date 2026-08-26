@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" data-i18n-base="../" data-i18n-title="notice.page.title">
+<html lang="en" data-i18n-base="../" data-i18n-title="notice.page.title"
+      data-nav-base="../pages/" data-nav-active="legal.html" data-map-base="../pages/">
 
 <head>
   <meta charset="UTF-8" />
@@ -11,12 +12,12 @@
   <link rel="apple-touch-icon" href="../apple-touch-icon.png">
   <link rel="manifest" href="../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
-  <!-- Die Rechtsseiten tragen ihre eigene, schlanke Gestaltung. css/style.css
-       bleibt bewusst draussen: es wuerde Kopf und Raster hier umwerfen. Was
-       die Karte an Rahmen braucht, steht am Ende von legal.css. -->
-  <link rel="stylesheet" href="../css/legal.css" />
+  <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/guide.css">
+  <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
+  <!-- Die Karte: derselbe Baum und derselbe Renderer wie im User Guide.
+       tree.js und sprite.js erzeugt tools/bake-guide.mjs. -->
   <script src="../js/guide/tree.js" defer></script>
   <script src="../js/guide/sprite.js" defer></script>
   <script src="../js/guide/render.js" defer></script>
@@ -26,118 +27,136 @@
 <body>
 
   <header>
-    <div class="app-name">TournaQ</div>
-    <h1 data-i18n="notice.header.title">Legal Notice</h1>
-    <span class="date-badge" data-i18n="notice.date">Last updated: 28 May 2026</span>
-  </header>
+    <nav class="nav">
+      <a class="logo" href="../pages/index.html">
+        <img src="../assets/brand/tournaq-logo-land-450.webp" alt="TournaQ" width="225" height="150" loading="eager" decoding="async">
+      </a>
 
-  <nav class="breadcrumb">
-    <a href="../pages/legal.html" data-i18n="notice.breadcrumb">← Legal Hub</a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+      <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </label>
+
+      <div id="main-nav-links"></div>
+      <div class="lang-switcher"></div>
+    </nav>
+
     <div class="lang-switcher"></div>
-  </nav>
+
+    <div class="hero">
+      <h1 data-i18n="notice.header.title">Legal Notice</h1>
+      <p><span class="date-badge" data-i18n="notice.date">Last updated: 28 May 2026</span></p>
+    </div>
+  </header>
 
   <main>
 
-    <div class="intro" data-i18n="notice.intro">
-      This Legal Notice provides mandatory information about the entity responsible for the TournaQ mobile application,
-      in accordance with applicable EU regulations.
-    </div>
+    <section class="legal-doc">
 
-    <section>
-      <h2><span class="icon">🏢</span> <span data-i18n="notice.responsible.title">Responsible Party</span></h2>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.responsible.name.label">Name</span>
-        <span class="value" data-i18n="notice.responsible.name.value">Martin Adam</span>
+      <div class="intro" data-i18n="notice.intro">
+        This Legal Notice provides mandatory information about the entity responsible for the TournaQ mobile application,
+        in accordance with applicable EU regulations.
       </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.responsible.role.label">Role</span>
-        <span class="value" data-i18n="notice.responsible.role.value">Independent Developer</span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.responsible.email.label">Email</span>
-        <span class="value"><a href="mailto:team@tournaq.com">team@tournaq.com</a></span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.responsible.instagram.label">Instagram</span>
-        <span class="value"><a href="https://www.instagram.com/tournaq" target="_blank">@tournaq</a></span>
-      </div>
-    </section>
 
-    <section>
-      <h2><span class="icon">📱</span> <span data-i18n="notice.app.title">Application Information</span></h2>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.app.name.label">App Name</span>
-        <span class="value" data-i18n="notice.app.name.value">TournaQ</span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.app.desc.label">Description</span>
-        <span class="value" data-i18n="notice.app.desc.value">Scoring, Games and Tournament Management</span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.app.platforms.label">Platforms</span>
-        <span class="value" data-i18n="notice.app.platforms.value">iOS (Apple App Store) · Android (Google Play)</span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.app.category.label">Category</span>
-        <span class="value" data-i18n="notice.app.category.value">Sports / Utilities</span>
-      </div>
-      <div class="info-row">
-        <span class="label" data-i18n="notice.app.architecture.label">Architecture</span>
-        <span class="value" data-i18n="notice.app.architecture.value">Local-first · No user accounts required</span>
-      </div>
-    </section>
+      <article class="card">
+        <h3><span class="icon">🏢</span> <span data-i18n="notice.responsible.title">Responsible Party</span></h3>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.responsible.name.label">Name</span>
+          <span class="value" data-i18n="notice.responsible.name.value">Martin Adam</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.responsible.role.label">Role</span>
+          <span class="value" data-i18n="notice.responsible.role.value">Independent Developer</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.responsible.email.label">Email</span>
+          <span class="value"><a href="mailto:team@tournaq.com">team@tournaq.com</a></span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.responsible.instagram.label">Instagram</span>
+          <span class="value"><a href="https://www.instagram.com/tournaq" target="_blank">@tournaq</a></span>
+        </div>
+      </article>
 
-    <section>
-      <h2><span class="icon">⚖️</span> <span data-i18n="notice.law.title">Applicable Law and Jurisdiction</span></h2>
-      <p data-i18n="notice.law.p1">This application and its associated legal documents are subject to applicable European Union law, including the
-        General Data Protection Regulation (GDPR, Regulation (EU) 2016/679) and the ePrivacy Directive.</p>
-      <p data-i18n-html="notice.law.p2">Any disputes shall be governed by applicable EU consumer protection law. Consumers in the EU may also use the
-        European Commission's Online Dispute Resolution (ODR) platform:</p>
-      <p><a href="https://ec.europa.eu/consumers/odr" target="_blank">ec.europa.eu/consumers/odr</a></p>
-    </section>
+      <article class="card">
+        <h3><span class="icon">📱</span> <span data-i18n="notice.app.title">Application Information</span></h3>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.app.name.label">App Name</span>
+          <span class="value" data-i18n="notice.app.name.value">TournaQ</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.app.desc.label">Description</span>
+          <span class="value" data-i18n="notice.app.desc.value">Scoring, Games and Tournament Management</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.app.platforms.label">Platforms</span>
+          <span class="value" data-i18n="notice.app.platforms.value">iOS (Apple App Store) · Android (Google Play)</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.app.category.label">Category</span>
+          <span class="value" data-i18n="notice.app.category.value">Sports / Utilities</span>
+        </div>
+        <div class="info-row">
+          <span class="label" data-i18n="notice.app.architecture.label">Architecture</span>
+          <span class="value" data-i18n="notice.app.architecture.value">Local-first · No user accounts required</span>
+        </div>
+      </article>
 
-    <section>
-      <h2><span class="icon">📢</span> <span data-i18n="notice.advertising.title">Advertising</span></h2>
-      <p data-i18n="notice.advertising.p1">TournaQ displays advertisements through Google AdMob (Google LLC). Advertisements may be displayed through
-        Google AdMob (Google LLC).
-        TournaQ currently aims to use non-personalized advertising where possible. Users in the European Economic Area
-        are presented with a consent dialog (Google UMP) in accordance with GDPR and the IAB Transparency and Consent
-        Framework.</p>
-      <p data-i18n-html="notice.advertising.p2">Advertising preferences can be updated at any time via <em>Contact &amp; About → Privacy Options</em> in the
-        app.</p>
-      <p style="margin-top:8px" data-i18n-html="notice.advertising.provider">Advertising provider: Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043,
-        USA<br>
-        <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>
-      </p>
-    </section>
+      <article class="card">
+        <h3><span class="icon">⚖️</span> <span data-i18n="notice.law.title">Applicable Law and Jurisdiction</span></h3>
+        <p data-i18n="notice.law.p1">This application and its associated legal documents are subject to applicable European Union law, including the
+          General Data Protection Regulation (GDPR, Regulation (EU) 2016/679) and the ePrivacy Directive.</p>
+        <p data-i18n-html="notice.law.p2">Any disputes shall be governed by applicable EU consumer protection law. Consumers in the EU may also use the
+          European Commission's Online Dispute Resolution (ODR) platform:</p>
+        <p><a href="https://ec.europa.eu/consumers/odr" target="_blank">ec.europa.eu/consumers/odr</a></p>
+      </article>
 
-    <section>
-      <h2><span class="icon">🔒</span> <span data-i18n="notice.dataprotection.title">Data Protection</span></h2>
-      <p data-i18n="notice.dataprotection.p1">The data controller for processing activities related to this application is:</p>
-      <p data-i18n-html="notice.dataprotection.p2"><strong>Martin Adam</strong> — <a href="mailto:team@tournaq.com">team@tournaq.com</a></p>
-      <p data-i18n-html="notice.dataprotection.p3">For full details on data processing, legal bases, and your rights under GDPR, please refer to the <a
-          href="privacy-policy.html">Privacy Policy</a>.</p>
-    </section>
+      <article class="card">
+        <h3><span class="icon">📢</span> <span data-i18n="notice.advertising.title">Advertising</span></h3>
+        <p data-i18n="notice.advertising.p1">TournaQ displays advertisements through Google AdMob (Google LLC). Advertisements may be displayed through
+          Google AdMob (Google LLC).
+          TournaQ currently aims to use non-personalized advertising where possible. Users in the European Economic Area
+          are presented with a consent dialog (Google UMP) in accordance with GDPR and the IAB Transparency and Consent
+          Framework.</p>
+        <p data-i18n-html="notice.advertising.p2">Advertising preferences can be updated at any time via <em>Contact &amp; About → Privacy Options</em> in the
+          app.</p>
+        <p style="margin-top:8px" data-i18n-html="notice.advertising.provider">Advertising provider: Google LLC, 1600 Amphitheatre Parkway, Mountain View, CA 94043,
+          USA<br>
+          <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>
+        </p>
+      </article>
 
-    <section>
-      <h2><span class="icon">©️</span> <span data-i18n="notice.ip.title">Intellectual Property</span></h2>
-      <p data-i18n="notice.ip.p1">All content of the TournaQ application — including design, graphics, source code, branding, and logos — is
-        protected by applicable intellectual property laws.</p>
-      <p data-i18n="notice.ip.p2">Reproduction, distribution, or use of any content without prior written consent is prohibited.</p>
-    </section>
+      <article class="card">
+        <h3><span class="icon">🔒</span> <span data-i18n="notice.dataprotection.title">Data Protection</span></h3>
+        <p data-i18n="notice.dataprotection.p1">The data controller for processing activities related to this application is:</p>
+        <p data-i18n-html="notice.dataprotection.p2"><strong>Martin Adam</strong> — <a href="mailto:team@tournaq.com">team@tournaq.com</a></p>
+        <p data-i18n-html="notice.dataprotection.p3">For full details on data processing, legal bases, and your rights under GDPR, please refer to the <a
+            href="privacy-policy.html">Privacy Policy</a>.</p>
+      </article>
 
-    <section>
-      <h2><span class="icon">🔗</span> <span data-i18n="notice.links.title">External Links</span></h2>
-      <p data-i18n="notice.links.text">The app and these pages may contain links to external websites. These links are provided for informational
-        purposes only. We have no control over the content of external sites and accept no liability for them. The
-        respective operators of linked sites are solely responsible for their content.</p>
-    </section>
+      <article class="card">
+        <h3><span class="icon">©️</span> <span data-i18n="notice.ip.title">Intellectual Property</span></h3>
+        <p data-i18n="notice.ip.p1">All content of the TournaQ application — including design, graphics, source code, branding, and logos — is
+          protected by applicable intellectual property laws.</p>
+        <p data-i18n="notice.ip.p2">Reproduction, distribution, or use of any content without prior written consent is prohibited.</p>
+      </article>
 
-    <section>
-      <h2><span class="icon">✉️</span> <span data-i18n="notice.contact.title">Contact for Legal Enquiries</span></h2>
-      <p data-i18n="notice.contact.text">For any legal enquiries, requests regarding intellectual property, or GDPR-related matters, please contact:</p>
-      <p><a href="mailto:team@tournaq.com">team@tournaq.com</a></p>
-      <p style="margin-top:8px; font-size:13px; color:var(--muted);" data-i18n="notice.contact.response">We aim to respond within 10 business days.</p>
+      <article class="card">
+        <h3><span class="icon">🔗</span> <span data-i18n="notice.links.title">External Links</span></h3>
+        <p data-i18n="notice.links.text">The app and these pages may contain links to external websites. These links are provided for informational
+          purposes only. We have no control over the content of external sites and accept no liability for them. The
+          respective operators of linked sites are solely responsible for their content.</p>
+      </article>
+
+      <article class="card">
+        <h3><span class="icon">✉️</span> <span data-i18n="notice.contact.title">Contact for Legal Enquiries</span></h3>
+        <p data-i18n="notice.contact.text">For any legal enquiries, requests regarding intellectual property, or GDPR-related matters, please contact:</p>
+        <p><a href="mailto:team@tournaq.com">team@tournaq.com</a></p>
+        <p style="margin-top:8px; font-size:13px; color:var(--muted);" data-i18n="notice.contact.response">We aim to respond within 10 business days.</p>
+      </article>
+
     </section>
 
   </main>

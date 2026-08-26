@@ -21,7 +21,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
       "kurz": "Just play. We'll keep the score."
     },
     {
@@ -40,7 +39,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
       "kurz": "Players, teams and clubs, set up once."
     },
     {
@@ -59,7 +57,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
       "kurz": "Find your favourite game mode."
     },
     {
@@ -77,8 +74,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten"
+      }
     },
     {
       "slug": "tournament-hub",
@@ -96,7 +92,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
       "kurz": "Set up a new tournament."
     },
     {
@@ -115,9 +110,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
-      "t-h1": "108px",
-      "t-sub": "42px",
       "kurz": "Your control desk once it starts."
     },
     {
@@ -136,8 +128,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
-      "t-sub": "38px",
       "kurz": "The referee's best friend."
     },
     {
@@ -156,9 +146,6 @@
         "x": "50%",
         "y": "52%"
       },
-      "scrim": "unten",
-      "t-h1": "112px",
-      "t-sub": "38px",
       "kurz": "Hand scorecards over by QR code."
     },
     {
@@ -176,9 +163,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-h1": "112px"
+      }
     },
     {
       "slug": "scramble-competitions",
@@ -195,10 +180,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-h1": "102px",
-      "t-sub": "42px"
+      }
     },
     {
       "slug": "queue-modes",
@@ -215,8 +197,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "links"
+      }
     },
     {
       "slug": "social-scramble",
@@ -233,16 +214,14 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-sub": "42px"
+      }
     },
     {
       "slug": "royal-rotation",
       "bild": "Royal Rotation.png",
       "titel": "Royal Rotations",
       "sub": "King of the Court. Stick with a partner\nfor one round — but never for two.",
-      "ziel": "m-scramble-king",
+      "ziel": "m-royal-rotation",
       "alt": "Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.",
       "foto": {
         "x": "50%",
@@ -252,15 +231,14 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten"
+      }
     },
     {
       "slug": "royal-shuffle",
       "bild": "Royal Shuffle.png",
       "titel": "Royal Shuffles",
       "sub": "King of the Court.\nChange your partner with every rally.",
-      "ziel": "m-kotc",
+      "ziel": "m-royal-shuffle",
       "alt": "Royal Shuffles — King of the Court. Change your partner with every rally.",
       "foto": {
         "x": "50%",
@@ -270,9 +248,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "links",
-      "hinweis": "Zielseite m-kotc heisst im Guide noch 'King of the Court'. Umbenennen auf 'Royal Shuffle' steht aus."
+      }
     },
     {
       "slug": "royal-duo",
@@ -289,8 +265,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "links"
+      }
     },
     {
       "slug": "doghouse",
@@ -307,9 +282,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "links",
-      "hinweis": "Der Guide nennt m-doghouse derzeit noch 'Royal Shuffle'. Dieser Name gehoert zu m-kotc. Bis der Guide umbenannt ist, sagt die Karte etwas anderes als die verlinkte Seite."
+      }
     },
     {
       "slug": "league",
@@ -327,8 +300,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten"
+      }
     },
     {
       "slug": "elimination",
@@ -346,9 +318,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-sub": "42px"
+      }
     },
     {
       "slug": "classic",
@@ -366,10 +336,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-h1": "112px",
-      "t-sub": "38px"
+      }
     },
     {
       "slug": "swiss",
@@ -387,9 +354,7 @@
       "iris": {
         "x": "50%",
         "y": "52%"
-      },
-      "scrim": "unten",
-      "t-sub": "42px"
+      }
     }
   ]
 }

@@ -38,6 +38,16 @@ function navZiel(id){
    read them in place while editing. */
 const SHOW_DRAFT_NOTES = false;
 
+/* Aus den Mode-Seiten der Website migrierter Text wartet in `inbox` neben
+   `blocks` auf seine Durchsicht — hinter dem fertigen Inhalt der Seite, mit
+   einem `sect` davor, das seine Quelle nennt. Auf false steht der Guide
+   wieder exakt so da, wie er ohne die Migration staende. */
+const SHOW_INBOX = true;
+
+/* Wie ein shot-Block sitzt: false stapelt Bild ueber Bildunterschrift,
+   true stellt sie nebeneinander wie auf den Modus-Seiten der Website. */
+const SHOT_SIDE = false;
+
 const ic = (n, cls='g-ic') => '<svg class="' + cls + '" aria-hidden="true"><use href="#' + n + '"/></svg>';
 const href = id => G_LINK(id);
 
@@ -50,6 +60,17 @@ function renderPanelItems(items){
         '</div><div class="g-split-label">' + it.label + '</div></div>';
       return;
     }
+    /* Zwei Straenge nebeneinander. Der Rumpf jedes Arms geht durch dieselbe
+       Funktion, damit eine Karte drinnen aussieht wie eine draussen. */
+    if (it.k === 'fork'){
+      const arm = a => '<div class="g-fork-arm">' +
+        '<div class="g-fork-head"><span class="g-fork-dot"></span>' + a.label + '</div>' +
+        '<div class="g-fork-body">' + renderPanelItems(a.items) + '</div>' +
+      '</div>';
+      out += '<div class="g-fork">' + arm(it.a) + arm(it.b) + '</div>';
+      return;
+    }
+
     const cardCls = 'g-card' + (it.tone === 'tint' ? ' tint' : '');
     const body = '<span class="g-disc">' + ic(it.icon) + '</span><span class="g-card-txt">' +
       '<span class="g-card-label">' + it.label + (it.chip ? '<span class="g-chip">' + it.chip + '</span>' : '') + '</span>' +
@@ -76,10 +97,14 @@ function renderPanelItems(items){
 function renderBlock(b){
   switch(b.t){
     case 'panel':
-      return '<div class="g-panel">' +
+      return '<div class="g-panel"' + (b.id ? ' id="' + b.id + '"' : '') + '>' +
         '<span class="g-pill">' + b.badge + '</span>' +
         (b.sub ? '<p class="g-panel-sub">' + b.sub + '</p>' : '') +
-        '<div class="g-panel-body">' + renderPanelItems(b.items) + '</div>' +
+        /* Ein Panel ohne Eintraege ist die Ueberschrift eines Abschnitts —
+           dann faellt der leere Rumpf samt seinem Abstand weg. */
+        (b.items && b.items.length
+          ? '<div class="g-panel-body">' + renderPanelItems(b.items) + '</div>'
+          : '') +
       '</div>';
 
     case 'fbox':
@@ -94,6 +119,24 @@ function renderBlock(b){
             '</div>'
           : '') +
       '</div>';
+
+    /* Screenshot mit Bildunterschrift. Gestapelt oder zweispaltig — das
+       entscheidet die Klasse am umgebenden g-stack, nicht der Block, damit
+       eine Seite beide Formen nebeneinander zeigen kann. */
+    case 'shot': {
+      const basis = G_BASIS + 'assets/' + b.src;
+      const quer  = b.w > b.h;
+      const srcset = b.sizes.map(w => basis + '-' + w + '.webp ' + w + 'w').join(', ');
+      return '<figure class="g-shot' + (quer ? ' quer' : '') + '">' +
+        '<div class="g-shot-media"><img src="' + basis + '-' + b.sizes[0] + '.webp" ' +
+          'srcset="' + srcset + '" ' +
+          'sizes="' + (quer ? '(max-width: 760px) 90vw, 420px' : '(max-width: 760px) 62vw, 240px') + '" ' +
+          'width="' + b.w + '" height="' + b.h + '" loading="lazy" decoding="async" ' +
+          'alt="' + (b.alt || '') + '"></div>' +
+        '<figcaption><div class="g-shot-title">' + b.title + '</div>' +
+        (b.body ? '<div class="g-shot-body">' + b.body + '</div>' : '') +
+        '</figcaption></figure>';
+    }
 
     case 'sect':
       return '<div class="g-sect"><span class="dot">' + ic(b.icon) + '</span><span>' + b.label + '</span></div>';
@@ -341,7 +384,7 @@ function renderPage(id){
     ? p.h1.map((s, i) => i % 2 ? '<span class="brand">' + s + '</span>' : s).join('')
     : p.h1;
 
-  const blocks = p.blocks.filter(b =>
+  const blocks = (p.blocks || []).concat(SHOW_INBOX ? (p.inbox || []) : []).filter(b =>
     SHOW_DRAFT_NOTES || !(b.t === 'note' && /^Draft note/.test(b.title)));
 
   /* Hat eine Karte diese Seite als Ziel, steht ihr Bild oben auf der Seite —
@@ -386,7 +429,7 @@ function renderPage(id){
       '<h2 class="g-h1">' + headline + '</h2>' +
       '<p class="g-lead">' + p.lead + '</p>' +
     '</div>' + markeHtml + '</div>' +
-    '<div class="g-stack">' + blocks.map(renderBlock).join('') + '</div>' +
+    '<div class="g-stack' + (SHOT_SIDE ? ' shots-side' : '') + '">' + blocks.map(renderBlock).join('') + '</div>' +
     '<a class="g-cta" href="' + G_NACHBAR + 'downloads.html">' +
       '<img class="m" src="' + G_BASIS + 'assets/icon-192.png" width="192" height="192" ' +
       'loading="lazy" decoding="async" alt=""><div>' +
@@ -394,12 +437,17 @@ function renderPage(id){
       '<div class="s">The tournament engine — get the app</div>' +
     '</div><span class="g-chev">' + ic('i-south') + '</span></a>';
 
+  /* Verweise auf andere Guide-Seiten stehen im Inhalt als {{knoten}}: erst
+     hier ist bekannt, ob daraus eine Hash-Route oder eine Datei wird. Einmal
+     ueber den fertigen Rumpf, damit jeder Baustein sie tragen kann. */
+  const rumpf = body.replace(/\{\{([a-z0-9-]+)\}\}/g, (_, k) => href(k));
+
   return {
     id,
     titel:  p.title + ' – TournaQ Guide',
     lead:   p.lead,
     crumbs,
-    body,
+    body:   rumpf,
     navi:   renderNav(id),
   };
 }

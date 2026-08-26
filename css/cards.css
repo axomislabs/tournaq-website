@@ -24,8 +24,16 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     background: var(--olive-dark);
 
-    --tq-t: 8cqw;      /* Titel   — je Karte ueberschreibbar */
-    --tq-s: 2.875cqw;  /* Subline — je Karte ueberschreibbar */
+    /* Eine Groesse fuer alle Karten. Frueher trug fast jede zweite eine
+       eigene, aus der Zeit, als der Text ins Bild gebrannt und je Foto
+       eingepasst wurde — nebeneinander im Raster liest sich das als Fehler.
+       7.5cqw statt der alten 8, weil "Scramble Competitions", der laengste
+       Titel, bei 8cqw in den breiteren Ersatzschriften (Helvetica, Roboto)
+       umbricht: 120px von 1381px nutzbarer Breite lassen ihm Luft.
+       Ausnahmen sind die Referenzfassungen — .tq-mini im Prinzip-Diagramm
+       und .g-marke im Seitenkopf —, die eigene feste Groessen setzen. */
+    --tq-t: 7.5cqw;    /* Titel */
+    --tq-s: 2.875cqw;  /* Subline */
 }
 
 .tq-card > img {

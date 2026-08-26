@@ -1,30 +1,17 @@
 <!DOCTYPE html>
 <!--
-  User Guide — rendered from the PAGES object near the bottom
-  of this file. PAGES is the source of truth; everything above it is chrome.
-
-  The block helpers (panel/step/item/split/fbox/sect/note/grid/flow) map one
-  for one onto tournaq/lib/widgets/explainer/explainer_blocks.dart, so the copy
-  here and the in-app explainer pages stay the same shape. Grown out of
-  drafts/guide/guide-web-draft.html; edit this file now, not the draft.
-
-  One block has no counterpart in the app yet: `opts`, the reference table on the
-  eight "Setting up …" pages and the eight "Running a …" ones. Its rows are read
-  straight off the app: tournaq/lib/pages/*_setup_page.dart for the setup fields
-  (presets, defaults, clamps, footnotes, the help sheets behind the question marks),
-  tournaq/lib/widgets/pills/ for the tournament page's pills (what each opens, and why
-  it locks), and the scorecard pages plus lib/scoring/ for what each card offers.
-  setup-options.md, tournament-options.md and scorecard-options.md in this repo hold
-  the same data with the source files it came from; when the app changes, those three
-  and these tables are what has to follow.
+  Erzeugt von tools/bake-guide.mjs aus js/guide/pages.js — nicht von Hand
+  aendern, der naechste Lauf ueberschreibt diese Datei. Inhalt bearbeiten:
+  js/guide/pages.js, dann "node tools/bake-guide.mjs".
 -->
-<html lang="en" data-i18n-base="../" data-i18n-title="page.guide.title">
+<html lang="en" data-nav-base="" data-nav-active="guide.html">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User Guide – TournaQ</title>
-  <meta name="description" content="The TournaQ user guide: every path through the app, from the first tap to the finished scorecard — administration, the Arena, all eight modes, and the scorecards they land on.">
+  <title>TournaQ User Guide – TournaQ Guide</title>
+  <meta name="description" content="Every path through the app starts in the same place and ends on a scorecard. What changes in between is how much structure you want around the game. Tap…">
+  <link rel="canonical" href="https://tournaq.com/pages/guide.html">
   <link rel="icon" href="../favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png">
@@ -33,15 +20,13 @@
   <meta name="theme-color" content="#3A3E16">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/cards.css">
+  <link rel="stylesheet" href="../css/guide.css">
   <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
-
-  <link rel="stylesheet" href="../css/guide.css">
 </head>
 
 <body>
 
-<!-- ══ Icon sprite — stroke glyphs, currentColor, no external font ══ -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="i-admin" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c.9-3.6 3.9-5.4 7.5-5.4s6.6 1.8 7.5 5.4"/></symbol>
   <symbol id="i-arena" viewBox="0 0 24 24"><ellipse cx="12" cy="8.5" rx="8.5" ry="3.6"/><path d="M3.5 8.5v6c0 2 3.8 3.6 8.5 3.6s8.5-1.6 8.5-3.6v-6"/><path d="M12 12.1v6.1"/></symbol>
@@ -101,8 +86,8 @@
 
       <aside class="g-map" id="g-map" aria-label="Guide map">
         <p class="g-map-h">TournaQ</p>
-        <p class="g-map-sub">23 pages</p>
-        <nav id="g-mapnav"></nav>
+        <p class="g-map-sub">81 pages</p>
+        <nav id="g-mapnav"><a class="" href="index.html"><span class="g-tw empty"></span><svg class="g-ic" aria-hidden="true"><use href="#i-court"/></svg><span>Home</span></a><a class="" href="features.html"><span class="g-tw" data-tw="site-features" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Features"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-target"/></svg><span>Features</span></a><a class="" href="platform.html"><span class="g-tw empty"></span><svg class="g-ic" aria-hidden="true"><use href="#i-star"/></svg><span>Platform</span></a><a class="" href="#/" aria-current="page"><span class="g-tw open" data-tw="home" role="button" tabindex="0" aria-expanded="true" aria-label="Collapse TournaQ User Guide"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-map"/></svg><span>TournaQ User Guide</span></a><a class="sub" href="./guide/administration.html"><span class="g-tw" data-tw="administration" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Administration"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-admin"/></svg><span>Administration</span></a><a class="sub" href="./guide/arena.html"><span class="g-tw open" data-tw="arena" role="button" tabindex="0" aria-expanded="true" aria-label="Collapse TournaQ Arena"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-arena"/></svg><span>TournaQ Arena</span></a><a class="sub2" href="./guide/quick-game.html"><span class="g-tw" data-tw="quick-game" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Quick Game"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-bolt"/></svg><span>Quick Game</span></a><a class="sub2" href="./guide/team-competitions.html"><span class="g-tw" data-tw="brackets" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Team Competitions"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-bracket"/></svg><span>Team Competitions</span></a><a class="sub2" href="./guide/scramble-competitions.html"><span class="g-tw" data-tw="scrambles" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Scramble Competitions"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-people"/></svg><span>Scramble Competitions</span></a><a class="sub" href="./guide/tournament-hub.html"><span class="g-tw" data-tw="tournament-hub" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Tournament Hub"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-trophy"/></svg><span>Tournament Hub</span></a><a class="sub" href="./guide/tournament.html"><span class="g-tw" data-tw="tournament" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Running a Tournament"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-grid"/></svg><span>Running a Tournament</span></a><a class="sub" href="./guide/scorecards.html"><span class="g-tw" data-tw="scorecards" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Scorecards"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-score"/></svg><span>Scorecards</span></a><a class="" href="downloads.html"><span class="g-tw empty"></span><svg class="g-ic" aria-hidden="true"><use href="#i-download"/></svg><span>Downloads</span></a><a class="" href="legal.html"><span class="g-tw" data-tw="site-legal" role="button" tabindex="0" aria-expanded="false" aria-label="Expand Legal"><svg class="g-twi" aria-hidden="true"><use href="#i-south"/></svg></span><svg class="g-ic" aria-hidden="true"><use href="#i-doc"/></svg><span>Legal</span></a><a class="" href="contact.html"><span class="g-tw empty"></span><svg class="g-ic" aria-hidden="true"><use href="#i-share"/></svg><span>Contact</span></a></nav>
       </aside>
 
       <div class="g-col">
@@ -110,9 +95,9 @@
           <button class="g-menu" id="g-menu" aria-label="Open guide map" aria-expanded="false" aria-controls="g-map">
             <svg class="g-ic"><use href="#i-menu"/></svg>Map
           </button>
-          <div class="g-crumbs" id="g-crumbs"></div>
+          <div class="g-crumbs" id="g-crumbs"><a href="index.html">Home</a><span class="sep">/</span><span class="now">TournaQ User Guide</span></div>
         </div>
-        <div class="g-body" id="g-body" tabindex="-1"></div>
+        <div class="g-body" id="g-body" tabindex="-1"><div class="g-kopf"><div class="g-kopf-txt"><p class="g-eyebrow">The map</p><h2 class="g-h1">The <span class="brand">TournaQ</span> Principle</h2><p class="g-lead">Every path through the app starts in the same place and ends on a scorecard. What changes in between is how much structure you want around the game. Tap any node to read what it does.</p></div></div><div class="g-stack"><div class="g-map3"><div class="g-step g-ab"><span class="g-verb" aria-hidden="true"></span><a class="tq-card tq-mini" href="./guide/administration.html"><img src="../assets/cards/administration-480.webp" srcset="../assets/cards/administration-480.webp 480w, ../assets/cards/administration-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">Administration</span><span class="tq-s">Players, teams and clubs, set up once.</span></span></span></a></div><div class="g-step g-rechts"><span class="g-verb" aria-hidden="true"></span><a class="tq-card tq-mini" href="./guide/arena.html"><img src="../assets/cards/arena-480.webp" srcset="../assets/cards/arena-480.webp 480w, ../assets/cards/arena-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">TournaQ Arena</span><span class="tq-s">Find your favourite game mode.</span></span></span></a></div><div class="g-step g-ab"><span class="g-verb" aria-hidden="true"></span><a class="tq-card tq-mini" href="./guide/tournament-hub.html"><img src="../assets/cards/tournament-hub-480.webp" srcset="../assets/cards/tournament-hub-480.webp 480w, ../assets/cards/tournament-hub-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">Tournament Hub</span><span class="tq-s">Set up a new tournament.</span></span></span></a></div><div class="g-step g-rechts"><span class="g-verb" aria-hidden="true"></span><a class="tq-card tq-mini" href="./guide/tournament.html"><img src="../assets/cards/tournament-480.webp" srcset="../assets/cards/tournament-480.webp 480w, ../assets/cards/tournament-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">Running a Tournament</span><span class="tq-s">Your control desk once it starts.</span></span></span></a></div><div class="g-step g-ab"><span class="g-verb" aria-hidden="true"></span><a class="tq-card tq-mini" href="./guide/scorecards.html"><img src="../assets/cards/scorecards-480.webp" srcset="../assets/cards/scorecards-480.webp 480w, ../assets/cards/scorecards-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">Scorecards</span><span class="tq-s">The referee's best friend.</span></span></span></a></div><div class="g-step"><a class="tq-card tq-mini" href="./guide/exported-scorecard.html"><img src="../assets/cards/exported-480.webp" srcset="../assets/cards/exported-480.webp 480w, ../assets/cards/exported-960.webp 960w" sizes="(max-width: 760px) 92vw, 290px" width="1600" height="1000" loading="lazy" decoding="async" alt=""><span class="tq-card-text"><span class="tq-card-body"><span class="tq-t">Exported Scorecard</span><span class="tq-s">Hand scorecards over by QR code.</span></span></span></a></div></div></div><a class="g-cta" href="downloads.html"><img class="m" src="../assets/icon-192.png" width="192" height="192" loading="lazy" decoding="async" alt=""><div><div class="t">TournaQ Volley</div><div class="s">The tournament engine — get the app</div></div><span class="g-chev"><svg class="g-ic" aria-hidden="true"><use href="#i-south"/></svg></span></a></div>
       </div>
 
     </div>
@@ -127,11 +112,22 @@
     </p>
   </footer>
 
-<!-- Inhalt, Renderer und Browser-Anbindung liegen in js/guide/. Getrennt,
-     damit tools/bake-guide.mjs denselben Renderer unter Node aufrufen kann
-     wie diese Seite im Browser — ein Renderer, eine Wahrheit. Reihenfolge
-     zaehlt: pages.js liefert die Daten, render.js baut daraus HTML, boot.js
-     haengt es ein. -->
+<!-- Der Inhalt oben steht fertig im Dokument. Diese Angaben sagen dem Guide,
+     wo er liegt und wie er verlinkt, damit ein Sprung auf einen Unterknoten
+     dieselben Adressen erzeugt wie das Backskript. -->
+<script>
+window.__guideBaked = true;
+window.__guideNode  = "home";
+window.__guideKontext = {
+  basis: "../",
+  nachbar: "",
+  datei: {"home":"#/","administration":"./guide/administration.html","arena":"./guide/arena.html","quick-game":"./guide/quick-game.html","brackets":"./guide/team-competitions.html","m-league":"./guide/modes/league.html","m-elimination":"./guide/modes/elimination.html","m-classic":"./guide/modes/tournaq-classic.html","m-swiss":"./guide/modes/swiss-system.html","scrambles":"./guide/scramble-competitions.html","m-social-scramble":"./guide/modes/social-scramble.html","queue-modes":"./guide/queue-modes.html","m-royal-rotation":"./guide/modes/royal-rotation.html","m-royal-shuffle":"./guide/modes/royal-shuffle.html","m-doghouse":"./guide/modes/doghouse.html","m-royal-duo":"./guide/modes/royal-duo.html","tournament-hub":"./guide/tournament-hub.html","tournament":"./guide/tournament.html","scorecards":"./guide/scorecards.html","sc-classic":"./guide/scorecards/classic.html","sc-scramble":"./guide/scorecards/scramble.html","sc-queue":"./guide/scorecards/queue.html","exported":"./guide/exported-scorecard.html"},
+  link: function (id) {
+    return this.datei[id] || '#/' + (id === 'home' ? '' : id);
+  }
+};
+window.__guideKontext.link = window.__guideKontext.link.bind(window.__guideKontext);
+</script>
 <script src="../js/guide/pages.js" defer></script>
 <script src="../js/guide/render.js" defer></script>
 <script src="../js/guide/boot.js" defer></script>

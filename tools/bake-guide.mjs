@@ -21,7 +21,7 @@ import vm from 'node:vm';
 
 const WURZEL = path.dirname(new URL('.', import.meta.url).pathname.replace(/\/$/, ''));
 const arg = process.argv.indexOf('--out');
-const AUS = path.join(WURZEL, arg > 0 ? process.argv[arg + 1] : 'v2');
+const AUS = path.join(WURZEL, arg > 0 ? process.argv[arg + 1] : 'pages');
 
 /* Die Knoten mit eigener Datei. Bewusst eine Liste und keine abgeleitete
  * Regel: welche Seite ihre eigene Adresse verdient, ist eine redaktionelle
@@ -30,18 +30,24 @@ const EIGENE_SEITE = [
   'home', 'administration', 'arena', 'quick-game',
   'brackets', 'm-league', 'm-elimination', 'm-classic', 'm-swiss',
   'scrambles', 'm-social-scramble',
-  'queue-modes', 'm-scramble-king', 'm-kotc', 'm-doghouse', 'm-royal-duo',
+  'queue-modes', 'm-royal-rotation', 'm-royal-shuffle', 'm-doghouse', 'm-royal-duo',
   'tournament-hub', 'tournament', 'scorecards',
   'sc-classic', 'sc-scramble', 'sc-queue', 'exported',
 ];
 
-/* Waehrend des Umbaus liegt v2 neben der laufenden Website. Geteiltes —
- * Bilder, Stile, Skripte — bleibt an seinem Platz und wird wurzelrelativ
- * angesprochen; das loest vor und nach dem Befoerdern gleich auf. Links
- * zwischen Guide-Seiten sind dagegen relativ, damit sie den Umzug des ganzen
- * Baums ueberstehen. */
-const BASIS = '/';
-const NACHBAR = '/pages/';         // index.html, downloads.html der alten Seite
+/* Alles relativ, nichts wurzelrelativ. Der Guide liegt mit im Baum unter
+ * pages/, es gibt keinen Umzug mehr, den absolute Pfade ueberstehen muessten
+ * — und relative Pfade haben den Vorzug, dass die Seiten sich auch per
+ * Doppelklick aus dem Ordner oeffnen lassen, ohne Server.
+ *
+ * Zwei Praefixe je Datei: BASIS zeigt auf die Wurzel des Projekts (fuer
+ * assets/, css/, js/), NACHBAR auf pages/ (fuer index.html und Geschwister). */
+const tiefe = id => {
+  const d = path.dirname(datei(id));          // '.' fuer pages/guide.html
+  return d === '.' ? 0 : d.split('/').length;
+};
+const BASIS = id => '../'.repeat(tiefe(id) + 1);
+const NACHBAR = id => '../'.repeat(tiefe(id));
 
 /* ── Renderer laden ────────────────────────────────────────────────────── */
 const ktx = vm.createContext({ console });
@@ -51,18 +57,24 @@ for (const f of ['js/guide/pages.js', 'js/guide/render.js']) {
 const PAGES = vm.runInContext('PAGES', ktx);
 const EXTERN = vm.runInContext('EXTERN', ktx);
 
-/* Das Sprite steht in pages/guide.html. Von dort gelesen statt kopiert: eine
- * zweite Fassung wuerde auseinanderlaufen, sobald ein Symbol dazukommt.
- * Beim Befoerdern zieht es mit in den v2-Baum. */
-const schale = fs.readFileSync(path.join(WURZEL, 'pages/guide.html'), 'utf8');
-const spriteVon = schale.indexOf('<svg width="0" height="0"');
-const SPRITE = schale.slice(spriteVon, schale.indexOf('</svg>', spriteVon) + 6);
-if (spriteVon < 0) throw new Error('Kein Sprite in pages/guide.html gefunden');
+/* Das Sprite ist eine Quelle, keine Ausgabe: js/guide/sprite.js haelt es als
+ * Zeichenkette, weil js/site-map.js es auf Seiten nachlegt, die keines
+ * eingebettet haben. Von dort gelesen — nicht aus pages/guide.html, denn das
+ * schreibt dieses Skript selbst, und es duerfte sich nicht aus seiner eigenen
+ * Ausgabe speisen. */
+const sprKtx = vm.createContext({});
+vm.runInContext(fs.readFileSync(path.join(WURZEL, 'js/guide/sprite.js'), 'utf8'),
+                sprKtx, { filename: 'js/guide/sprite.js' });
+const SPRITE = vm.runInContext('GUIDE_SPRITE', sprKtx);
+if (!SPRITE) throw new Error('Kein Sprite in js/guide/sprite.js');
 
 /* ── Adressen ──────────────────────────────────────────────────────────── */
 const datei = id => {
   const r = PAGES[id].route.replace(/^\//, '');       // "guide/modes/league"
-  return r === 'guide' ? 'guide/index.html' : r + '.html';
+  /* Die Wurzel des Guides ist pages/guide.html, nicht guide/index.html: so
+     bleibt es eine Adresse statt zweier, der Eintrag in der oberen Reihe
+     stimmt weiter, und alte Links auf guide.html#/... landen richtig. */
+  return r === 'guide' ? 'guide.html' : r + '.html';
 };
 const DATEI = Object.fromEntries(EIGENE_SEITE.map(id => [id, datei(id)]));
 
@@ -105,36 +117,33 @@ function description(lead) {
 }
 
 function dokument(s, id, link) {
-  const tief = path.dirname(datei(id)).split('/').length;
+  const basis = BASIS(id);
+  const nachbar = NACHBAR(id);
   return `<!DOCTYPE html>
 <!--
   Erzeugt von tools/bake-guide.mjs aus js/guide/pages.js — nicht von Hand
   aendern, der naechste Lauf ueberschreibt diese Datei. Inhalt bearbeiten:
   js/guide/pages.js, dann "node tools/bake-guide.mjs".
 -->
-<html lang="en" data-nav-base="${NACHBAR}" data-nav-active="guide.html">
+<html lang="en" data-nav-base="${nachbar}" data-nav-active="guide.html">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(s.titel)}</title>
   <meta name="description" content="${esc(description(s.lead))}">
-  <!-- v2 wird neben der laufenden Website ausgeliefert. Bis zum Befoerdern
-       darf sie nicht in den Index, sonst steht der halbfertige Baum als
-       Doppelgaenger der echten Seiten da. Beim Befoerdern faellt die Zeile
-       weg und ein canonical tritt an ihre Stelle. -->
-  <meta name="robots" content="noindex">
-  <link rel="icon" href="${BASIS}favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="${BASIS}assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="${BASIS}assets/favicon-16.png">
-  <link rel="apple-touch-icon" href="${BASIS}apple-touch-icon.png">
-  <link rel="manifest" href="${BASIS}site.webmanifest">
+  <link rel="canonical" href="https://tournaq.com/pages/${datei(id)}">
+  <link rel="icon" href="${basis}favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="${basis}assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="${basis}assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="${basis}apple-touch-icon.png">
+  <link rel="manifest" href="${basis}site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
-  <link rel="stylesheet" href="${BASIS}css/style.css">
-  <link rel="stylesheet" href="${BASIS}css/cards.css">
-  <link rel="stylesheet" href="${BASIS}css/guide.css">
-  <script src="${BASIS}js/main-nav.js" defer></script>
-  <script src="${BASIS}js/i18n.js" defer></script>
+  <link rel="stylesheet" href="${basis}css/style.css">
+  <link rel="stylesheet" href="${basis}css/cards.css">
+  <link rel="stylesheet" href="${basis}css/guide.css">
+  <script src="${basis}js/main-nav.js" defer></script>
+  <script src="${basis}js/i18n.js" defer></script>
 </head>
 
 <body>
@@ -143,8 +152,8 @@ ${SPRITE}
 
   <header>
     <nav class="nav">
-      <a class="logo" href="${NACHBAR}index.html">
-        <img src="${BASIS}assets/brand/tournaq-logo-land-450.webp" alt="TournaQ" width="225" height="150" loading="eager" decoding="async">
+      <a class="logo" href="${nachbar}index.html">
+        <img src="${basis}assets/brand/tournaq-logo-land-450.webp" alt="TournaQ" width="225" height="150" loading="eager" decoding="async">
       </a>
       <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
       <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
@@ -187,9 +196,9 @@ ${SPRITE}
   <footer>
     <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
     <p>
-      <a href="${NACHBAR}index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
-      <a href="${NACHBAR}legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
-      <a href="${NACHBAR}contact.html" data-i18n="footer.contact">Contact</a>
+      <a href="${nachbar}index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+      <a href="${nachbar}legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+      <a href="${nachbar}contact.html" data-i18n="footer.contact">Contact</a>
     </p>
   </footer>
 
@@ -200,8 +209,8 @@ ${SPRITE}
 window.__guideBaked = true;
 window.__guideNode  = ${JSON.stringify(id)};
 window.__guideKontext = {
-  basis: ${JSON.stringify(BASIS)},
-  nachbar: ${JSON.stringify(NACHBAR)},
+  basis: ${JSON.stringify(basis)},
+  nachbar: ${JSON.stringify(nachbar)},
   datei: ${JSON.stringify(Object.fromEntries(EIGENE_SEITE.map(z => [z, link(z)])))},
   link: function (id) {
     return this.datei[id] || '#/' + (id === 'home' ? '' : id);
@@ -209,9 +218,9 @@ window.__guideKontext = {
 };
 window.__guideKontext.link = window.__guideKontext.link.bind(window.__guideKontext);
 </script>
-<script src="${BASIS}js/guide/pages.js" defer></script>
-<script src="${BASIS}js/guide/render.js" defer></script>
-<script src="${BASIS}js/guide/boot.js" defer></script>
+<script src="${basis}js/guide/pages.js" defer></script>
+<script src="${basis}js/guide/render.js" defer></script>
+<script src="${basis}js/guide/boot.js" defer></script>
 
 </body>
 
@@ -226,8 +235,8 @@ for (const id of EIGENE_SEITE) {
   if (!PAGES[id]) throw new Error('Unbekannter Knoten: ' + id);
   const link = linkVon(id);
   const s = vm.runInContext(
-    `setzeKontext({basis: ${JSON.stringify(BASIS)},` +
-    ` nachbar: ${JSON.stringify(NACHBAR)},` +
+    `setzeKontext({basis: ${JSON.stringify(BASIS(id))},` +
+    ` nachbar: ${JSON.stringify(NACHBAR(id))},` +
     ` link: (id) => (${JSON.stringify(Object.fromEntries(
         Object.keys(PAGES).map(z => [z, link(z)])))})[id]});` +
     `zuruecksetzenNav(); renderPage(${JSON.stringify(id)})`, ktx);
@@ -255,15 +264,17 @@ const baum = `/* Erzeugt von tools/bake-guide.mjs aus js/guide/pages.js — nich
 const PAGES = ${JSON.stringify(stumpf)};
 const EXTERN = ${JSON.stringify(EXTERN)};
 const NAV = ${JSON.stringify(NAV_DATEN)};
+
+/* Wohin ein Guide-Knoten zeigt, von pages/ aus gesehen. Die Knoten mit eigener
+   Datei bekommen sie, alle anderen die Datei ihres naechsten gebackenen
+   Vorfahren plus Hash-Route. js/site-map.js schlaegt hier nach. */
+const GUIDE_DATEI = ${JSON.stringify(Object.fromEntries(Object.keys(PAGES).map(id => {
+  const ziel = vorfahr(id);
+  return [id, datei(ziel) + (ziel === id ? '' : '#/' + id)];
+})))};
 `;
 fs.writeFileSync(path.join(WURZEL, 'js/guide/tree.js'), baum);
 
-/* Das Sprite, damit die Karte auch auf Seiten Symbole hat, die keines
- * eingebettet haben. Aus derselben Quelle wie oben — eine zweite Fassung
- * wuerde auseinanderlaufen, sobald ein Symbol dazukommt. */
-fs.writeFileSync(path.join(WURZEL, 'js/guide/sprite.js'),
-  '/* Erzeugt von tools/bake-guide.mjs aus pages/guide.html — nicht von Hand. */\n' +
-  'const GUIDE_SPRITE = ' + JSON.stringify(SPRITE) + ';\n');
 console.log(`js/guide/tree.js: ${Object.keys(stumpf).length} Knoten, ${Math.round(baum.length / 1024)} KB`);
 
 /* ── Linkpruefung ──────────────────────────────────────────────────────── */

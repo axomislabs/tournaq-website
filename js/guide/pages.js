@@ -1,24 +1,63 @@
 /* Der Inhalt des User Guide — die eine Quelle.
 
-   Herausgeloest aus pages/guide.html. PAGES ist der Inhalt, CARDS kommt gebacken aus
-   tools/cards/cards.json, NAV ist der Baum der Seitenleiste. Keine
-   Zeile hier fasst das DOM an, damit auch das Backskript sie lesen kann.
+   PAGES ist der Inhalt, CARDS kommt gebacken aus tools/cards/cards.json, NAV
+   ist der Baum der Seitenleiste, EXTERN sind die Seiten der Website darin.
+   Keine Zeile hier fasst das DOM an: nur so kann tools/bake-guide.mjs sie
+   unter Node lesen und dieselben Seiten schreiben, die der Browser zeichnet.
+
+   Die Bausteine (panel/step/item/split/fbox/sect/note/grid/flow) entsprechen
+   eins zu eins tournaq/lib/widgets/explainer/explainer_blocks.dart, damit der
+   Text hier und die Erklaerseiten in der App dieselbe Form behalten.
+
+   Einer hat noch kein Gegenstueck in der App: `opts`, die Referenztabelle auf
+   den acht "Setting up …"- und acht "Running a …"-Seiten. Ihre Zeilen sind
+   direkt aus der App gelesen — tournaq/lib/pages/*_setup_page.dart fuer die
+   Felder der Einrichtung (Vorgaben, Standardwerte, Grenzen, Fussnoten, die
+   Hilfetexte hinter den Fragezeichen), tournaq/lib/widgets/pills/ fuer die
+   Pillen der Turnierseite (was jede oeffnet und warum sie sperrt), und die
+   Scorecard-Seiten samt lib/scoring/ fuer das, was jede Karte kann.
+   setup-options.md, tournament-options.md und scorecard-options.md in diesem
+   Repo halten dieselben Daten mit ihren Quelldateien; aendert sich die App,
+   muessen diese drei und die Tabellen hier nachziehen.
+
+   Gewachsen aus drafts/guide/guide-web-draft.html — dort nichts mehr aendern.
 */
 
 /* ══════════════════════════════════════════════════════════════════════════
    Block helpers — one-for-one with lib/widgets/explainer/explainer_blocks.dart
    so this draft translates straight into the existing widgets.
    ══════════════════════════════════════════════════════════════════════════ */
-const panel = (badge, sub, items) => ({t:'panel', badge, sub, items});
+const panel = (badge, sub, items, o={}) => ({t:'panel', badge, sub, items, ...o});
 const step  = (n, icon, label, cap, o={}) => ({k:'step', n, icon, label, cap, ...o});
 const item  = (icon, label, cap, o={}) => ({k:'item', icon, label, cap, ...o});
 const split = (label) => ({k:'split', label});
+/* Zwei parallele Straenge in einem Panel. `split` teilt einen Strang der
+   Laenge nach — nacheinander gelesen —, `fork` stellt zwei Faelle
+   nebeneinander, die gleichzeitig gelten: links die eine Modusfamilie,
+   rechts die andere. Ohne Gegenstueck in der App, wie `opts`. */
+const fork  = (a, b) => ({k:'fork', a, b});
+const arm   = (label, items) => ({label, items});
 const fbox  = (icon, title, body, lines) => ({t:'fbox', icon, title, body, lines});
 const sect  = (label, icon='i-south') => ({t:'sect', label, icon});
 const note  = (title, body) => ({t:'note', title, body});
 const grid  = (cards) => ({t:'grid', cards});
 const imgcards = (cards) => ({t:'imgcards', cards});
+/* Ein App-Screenshot mit Bildunterschrift. `src` ist der Pfad unter assets/
+   ohne Groessensuffix, `sizes` die Breiten, die auf der Platte liegen — beide
+   werden von tools/bake-guide.mjs nicht erraten, sondern beim Erzeugen aus
+   tools/specs/*.json eingetragen. `w`/`h` halten das Seitenverhaeltnis, damit
+   beim Laden nichts springt. */
+const shot = (src, w, h, sizes, title, body, alt) => ({t:'shot', src, w, h, sizes, title, body, alt});
 const flow  = (spec) => ({t:'flow', spec});
+/* Ein Verweis von der Einleitung auf einen Block weiter unten. `href` bleibt
+   der echte Anker, damit die gebackene Seite auch ohne JavaScript springt;
+   `data-jump` faengt boot.js ab und zentriert das Ziel, statt den Hash zu
+   veraendern — der gehoert hier dem Router. */
+/* Ein Verweis aus dem Fliesstext auf eine andere Guide-Seite. Wohin er zeigt,
+   weiss erst der Renderer — Hash-Route oder eigene Datei —, hier steht daher
+   nur der Knoten in einem Platzhalter, den renderPage zum Schluss aufloest. */
+const pageLink = (id, txt) => '<a class="g-jump" href="{{' + id + '}}">' + txt + '</a>';
+const jump = (id, txt) => '<a class="g-jump" href="#' + id + '" data-jump="' + id + '">' + txt + '</a>';
 
 /* The settings table. `opt` is one field of a setup page, in the app's own
    terms: `what` says why it is there, `dflt` carries the default and the range
@@ -33,21 +72,21 @@ const CARDS = {
   'arena': {img:'arena', to:'arena', t:'TournaQ Arena', s:'Browse the TournaQ Arena and find<br>your favourite game mode.', alt:'TournaQ Arena — Browse the TournaQ Arena and find your favourite game mode.', k:'Find your favourite game mode.'},
   'quick-game': {img:'quick-game', to:'quick-game', t:'Quick Game', s:'Easily keep track<br>of any game.', alt:'Quick Game — easily keep track of any game.'},
   'tournament-hub': {img:'tournament-hub', to:'tournament-hub', t:'Tournament Hub', s:'Maintain and set up<br>new tournaments.', alt:'Tournament Hub — Maintain and set up new tournaments.', k:'Set up a new tournament.'},
-  'tournament': {img:'tournament', to:'tournament', t:'Running a Tournament', s:'Keep control over your tournament and change<br>settings as needed. Track results and progress.', alt:'Running a Tournament — Keep control over your tournament and change settings as needed. Track results and progress.', k:'Your control desk once it starts.', st:'--tq-t:6.75cqw;--tq-s:2.625cqw'},
-  'scorecards': {img:'scorecards', to:'scorecards', t:'Scorecards', s:'The referee\'s best friend. Easily keep track of the<br>results, supported by time keeping, automatic<br>side changes and serving indication.', alt:'Scorecards — The referee\'s best friend. Easily keep track of the results, supported by time keeping, automatic side changes and serving indication.', k:'The referee\'s best friend.', st:'--tq-s:2.375cqw'},
-  'exported': {img:'exported', to:'exported', t:'Exported Scorecard', s:'Leverage the offline functions of TournaQ and hand<br>scorecards of your tournament over to your<br>assigned referees by QR code.', alt:'Exported Scorecard — Leverage the offline functions of TournaQ and hand scorecards of your tournament over to your assigned referees by QR code.', k:'Hand scorecards over by QR code.', st:'--tq-t:7cqw;--tq-s:2.375cqw'},
-  'team-competitions': {img:'team-competitions', to:'brackets', t:'Team Competitions', s:'Play and win tournaments<br>together with your partner.', alt:'Team Competitions — Play and win tournaments together with your partner.', st:'--tq-t:7cqw'},
-  'scramble-competitions': {img:'scramble-competitions', to:'scrambles', t:'Scramble Competitions', s:'Play and win tournaments on your own account.<br>Temporarily team up with everyone in your group.', alt:'Scramble Competitions — Play and win tournaments on your own account. Temporarily team up with everyone in your group.', st:'--tq-t:6.375cqw;--tq-s:2.625cqw'},
+  'tournament': {img:'tournament', to:'tournament', t:'Running a Tournament', s:'Keep control over your tournament and change<br>settings as needed. Track results and progress.', alt:'Running a Tournament — Keep control over your tournament and change settings as needed. Track results and progress.', k:'Your control desk once it starts.'},
+  'scorecards': {img:'scorecards', to:'scorecards', t:'Scorecards', s:'The referee\'s best friend. Easily keep track of the<br>results, supported by time keeping, automatic<br>side changes and serving indication.', alt:'Scorecards — The referee\'s best friend. Easily keep track of the results, supported by time keeping, automatic side changes and serving indication.', k:'The referee\'s best friend.'},
+  'exported': {img:'exported', to:'exported', t:'Exported Scorecard', s:'Leverage the offline functions of TournaQ and hand<br>scorecards of your tournament over to your<br>assigned referees by QR code.', alt:'Exported Scorecard — Leverage the offline functions of TournaQ and hand scorecards of your tournament over to your assigned referees by QR code.', k:'Hand scorecards over by QR code.'},
+  'team-competitions': {img:'team-competitions', to:'brackets', t:'Team Competitions', s:'Play and win tournaments<br>together with your partner.', alt:'Team Competitions — Play and win tournaments together with your partner.'},
+  'scramble-competitions': {img:'scramble-competitions', to:'scrambles', t:'Scramble Competitions', s:'Play and win tournaments on your own account.<br>Temporarily team up with everyone in your group.', alt:'Scramble Competitions — Play and win tournaments on your own account. Temporarily team up with everyone in your group.'},
   'queue-modes': {img:'queue-modes', to:'queue-modes', t:'Queue Modes', s:'Queue up and play nonstop.<br>Can you handle the pressure?', alt:'Queue Modes — Queue up and play nonstop. Can you handle the pressure?'},
-  'social-scramble': {img:'social-scramble', to:'m-social-scramble', t:'Social Scrambles', s:'Team up for timed games with everyone in your group.<br>Play a full tournament in less than an hour.', alt:'Social Scrambles — Team up for timed games with everyone in your group. Play a full tournament in less than an hour.', st:'--tq-s:2.625cqw'},
-  'royal-rotation': {img:'royal-rotation', to:'m-scramble-king', t:'Royal Rotations', s:'King of the Court. Stick with a partner<br>for one round — but never for two.', alt:'Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.'},
-  'royal-shuffle': {img:'royal-shuffle', to:'m-kotc', t:'Royal Shuffles', s:'King of the Court.<br>Change your partner with every rally.', alt:'Royal Shuffles — King of the Court. Change your partner with every rally.'},
+  'social-scramble': {img:'social-scramble', to:'m-social-scramble', t:'Social Scrambles', s:'Team up for timed games with everyone in your group.<br>Play a full tournament in less than an hour.', alt:'Social Scrambles — Team up for timed games with everyone in your group. Play a full tournament in less than an hour.'},
+  'royal-rotation': {img:'royal-rotation', to:'m-royal-rotation', t:'Royal Rotations', s:'King of the Court. Stick with a partner<br>for one round — but never for two.', alt:'Royal Rotations — King of the Court. Stick with a partner for one round — but never for two.'},
+  'royal-shuffle': {img:'royal-shuffle', to:'m-royal-shuffle', t:'Royal Shuffles', s:'King of the Court.<br>Change your partner with every rally.', alt:'Royal Shuffles — King of the Court. Change your partner with every rally.'},
   'royal-duo': {img:'royal-duo', to:'m-royal-duo', t:'Royal Duos', s:'King of the Court.<br>Win as a team.', alt:'Royal Duos — King of the Court. Win as a team.'},
   'doghouse': {img:'doghouse', to:'m-doghouse', t:'Doghouses', s:'Get out of the Doghouse —<br>if you can.', alt:'Doghouses — Get out of the Doghouse — if you can.'},
   'league': {img:'league', to:'m-league', t:'Leagues', s:'Play against everybody.<br>Once or twice. No excuses.', alt:'Leagues — Play against everybody. Once or twice. No excuses.', k:'Everybody plays everybody.'},
-  'elimination': {img:'elimination', to:'m-elimination', t:'Eliminations', s:'Win or get knocked out.<br>A game of nerves.', alt:'Eliminations — Win or get knocked out. A game of nerves.', k:'A plain knockout.', st:'--tq-s:2.625cqw'},
-  'classic': {img:'classic', to:'m-classic', t:'TournaQ Classics', s:'Qualify for the gold tier, or make it through in bronze.<br>Secure your spot on the podium.', alt:'TournaQ Classics — Qualify for the gold tier, or make it through in bronze. Secure your spot on the podium.', k:'Qualification first, then knockout.', st:'--tq-t:7cqw;--tq-s:2.375cqw'},
-  'swiss': {img:'swiss', to:'m-swiss', t:'Swiss Systems', s:'Win and play against winners.<br>Until it gets lonely at the top.', alt:'Swiss Systems — Win and play against winners. Until it gets lonely at the top.', k:'Paired against someone on your score.', st:'--tq-s:2.625cqw'},
+  'elimination': {img:'elimination', to:'m-elimination', t:'Eliminations', s:'Win or get knocked out.<br>A game of nerves.', alt:'Eliminations — Win or get knocked out. A game of nerves.', k:'A plain knockout.'},
+  'classic': {img:'classic', to:'m-classic', t:'TournaQ Classics', s:'Qualify for the gold tier, or make it through in bronze.<br>Secure your spot on the podium.', alt:'TournaQ Classics — Qualify for the gold tier, or make it through in bronze. Secure your spot on the podium.', k:'Qualification first, then knockout.'},
+  'swiss': {img:'swiss', to:'m-swiss', t:'Swiss Systems', s:'Win and play against winners.<br>Until it gets lonely at the top.', alt:'Swiss Systems — Win and play against winners. Until it gets lonely at the top.', k:'Paired against someone on your score.'},
 };
 /* Zielseite -> Karte, fuer das Hero-Bild oben auf der Seite. */
 const CARD_BY_ZIEL = {};
@@ -146,8 +185,8 @@ administration: {
       {icon:'i-trophy', label:'TournaQ Classics', cap:'What this mode asks you at setup.', to:'m-classic-hub'},
       {icon:'i-trophy', label:'Swiss Systems', cap:'What this mode asks you at setup.', to:'m-swiss-hub'},
       {icon:'i-trophy', label:'Social Scrambles', cap:'What this mode asks you at setup.', to:'m-social-scramble-hub'},
-      {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-scramble-king-hub'},
-      {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-kotc-hub'},
+      {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-royal-rotation-hub'},
+      {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-royal-shuffle-hub'},
       {icon:'i-trophy', label:'Doghouses', cap:'What this mode asks you at setup.', to:'m-doghouse-hub'},
       {icon:'i-trophy', label:'Quick Game', cap:'What this mode asks you at setup.', to:'quick-game-hub'},
     ]),
@@ -166,19 +205,31 @@ arena: {
       item('i-court','Sports','Classic volleyball, footvolley, and any sport that counts the same way.'),
       item('i-people','Team sizes','Anything from 2 to 6 players a side.'),
     ]),
-    sect('Then: how long is it?'),
-    imgcards(['quick-game', 'tournament-hub']),
-    sect('And: who shows up?'),
-    imgcards(['team-competitions', 'scramble-competitions']),
-    sect('All nine modes', 'i-trophy'),
-    imgcards(['league', 'elimination', 'classic', 'swiss', 'royal-duo', 'social-scramble', 'royal-rotation', 'royal-shuffle', 'doghouse']),
+    sect('The game families'),
+    imgcards(['quick-game', 'team-competitions', 'scramble-competitions', 'queue-modes']),
+    sect('All ten modes', 'i-trophy'),
+    /* Sortiert wie die Familien darueber, und jede Karte traegt ihr Etikett:
+       die Karte allein sagt nicht, in welcher Familie ein Modus laeuft — und
+       vier von ihnen laufen in der Queue statt nach Spielplan. */
+    imgcards([
+      ['quick-game', 'Quick game'],
+      ['league', 'Team competition'],
+      ['elimination', 'Team competition'],
+      ['classic', 'Team competition'],
+      ['swiss', 'Team competition'],
+      ['royal-duo', 'Team competition · Queue mode'],
+      ['social-scramble', 'Scramble competition'],
+      ['royal-rotation', 'Scramble competition · Queue mode'],
+      ['royal-shuffle', 'Scramble competition · Queue mode'],
+      ['doghouse', 'Scramble competition · Queue mode'],
+    ]),
     fbox('i-score','Every mode comes with the scorecard it needs','Team competitions get the classic scorecard with sets and target points. The scramble competitions get one of two, depending on how the round is scored — the timed card, or the one that shows the queue.', [
       {icon:'i-score', title:'Classic scorecard', body:'Leagues, Eliminations, TournaQ Classics, Swiss Systems, Quick Game'},
       {icon:'i-timer', title:'Scramble scorecard', body:'Social Scrambles, Royal Rotations'},
       {icon:'i-queue', title:'Queue scorecard', body:'Royal Shuffles, Doghouses'},
     ]),
   ],
-  next:['quick-game','brackets','scrambles','scorecards'],
+  next:['quick-game','brackets','scrambles','queue-modes','scorecards'],
 },
 
 /* ── Quick Game ──────────────────────────────────────────────────────── */
@@ -204,6 +255,26 @@ arena: {
     ]),
   ],
   next:['quick-game-hub','arena'],
+  /* ══ INBOX · migriert aus pages/modes/quick-game.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Quick Game page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'A single match where a tournament would be overkill'},
+      {icon:'i-check', title:'Training games where you just want the score kept honestly'},
+      {icon:'i-check', title:'Trying the app out before running a real session'},
+    ]),
+    panel('Finding it in the app','Quick Games sit at the top of the TournaQ Arena, above the tournament formats. The list keeps every match you have scored.',[]),
+    shot('guide/00_shell/04_arena',430,932,[430, 860],
+      'The Arena',
+      'Every format the app can run, grouped by the kind of session it suits. The number on a card is how many of those you have run.',
+      'The TournaQ Arena with Quick Games at the top'),
+    shot('guide/02_quick_games/01_games',430,932,[430, 860],
+      'Your matches',
+      'Every game you have scored, most recent first, with the final score and the date. Tap one to see the full set-by-set result.',
+      'The Quick Games list showing previously scored matches'),
+  ],
 },
 
 /* ── Tournament Hub ──────────────────────────────────────────────────── */
@@ -230,8 +301,8 @@ arena: {
       {icon:'i-trophy', label:'TournaQ Classics', cap:'What this mode asks you at setup.', to:'m-classic-hub'},
       {icon:'i-trophy', label:'Swiss Systems', cap:'What this mode asks you at setup.', to:'m-swiss-hub'},
       {icon:'i-trophy', label:'Social Scrambles', cap:'What this mode asks you at setup.', to:'m-social-scramble-hub'},
-      {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-scramble-king-hub'},
-      {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-kotc-hub'},
+      {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-royal-rotation-hub'},
+      {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-royal-shuffle-hub'},
       {icon:'i-trophy', label:'Doghouses', cap:'What this mode asks you at setup.', to:'m-doghouse-hub'},
       {icon:'i-trophy', label:'Quick Game', cap:'What this mode asks you at setup.', to:'quick-game-hub'},
     ]),
@@ -339,8 +410,8 @@ tournament: {
       {icon:'i-grid', label:'TournaQ Classics', cap:'What the live screen shows for this mode.', to:'m-classic-run'},
       {icon:'i-grid', label:'Swiss Systems', cap:'What the live screen shows for this mode.', to:'m-swiss-run'},
       {icon:'i-grid', label:'Social Scrambles', cap:'What the live screen shows for this mode.', to:'m-social-scramble-run'},
-      {icon:'i-grid', label:'Royal Rotations', cap:'What the live screen shows for this mode.', to:'m-scramble-king-run'},
-      {icon:'i-grid', label:'Royal Shuffles', cap:'What the live screen shows for this mode.', to:'m-kotc-run'},
+      {icon:'i-grid', label:'Royal Rotations', cap:'What the live screen shows for this mode.', to:'m-royal-rotation-run'},
+      {icon:'i-grid', label:'Royal Shuffles', cap:'What the live screen shows for this mode.', to:'m-royal-shuffle-run'},
       {icon:'i-grid', label:'Doghouses', cap:'What the live screen shows for this mode.', to:'m-doghouse-run'},
     ]),
   ],
@@ -416,8 +487,8 @@ scorecards: {
       {icon:'i-score', label:'TournaQ Classics', cap:'The card this mode scores on.', to:'m-classic-score'},
       {icon:'i-score', label:'Swiss Systems', cap:'The card this mode scores on.', to:'m-swiss-score'},
       {icon:'i-score', label:'Social Scrambles', cap:'The card this mode scores on.', to:'m-social-scramble-score'},
-      {icon:'i-score', label:'Royal Rotations', cap:'The card this mode scores on.', to:'m-scramble-king-score'},
-      {icon:'i-score', label:'Royal Shuffles', cap:'The card this mode scores on.', to:'m-kotc-score'},
+      {icon:'i-score', label:'Royal Rotations', cap:'The card this mode scores on.', to:'m-royal-rotation-score'},
+      {icon:'i-score', label:'Royal Shuffles', cap:'The card this mode scores on.', to:'m-royal-shuffle-score'},
       {icon:'i-score', label:'Doghouses', cap:'The card this mode scores on.', to:'m-doghouse-score'},
       {icon:'i-score', label:'Quick Game', cap:'The card this mode scores on.', to:'quick-game-score'},
     ]),
@@ -543,14 +614,14 @@ scorecards: {
     ], ['Control','What it does','When you see it']),
     sect('What each mode does with it','i-south'),
     opts('What differs, mode by mode',[
-      opt('Royal Shuffles','The strike prompt ends a hold: “Game Won! {names} reached {points} points! They will be ejected and return to the queue.” The table under the card ranks individual players.','<a href="#/m-kotc-score">Scoring a King of the Court match</a>'),
-      opt('Doghouses','Two thresholds instead of one — “Escaped!” at the escape target, and “Ejected! {names} lost {count} games!” at the loss limit.','<a href="#/m-doghouse-score">Scoring a Royal Shuffle match</a>'),
-      opt('Royal Rotations','Pairs queue instead of individuals, so the card adds a partner picker — “Pick a partner for the floater” — and the table under it ranks teams.','<a href="#/m-scramble-king-score">Scoring a Royal Rotation match</a>'),
+      opt('Royal Shuffles','The strike prompt ends a hold: “Game Won! {names} reached {points} points! They will be ejected and return to the queue.” The table under the card ranks individual players.','<a href="#/m-royal-shuffle-score">Scoring a Royal Shuffle match</a>'),
+      opt('Doghouses','Two thresholds instead of one — “Escaped!” at the escape target, and “Ejected! {names} lost {count} games!” at the loss limit.','<a href="#/m-doghouse-score">Scoring a Doghouse match</a>'),
+      opt('Royal Rotations','Pairs queue instead of individuals, so the card adds a partner picker — “Pick a partner for the floater” — and the table under it ranks teams.','<a href="#/m-royal-rotation-score">Scoring a Royal Rotation match</a>'),
     ], ['Mode','What is different here','The full card, control by control']),
     grid([
-      {icon:'i-crown', label:'Royal Shuffles', cap:'Every control on this card, in one table.', to:'m-kotc-score'},
+      {icon:'i-crown', label:'Royal Shuffles', cap:'Every control on this card, in one table.', to:'m-royal-shuffle-score'},
       {icon:'i-shield', label:'Doghouses', cap:'Every control on this card, in one table.', to:'m-doghouse-score'},
-      {icon:'i-crown', label:'Royal Rotations', cap:'Every control on this card, in one table.', to:'m-scramble-king-score'},
+      {icon:'i-crown', label:'Royal Rotations', cap:'Every control on this card, in one table.', to:'m-royal-rotation-score'},
     ]),
   ],
   next:['queue-modes','scorecards'],
@@ -631,25 +702,37 @@ scrambles: {
   title:'Queue Modes', route:'/guide/queue-modes', icon:'i-queue', parent:'arena',
   eyebrow:'Mode family',
   h1:['Queue Modes'],
-  lead:'Earn your spot, win strikes or escape — while challengers always rotate. Four modes share one engine, and three settings decide how it feels. Three of them are scramble competitions, where every result is yours alone; Royal Duo is a team competition, where your pair stays together all the way.',
+  lead:'Highly dynamic modes where you have to earn your spot on the court to score points, win games and appear in the ranking. Everybody else is in the queue — and the queue keeps moving, so there are essentially no sit-outs. Three things are worth settling before you start: how the ' + jump('assignment','challengers get assigned') + ', how a game is ' + jump('scoring','scored and a side ejected') + ', and how the ' + jump('standings','final table is ranked') + '.',
   blocks:[
-    sect('Setting 1 · Who assigns the challengers', 'i-queue'),
-    panel('Assignment',null,[
-      item('i-admin','Manual','An admin assigns the challengers. Winners move onto the court automatically.'),
-      item('i-sync','Automated','The system works out the queue. An admin orchestrates the game but stays off court.'),
-      item('i-people','Auto Allplay','The system works out the queue, and the admins rotate in and play too.'),
-    ]),
-    sect('Setting 2 · What happens with an odd player — scramble competitions only', 'i-people'),
-    panel('Odd player handling','Scramble competitions only: a team competition arrives in pairs, so there is never a short team to fill.',[
-      item('i-target','Placeholder','Any available player joins the short team.'),
-      item('i-swap','Jumper','Available players rotate fairly through the round to fill the short team.'),
-    ]),
-    sect('Setting 3 · What the table is sorted by', 'i-trophy'),
-    panel('Standings',null,[
-      item('i-star','Ranking points','Equalised points awarded by where you placed on your court each round. Score at least once and you earn at least one.'),
-      item('i-crown','Strikes / escapes','The actual games won, round by round.'),
-      item('i-target','Points','The actual points won while on court, round by round.'),
-    ]),
+    sect('Setting 1 · Challenger Assignment', 'i-queue'),
+    panel('Assignment','Decided at setup: does the coach or admin step onto the court and play, or stand beside it and orchestrate?',[
+      item('i-admin','Manual','The admin assigns every challenger by hand — picking the next side up rally by rally, or simply reacting to what just happened on court.'),
+      item('i-sync','Automated','The system works out the queue fairly. The admin stays off court and orchestrates: announcing the challengers and the queue, and managing the points.'),
+      item('i-people','Auto Allplay','The system works out the queue the same way, but the admins play too. The role rotates: the system decides fairly when you take over the desk, and when you hand it to the next admin in line and rejoin the queue. It asks every player to be able to manage the scoreboard — align on that before you start the game.'),
+    ], {id:'assignment'}),
+    sect('Setting 2 · Scoring & Ejection Rules', 'i-score'),
+    panel('Scoring & ejection','What wins a game on court, and what sends a side back into the queue. The first three rules hold in every queue mode — only the target and the price of a conceded point differ between Royals and Doghouses.',[
+      item('i-court','Points only count on court','Only the side holding the court scores. As a challenger you play to take the court, not for the board — nothing you win down there goes into your total.'),
+      item('i-swap','Challenger auto ejection','Optional, and it keeps the game dynamic: challengers get one attempt at the court, or several. Set them to be ejected on the first point they concede, on the second, or later. When they go, the team up next moves in.'),
+      item('i-admin','Manual ejection','The admin can eject either side by hand at any point — the court team as well as the challengers.'),
+      fork(
+        arm('Royals', [
+          item('i-crown','Strike points','Set how many points make a strike. Score them while you hold the court and you have won the game: the strike is booked and you are ejected — as the winner. Back into the queue, and off after the next one.'),
+          item('i-shield','One life on court','Concede a single point and you are out. The challengers move up and you go back into the queue.'),
+        ]),
+        arm('Doghouses', [
+          item('i-check','Escape points','The same target under a harsher name. Reach the escape points you set and you escape — the game is won.'),
+          item('i-sync','Back to zero','Concede a point and your count is set back to zero. That escape is gone; you start building it again.'),
+          item('i-timer','Loss limit','How many attempts you get. Hit the limit and you are ejected without ever escaping.'),
+        ]),
+      ),
+    ], {id:'scoring'}),
+    sect('Setting 3 · Ranking Options', 'i-trophy'),
+    panel('Standings','Worth agreeing on before the first whistle — but nothing is locked in. You can change how the table sorts while the tournament runs, and set the baseline you consider fairest for each tournament separately.',[
+      item('i-star','Ranking points','Pick this to equalise the rounds. Points are awarded by where you placed on your court, and the winner always takes the most — but only ever one more than second place. So it takes a steady run across every round: killing it once and then laying back is not enough.'),
+      item('i-crown','Strikes / escapes','Counts the actual games you win, and nothing else. The totals carry straight through, so a round where you stand out keeps paying off all the way to the final table.'),
+      item('i-target','Points','Pick this to look at the points alone, no matter who won the game under the rules of the mode. Every point you scored while on court counts, across all rounds.'),
+    ], {id:'standings'}),
     sect('The four modes'),
     imgcards([
       ['royal-rotation', 'Scramble competition'],
@@ -657,9 +740,8 @@ scrambles: {
       ['doghouse', 'Scramble competition'],
       ['royal-duo', 'Team competition'],
     ]),
-    fbox('i-court','How many courts you can run','Queue modes honour the court count you set, down to a minimum number of players per court. If the roster cannot fill them, TournaQ blocks the court rather than running a broken queue.'),
   ],
-  next:['m-scramble-king','m-kotc','m-doghouse','m-royal-duo','sc-queue'],
+  next:['m-royal-rotation','m-royal-shuffle','m-doghouse','m-royal-duo','sc-queue'],
 },
 
 /* ══ Mode pages ══════════════════════════════════════════════════════ */
@@ -683,6 +765,18 @@ scrambles: {
     ]),
   ],
   next:['m-league-hub','brackets'],
+  /* ══ INBOX · migriert aus pages/modes/league.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Leagues page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Club leagues and ladders where fairness matters more than drama'},
+      {icon:'i-check', title:'Small fields with plenty of time — everyone gets a full card of matches'},
+      {icon:'i-check', title:'Events where you want a defensible final ranking, not a knockout'},
+    ]),
+    fbox('i-grid','The crosstable','Read a row to see how one team has done against the whole field, or a column to see who has beaten them. The W-L and points-for columns on the right are what the final ranking is built from — no interpretation needed, just arithmetic everyone can check.'),
+  ],
 },
 
 /* ── Royal Duo · placeholder ──────────────────────────────────────────── */
@@ -739,12 +833,68 @@ scrambles: {
          when:'The help sheet prices each option in slots for the field you have actually configured.',
          help:'“Never — Every team gets a slot off between matches. Kindest on players, but the longest schedule.” · “Up to 2 — A team plays at most two slots in a row before resting. Balances a full set of courts against recovery.” · “No limit — Pack the courts as tightly as the fixtures allow. The shortest day, but a team can play many matches in a row.”'}),
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, format, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start date','Date picker','Today · yesterday to +365 days',
+        {what:'Where the plan starts counting — and what makes a two-day event possible.'}),
+      opt('Start time','Time picker','One hour from now',
+        {what:'The anchor every other time on the page is measured from.'}),
+      opt('Game format','Opens the format sheet — sets, target score, side change','1 × 15, sides every 5',
+        {what:'How much actually gets played in one match.',
+         when:'Once a single round is set differently, the row adds “{count} rounds differ”.',
+         help:'“Applies to every round. Individual rounds can differ.”'}),
+      opt('Sets per game','1, 3, 5','1',
+        {what:'In the format sheet. Best-of format of a match.'}),
+      opt('Target score','11, 15, 21, or a number you type','15 · from 1',
+        {what:'Points that win a set.'}),
+      opt('Side change','Off, 5, 7, or a number you type','Every 5 points · from 1',
+        {what:'How often the teams swap ends. “Off” switches it away entirely.'}),
+      opt('Notify at target score','On / off','On',
+        {help:'“Prompt to finish when a side reaches the target”'}),
+      opt('Game pace','Fast · 45s, Standard · 60s, Relaxed · 80s, or a number you type','Standard · 60s · from 5s',
+        {what:'The one free variable in a points-target schedule — and the reason the finish time moves.',
+         when:'The sheet shows “about {minutes} min a game” underneath.',
+         help:'“How long a rally takes on average. Drives every time estimate for this tournament.”'}),
+      opt('Break after a slot','0, 5, 10, 15, 20, 30, 45, 60 min, or a length you type','No break · 0 to 1440 min',
+        {what:'Lunch, a prize-giving, the gap between two halls.',
+         when:'The last slot has nothing to break before. Until you set one, the row reads “Add break”.'}),
+      opt('Format for one slot','The same format sheet, plus “Use the default”','Inherits the tournament format',
+        {what:'One round played shorter or longer than the rest.',
+         when:'Sits in the expanded schedule detail. The reset only appears while that slot really differs.'}),
+      opt('Anchored start','“Set start day &amp; time”, or “Remove — back to auto”','Automatic',
+        {what:'Pins one slot to a real clock time — a second day, a fixed evening slot.',
+         when:'An anchored slot is marked “custom start”.'}),
+      opt('Schedule detail','“Show all {count} slots” / “Hide detail”','Collapsed above 4 slots',
+        {what:'The slot-by-slot list, and the summary that stands in for it when it is folded away: slots and matches, duration each, the sum of the breaks, anchored starts.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the event is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Teams','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'Only saved teams that field exactly the Style you chose are offered — a 2vs2 event will not list a three-player team. A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer teams than you planned for.',
+         help:'“You added {selected} teams, but the setup is planned for {target}. Adjusting updates the bracket, seeding and schedule — keep {target} if you’d rather review the line-up first.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, at least two teams, and exactly as many teams added as planned.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise “Add all {count} teams to continue”, or “Setup incomplete”.'}),
     ]),
   ],
   next:['m-league-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/league.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Leagues page · to review','i-south'),
+    fbox('i-trophy','The Leagues hub','New Tournament starts a league. Below it sits your history, each entry showing the date, the team count and how far it got.'),
+    fbox('i-court','Name and manage the courts','Courts can be named and taken in or out of use, which matters when one has the sun in your eyes or the club needs it back at four.'),
+    note('Placement','This one is not a League setting — courts are named and taken in or out of use on every mode. It belongs on <b>Settings Every Mode Shares</b>, which today says “Open and close courts” but never mentions naming them.'),
+  ],
 },
 
 'm-league-run': {
@@ -779,6 +929,20 @@ scrambles: {
     ]),
   ],
   next:['m-league-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/league.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Leagues page · to review','i-south'),
+    panel('Finishing the league','When the last fixture is in, the table is the result — every team has played every other, so there is nothing left to argue about.',[
+      item('i-check','The completed table',
+        'Every fixture played and every result recorded, with the progress ring at a hundred per cent.'),
+      item('i-trophy','Final standings',
+        'The closing table with the winner at the top, ordered by the record everyone could see building all afternoon.'),
+      item('i-grid','The whole picture',
+        'The crosstable at the end is the archive of the event: who played whom, and what happened when they did.'),
+    ]),
+  ],
 },
 
 'm-league-score': {
@@ -867,12 +1031,66 @@ scrambles: {
          when:'Double elimination only.',
          help:'“Give a spare losers-bracket place to the best eliminated team instead of a bye”'}),
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, format, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start date','Date picker','Today · yesterday to +365 days',
+        {what:'Where the plan starts counting — and what makes a two-day event possible.'}),
+      opt('Start time','Time picker','One hour from now',
+        {what:'The anchor every other time on the page is measured from.'}),
+      opt('Game format','Opens the format sheet — sets, target score, side change','1 × 15, sides every 5',
+        {what:'How much actually gets played in one match.',
+         when:'Once a single round is set differently, the row adds “{count} rounds differ”.',
+         help:'“Applies to every round. Individual rounds can differ.”'}),
+      opt('Sets per game','1, 3, 5','1',
+        {what:'In the format sheet. Best-of format of a match.'}),
+      opt('Target score','11, 15, 21, or a number you type','15 · from 1',
+        {what:'Points that win a set.'}),
+      opt('Side change','Off, 5, 7, or a number you type','Every 5 points · from 1',
+        {what:'How often the teams swap ends. “Off” switches it away entirely.'}),
+      opt('Notify at target score','On / off','On',
+        {help:'“Prompt to finish when a side reaches the target”'}),
+      opt('Game pace','Fast · 45s, Standard · 60s, Relaxed · 80s, or a number you type','Standard · 60s · from 5s',
+        {what:'The one free variable in a points-target schedule — and the reason the finish time moves.',
+         when:'The sheet shows “about {minutes} min a game” underneath.',
+         help:'“How long a rally takes on average. Drives every time estimate for this tournament.”'}),
+      opt('Break after a slot','0, 5, 10, 15, 20, 30, 45, 60 min, or a length you type','No break · 0 to 1440 min',
+        {what:'Lunch, a prize-giving, the gap between two halls.',
+         when:'The last slot has nothing to break before. Until you set one, the row reads “Add break”.'}),
+      opt('Format for one slot','The same format sheet, plus “Use the default”','Inherits the tournament format',
+        {what:'One round played shorter or longer than the rest.',
+         when:'Sits in the expanded schedule detail. The reset only appears while that slot really differs.'}),
+      opt('Anchored start','“Set start day &amp; time”, or “Remove — back to auto”','Automatic',
+        {what:'Pins one slot to a real clock time — a second day, a fixed evening slot.',
+         when:'An anchored slot is marked “custom start”.'}),
+      opt('Schedule detail','“Show all {count} slots” / “Hide detail”','Collapsed above 4 slots',
+        {what:'The slot-by-slot list, and the summary that stands in for it when it is folded away: slots and matches, duration each, the sum of the breaks, anchored starts.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the event is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Teams','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'Only saved teams that field exactly the Style you chose are offered — a 2vs2 event will not list a three-player team. A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer teams than you planned for.',
+         help:'“You added {selected} teams, but the setup is planned for {target}. Adjusting updates the bracket, seeding and schedule — keep {target} if you’d rather review the line-up first.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, at least two teams and a full roster.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise “Add all {count} teams to continue”, or “Setup incomplete”.'}),
     ]),
   ],
   next:['m-elimination-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/ko-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Eliminations page · to review','i-south'),
+    fbox('i-trophy','The Eliminations hub','New Tournament starts a bracket. Below it sits your history, each entry showing the date, the team count and how far it got.'),
+  ],
 },
 
 'm-elimination-run': {
@@ -910,6 +1128,24 @@ scrambles: {
     ]),
   ],
   next:['m-elimination-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/ko-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Eliminations page · to review','i-south'),
+    panel('Deciding it','The bracket resolves itself. When the final is played there is nothing to calculate — the tree already says who won.',[
+      item('i-check','The completed bracket',
+        'Every match played and every result in place, from the first round through to the final.'),
+      item('i-trophy','Final standings',
+        'The closing order, with the winner at the top and everyone placed by how far they got.'),
+    ]),
+    panel('Reusing and sharing it','A bracket you run every month is worth keeping, and a result scored on someone else’s phone is worth taking back.',[
+      item('i-copy','Run it again next time',
+        'Copy a tournament and you get its settings, its courts and its format as a fresh event — so the monthly open takes a minute to set up rather than a rebuild from scratch.'),
+      item('i-qr','Scores from another phone',
+        'A scorecard scored on someone else’s device arrives marked as imported, so a bracket run across two phones can be folded back into one.'),
+    ]),
+  ],
 },
 
 'm-elimination-score': {
@@ -1005,12 +1241,68 @@ scrambles: {
       opt('Break before knockout','0 to 60 min from the list, or a length you type','15 min · 0 to 1440 min',
         {what:'The changeover between the two phases. Editable in the timeline, at the point where it happens.'}),
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, format, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start date','Date picker','Today · yesterday to +365 days',
+        {what:'Where the plan starts counting — and what makes a two-day event possible.'}),
+      opt('Start time','Time picker','One hour from now',
+        {what:'The anchor every other time on the page is measured from.'}),
+      opt('Game format','Opens the format sheet — sets, target score, side change','1 × 15, sides every 5',
+        {what:'How much actually gets played in one match.',
+         when:'Once a single round is set differently, the row adds “{count} rounds differ”.',
+         help:'“Applies to every round. Individual rounds can differ.”'}),
+      opt('Sets per game','1, 3, 5','1',
+        {what:'In the format sheet. Best-of format of a match.'}),
+      opt('Target score','11, 15, 21, or a number you type','15 · from 1',
+        {what:'Points that win a set.'}),
+      opt('Side change','Off, 5, 7, or a number you type','Every 5 points · from 1',
+        {what:'How often the teams swap ends. “Off” switches it away entirely.'}),
+      opt('Notify at target score','On / off','On',
+        {help:'“Prompt to finish when a side reaches the target”'}),
+      opt('Game pace','Fast · 45s, Standard · 60s, Relaxed · 80s, or a number you type','Standard · 60s · from 5s',
+        {what:'The one free variable in a points-target schedule — and the reason the finish time moves.',
+         when:'The sheet shows “about {minutes} min a game” underneath.',
+         help:'“How long a rally takes on average. Drives every time estimate for this tournament.”'}),
+      opt('Break after a slot','0, 5, 10, 15, 20, 30, 45, 60 min, or a length you type','No break · 0 to 1440 min',
+        {what:'Lunch, a prize-giving, the gap between two halls.',
+         when:'The last slot has nothing to break before. Until you set one, the row reads “Add break”.'}),
+      opt('Format for one slot','The same format sheet, plus “Use the default”','Inherits the tournament format',
+        {what:'One round played shorter or longer than the rest.',
+         when:'Sits in the expanded schedule detail. The reset only appears while that slot really differs.'}),
+      opt('Anchored start','“Set start day &amp; time”, or “Remove — back to auto”','Automatic',
+        {what:'Pins one slot to a real clock time — a second day, a fixed evening slot.',
+         when:'An anchored slot is marked “custom start”.'}),
+      opt('Schedule detail','“Show all {count} slots” / “Hide detail”','Collapsed above 4 slots',
+        {what:'The slot-by-slot list, and the summary that stands in for it when it is folded away: slots and matches, duration each, the sum of the breaks, anchored starts.',
+         when:'On a Classic the preview splits in two: the group slots and the knockout slots fold open separately.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the event is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Teams','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'Only saved teams that field exactly the Style you chose are offered — a 2vs2 event will not list a three-player team. A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer teams than you planned for.',
+         help:'“You added {selected} teams, but the setup is planned for {target}. Adjusting updates the bracket, seeding and schedule — keep {target} if you’d rather review the line-up first.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, at least two teams and a full roster.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise “Add all {count} teams to continue”, or “Setup incomplete”.'}),
     ]),
   ],
   next:['m-classic-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/group-single-elimination.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the TournaQ Classics page · to review','i-south'),
+    fbox('i-trophy','The Classics hub','New Tournament starts an event. Below it sits your history, each entry showing the date, the team count and how far it got.'),
+    fbox('i-people','Fifteen teams, four groups','The setup form takes the larger field and divides it, unevenly where it has to. Nothing is refused for not being a round number.'),
+  ],
 },
 
 'm-classic-run': {
@@ -1045,6 +1337,24 @@ scrambles: {
     ]),
   ],
   next:['m-classic-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/group-single-elimination.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the TournaQ Classics page · to review','i-south'),
+    panel('Deciding it','When the pools finish the bracket fills itself from the qualification rule, and the final decides the event.',[
+      item('i-check','The completed schedule',
+        'Every pool match and every knockout tie played, with the progress ring at a hundred per cent.'),
+      item('i-trophy','Final standings',
+        'The closing order across the whole event, placing every team by how far they got rather than only naming a winner.'),
+    ]),
+    panel('The same format, under load','Nothing new to learn: the same form, the same schedule, the same tables — just more of them.',[
+      item('i-clock','The schedule it built',
+        'Every pool match across four groups, timed and assigned to courts, before anyone plays.'),
+      item('i-grid','Four tables at once',
+        'Each group keeps its own standings, and qualification is read off all four together.'),
+    ]),
+  ],
 },
 
 'm-classic-score': {
@@ -1119,12 +1429,67 @@ scrambles: {
         {what:'How the first round is paired.',
          when:'“Seeded” is listed but greyed out — it is not shipped yet.'}),
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, format, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start date','Date picker','Today · yesterday to +365 days',
+        {what:'Where the plan starts counting — and what makes a two-day event possible.'}),
+      opt('Start time','Time picker','One hour from now',
+        {what:'The anchor every other time on the page is measured from.'}),
+      opt('Game format','Opens the format sheet — sets, target score, side change','1 × 15, sides every 5',
+        {what:'How much actually gets played in one match.',
+         when:'Once a single round is set differently, the row adds “{count} rounds differ”.',
+         help:'“Applies to every round. Individual rounds can differ.”'}),
+      opt('Sets per game','1, 3, 5','1',
+        {what:'In the format sheet. Best-of format of a match.'}),
+      opt('Target score','11, 15, 21, or a number you type','15 · from 1',
+        {what:'Points that win a set.'}),
+      opt('Side change','Off, 5, 7, or a number you type','Every 5 points · from 1',
+        {what:'How often the teams swap ends. “Off” switches it away entirely.'}),
+      opt('Notify at target score','On / off','On',
+        {help:'“Prompt to finish when a side reaches the target”'}),
+      opt('Game pace','Fast · 45s, Standard · 60s, Relaxed · 80s, or a number you type','Standard · 60s · from 5s',
+        {what:'The one free variable in a points-target schedule — and the reason the finish time moves.',
+         when:'The sheet shows “about {minutes} min a game” underneath.',
+         help:'“How long a rally takes on average. Drives every time estimate for this tournament.”'}),
+      opt('Break after a slot','0, 5, 10, 15, 20, 30, 45, 60 min, or a length you type','No break · 0 to 1440 min',
+        {what:'Lunch, a prize-giving, the gap between two halls.',
+         when:'The last slot has nothing to break before. Until you set one, the row reads “Add break”.'}),
+      opt('Format for one slot','The same format sheet, plus “Use the default”','Inherits the tournament format',
+        {what:'One round played shorter or longer than the rest.',
+         when:'Sits in the expanded schedule detail. The reset only appears while that slot really differs.'}),
+      opt('Anchored start','“Set start day &amp; time”, or “Remove — back to auto”','Automatic',
+        {what:'Pins one slot to a real clock time — a second day, a fixed evening slot.',
+         when:'An anchored slot is marked “custom start”.'}),
+      opt('Schedule detail','“Show all {count} slots” / “Hide detail”','Collapsed above 4 slots',
+        {what:'The slot-by-slot list, and the summary that stands in for it when it is folded away: slots and matches, duration each, the sum of the breaks, anchored starts.',
+         when:'A Swiss round is paired only once the one before it has been played, so the slots carry exact times but no fixtures.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the event is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Teams','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'Only saved teams that field exactly the Style you chose are offered — a 2vs2 event will not list a three-player team. A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer teams than you planned for.',
+         help:'“You added {selected} teams, but the setup is planned for {target}. Adjusting updates the bracket, seeding and schedule — keep {target} if you’d rather review the line-up first.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, at least two teams and a full roster.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise “Add all {count} teams to continue”, or “Setup incomplete”.'}),
     ]),
   ],
   next:['m-swiss-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/swiss-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Swiss Systems page · to review','i-south'),
+    fbox('i-trophy','The Swiss hub','New Tournament starts an event. Below it sits your history, each entry showing the date, the team count and how far it got.'),
+  ],
 },
 
 'm-swiss-run': {
@@ -1160,6 +1525,18 @@ scrambles: {
     ]),
   ],
   next:['m-swiss-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/swiss-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Swiss Systems page · to review','i-south'),
+    panel('Finishing it','After the last round the buckets are the ranking. Nobody was eliminated, and everyone played the same number of matches.',[
+      item('i-check','Every round played',
+        'The complete schedule with every pairing the format produced and every result recorded.'),
+      item('i-trophy','Final standings',
+        'The closing order, with the winner at the top and the whole field placed — which is what a Swiss buys you that a knockout does not.'),
+    ]),
+  ],
 },
 
 'm-swiss-score': {
@@ -1237,19 +1614,52 @@ scrambles: {
         {what:'The gap in which everyone finds their new court and new partner.',
          help:'“Rest time between rounds. Allows players to rotate, catch their breath, and reset before the next round starts. Set to 0 for back-to-back play.”'}),
     ]),
-    fbox('i-check','What the page works out while you type','Suggestions appear under the schedule, and some carry a button that applies the fix.',[
+    fbox('i-check','What the page works out while you type','Suggestions appear under the schedule, and some carry a button that applies the fix. The first three block Create; the rest are advice.',[
+      {icon:'i-clock', title:'No rounds, or a duration of zero', body:'“At least 1 round is needed to build a schedule.” and “Match and break duration must be greater than zero.” — both block Create.'},
+      {icon:'i-court', title:'Not enough for a single court', body:'“At least {n} players are needed for one {perTeam}v{perTeam} court. Add more players or switch to a smaller format.” — blocks Create.'},
+      {icon:'i-queue', title:'Many sitting out', body:'“{sitting} of {players} sit out each round. Full coverage needs {target} rounds; with fewer, some pairs won’t partner.”'},
       {icon:'i-people', title:'Uneven play', body:'“Uneven play at {rounds} rounds. Use a multiple of {unit} for equal games.”'},
       {icon:'i-swap', title:'Partner coverage', body:'“Some partnerships repeat. {target} rounds lets everyone partner with everyone.” — with a one-tap “Use {target} rounds”.'},
       {icon:'i-court', title:'Courts you cannot fill', body:'“Only {active} of {courts} courts can be filled with {players} players in {perTeam}v{perTeam}. Reduce courts to {active} or add more players.”'},
       {icon:'i-shield', title:'Nobody free to referee', body:'“…only {sitting} players sit out each round — {without} courts won’t have a dedicated referee and will need scores entered manually.”'},
       {icon:'i-star', title:'A very large field', body:'“With {n} players the mixing becomes statistical — everyone-against-everyone is no longer guaranteed, but equal play time still is.”'},
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start time','Time picker','Start: Now',
+        {what:'The anchor for every time on the card.',
+         when:'Reads “Start: Now” until you pick one. A player-pool mode has no start date — only the bracket modes plan across days.'}),
+      opt('Schedule Preview','“Predicted end: {time}” and “Round duration: {n}m match + {n}m break = {n}m”','Read-only',
+        {what:'What the grid above costs in time. There is no game format here: the round clock decides the length, not a points target.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the session is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Players','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Fill {count} random','Button','—',
+        {what:'Fills the roster up to Target Players — a dry run, or a session with no name list yet.'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer people than you planned for.',
+         when:'Outside the limits it refuses instead: “The player count runs from {min} to {max}, so it can’t be set to {selected}.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, a match duration above zero, at least one round, and exactly as many players added as planned.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise it names what is still missing.'}),
     ]),
   ],
   next:['m-social-scramble-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/social-scramble.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Social Scrambles page · to review','i-south'),
+    fbox('i-trophy','The Social Scrambles hub','New Tournament starts a session. Below it sits your history — each entry showing the date, the player count and how far it got, so you can reopen a session or copy its settings.'),
+  ],
 },
 
 'm-social-scramble-run': {
@@ -1280,6 +1690,34 @@ scrambles: {
     ]),
   ],
   next:['m-social-scramble-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/social-scramble.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Social Scrambles page · to review','i-south'),
+    panel('Standings, live and final','Because everyone plays with everyone, the ranking is individual. It updates as results land, so the table is always current — no waiting for the organiser to add it up.',[
+      item('i-people','Live standings',
+        'Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.'),
+      item('i-trophy','Final rankings',
+        'When the last match is in, the table closes with the winner at the top. This is the screen to hold up at the end of the evening.'),
+      item('i-check','The finished session',
+        'The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month’s ranking has an answer.'),
+    ]),
+    panel('When the session changes','People arrive late, roll an ankle, or have to leave at six. A session that cannot absorb that is a session someone ends up re-planning on paper.',[
+      item('i-admin','The player list is the control panel',
+        'Everyone in the session with their games played and points so far. Each row carries the four things you actually need mid-evening: pause a player, correct a name, swap them with someone else, or take them out.'),
+      item('i-swap','Someone has to leave',
+        'Ejecting a player asks what should happen to the matches they were already drawn into, rather than silently corrupting the rest of the schedule. Re-pair the remaining rounds without them, or leave their seat open so nobody else’s pairings move. Games already played keep counting.'),
+    ]),
+    panel('Getting it off your phone','The session lives on the device that runs it and nothing needs a signal. Getting it out is deliberate, and there are two ways: a QR code between two phones for a single match, or an Excel workbook for the whole tournament.',[
+      item('i-doc','The whole tournament, as a spreadsheet',
+        'Export writes a real .xlsx — the schedule, the teams and the results, one row per match. Keep an eye on the event from a laptop, fill in scores away from the phone, then import the file back and TournaQ tells you what it recorded, replaced and skipped.'),
+      item('i-qr','One match, by QR code',
+        'Every match card carries a QR button. Show the code on one phone, scan it on another, and the scorecard travels between them — no reception, no account, nothing uploaded. A scorecard that arrives this way is marked as imported so you can see where it came from.'),
+      item('i-copy','Where they land',
+        'The hub keeps imported scorecards on their own tab next to your own history, so it stays obvious which results were scored on this phone and which arrived from somewhere else.'),
+    ]),
+  ],
 },
 
 'm-social-scramble-score': {
@@ -1317,8 +1755,8 @@ scrambles: {
 
 /* ── Royal Rotation · the three steps ────────────────────────────────── */
 
-'m-scramble-king-hub': {
-  title:'Setting up a Royal Rotation', route:'/guide/modes/royal-rotation/tournament-hub', icon:'i-trophy', parent:'m-scramble-king',
+'m-royal-rotation-hub': {
+  title:'Setting up a Royal Rotation', route:'/guide/modes/royal-rotation/tournament-hub', icon:'i-trophy', parent:'m-royal-rotation',
   eyebrow:'Royal Rotation · Tournament Hub',
   h1:['Setting up a ','Royal Rotation'],
   lead:'Set the pool, the courts and the strike target. TournaQ draws the pairs and works out how many rounds fit in the time you have.',
@@ -1336,8 +1774,9 @@ scrambles: {
          help:'“How many players you plan to have. Used to size the ‘fill random’ quick-add and to check your court/round settings make sense.”'}),
       opt('Courts','1, 2, 3, 4, 5, 6, 8','2 · 1 to 8',
         {what:'Each court runs its own queue for the round.',
+         when:'Blocks Create when the pool cannot fill the courts you asked for.',
          help:'“How many courts run at once, each with its own independent King of the Court queue for the round.”'}),
-      opt('Style','2vs2 through 6vs6','2vs2',
+      opt('Style','2vs2 through 6vs6','2vs2 · 2 to 6 a side',
         {what:'How many players a side fields.',
          when:'A size stays visible but unselectable once the planned field cannot seat two full sides of it; at the ceiling a note says which size is the largest that fits.',
          help:'“The format of each game — 2vs2, 3vs3, and so on. Sets how many players make up each team on court.”'}),
@@ -1357,21 +1796,60 @@ scrambles: {
       opt('Assignment','Manual · Automated · Auto-Allplay','Manual',
         {what:'How the next team gets onto the court.',
          when:'The mode sets the floor per court: three times the side size, or four times plus one under Auto-Allplay. Below it: “{mode} needs at least {count} players per court.”',
-         help:'“Manual — the coach selects players from the queue by tapping them. Automated — TournaQ suggests the best team, prioritising players who have waited longest and haven’t been paired together recently. The coach can re-roll before confirming. Automated — All Play — like Automated but no dedicated coach. A rotating referee keeps score while everyone else plays.”'}),
+         help:'“How the next court team is chosen. Manual — the coach selects players from the queue by tapping them. Automated — TournaQ suggests the best team, prioritising players who have waited longest and haven’t been paired together recently. The coach can re-roll before confirming. Automated — All Play — like Automated but no dedicated coach. A rotating referee keeps score while everyone else plays. TournaQ picks a random starting referee and suggests the next handoff from the ejected team after each game.”'}),
       opt('Auto-eject challenger','0, 1, 2, 3','0 — off · 0 to 3',
         {what:'Ends a hopeless challenge early instead of watching it out.',
          help:'“Prompts you to eject the challenger team once the on-court team scores this many points against them. With automatic assignment, confirming brings the next team on; with manual assignment you eject them yourself. 0 keeps it off — you can still eject by hand anytime.”'}),
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    fbox('i-check','What the page refuses, and what it only warns about','Some of these block Create outright; the rest are advice under the schedule.',[
+      {icon:'i-clock', title:'No rounds, or a round with no length', body:'“At least 1 round is needed.” and “Round duration must be greater than zero.” — both block Create.'},
+      {icon:'i-people', title:'Too small for one court', body:'“At least {min} players are needed for one court.” — blocks Create.'},
+      {icon:'i-court', title:'Too small for the courts you asked for', body:'“{courts} courts need {needed} players at {min} each — you have {players}. Add players, use fewer courts, or switch off Auto All-Play.” — blocks Create.'},
+      {icon:'i-queue', title:'A court with no queue behind it', body:'“A court has no waiting queue, so challenger rotation can’t happen there. Add players for {min} per court.” — or, with auto-eject off, “The same players stay on court all round.”'},
+      {icon:'i-swap', title:'How much mixing you get', body:'“At {rounds} rounds each player shares a court with about {met} of the other {total}. {target} rounds makes it about {more}.” — with a one-tap “Use {target} rounds”.'},
+      {icon:'i-star', title:'Full coverage reached', body:'“At {rounds} rounds every player shares a court with all {total} others.”'},
+      {icon:'i-sync', title:'Fresh partners', body:'“No repeat partners at {rounds} rounds.” — or “Fresh partners for at least the first {promised} rounds.”'},
+    ]),
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start time','Time picker','Start: Now',
+        {what:'The anchor every time on the preview is measured from.',
+         when:'The card reads “Start: Now” until you pick one. A queue mode has no start date — only the bracket modes plan across days.'}),
+      opt('Schedule Preview','Start time, projected end, round duration, court sizes','Read-only',
+        {what:'What the grid above costs in time. On a queue mode the card only reports — the start time is the one thing you can change in it.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the session is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Players','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Fill {count} random','Button','—',
+        {what:'Fills the roster up to Target Players — a dry run, or a session with no name list yet.'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer people than you planned for.',
+         when:'Outside the limits it refuses instead: “The player count runs from {min} to {max}, so it can’t be set to {selected}.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, a match duration above zero, at least one round, a full roster, and a plan that can be built — every court you asked for has to reach its player floor.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise it names what is still missing.'}),
     ]),
   ],
-  next:['m-scramble-king-run','tournament-hub'],
+  next:['m-royal-rotation-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/royal-rotation.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Rotations page · to review','i-south'),
+    fbox('i-trophy','The Royal Rotations hub','New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.'),
+  ],
 },
 
-'m-scramble-king-run': {
-  title:'Running a Royal Rotation', route:'/guide/modes/royal-rotation/tournament', icon:'i-grid', parent:'m-scramble-king',
+'m-royal-rotation-run': {
+  title:'Running a Royal Rotation', route:'/guide/modes/royal-rotation/tournament', icon:'i-grid', parent:'m-royal-rotation',
   eyebrow:'Royal Rotation · Running it',
   h1:['Running a ','Royal Rotation'],
   lead:'One screen carries several courts at once: how far along you are, which pairs are where, who is queuing, and when you will finish.',
@@ -1401,11 +1879,31 @@ scrambles: {
       {icon:'i-edit', label:'Tournament page controls', cap:'QR, workbook, renaming — and why a pill locks.', to:'tournament-controls'},
     ]),
   ],
-  next:['m-scramble-king-score','tournament'],
+  next:['m-royal-rotation-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/royal-rotation.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Rotations page · to review','i-south'),
+    panel('Fresh pairs, moving queue','Two things rotate here: the partners between rounds, and the challengers within a round. Both are handled for you.',[
+      item('i-queue','Challengers rotate automatically',
+        'When a hold ends the next pair comes on and the card says who they are. Nobody has to remember whose turn it was, and nobody quietly skips the queue.'),
+      item('i-admin','The player list is the control panel',
+        'Everyone in the session with their games played and points so far. Each row carries the four things you need mid-evening: pause a player, correct a name, swap them with someone else, or take them out.'),
+    ]),
+    panel('Standings, live and final','Partners change every round, so the ranking is individual — points follow the player, not the pair.',[
+      item('i-people','Live standings',
+        'Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.'),
+      item('i-crown','Final rankings',
+        'When the last round is in, the table closes with the winner at the top: the player who held court most across every partner they were given.'),
+      item('i-check','The finished session',
+        'The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month’s session has an answer.'),
+    ]),
+  ],
 },
 
-'m-scramble-king-score': {
-  title:'Scoring a Royal Rotation match', route:'/guide/modes/royal-rotation/scorecard', icon:'i-score', parent:'m-scramble-king',
+'m-royal-rotation-score': {
+  title:'Scoring a Royal Rotation match', route:'/guide/modes/royal-rotation/scorecard', icon:'i-score', parent:'m-royal-rotation',
   eyebrow:'Royal Rotation · Scorecard',
   h1:['Scoring a ','Royal Rotation match'],
   lead:'Each court runs its own king: the pair on, the pair challenging, and the queue behind them, with the scoring controls under your thumb.',
@@ -1440,21 +1938,21 @@ scrambles: {
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
     ]),
   ],
-  next:['sc-queue','m-scramble-king'],
+  next:['sc-queue','m-royal-rotation'],
 },
 
 /* ── Royal Shuffles · the three steps ───────────────────────────────── */
 
-'m-kotc-hub': {
-  title:'Setting up a Royal Shuffle', route:'/guide/modes/royal-shuffle/tournament-hub', icon:'i-trophy', parent:'m-kotc',
+'m-royal-shuffle-hub': {
+  title:'Setting up a Royal Shuffle', route:'/guide/modes/royal-shuffle/tournament-hub', icon:'i-trophy', parent:'m-royal-shuffle',
   eyebrow:'Royal Shuffle · Tournament Hub',
   h1:['Setting up a ','Royal Shuffle'],
-  lead:'Set the strike target and how often the court swaps, and TournaQ works out the rounds, the queue and the finish time.',
+  lead:'Set the pool, the courts and the strike target, and TournaQ works out the rounds, the queue and the finish time. Every field the page asks for is listed here — the queue rules, the schedule card, the roster and the name.',
   blocks:[
     panel('What you set',null,[
-      item('i-crown','Strikes','The strike target decides how long a pair can hold the court before the sides change.'),
-      item('i-swap','The swap rule','Decides how the queue feeds in behind them.'),
-      item('i-people','Who is playing','Add players by name, pull them from your saved Players hub, or fill the session with random names to try the format out.'),
+      item('i-crown','Strike points','How many points win the court, and with it how long a pair can hold it.'),
+      item('i-queue','Assignment and auto-eject','Who puts the next team on, and whether a hopeless challenge is ended early.'),
+      item('i-people','Who is playing','Add players by name, pull them from Administration, or fill the session with random names to try the format out.'),
     ]),
     fbox('i-clock','The list stays editable','Players can be added or paused all the way through the session, not just at setup — and every field feeds the Schedule Preview, so the finish time moves as you decide.'),
     sect('Every setting on the page','i-south'),
@@ -1486,23 +1984,54 @@ scrambles: {
         {what:'Ends a hopeless challenge early instead of watching it out.',
          help:'“Prompts you to eject the challenger team once the on-court team scores this many points against them. With automatic assignment, confirming brings the next team on; with manual assignment you eject them yourself. 0 keeps it off — you can still eject by hand anytime.”'}),
     ]),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start time','Time picker','Start: Now',
+        {what:'The anchor every time on the preview is measured from.',
+         when:'The card reads “Start: Now” until you pick one. A queue mode has no start date — only bracket modes plan across days.'}),
+      opt('Schedule Preview','Round duration, rounds, scheduled duration, projected end','Read-only',
+        {what:'What the grid above costs in time. On a queue mode the card only reports — the start time is the one thing you can change in it.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the session is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Players','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'A name that is already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Fill {count} random','Button','—',
+        {what:'Fills the roster up to Target Players — a dry run, or a session with no name list yet.'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer people than you planned for.',
+         when:'Outside the limits it refuses instead: “The player count runs from {min} to {max}, so it can’t be set to {selected}.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, a match duration above zero, at least one round, a full roster, and a plan that can be built.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise it names what is still missing.'}),
+    ]),
     fbox('i-check','What the page refuses, and what it only warns about','Some of these block Create outright; the rest are advice under the schedule.',[
+      {icon:'i-clock', title:'No rounds, or a round with no length', body:'“At least 1 round is needed.” and “Round duration must be greater than zero.” — both block Create.'},
       {icon:'i-people', title:'Too small for one court', body:'“At least {min} players are needed for one court.” — blocks Create.'},
       {icon:'i-court', title:'Too small for the courts you asked for', body:'“{courts} courts need {needed} players at {min} each — you have {players}. Add players, use fewer courts, or switch off Auto All-Play.” — blocks Create.'},
-      {icon:'i-queue', title:'A court with no queue behind it', body:'“A court has no waiting queue. The same players stay on court all round.”'},
+      {icon:'i-queue', title:'A court with no queue behind it', body:'“A court has no waiting queue, so challenger rotation can’t happen there. Add players for {min} per court.” — or, with auto-eject off, “The same players stay on court all round.”'},
       {icon:'i-swap', title:'How much mixing you get', body:'“At {rounds} rounds each player shares a court with about {met} of the other {total}. {target} rounds makes it about {more}.” — with a one-tap “Use {target} rounds”.'},
       {icon:'i-star', title:'Full coverage reached', body:'“At {rounds} rounds every player shares a court with all {total} others.”'},
-    ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, pace, roster, name — the other half of this page.', to:'setup-settings'},
+      {icon:'i-sync', title:'Fresh partners', body:'“No repeat partners at {rounds} rounds.” — or “Fresh partners for at least the first {promised} rounds.”'},
     ]),
   ],
-  next:['m-kotc-run','tournament-hub'],
+  next:['m-royal-shuffle-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/royal-shuffle.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Shuffles page · to review','i-south'),
+    fbox('i-trophy','The Royal Shuffles hub','New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.'),
+  ],
 },
 
-'m-kotc-run': {
-  title:'Running a Royal Shuffle', route:'/guide/modes/royal-shuffle/tournament', icon:'i-grid', parent:'m-kotc',
+'m-royal-shuffle-run': {
+  title:'Running a Royal Shuffle', route:'/guide/modes/royal-shuffle/tournament', icon:'i-grid', parent:'m-royal-shuffle',
   eyebrow:'Royal Shuffle · Running it',
   h1:['Running a ','Royal Shuffle'],
   lead:'One screen carries the session: how far along you are, who is holding each court, who is queuing, and when you will be done.',
@@ -1530,11 +2059,39 @@ scrambles: {
       {icon:'i-edit', label:'Tournament page controls', cap:'QR, workbook, renaming — and why a pill locks.', to:'tournament-controls'},
     ]),
   ],
-  next:['m-kotc-score','tournament'],
+  next:['m-royal-shuffle-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/royal-shuffle.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Shuffles page · to review','i-south'),
+    panel('Keeping the queue honest','The queue is the format. TournaQ runs it, and lets you override it when the evening does not go to plan.',[
+      item('i-queue','Challengers rotate automatically',
+        'When a game ends the next challengers come on and the card tells you who they are. Nobody has to remember whose turn it was, and nobody quietly skips the queue.'),
+      item('i-swap','Or change them yourself',
+        'Somebody is tying a shoelace, somebody else has just arrived. Swap the challenging pair by hand and the queue picks up from there without losing anyone’s place.'),
+    ]),
+    panel('When the session changes','People arrive late, roll an ankle, or have to leave at six. A session that cannot absorb that is one someone ends up re-planning on paper.',[
+      item('i-clock','Someone needs a break',
+        'Put a player on a break for one round or until you bring them back. Their seat becomes an open placeholder so the court still plays, and every point they have already banked stays with them.'),
+      item('i-sync','And comes back',
+        'Return them and they slot back into the queue. Nothing is reshuffled and nobody else’s position moves.'),
+      item('i-people','Someone steps in',
+        'A stand-in can take an open seat on a live court, so a round runs on time instead of playing three against four while you find somebody.'),
+    ]),
+    panel('Standings, live and final','Points are banked while you hold the court, so the ranking rewards staying on — and everyone’s record is individual.',[
+      item('i-people','Live standings',
+        'Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.'),
+      item('i-crown','Final rankings',
+        'When the session ends the table closes with the winner at the top: whoever held the court longest and scored most while they were on it.'),
+      item('i-check','The finished session',
+        'The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month’s session has an answer.'),
+    ]),
+  ],
 },
 
-'m-kotc-score': {
-  title:'Scoring a Royal Shuffle match', route:'/guide/modes/royal-shuffle/scorecard', icon:'i-score', parent:'m-kotc',
+'m-royal-shuffle-score': {
+  title:'Scoring a Royal Shuffle match', route:'/guide/modes/royal-shuffle/scorecard', icon:'i-score', parent:'m-royal-shuffle',
   eyebrow:'Royal Shuffle · Scorecard',
   h1:['Scoring a ','Royal Shuffle match'],
   lead:'The court card shows who is on, who is challenging and who is up next, with the scoring controls under your thumb.',
@@ -1568,7 +2125,7 @@ scrambles: {
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
     ]),
   ],
-  next:['sc-queue','m-kotc'],
+  next:['sc-queue','m-royal-shuffle'],
 },
 
 /* ── Doghouses · the three steps ────────────────────────────────────── */
@@ -1618,18 +2175,50 @@ scrambles: {
          help:'“Prompts you to eject the challenger team once the on-court team scores this many points against them. With automatic assignment, confirming brings the next team on; with manual assignment you eject them yourself. 0 keeps it off — you can still eject by hand anytime.”'}),
     ]),
     fbox('i-check','What the page refuses, and what it only warns about','Some of these block Create outright; the rest are advice under the schedule.',[
+      {icon:'i-clock', title:'No rounds, or a round with no length', body:'“At least 1 round is needed.” and “Round duration must be greater than zero.” — both block Create.'},
       {icon:'i-people', title:'Too small for one court', body:'“At least {min} players are needed for one court.” — blocks Create.'},
       {icon:'i-court', title:'Too small for the courts you asked for', body:'“{courts} courts need {needed} players at {min} each — you have {players}. Add players, use fewer courts, or switch off Auto All-Play.” — blocks Create.'},
-      {icon:'i-queue', title:'A court with no queue behind it', body:'“A court has no waiting queue. The same players stay on court all round.”'},
+      {icon:'i-queue', title:'A court with no queue behind it', body:'“A court has no waiting queue, so challenger rotation can’t happen there. Add players for {min} per court.” — or, with auto-eject off, “The same players stay on court all round.”'},
       {icon:'i-swap', title:'How much mixing you get', body:'“At {rounds} rounds each player shares a court with about {met} of the other {total}. {target} rounds makes it about {more}.” — with a one-tap “Use {target} rounds”.'},
       {icon:'i-star', title:'Full coverage reached', body:'“At {rounds} rounds every player shares a court with all {total} others.”'},
+      {icon:'i-sync', title:'Fresh partners', body:'“No repeat partners at {rounds} rounds.” — or “Fresh partners for at least the first {promised} rounds.”'},
     ]),
-    sect('Everything else on this page','i-south'),
-    grid([
-      {icon:'i-clock', label:'Settings every mode shares', cap:'Schedule, pace, roster, name — the other half of this page.', to:'setup-settings'},
+    sect('The rest of the page','i-south'),
+    opts('Below the grid — Schedule Preview, roster, name',[
+      opt('Start time','Time picker','Start: Now',
+        {what:'The anchor every time on the preview is measured from.',
+         when:'The card reads “Start: Now” until you pick one. A queue mode has no start date — only the bracket modes plan across days.'}),
+      opt('Schedule Preview','Round duration, rounds, scheduled duration, projected end','Read-only',
+        {what:'What the grid above costs in time. On a queue mode the card only reports — the start time is the one thing you can change in it.'}),
+      opt('Pace alerts','On / off','Off',
+        {what:'Marks rounds as on track, due or overdue once the session is running.',
+         help:'“Flag rounds as on track, due, or overdue”'}),
+      opt('Players','Create new, add from Administration, group chips, search, “Add all ({count})”','Empty',
+        {what:'Who is actually taking part. The tile is grey while empty, red while the count is wrong, olive once it matches.',
+         when:'A name already on the list asks first: “{name} is already added to this tournament. Add anyway?”'}),
+      opt('Fill {count} random','Button','—',
+        {what:'Fills the roster up to Target Players — a dry run, or a session with no name list yet.'}),
+      opt('Clear all','Button, with a confirmation','—',
+        {when:'“This will remove all added players from the list.”'}),
+      opt('Confirm the count','Adjust the plan, or keep it and fix the line-up','—',
+        {what:'What happens when you add more or fewer people than you planned for.',
+         when:'Outside the limits it refuses instead: “The player count runs from {min} to {max}, so it can’t be set to {selected}.”'}),
+      opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
+        {when:'Create stays disabled while the name is empty.',
+         help:'“Suggest a name”'}),
+      opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
+        {what:'Needs a name, a match duration above zero, at least one round, a full roster, and a plan that can be built.',
+         when:'The line above it reads “Ready to start!” or “Setup looks good!” — otherwise it names what is still missing.'}),
     ]),
   ],
   next:['m-doghouse-run','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/doghouse.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Doghouses page · to review','i-south'),
+    fbox('i-trophy','The Doghouses hub','New Tournament starts a session. Below it sits your history, each entry showing the date, the player count and how far it got.'),
+  ],
 },
 
 'm-doghouse-run': {
@@ -1663,6 +2252,20 @@ scrambles: {
     ]),
   ],
   next:['m-doghouse-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/doghouse.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Doghouses page · to review','i-south'),
+    panel('Standings, live and final','Every player carries their own record, so the ranking is individual even though the teams change all session.',[
+      item('i-people','Live standings',
+        'Every player with their points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.'),
+      item('i-crown','Final rankings',
+        'When the last game is in, the table closes with the winner at the top — the player who spent the least time in the doghouse and the most time scoring.'),
+      item('i-check','The finished session',
+        'The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month’s session has an answer.'),
+    ]),
+  ],
 },
 
 'm-doghouse-score': {
@@ -1702,6 +2305,18 @@ scrambles: {
     ]),
   ],
   next:['sc-queue','m-doghouse'],
+  /* ══ INBOX · migriert aus pages/modes/doghouse.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Doghouses page · to review','i-south'),
+    panel('Into the doghouse, and out again','The two moments that define the format, and TournaQ announces both so the court knows where it stands without anyone keeping count.',[
+      item('i-check','Escaped',
+        'Score your way to the escape target and you are out, back into normal play with a clean slate. The dialog names who got out, so the rest of the court knows the pecking order has changed.'),
+      item('i-shield','Out on the loss limit',
+        'Hit the loss limit and you are ejected from the session. Games already played still count towards the ranking, so a bad run does not erase what came before it.'),
+    ]),
+  ],
 },
 
 /* ── Quick Game · the three steps ───────────────────────────────────── */
@@ -1720,6 +2335,21 @@ scrambles: {
     fbox('i-bolt','No schedule, no roster','There is nothing to build and nobody to register — this is the shortest path in the app from opening it to counting points.'),
   ],
   next:['quick-game-score','tournament-hub'],
+  /* ══ INBOX · migriert aus pages/modes/quick-game.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Quick Game page · to review','i-south'),
+    panel('Starting a match','One sheet, and most of it is optional. The only thing you truly need is two team names — and TournaQ will invent those if you want.',[]),
+    shot('guide/02_quick_games/03_quick_start_sheet',430,932,[430, 860],
+      'The quick start sheet',
+      'Target score, number of sets, and who serves first. Leave them alone and the defaults are a normal game; change them and the scorecard follows. There is no schedule to build and no players to register — this is the shortest path in the app between opening it and keeping score.',
+      'The quick start sheet with target score, sets and serve settings'),
+    shot('guide/02_quick_games/04_quick_start_teams',430,932,[430, 860],
+      'Name the sides, or don’t',
+      'Type the two team names, pull in a pair you have saved, or tap generate and let TournaQ name them. It is the difference between starting now and starting in a minute.',
+      'Team naming in Quick Game setup, with an option to generate random names'),
+  ],
 },
 
 'quick-game-score': {
@@ -1756,6 +2386,34 @@ scrambles: {
     ]),
   ],
   next:['sc-classic','quick-game'],
+  /* ══ INBOX · migriert aus pages/modes/quick-game.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Quick Game page · to review','i-south'),
+    panel('Scoring the match','Built for one hand at the side of a court: big targets, the serving side marked, and undo for when the call goes the other way.',[]),
+    shot('guide/02_quick_games/06_scorecard',430,932,[430, 860],
+      'Portrait',
+      'Tap a side to award the point. The server is highlighted, service passes automatically when the other side scores, and the set score sits above the running total.',
+      'The Quick Game scorecard in portrait with both teams and the running score'),
+    shot('guide/02_quick_games/07_scorecard_landscape',860,397,[860, 1600],
+      'Landscape',
+      'Turn the phone and the same controls rearrange for a net post or a table at the side of the court. Nothing is hidden — the layout changes, the functions do not.',
+      'The same Quick Game scorecard rotated to landscape'),
+    shot('guide/02_quick_games/09_dialog_switch_sides',430,932,[430, 860],
+      'Change ends',
+      'When the combined score reaches the side-change point TournaQ says so and swaps the counters for you, so the scoreboard still matches which side of the net each team is standing on.',
+      'A dialog prompting the teams to change ends, with the counters swapping automatically'),
+    panel('Finishing and keeping it','The match ends itself when someone reaches the target, and what happened is kept on the device without you saving anything.',[]),
+    shot('guide/02_quick_games/10_dialog_game_won',430,932,[430, 860],
+      'Game won',
+      'Reach the target and TournaQ calls it, showing the final score for the set and the match. Nothing is submitted anywhere — the result is simply recorded on the phone that kept it.',
+      'A dialog announcing the winning team and the final score'),
+    shot('guide/02_quick_games/02_games_full',430,1112,[430, 645],
+      'Your history',
+      'Every finished match stays in the list with the full score for each set, so a disagreement about last Tuesday has an answer. It works with no signal, because nothing ever left the device.',
+      'The full Quick Games history with the score of every recorded match'),
+  ],
 },
 
 'm-elimination': {
@@ -1778,6 +2436,19 @@ scrambles: {
     ]),
   ],
   next:['m-elimination-hub','brackets'],
+  /* ══ INBOX · migriert aus pages/modes/ko-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Eliminations page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Events with a title at the end and limited time to decide it'},
+      {icon:'i-check', title:'Fields where a seeded draw matters and the strongest teams should meet late'},
+      {icon:'i-check', title:'Doubles: giving everyone a second chance without doubling the schedule'},
+    ]),
+    fbox('i-bracket','The draw, filling itself in','Teams enter on the left and the winners advance as results come in. Slots that are still undecided read TBD, so at any moment the tree shows exactly what is settled and what is not — which is the thing a printed bracket on a wall can never keep up with.'),
+    fbox('i-sync','Winners, losers, grand final','The two halves run in parallel and converge on a grand final, so a team that lost early can still play its way back. It costs more matches than a straight knockout and delivers a fairer winner — which is the trade you are making when you pick it at setup.'),
+  ],
 },
 
 'm-classic': {
@@ -1801,6 +2472,19 @@ scrambles: {
     ]),
   ],
   next:['m-classic-hub','brackets'],
+  /* ══ INBOX · migriert aus pages/modes/group-single-elimination.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the TournaQ Classics page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Day-long events where everyone should get a decent number of matches'},
+      {icon:'i-check', title:'Fields too big for a straight round robin and too good for a straight knockout'},
+      {icon:'i-check', title:'Tournaments that want a real winner and a fair route to it'},
+    ]),
+    fbox('i-map','How a team gets to the final','Finish first or second in your group and you are into the Gold bracket, in a slot decided by where you came. The labels — A1, B2, B1, A2 — are the qualification rule written on the diagram, so nobody has to be told how the draw was made.'),
+    fbox('i-bracket','Gold and Silver, from uneven groups','Four groups of four, four and three. First and second go to Gold, third and fourth to Silver — and because the short group has no fourth place, Silver draws seven qualifiers into eight slots and carries a real bye. TournaQ works that out rather than making you fudge it.'),
+  ],
 },
 
 'm-swiss': {
@@ -1824,6 +2508,18 @@ scrambles: {
     ]),
   ],
   next:['m-swiss-hub','brackets'],
+  /* ══ INBOX · migriert aus pages/modes/swiss-system.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Swiss Systems page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Large fields with limited time — a Swiss ranks everyone in far fewer rounds than a round robin'},
+      {icon:'i-check', title:'Events where knocking half the field out after one loss would empty the venue'},
+      {icon:'i-check', title:'Mixed-ability fields that sort themselves into competitive matches within a round or two'},
+    ]),
+    fbox('i-swap','How the field sorts itself','Read it left to right: round one is drawn at random, then every round after pairs teams inside their own score group. A dashed line is a team floated down because its group had an odd number. By the last round the buckets are the ranking, and every match along the way was between teams with the same record.'),
+  ],
 },
 
 'm-social-scramble': {
@@ -1852,9 +2548,20 @@ scrambles: {
     ]),
   ],
   next:['m-social-scramble-hub','queue-modes'],
+  /* ══ INBOX · migriert aus pages/modes/social-scramble.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Social Scrambles page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Social beach volleyball sessions where mixing people is the whole point'},
+      {icon:'i-check', title:'Club training nights where every player should meet every other player'},
+      {icon:'i-check', title:'Groups of roughly 6 to 20 players with a fixed time slot'},
+    ]),
+  ],
 },
 
-'m-scramble-king': {
+'m-royal-rotation': {
   title:'Royal Rotations', route:'/guide/modes/royal-rotation', icon:'i-crown', parent:'queue-modes',
   eyebrow:'Queue mode · scramble competition',
   h1:['Royal ','Rotations'],
@@ -1866,41 +2573,58 @@ scrambles: {
       step(3,'i-timer','The round ends on the clock','Then the field is scrambled again.'),
       step(4,'i-trophy','Individual standings','Every point and every game is credited to you, not to the pairing.', {tone:'tint'}),
     ]),
+    sect('What happens with an odd player', 'i-people'),
+    panel('Odd player handling','Royal Rotations draws temporary teams for each round, so an odd roster leaves one team short. This is the only mode that has to answer the question — everywhere else players queue one by one, or arrive as a fixed pair.',[
+      item('i-target','Placeholder','Any available player joins the short team, and stays with it for the rest of the round.'),
+      item('i-swap','Jumper','Available players rotate fairly through the round to fill the short team, re-picked each time.'),
+    ]),
     fbox('i-sync','Referees rotate independently','Whoever is off court can be suggested as referee, drawn fairly and independently of the partner rotation — it does not depend on there being an odd player.'),
     note('Draft note · which wording is right?',
       'The source diagrams disagree: one says “<b>a new partner every round</b>”, the other “<b>a fixed partner for 1 round</b>”. The draft assumes these describe the same thing from two sides — <b>fixed within the round, new in the next</b> — and words it that way. Confirm before this ships.'),
     sect('The three steps', 'i-south'),
     grid([
-      {icon:'i-trophy', label:'Set it up', cap:'Teams, courts, format — and what it costs in time.', to:'m-scramble-king-hub'},
-      {icon:'i-grid', label:'Run it', cap:'The live screen: standings, schedule, courts.', to:'m-scramble-king-run'},
-      {icon:'i-score', label:'Score it', cap:'The card you score on, and what it shows.', to:'m-scramble-king-score'},
+      {icon:'i-trophy', label:'Set it up', cap:'Teams, courts, format — and what it costs in time.', to:'m-royal-rotation-hub'},
+      {icon:'i-grid', label:'Run it', cap:'The live screen: standings, schedule, courts.', to:'m-royal-rotation-run'},
+      {icon:'i-score', label:'Score it', cap:'The card you score on, and what it shows.', to:'m-royal-rotation-score'},
     ]),
   ],
-  next:['m-scramble-king-hub','queue-modes'],
+  next:['m-royal-rotation-hub','queue-modes'],
+  /* ══ INBOX · migriert aus pages/modes/royal-rotation.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Rotations page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Bigger groups across several courts who want movement and a scoreboard'},
+      {icon:'i-check', title:'Sessions where a plain scramble feels too gentle and a straight king feels too static'},
+      {icon:'i-check', title:'Clubs mixing abilities — new pairs each round keep the games level'},
+    ]),
+  ],
 },
 
-'m-kotc': {
+'m-royal-shuffle': {
   title:'Royal Shuffles', route:'/guide/modes/royal-shuffle', icon:'i-crown', parent:'queue-modes',
   eyebrow:'Queue mode · scramble competition',
   h1:['Royal ','Shuffles'],
-  lead:'An individual competition across as many courts as you have. Every player queues for themselves — when your turn comes you are paired with whoever is next, so your partner changes constantly and every point, game and ranking point is yours alone.',
+  lead:'A King of the Court mode where you are shuffled together with a new partner for every new rally on your court — and over a tournament you will have played alongside just about everyone in the group. This is a queue mode: if you have not read how the queue, the ejections and the ranking work, start with ' + pageLink('queue-modes','Queue Modes') + '.',
   blocks:[
     panel('How a game works',null,[
-      item('i-target','Win a rally','Your side scores a point.'),
-      item('i-crown','Reach the strike points target','Your side wins the game and rotates off.'),
-      item('i-swap','Or the organiser ejects a side','At any time. Points stand as scored.'),
-      item('i-star','Ranking points by placement','Awarded by where you finished on your court that round. Score at least one point and you earn at least one.'),
+      step(1,'i-bolt','Define who serves','Either the challengers serve or the court team does — decided once, and it stays that way for the whole tournament.'),
+      step(2,'i-score','Align on the scoring and ejection rules','Everyone on court should know what wins a game and what sends a side back into the queue. They are set out under ' + pageLink('queue-modes','Queue Modes') + '.'),
+      step(3,'i-admin','Brief your referees','Make sure whoever referees knows what they are doing before the first rally.'),
+      step(4,'i-timer','The referee starts the round','The referee calls the round on and keeps it running from there.'),
+      step(5,'i-queue','Everyone moves up','The challengers move up to the court once the court team is ejected, and Up Next moves up to challengers once the challenger team is ejected.'),
     ]),
     fbox('i-sync','How the rounds run','Each round mixes the whole pool into fresh courts, and within a court players cycle on and off as they win or lose. Only the side currently on court can score. When the round timer runs out, everyone is mixed again.'),
     fbox('i-star','Fair by design','The queue always draws from the players with the least court time, so everybody plays about the same amount — and because partners keep changing, the standings reflect how you played, not who you were drawn with.'),
     sect('The three steps', 'i-south'),
     grid([
-      {icon:'i-trophy', label:'Set it up', cap:'Teams, courts, format — and what it costs in time.', to:'m-kotc-hub'},
-      {icon:'i-grid', label:'Run it', cap:'The live screen: standings, schedule, courts.', to:'m-kotc-run'},
-      {icon:'i-score', label:'Score it', cap:'The card you score on, and what it shows.', to:'m-kotc-score'},
+      {icon:'i-trophy', label:'Set it up', cap:'Teams, courts, format — and what it costs in time.', to:'m-royal-shuffle-hub'},
+      {icon:'i-grid', label:'Run it', cap:'The live screen: standings, schedule, courts.', to:'m-royal-shuffle-run'},
+      {icon:'i-score', label:'Score it', cap:'The card you score on, and what it shows.', to:'m-royal-shuffle-score'},
     ]),
   ],
-  next:['m-kotc-hub','queue-modes'],
+  next:['m-royal-shuffle-hub','queue-modes'],
 },
 
 'm-doghouse': {
@@ -1926,6 +2650,17 @@ scrambles: {
     ]),
   ],
   next:['m-doghouse-hub','queue-modes'],
+  /* ══ INBOX · migriert aus pages/modes/doghouse.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Doghouses page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Sessions with a competitive edge where nobody wants an easy game'},
+      {icon:'i-check', title:'Groups that want continuous play with no downtime between rounds'},
+      {icon:'i-check', title:'Anywhere a bit of jeopardy makes people try harder'},
+    ]),
+  ],
 },
 
 };
@@ -1956,9 +2691,9 @@ const EXTERN = {
   'site-hub':        {title:'Games &amp; Tournaments Hub',       icon:'i-arena',    url:'modes/games-and-tournaments.html'},
   'site-quick':      {title:'Quick Game',                        icon:'i-bolt',     url:'modes/quick-game.html'},
   'site-social':     {title:'Social Scrambles',                  icon:'i-people',   url:'modes/social-scramble.html'},
-  'site-rotations':  {title:'Royal Rotations',                   icon:'i-crown',    url:'modes/scramble-king.html'},
+  'site-rotations':  {title:'Royal Rotations',                   icon:'i-crown',    url:'modes/royal-rotation.html'},
   'site-doghouses':  {title:'Doghouses',                         icon:'i-shield',   url:'modes/doghouse.html'},
-  'site-shuffles':   {title:'Royal Shuffles',                    icon:'i-crown',    url:'modes/king-of-the-court.html'},
+  'site-shuffles':   {title:'Royal Shuffles',                    icon:'i-crown',    url:'modes/royal-shuffle.html'},
   'site-elim':       {title:'Eliminations',                      icon:'i-bracket',  url:'modes/ko-system.html'},
   'site-leagues':    {title:'Leagues',                           icon:'i-grid',     url:'modes/league.html'},
   'site-classics':   {title:'TournaQ Classics',                  icon:'i-trophy',   url:'modes/group-single-elimination.html'},
@@ -1968,6 +2703,13 @@ const EXTERN = {
   'site-platform':   {title:'Platform',                          icon:'i-star',     url:'platform.html'},
   'site-downloads':  {title:'Downloads',                         icon:'i-download', url:'downloads.html'},
   'site-legal':      {title:'Legal',                             icon:'i-doc',      url:'legal.html'},
+  /* Die drei Rechtstexte liegen nicht unter pages/, sondern in legal/. Weil
+     jede Adresse hier relativ zu pages/ steht, geht es einen Ordner hoch —
+     der Praefix aus setzeKontext({nachbar}) legt sich davor und hebt sich
+     mit dem ../ auf, egal aus welcher Tiefe die Seite die Karte zeichnet. */
+  'site-privacy':    {title:'Privacy Policy',                     icon:'i-shield',  url:'../legal/privacy-policy.html'},
+  'site-terms':      {title:'Terms of Use',                       icon:'i-doc',     url:'../legal/terms-of-use.html'},
+  'site-notice':     {title:'Legal Notice',                       icon:'i-admin',   url:'../legal/legal-notice.html'},
   'site-contact':    {title:'Contact',                           icon:'i-share',    url:'contact.html'},
 };
 
@@ -2009,8 +2751,8 @@ const NAV = [
          ['scrambles',2],
            ['m-social-scramble',3],['m-social-scramble-hub',4],['m-social-scramble-run',4],['m-social-scramble-score',4],
            ['queue-modes',3],
-             ['m-scramble-king',4],['m-scramble-king-hub',5],['m-scramble-king-run',5],['m-scramble-king-score',5],
-             ['m-kotc',4],['m-kotc-hub',5],['m-kotc-run',5],['m-kotc-score',5],
+             ['m-royal-rotation',4],['m-royal-rotation-hub',5],['m-royal-rotation-run',5],['m-royal-rotation-score',5],
+             ['m-royal-shuffle',4],['m-royal-shuffle-hub',5],['m-royal-shuffle-run',5],['m-royal-shuffle-score',5],
              ['m-doghouse',4],['m-doghouse-hub',5],['m-doghouse-run',5],['m-doghouse-score',5],
        ['tournament-hub',1],['setup-settings',2],
        ['tournament',1],['tournament-controls',2],
@@ -2018,6 +2760,7 @@ const NAV = [
 
      'site-downloads',
      'site-legal',
+       ['site-privacy',1],['site-terms',1],['site-notice',1],
      'site-contact',
   ]},
 ];

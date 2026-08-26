@@ -954,8 +954,13 @@ main.has-section-nav > *:not(.section-nav) {
     grid-column: 1;
     /* Spanning every row gives sticky a tall containing block to travel in;
        align-self keeps the rail its own height instead of stretching to fill
-       it, which would leave sticky nothing to do. */
-    grid-row: 1 / -1;
+       it, which would leave sticky nothing to do.
+
+       span statt 1 / -1: ohne explizit gesetzte Zeilen meint -1 die letzte
+       Linie des *expliziten* Rasters, also Zeile 1 — die Karte belegte dann
+       nur die erste Zeile, riss sie auf ihre eigene Hoehe auf und schob
+       alles ab dem zweiten Kind von main unter die Karte. */
+    grid-row: 1 / span 200;
     align-self: start;
     position: sticky;
     top: 20px;
@@ -1098,4 +1103,175 @@ main.has-section-nav > *:not(.section-nav) {
 
 @media (prefers-reduced-motion: reduce) {
     .section-nav { transition: none; }
+}
+
+/* ══ Rechtstexte ══════════════════════════════════════════════════════════
+   Datenschutz, Nutzungsbedingungen und Impressum unter legal/.
+
+   Das stand bis eben in einem eigenen css/legal.css. Solange die drei Seiten
+   ihre eigene Gestaltung trugen, war das eine Datei; als sie auf style.css
+   umzogen, war es nur noch ein Nachtrag dazu — jede Regel hier haengt an
+   .card, .hero oder .highlight weiter oben und musste nach ihnen geladen
+   werden. Zwei Dateien, von denen die eine ohne die andere nicht stimmt,
+   sind schlechter als ein Abschnitt.
+
+   Der Rest der Rechtsseiten steht ohnehin schon hier: .card-link,
+   .card-header, .icon-box und .arrow bauen pages/legal.html und kommen sonst
+   nirgends auf der Website vor.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Der Stand des Dokuments, als Plakette unter der Ueberschrift im Hero. */
+.hero .date-badge {
+    display: inline-block;
+    background: rgba(240, 212, 122, 0.15);
+    border: 1px solid rgba(240, 212, 122, 0.35);
+    border-radius: 999px;
+    padding: 5px 14px;
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* ── Der Rumpf ────────────────────────────────────────────────────────────
+   Ein Rechtstext ist ein Stapel Karten, kein Raster: seine Abschnitte werden
+   der Reihe nach gelesen. Die Breite ist auf eine Lesespalte begrenzt — die
+   Inhaltsspalte neben dem Rail gaebe sonst Zeilen von fast 1000px. */
+.legal-doc {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 820px;
+    margin: 0 auto;
+}
+
+.legal-doc .card {
+    padding: 22px 24px 20px;
+}
+
+/* Eine Karte hebt sich beim Ueberfahren. Auf einer Seite mit drei Karten ist
+   das ein Hinweis, auf dreizehn Abschnitten Fliesstext nur Unruhe. */
+.legal-doc .card:hover {
+    transform: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Die Ueberschrift traegt ihr Sinnbild in derselben Zeile; Groesse und Farbe
+   kommen aus .card h3 weiter oben. */
+.legal-doc .card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legal-doc .card h3 .icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Der Vorspann des Dokuments, vor der ersten Karte. */
+.legal-doc .intro {
+    background: var(--olive-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    color: var(--olive);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* .highlight bringt oben 28px Polster mit — das ist das Mass fuer eine Karte,
+   nicht fuer einen Einschub in einer Karte. */
+.legal-doc .highlight {
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--olive);
+    border-left: 3px solid var(--olive);
+    box-shadow: none;
+}
+
+.legal-doc .warning-box {
+    background: #FFFBEA;
+    border: 1px solid #E8D080;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #6B5500;
+}
+
+/* Die Rechte-Kacheln der Datenschutzerklaerung. */
+.legal-doc .rights-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.legal-doc .right-item {
+    background: var(--olive-light);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.legal-doc .right-item strong {
+    display: block;
+    color: var(--olive);
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+/* Die Angabenzeilen des Impressums. */
+.legal-doc .info-row {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.legal-doc .info-row:last-child {
+    border-bottom: none;
+}
+
+.legal-doc .info-row .label {
+    width: 130px;
+    flex-shrink: 0;
+    color: var(--olive);
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.legal-doc .info-row .value {
+    color: var(--muted);
+}
+
+/* Ein Verweis im Fliesstext sieht aus wie einer auf der Kontaktseite —
+   dieselbe Auszeichnung wie .email-link weiter oben. */
+.legal-doc .card a {
+    color: var(--olive);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.legal-doc .card a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 560px) {
+    .legal-doc .rights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .legal-doc .info-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .legal-doc .info-row .label {
+        width: auto;
+    }
 }

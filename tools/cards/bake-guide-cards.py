@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Backt die Kartendaten aus cards.json in pages/guide.html.
+"""Backt die Kartendaten aus cards.json in js/guide/pages.js.
 
     python3 tools/cards/bake-guide-cards.py [--dry-run]
 
-Der Guide ist eine einzelne, selbsttragende Datei ohne Build-Schritt - er kann
-cards.json zur Laufzeit nicht lesen. Statt die Texte dort von Hand zu pflegen
+Der Guide liest cards.json zur Laufzeit nicht - im Browser gibt es keinen
+Build-Schritt. Statt die Texte dort von Hand zu pflegen
 und damit doppelt zu halten, schreibt dieses Skript einen Block zwischen zwei
 Markern neu. cards.json bleibt die eine Quelle; nach jeder Textaenderung hier
 einmal drueberlaufen lassen.
@@ -20,7 +20,9 @@ from pathlib import Path
 HIER = Path(__file__).resolve().parent
 WURZEL = HIER.parent.parent
 DATEN = HIER / "cards.json"
-GUIDE = WURZEL / "pages" / "guide.html"
+# Der Inhalt lag frueher in pages/guide.html; seit dem Umbau steht er in
+# js/guide/pages.js, aus dem der Browser und tools/bake-guide.mjs beide lesen.
+GUIDE = WURZEL / "js" / "guide" / "pages.js"
 
 START = "/* ══ CARDS — gebacken aus tools/cards/cards.json, nicht von Hand ══ */"
 ENDE = "/* ══ Ende CARDS ══ */"
@@ -89,7 +91,7 @@ def main():
     seiten = set(re.findall(r"^'?([a-z0-9-]+)'?:\s*\{", blk, re.M))
     tot = sorted({k["ziel"] for k in karten if k["ziel"] not in seiten})
     if tot:
-        sys.exit("FEHLER: Karten zeigen auf Seiten, die es in guide.html nicht "
+        sys.exit("FEHLER: Karten zeigen auf Seiten, die es in pages.js nicht "
                  "gibt:\n  " + "\n  ".join(tot))
 
     if START not in html:
@@ -105,7 +107,7 @@ def main():
         print(f"--dry-run: {len(karten)} Karten wuerden geschrieben.")
         return
     GUIDE.write_text(neu, encoding="utf8")
-    print(f"pages/guide.html: {len(karten)} Karten gebacken")
+    print(f"js/guide/pages.js: {len(karten)} Karten gebacken")
 
 
 if __name__ == "__main__":

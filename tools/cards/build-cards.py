@@ -97,6 +97,11 @@ def seite(k, quelle, logo, rauschen):
     foto = k.get("foto", {})
     iris = k.get("iris", {})
     stil = ";".join(f"--iris-{n}:{iris[n]}" for n in ("x", "y", "b", "h") if n in iris)
+    # Der Scrim hat eine Form fuer alle Karten. Ein Foto, das an der Textecke
+    # zu hell ist, dreht sie mit "kraft" hoch - mehr von derselben
+    # Behandlung, nie eine andere. Siehe card.css, Ebene 2.
+    if k.get("kraft"):
+        stil += (";" if stil else "") + f"--scrim-kraft:{k['kraft']}"
     fotostil = ";".join(
         f"--foto-{n}:{foto[n]}" for n in ("x", "y", "zoom") if n in foto)
 
@@ -110,7 +115,7 @@ def seite(k, quelle, logo, rauschen):
 <body>
 <div class="karte" style="{stil}">
   {grund}
-  <div class="scrim {k.get('scrim', 'unten')}"></div>
+  <div class="scrim"></div>
   <div class="iris {k.get('iris_stil', '')}"></div>
   <div class="korn"><img src="{rauschen.as_uri()}" alt=""></div>
   <img class="logo" src="{logo.as_uri()}" alt="">
