@@ -590,13 +590,13 @@
  "03_social_scramble/13_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5d421bd62fc04ad1a9071cec7d12531ae50873cf5a43237797eaaa91510bc0fd",
+  "sha": "fe00beafea29abbedc7e86a482a209f8b2a05b84804d761c891687445d3b07c4",
   "w": 430
  },
  "03_social_scramble/13_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5d421bd62fc04ad1a9071cec7d12531ae50873cf5a43237797eaaa91510bc0fd",
+  "sha": "fe00beafea29abbedc7e86a482a209f8b2a05b84804d761c891687445d3b07c4",
   "w": 645
  },
  "03_social_scramble/14_setup_coverage_nudge-430.webp": {
@@ -634,6 +634,126 @@
   "q": 80,
   "sha": "5da7b31a7bc02e871e6fecb57fa4e1e11cd19a3ee2af7099fb7c9fd2858484c0",
   "w": 645
+ },
+ "03_social_scramble/17_splash_game_complete-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "bfecf3eb05e8936b1c914ef602311e857d92b9c30393a4aa691316b965251797",
+  "w": 430
+ },
+ "03_social_scramble/17_splash_game_complete-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "bfecf3eb05e8936b1c914ef602311e857d92b9c30393a4aa691316b965251797",
+  "w": 645
+ },
+ "03_social_scramble/18_dialog_game_complete-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "4afbdc30130c096928521b101a0e1d147443be01ea7ad7dce2972a2d48ecb476",
+  "w": 430
+ },
+ "03_social_scramble/18_dialog_game_complete-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "4afbdc30130c096928521b101a0e1d147443be01ea7ad7dce2972a2d48ecb476",
+  "w": 860
+ },
+ "03_social_scramble/19_sheet_next_game-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "678844fbd5611658a430a9ee87fd37aaa952c814bbe52676d7fb2d7047b6f19f",
+  "w": 430
+ },
+ "03_social_scramble/19_sheet_next_game-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "678844fbd5611658a430a9ee87fd37aaa952c814bbe52676d7fb2d7047b6f19f",
+  "w": 645
+ },
+ "03_social_scramble/20_scorecard_time_up-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b89e0f4e40ee3449c4634ad6cf3bee7b27491bf1a6859a839eb171ad2a00a638",
+  "w": 430
+ },
+ "03_social_scramble/20_scorecard_time_up-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b89e0f4e40ee3449c4634ad6cf3bee7b27491bf1a6859a839eb171ad2a00a638",
+  "w": 645
+ },
+ "03_social_scramble/21_dialog_manual_score-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "1d3493e8f951c3c62f02f58c4a63a486650b8e4546d3691462c97a5bae7d5411",
+  "w": 430
+ },
+ "03_social_scramble/21_dialog_manual_score-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "1d3493e8f951c3c62f02f58c4a63a486650b8e4546d3691462c97a5bae7d5411",
+  "w": 860
+ },
+ "03_social_scramble/22_dialog_override_result-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b90708fc1ebbb089bc279328ef96dc47c019156e0960cc53a181a6687fbfd67a",
+  "w": 430
+ },
+ "03_social_scramble/22_dialog_override_result-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b90708fc1ebbb089bc279328ef96dc47c019156e0960cc53a181a6687fbfd67a",
+  "w": 860
+ },
+ "03_social_scramble/22_sheet_tournament_complete-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ab23e1bc970f4af7851954b865702a00d41503be36c231d674031b7dc799b224",
+  "w": 430
+ },
+ "03_social_scramble/22_sheet_tournament_complete-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ab23e1bc970f4af7851954b865702a00d41503be36c231d674031b7dc799b224",
+  "w": 645
+ },
+ "03_social_scramble/23_sheet_tournament_complete-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ca443d20e2881cb649f53964402e9a9d5127af14ee4119ec424982b4644f72a8",
+  "w": 430
+ },
+ "03_social_scramble/23_sheet_tournament_complete-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ca443d20e2881cb649f53964402e9a9d5127af14ee4119ec424982b4644f72a8",
+  "w": 645
+ },
+ "03_social_scramble/24_scorecard_pace-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "578914703454d889862323be4e954e75b7397cc65aa9478f59451878f395c172",
+  "w": 430
+ },
+ "03_social_scramble/24_scorecard_pace-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "578914703454d889862323be4e954e75b7397cc65aa9478f59451878f395c172",
+  "w": 645
+ },
+ "03_social_scramble/25_scorecard_pace_landscape-1600.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b5027fe4eac4f04df4f5e6133d311f7a5dc00c79b4c6b2213d0b98d7e7b587d6",
+  "w": 1600
+ },
+ "03_social_scramble/25_scorecard_pace_landscape-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b5027fe4eac4f04df4f5e6133d311f7a5dc00c79b4c6b2213d0b98d7e7b587d6",
+  "w": 860
  },
  "04_royal_rotation/01_hub-430.webp": {
   "crop": null,
@@ -734,13 +854,13 @@
  "04_royal_rotation/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a9c246f051a2b62f23b124186551103bb4ee8855f049bfa0d7f037d7bdb9d8f0",
+  "sha": "c8021287ebb52e11e7bb2d264079ad81d7b11c9bb7faab156c5711c4b520c3a4",
   "w": 430
  },
  "04_royal_rotation/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a9c246f051a2b62f23b124186551103bb4ee8855f049bfa0d7f037d7bdb9d8f0",
+  "sha": "c8021287ebb52e11e7bb2d264079ad81d7b11c9bb7faab156c5711c4b520c3a4",
   "w": 645
  },
  "04_royal_rotation/10_court_manual_running_landscape-1600.webp": {
@@ -758,49 +878,49 @@
  "04_royal_rotation/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9015ebf73ee4929943ab4fb3642ecc441aed355a045c23424daf9e8c495b631f",
+  "sha": "95161637b4782e3de04d667fdc6846a0f05bb3500eda2de1da6e89c13cffbf9f",
   "w": 430
  },
  "04_royal_rotation/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9015ebf73ee4929943ab4fb3642ecc441aed355a045c23424daf9e8c495b631f",
+  "sha": "95161637b4782e3de04d667fdc6846a0f05bb3500eda2de1da6e89c13cffbf9f",
   "w": 645
  },
  "04_royal_rotation/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "58a517c0bbbb01821588090c144b9f727c51ec2963f13bb4428c246276532205",
+  "sha": "8cd537de67a6cf95ffece84b5d22f3e46265878842b738030bcd508acab063e2",
   "w": 1600
  },
  "04_royal_rotation/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "58a517c0bbbb01821588090c144b9f727c51ec2963f13bb4428c246276532205",
+  "sha": "8cd537de67a6cf95ffece84b5d22f3e46265878842b738030bcd508acab063e2",
   "w": 860
  },
  "04_royal_rotation/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1c9ce110bd03a79c0533676adabbf704464f368258a9d3d8ea061fd07ec03c11",
+  "sha": "636745a5c3bb60aa0a56e8efe95d3384d703ebe537e780b7bd17cc0c24de0cb4",
   "w": 430
  },
  "04_royal_rotation/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1c9ce110bd03a79c0533676adabbf704464f368258a9d3d8ea061fd07ec03c11",
+  "sha": "636745a5c3bb60aa0a56e8efe95d3384d703ebe537e780b7bd17cc0c24de0cb4",
   "w": 645
  },
  "04_royal_rotation/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9593fd296e3a512ba04c03a01aaaebeaf76e8a5b51cc703f71418e468bf86607",
+  "sha": "4b0925043c9f4a183c124ad17f5b143b70d4cc33a513c20b0017ce6fd6a3d4dd",
   "w": 1600
  },
  "04_royal_rotation/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9593fd296e3a512ba04c03a01aaaebeaf76e8a5b51cc703f71418e468bf86607",
+  "sha": "4b0925043c9f4a183c124ad17f5b143b70d4cc33a513c20b0017ce6fd6a3d4dd",
   "w": 860
  },
  "04_royal_rotation/15_court_allocation-430.webp": {
@@ -830,37 +950,37 @@
  "04_royal_rotation/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1b0c12cfd704fb64e3f35eb26706162a7e150fa186a2433518e044de5ba308bf",
+  "sha": "26919b9b5882ef5ac0d000725dffbd426fc2bd2d1a3914a5a3ab03f474ab2427",
   "w": 430
  },
  "04_royal_rotation/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1b0c12cfd704fb64e3f35eb26706162a7e150fa186a2433518e044de5ba308bf",
+  "sha": "26919b9b5882ef5ac0d000725dffbd426fc2bd2d1a3914a5a3ab03f474ab2427",
   "w": 645
  },
  "04_royal_rotation/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1d53e7a21e64fac9e499579bc3614a74d83d5393e3c1346cd0ce923eb9c6040a",
+  "sha": "ca98c7f9c083cd2ea49ecc1bd0d15d088a5d70a107e7ba3aed4f2794084a8c1a",
   "w": 430
  },
  "04_royal_rotation/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1d53e7a21e64fac9e499579bc3614a74d83d5393e3c1346cd0ce923eb9c6040a",
+  "sha": "ca98c7f9c083cd2ea49ecc1bd0d15d088a5d70a107e7ba3aed4f2794084a8c1a",
   "w": 645
  },
  "04_royal_rotation/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c190254236f942159f7d1001921f060e7d9c279f3a35adc3794e017717ba721b",
+  "sha": "7783ea5dd6d1d0edb84f7e5852e0ecbd066144191ff2acc421f8bbf206e8e8b2",
   "w": 430
  },
  "04_royal_rotation/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c190254236f942159f7d1001921f060e7d9c279f3a35adc3794e017717ba721b",
+  "sha": "7783ea5dd6d1d0edb84f7e5852e0ecbd066144191ff2acc421f8bbf206e8e8b2",
   "w": 645
  },
  "04_royal_rotation/20_teams_sheet-430.webp": {
@@ -878,26 +998,74 @@
  "04_royal_rotation/21_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d651c349d5f087532812fd8620b933398cd5bbc503284729ea1b81927889f8e4",
+  "sha": "3342a7630fe87300156ff829985488a0366301e5e8e78cc956e22e969be0e9c8",
   "w": 430
  },
  "04_royal_rotation/21_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d651c349d5f087532812fd8620b933398cd5bbc503284729ea1b81927889f8e4",
+  "sha": "3342a7630fe87300156ff829985488a0366301e5e8e78cc956e22e969be0e9c8",
   "w": 860
  },
  "04_royal_rotation/22_dialog_strike-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e01574e9a75ae7c5019dc245a7c8f704fe4199503a819540eabeb4e18669db2e",
+  "sha": "14b467eda822ac4bd6bb88d65a7a369225ee196361365c11d5d33a11d6681d87",
   "w": 430
  },
  "04_royal_rotation/22_dialog_strike-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e01574e9a75ae7c5019dc245a7c8f704fe4199503a819540eabeb4e18669db2e",
+  "sha": "14b467eda822ac4bd6bb88d65a7a369225ee196361365c11d5d33a11d6681d87",
   "w": 860
+ },
+ "04_royal_rotation/23_court_time_up-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ce2456cfe18aba07b7f319e079929400e4de20689eb59abfde6ff5866960cbd1",
+  "w": 430
+ },
+ "04_royal_rotation/23_court_time_up-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ce2456cfe18aba07b7f319e079929400e4de20689eb59abfde6ff5866960cbd1",
+  "w": 645
+ },
+ "04_royal_rotation/24_scorecard_pace-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "35e71f4ded0472fcb1416485ea32f7fa0a77793063697adf8d919686b23fcab9",
+  "w": 430
+ },
+ "04_royal_rotation/24_scorecard_pace-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "35e71f4ded0472fcb1416485ea32f7fa0a77793063697adf8d919686b23fcab9",
+  "w": 645
+ },
+ "04_royal_rotation/25_scorecard_pace_landscape-1600.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "d58ef1a14302822a653ebd7a5bf5b5ce9d7e43c9b53e007efb3b07eae252cdd3",
+  "w": 1600
+ },
+ "04_royal_rotation/25_scorecard_pace_landscape-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "d58ef1a14302822a653ebd7a5bf5b5ce9d7e43c9b53e007efb3b07eae252cdd3",
+  "w": 860
+ },
+ "04_royal_rotation/26_overview_pace_overdue-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "9afef6b5656493e34d3c66e3718211cae48b45df942cd4d9ac3abdc65a50ac52",
+  "w": 430
+ },
+ "04_royal_rotation/26_overview_pace_overdue-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "9afef6b5656493e34d3c66e3718211cae48b45df942cd4d9ac3abdc65a50ac52",
+  "w": 645
  },
  "05_royal_duo/01_hub-430.webp": {
   "crop": null,
@@ -1022,49 +1190,49 @@
  "05_royal_duo/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7bdc74aeb6dc4362c587bc7e030087df0fd6c841ef72886a38138115f4e2f9f8",
+  "sha": "c115209337de2c31ea0ada2766d872d4e6f03a84f0b4e68b6d1bab7669b36873",
   "w": 430
  },
  "05_royal_duo/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7bdc74aeb6dc4362c587bc7e030087df0fd6c841ef72886a38138115f4e2f9f8",
+  "sha": "c115209337de2c31ea0ada2766d872d4e6f03a84f0b4e68b6d1bab7669b36873",
   "w": 645
  },
  "05_royal_duo/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cfc9db49906c5b76c8efee9399a726fbcd846b13d07fe7352aedc9249c5097fd",
+  "sha": "1523f52e15d3f5275caa555906548f0ed01a006fb350378eb315bb88441ea8b3",
   "w": 1600
  },
  "05_royal_duo/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cfc9db49906c5b76c8efee9399a726fbcd846b13d07fe7352aedc9249c5097fd",
+  "sha": "1523f52e15d3f5275caa555906548f0ed01a006fb350378eb315bb88441ea8b3",
   "w": 860
  },
  "05_royal_duo/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "487b43076ec6d17cf324693d09dba160a2cb781e2c5f6716997185910bb7955b",
+  "sha": "246745b9a65bacbe823ddefb210e26e3356983020638284566b1f6caaa0f6946",
   "w": 430
  },
  "05_royal_duo/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "487b43076ec6d17cf324693d09dba160a2cb781e2c5f6716997185910bb7955b",
+  "sha": "246745b9a65bacbe823ddefb210e26e3356983020638284566b1f6caaa0f6946",
   "w": 645
  },
  "05_royal_duo/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0e29645d8ac848718230bb4e10b2cce2c9bfc1fcf09ffbd6432cda9cfff0c9b2",
+  "sha": "e4421164d2116190253338668ae5d925cc17f24a7059d01dd7efd853cb587390",
   "w": 1600
  },
  "05_royal_duo/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0e29645d8ac848718230bb4e10b2cce2c9bfc1fcf09ffbd6432cda9cfff0c9b2",
+  "sha": "e4421164d2116190253338668ae5d925cc17f24a7059d01dd7efd853cb587390",
   "w": 860
  },
  "05_royal_duo/15_court_allocation-430.webp": {
@@ -1094,37 +1262,37 @@
  "05_royal_duo/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e8ada5c0c066abece1274fc0fb64d29e3dbd833183b9a309f990378af40eae1e",
+  "sha": "1585bb4c7f2db035532745c53f67073520f87c0340e16dfd6beceb3e52bb24f0",
   "w": 430
  },
  "05_royal_duo/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e8ada5c0c066abece1274fc0fb64d29e3dbd833183b9a309f990378af40eae1e",
+  "sha": "1585bb4c7f2db035532745c53f67073520f87c0340e16dfd6beceb3e52bb24f0",
   "w": 645
  },
  "05_royal_duo/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ded2f20a07a4f6f7901d7d8cc86f0ce2eac00d826defdc99a13e46c151a04cfe",
+  "sha": "88f7ca99e29981e16ae5ee05d1b929d9faacb68de53555d5726cb42eb8a34d58",
   "w": 430
  },
  "05_royal_duo/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ded2f20a07a4f6f7901d7d8cc86f0ce2eac00d826defdc99a13e46c151a04cfe",
+  "sha": "88f7ca99e29981e16ae5ee05d1b929d9faacb68de53555d5726cb42eb8a34d58",
   "w": 645
  },
  "05_royal_duo/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d2dafcfac363c7c1a4f29f3257df49b92d108aa8dee53cb27d9e56a293cf74a9",
+  "sha": "2b84e3af18e98b824b29614768a335f064be8594eee3bd104bb8d16da5f44ce2",
   "w": 430
  },
  "05_royal_duo/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d2dafcfac363c7c1a4f29f3257df49b92d108aa8dee53cb27d9e56a293cf74a9",
+  "sha": "2b84e3af18e98b824b29614768a335f064be8594eee3bd104bb8d16da5f44ce2",
   "w": 645
  },
  "05_royal_duo/20_teams_sheet-430.webp": {
@@ -1154,14 +1322,26 @@
  "05_royal_duo/22_dialog_strike-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2615ef9ea080c204e199120808c34422c977cd0acb844770c1cfa7eeea4a14f7",
+  "sha": "ca5cb687aa16fe7e76db80f1d9e192c3eb5613051146758645fb17bf6b8b741d",
   "w": 430
  },
  "05_royal_duo/22_dialog_strike-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2615ef9ea080c204e199120808c34422c977cd0acb844770c1cfa7eeea4a14f7",
+  "sha": "ca5cb687aa16fe7e76db80f1d9e192c3eb5613051146758645fb17bf6b8b741d",
   "w": 860
+ },
+ "05_royal_duo/23_court_time_up-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "13dac7673cb0e441250a4e286a637ac10b862510394e53f5a8068c4b6c0e44d5",
+  "w": 430
+ },
+ "05_royal_duo/23_court_time_up-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "13dac7673cb0e441250a4e286a637ac10b862510394e53f5a8068c4b6c0e44d5",
+  "w": 645
  },
  "06_royal_shuffle/01_hub-430.webp": {
   "crop": null,
@@ -1262,13 +1442,13 @@
  "06_royal_shuffle/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d3fde1fcd9e14c0dcfda9274cc696ebfe42474da1d98186c10fe39c83264322e",
+  "sha": "a83bd5c705dd25465770aa3ddea180702cb2f6765ef5644340ecefb439009206",
   "w": 430
  },
  "06_royal_shuffle/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d3fde1fcd9e14c0dcfda9274cc696ebfe42474da1d98186c10fe39c83264322e",
+  "sha": "a83bd5c705dd25465770aa3ddea180702cb2f6765ef5644340ecefb439009206",
   "w": 645
  },
  "06_royal_shuffle/10_court_manual_running_landscape-1600.webp": {
@@ -1286,13 +1466,13 @@
  "06_royal_shuffle/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cd9e15c602579ed9bd86c07b542876bf722a45ad9723bbf5f87634150555ff36",
+  "sha": "dc14220f80e30c09fd86b00b348e421481e728bd9635139a7922d7ea1d55efc5",
   "w": 430
  },
  "06_royal_shuffle/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cd9e15c602579ed9bd86c07b542876bf722a45ad9723bbf5f87634150555ff36",
+  "sha": "dc14220f80e30c09fd86b00b348e421481e728bd9635139a7922d7ea1d55efc5",
   "w": 645
  },
  "06_royal_shuffle/12_court_automated_landscape-1600.webp": {
@@ -1310,13 +1490,13 @@
  "06_royal_shuffle/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3acde7f0849b4b25ff671b743772bcd344385968e60ed556291ccbf002511e27",
+  "sha": "8d64fc0b3b3d943f69f0c797ab1e62a958457505f95576a8975bbd59c0515789",
   "w": 430
  },
  "06_royal_shuffle/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3acde7f0849b4b25ff671b743772bcd344385968e60ed556291ccbf002511e27",
+  "sha": "8d64fc0b3b3d943f69f0c797ab1e62a958457505f95576a8975bbd59c0515789",
   "w": 645
  },
  "06_royal_shuffle/14_court_allplay_landscape-1600.webp": {
@@ -1358,73 +1538,85 @@
  "06_royal_shuffle/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6e5a655f7d69d90bfd7ff014aa3c742b0272bbc00310db111c34f7cb664e6962",
+  "sha": "32fadb4561be59c5026c7d6b4879fb7dc9ddac80aab0172ad2ae0b7ae056e30a",
   "w": 430
  },
  "06_royal_shuffle/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6e5a655f7d69d90bfd7ff014aa3c742b0272bbc00310db111c34f7cb664e6962",
+  "sha": "32fadb4561be59c5026c7d6b4879fb7dc9ddac80aab0172ad2ae0b7ae056e30a",
   "w": 645
  },
  "06_royal_shuffle/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b46070877b07dd542704f16b8be43b255c5323867b0a6de334c7b443807be35b",
+  "sha": "a12a5e11e655f32cdabefc548ffccdec05354be13f55ece220d0abf1b1c73e38",
   "w": 430
  },
  "06_royal_shuffle/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b46070877b07dd542704f16b8be43b255c5323867b0a6de334c7b443807be35b",
+  "sha": "a12a5e11e655f32cdabefc548ffccdec05354be13f55ece220d0abf1b1c73e38",
   "w": 645
  },
  "06_royal_shuffle/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1889216ae3d981dd6312625b5293dfc18abc4af1808ae1f09544eeaeb2f3713b",
+  "sha": "9773e1b4b9473c75cb1bfbcab8235056eaa394687ae84620b0970e6365c6475e",
   "w": 430
  },
  "06_royal_shuffle/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1889216ae3d981dd6312625b5293dfc18abc4af1808ae1f09544eeaeb2f3713b",
+  "sha": "9773e1b4b9473c75cb1bfbcab8235056eaa394687ae84620b0970e6365c6475e",
   "w": 645
  },
  "06_royal_shuffle/20_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df6f266b40734fd45c84d73027fef81f1482f26b24c48b26b106438dd68026e8",
+  "sha": "bfeecb5e742e6a37a820102f30c887d1816fc591a7e7f70f140a3e879be70fd9",
   "w": 430
  },
  "06_royal_shuffle/20_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df6f266b40734fd45c84d73027fef81f1482f26b24c48b26b106438dd68026e8",
+  "sha": "bfeecb5e742e6a37a820102f30c887d1816fc591a7e7f70f140a3e879be70fd9",
   "w": 860
  },
  "06_royal_shuffle/21_dialog_game_won-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5277b4dc72887f08913b11f7a547cd4a09172032ed1cea12d43264f4731a75dd",
+  "sha": "5ef878c50e1919981427acc8239aefb6c377c1509da3f6acb0d9d4f3e5d3b381",
   "w": 430
  },
  "06_royal_shuffle/21_dialog_game_won-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5277b4dc72887f08913b11f7a547cd4a09172032ed1cea12d43264f4731a75dd",
+  "sha": "5ef878c50e1919981427acc8239aefb6c377c1509da3f6acb0d9d4f3e5d3b381",
   "w": 860
+ },
+ "06_royal_shuffle/23_court_time_up-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "0b98820b68ac9ea8fb2d7cb1c0be95fe468f9eaf053b19329e6a7ef555817431",
+  "w": 430
+ },
+ "06_royal_shuffle/23_court_time_up-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "0b98820b68ac9ea8fb2d7cb1c0be95fe468f9eaf053b19329e6a7ef555817431",
+  "w": 645
  },
  "07_doghouse_shuffle/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "feb11820aea47f935f8b6adf1553573ca455188706628d15cbf7e5485dcc529d",
+  "sha": "cb63dbd1131c88027b41c6a88d488ab7f4ca06fde664ee4da9b3aa83ce47d904",
   "w": 430
  },
  "07_doghouse_shuffle/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "feb11820aea47f935f8b6adf1553573ca455188706628d15cbf7e5485dcc529d",
+  "sha": "cb63dbd1131c88027b41c6a88d488ab7f4ca06fde664ee4da9b3aa83ce47d904",
   "w": 860
  },
  "07_doghouse_shuffle/02_setup-430.webp": {
@@ -1514,13 +1706,13 @@
  "07_doghouse_shuffle/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "986803d56d8c1324c5ea25ca14472be730bbb103a2fda5bd7c434760cef09f35",
+  "sha": "bc6b0cb2580bcb873c722d92cb9ee6a62bc5c5da16b692abca17b0aabf9b836d",
   "w": 430
  },
  "07_doghouse_shuffle/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "986803d56d8c1324c5ea25ca14472be730bbb103a2fda5bd7c434760cef09f35",
+  "sha": "bc6b0cb2580bcb873c722d92cb9ee6a62bc5c5da16b692abca17b0aabf9b836d",
   "w": 645
  },
  "07_doghouse_shuffle/10_court_manual_running_landscape-1600.webp": {
@@ -1538,13 +1730,13 @@
  "07_doghouse_shuffle/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fc80796d2d1361b71398e8956cdaaa3c6381979c93d56d38b0179e50b892f738",
+  "sha": "11ae8d4213ae7a37d7e901e514228694688800e6c599d25c2361bbf677ca6415",
   "w": 430
  },
  "07_doghouse_shuffle/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fc80796d2d1361b71398e8956cdaaa3c6381979c93d56d38b0179e50b892f738",
+  "sha": "11ae8d4213ae7a37d7e901e514228694688800e6c599d25c2361bbf677ca6415",
   "w": 645
  },
  "07_doghouse_shuffle/12_court_automated_landscape-1600.webp": {
@@ -1562,13 +1754,13 @@
  "07_doghouse_shuffle/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0d7a5abd30a51741802fbbea9df3085af5c2b8fbd4d8c285c7c7381082953011",
+  "sha": "7e7828758f9bd5df942531bac651c12bdbe1933b6677c43ed464a173a3c16e32",
   "w": 430
  },
  "07_doghouse_shuffle/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0d7a5abd30a51741802fbbea9df3085af5c2b8fbd4d8c285c7c7381082953011",
+  "sha": "7e7828758f9bd5df942531bac651c12bdbe1933b6677c43ed464a173a3c16e32",
   "w": 645
  },
  "07_doghouse_shuffle/14_court_allplay_landscape-1600.webp": {
@@ -1610,37 +1802,37 @@
  "07_doghouse_shuffle/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b0f67837363717852b9e1781451f6ad48c01771a072418e6154f91f718aefcc0",
+  "sha": "7ffdf1d063603bb92cc65f30771337bd48fb73898e7af660a93fee8bb7b0ef7d",
   "w": 430
  },
  "07_doghouse_shuffle/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b0f67837363717852b9e1781451f6ad48c01771a072418e6154f91f718aefcc0",
+  "sha": "7ffdf1d063603bb92cc65f30771337bd48fb73898e7af660a93fee8bb7b0ef7d",
   "w": 645
  },
  "07_doghouse_shuffle/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "98b61b8dbf7e9ec36d8679a4266ffbf287e7d688d9aa41f134d5c365e0641426",
+  "sha": "db078f028400c3d92ffeb1d89387e177c46f0009de60257bf29ee99aa66e6423",
   "w": 430
  },
  "07_doghouse_shuffle/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "98b61b8dbf7e9ec36d8679a4266ffbf287e7d688d9aa41f134d5c365e0641426",
+  "sha": "db078f028400c3d92ffeb1d89387e177c46f0009de60257bf29ee99aa66e6423",
   "w": 645
  },
  "07_doghouse_shuffle/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c73401b945d9c9018a52cda8ed8fb326caf3c89a9d2cee128d694c7206e47770",
+  "sha": "31600c1371c9c1ba2227ced301a16ee78f7104597f41dbd25ae023cd87364503",
   "w": 430
  },
  "07_doghouse_shuffle/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c73401b945d9c9018a52cda8ed8fb326caf3c89a9d2cee128d694c7206e47770",
+  "sha": "31600c1371c9c1ba2227ced301a16ee78f7104597f41dbd25ae023cd87364503",
   "w": 645
  },
  "07_doghouse_shuffle/20_dialog_challenger_rotated-430.webp": {
@@ -1658,26 +1850,38 @@
  "07_doghouse_shuffle/21_dialog_escaped-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c5c464c62d43e037016642c9ce106432343d7fa5876f07a81b99a59186a89fff",
+  "sha": "71d25c18fc521358036ff212cdc2f9e4976732f75acb497ce3e17824326e1fb8",
   "w": 430
  },
  "07_doghouse_shuffle/21_dialog_escaped-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c5c464c62d43e037016642c9ce106432343d7fa5876f07a81b99a59186a89fff",
+  "sha": "71d25c18fc521358036ff212cdc2f9e4976732f75acb497ce3e17824326e1fb8",
   "w": 860
  },
  "07_doghouse_shuffle/22_dialog_ejected_loss_limit-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d7c75c8e41d314d105694bd04390613d431477045e4ab390bd24923565510840",
+  "sha": "35575413a97b5fdcbedddecd89269bd022f0719d1b423da34a0561bb956b9942",
   "w": 430
  },
  "07_doghouse_shuffle/22_dialog_ejected_loss_limit-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d7c75c8e41d314d105694bd04390613d431477045e4ab390bd24923565510840",
+  "sha": "35575413a97b5fdcbedddecd89269bd022f0719d1b423da34a0561bb956b9942",
   "w": 860
+ },
+ "07_doghouse_shuffle/23_court_time_up-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "746a71efc70c3ddc328bb41a1ac4572ee82c48163a0dd7bd366f08e0acb6dc29",
+  "w": 430
+ },
+ "07_doghouse_shuffle/23_court_time_up-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "746a71efc70c3ddc328bb41a1ac4572ee82c48163a0dd7bd366f08e0acb6dc29",
+  "w": 645
  },
  "08_league/01_hub-430.webp": {
   "crop": null,

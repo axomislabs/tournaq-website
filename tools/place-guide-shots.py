@@ -109,6 +109,13 @@ def queue_court_matrix(area, mode):
          'All-Play, sideways',
          'The full chain and the scorekeeper, laid out for the sideline.',
          f'An Auto All-Play {mode} court in landscape'),
+        (f'{area}/23_court_time_up',
+         'When the clock runs out',
+         'A queue court has no "time is up" prompt to answer. The clock hitting '
+         'zero closes the court outright and puts its ranking on screen — who '
+         'won the court, and how everyone below them finished. Portrait only: '
+         'landscape shows the same card, wider.',
+         f'A {mode} court closed by its timer, showing the court ranking'),
     ]
 
 
@@ -242,6 +249,58 @@ PLACEMENTS = {
          'The Social Scramble court allocation grid'),
     ],
     'm-social-scramble-score': [
+        ('03_social_scramble/20_scorecard_time_up',
+         'Full time',
+         'When the clock runs out the board locks and the score stops being '
+         'tappable — the result is written through the dialog instead. This is '
+         'the state a round ends in.',
+         'A Social Scramble scorecard with its timer at zero and the score locked'),
+        ('03_social_scramble/21_dialog_manual_score',
+         'Setting the score by hand',
+         'The same dialog the timer raises when it runs out while you are '
+         'watching. It opens prefilled with whatever is on the board, so '
+         'accepting the score as it stands is one tap — which is what the note '
+         'is telling you.',
+         'The manual score dialog with both sides prefilled'),
+        ('03_social_scramble/22_dialog_override_result',
+         'Correcting a finished game',
+         'A score that is already recorded can still be rewritten, but never '
+         'silently: the warning names what is about to be replaced. Mid-game '
+         'the option is hidden altogether, so a live board cannot be '
+         'overwritten by accident.',
+         'The confirmation shown before replacing a recorded result'),
+        ('03_social_scramble/17_splash_game_complete',
+         'The recap',
+         'Completing a game hands you the result first. It waits for Continue '
+         'rather than timing out, so nobody loses the moment to a stray tap.',
+         'The game summary shown when a Social Scramble game completes'),
+        ('03_social_scramble/18_dialog_game_complete',
+         'What happens next',
+         'Then the chooser: straight into the next game, or back to the '
+         'schedule. If the board is still 0-0 it offers to set the score '
+         'first, and Cancel leaves the finished game exactly as it is.',
+         'The Game Complete dialog offering Start Next Game or Back to Schedule'),
+        ('03_social_scramble/19_sheet_next_game',
+         'Picking the next game',
+         'With one game left it goes straight there. With several it asks '
+         'which, grouped by round, so a referee moving between courts can pick '
+         'the one in front of them.',
+         'The next-game picker listing upcoming games by round'),
+        ('03_social_scramble/23_sheet_tournament_complete',
+         'The end of the session',
+         'When the last outstanding game is completed the tournament closes '
+         'itself and the final standings arrive in place of the usual chooser.',
+         'The tournament complete sheet with final standings'),
+        ('03_social_scramble/24_scorecard_pace',
+         'Pace alerts on the scorecard',
+         'Optional, switched on at setup. With them on the card carries the '
+         'round against its planned slot, so a court that is running late says '
+         'so while you can still do something about it.',
+         'A Social Scramble scorecard showing its pace against schedule'),
+        ('03_social_scramble/25_scorecard_pace_landscape',
+         'Pace, sideways',
+         'The same warning in landscape.',
+         'A Social Scramble scorecard with pace alerts in landscape'),
         ('03_social_scramble/07_scorecard',
          'The scorecard, top to bottom',
          'One game, two sides, and the round it belongs to. Scramble games are '
@@ -271,9 +330,28 @@ PLACEMENTS = {
          'Court allocation',
          'Courts in play across the session, measured in rounds.',
          'The Royal Rotation court allocation grid'),
+        ('04_royal_rotation/26_overview_pace_overdue',
+         'Running late, across the session',
+         'With pace alerts on, every round is measured against its planned '
+         'slot rather than only the one in front of you. That is where a '
+         'session that has quietly slipped becomes visible — and early enough '
+         'to shorten a round or open a court.',
+         'A Royal Rotation overview with rounds flagged Overdue'),
     ],
-    'm-royal-rotation-score': queue_court_matrix('04_royal_rotation',
-                                                 'Royal Rotation'),
+    'm-royal-rotation-score': queue_court_matrix(
+        '04_royal_rotation', 'Royal Rotation') + [
+        ('04_royal_rotation/24_scorecard_pace',
+         'Pace alerts on the court',
+         'Optional, switched on at setup. The court then carries its round '
+         'against the planned slot — a flag, the time it should have finished, '
+         'and On track, Due or Overdue beside it.',
+         'A Royal Rotation court showing its pace against schedule'),
+        ('04_royal_rotation/25_scorecard_pace_landscape',
+         'Pace, sideways',
+         'Landscape gives pace its own panel rather than folding it into the '
+         'timer row, so the warning stays readable at arm\'s length.',
+         'A Royal Rotation court with the landscape pace panel'),
+    ],
 
     # ── Royal Shuffle ────────────────────────────────────────────────────────
     'm-royal-shuffle-hub': setup_shot('06_royal_shuffle', 'Royal Shuffle'),

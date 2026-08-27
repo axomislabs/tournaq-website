@@ -4092,8 +4092,20 @@
 }
   };
 
+  /* localStorage kann werfen statt nur leer zu sein: Safari mit blockierten
+     Cookies, manche privaten Fenster, file:// unter strengen Einstellungen.
+     Ungefangen bliebe die Seite weiss, weil css/style.css den Body versteckt
+     und erst applyTranslations() ihn wieder zeigt. Die Sprachwahl ist eine
+     Bequemlichkeit — sie darf die Seite nicht aufhalten. */
+  function merke(schluessel, wert) {
+    try { localStorage.setItem(schluessel, wert); } catch (e) {}
+  }
+  function gemerkt(schluessel) {
+    try { return localStorage.getItem(schluessel); } catch (e) { return null; }
+  }
+
   function getLang() {
-    var stored = localStorage.getItem('tq-lang');
+    var stored = gemerkt('tq-lang');
     if (stored && SUPPORTED.indexOf(stored) !== -1) return stored;
     var nav = ((navigator.language || navigator.userLanguage || '').slice(0, 2)).toLowerCase();
     return SUPPORTED.indexOf(nav) !== -1 ? nav : DEFAULT_LANG;
@@ -4129,7 +4141,7 @@
 
   function setLang(lang) {
     var t = LOCALES[lang] || LOCALES[DEFAULT_LANG];
-    localStorage.setItem('tq-lang', lang);
+    merke('tq-lang', lang);
     html.lang = lang;
     applyTranslations(t);
     updateSwitcher(lang);
