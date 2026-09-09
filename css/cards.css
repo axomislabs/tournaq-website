@@ -96,12 +96,19 @@
    Titel darunter als Ueberschrift — das ist gewollt, wie im Magazin. */
 .tq-card.tq-hero { border-radius: var(--radius); }
 
-/* Gespiegelte Fassung. Gebraucht vom Startseiten-Hero: dort steht das Telefon
-   links unten im Sand, also genau dort, wo der Textblock sonst sitzt. Das Bild
-   enger zu schneiden hilft nicht — das Telefon steht am unteren Bildrand und
-   bleibt bei jedem Zoom dort, und nach rechts geschoben faellt die Sonne aus
-   dem Bild. Also wandert der Text auf die freie Haelfte, und die Goldkante
-   mit ihm: eine Kante links an rechtsbuendigem Text haengt in der Luft. */
+/* Der Abstand unter der Karte, mit der eine Seite aufmacht. Sie steht vor
+   dem ersten <section>, das seinen Abstand selbst mitbringt — also hier
+   setzen. Im Guide gilt stattdessen .g-hero, dort sitzt der Kopf enger. */
+.tq-card.hero-card { margin-bottom: 44px; }
+
+/* Gespiegelte Fassung. Zurzeit ohne Verwendung: sie war fuer den
+   Startseiten-Hero da, wo das Telefon links unten im Sand steht, also genau
+   dort, wo der Textblock sonst sitzt. Der Text steht dort seit 2026-08-28
+   wieder links wie auf jeder anderen Karte — eine Karte, die als einzige
+   spiegelverkehrt laeuft, liest sich neben den uebrigen als Fehler. Die
+   Regeln bleiben, weil der naechste Hero sie wieder brauchen kann; die
+   Goldkante wandert mit, eine Kante links an rechtsbuendigem Text haengt
+   in der Luft. */
 .tq-card--rechts .tq-card-text {
     align-items: flex-end;
     text-align: right;
@@ -130,10 +137,10 @@
        Bild, damit das Bild fuer alle Groessen dasselbe bleibt. */
     background: linear-gradient(180deg,
         rgba(20, 22, 10, 0) 0%,
-        rgba(20, 22, 10, 0.30) 26%,
-        rgba(20, 22, 10, 0.72) 52%,
-        rgba(20, 22, 10, 0.90) 76%,
-        rgba(20, 22, 10, 0.95) 100%);
+        rgba(20, 22, 10, 0.14) 30%,
+        rgba(20, 22, 10, 0.44) 56%,
+        rgba(20, 22, 10, 0.66) 80%,
+        rgba(20, 22, 10, 0.72) 100%);
 }
 
 .tq-card.tq-mini .tq-card-body {
@@ -173,3 +180,56 @@ a.tq-card:hover {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 14px;
 }
+
+/* ── Platzhalterkarte ──────────────────────────────────────────────────────
+   Dieselbe Maske wie eine echte Bildkarte — gleiches Seitenverhaeltnis,
+   gleicher Textblock, gleiche Goldkante —, nur steht statt des Fotos eine
+   gestrichelte Flaeche. Damit steht der Text schon an seinem endgueltigen
+   Platz, und ein spaeteres Foto ersetzt genau ein Element: die Flaeche
+   weicht dem <img>, sonst aendert sich nichts.
+
+   Warum kein leeres <img> mit Platzhalter-Datei: das waeren 20 zusaetzliche
+   Bilddateien fuer etwas, das wieder verschwindet, und ueber file:// zeigt
+   ein fehlendes Bild ein kaputtes Symbol statt einer ruhigen Flaeche. */
+.tq-platz-flaeche {
+    /* 16:10 wie die gerenderten Karten (1600x1000) — so springt beim
+       Einsetzen des Fotos nichts. */
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    display: block;
+    background:
+        repeating-linear-gradient(135deg,
+            rgba(255, 255, 255, 0.045) 0 14px,
+            rgba(255, 255, 255, 0) 14px 28px),
+        linear-gradient(160deg, #5A6134 0%, var(--olive-dark) 62%, #23260D 100%);
+}
+
+/* Die gestrichelte Kante liegt innen, nicht an der Karte: die Karte traegt
+   ihren eigenen Rahmen und ihre Ecken, und eine gestrichelte Aussenkante
+   saehe neben einer echten Karte im selben Raster wie ein Fehler aus. */
+.tq-platz .tq-card-text::before {
+    content: "";
+    position: absolute;
+    inset: 3.25cqw;
+    border: 0.19cqw dashed rgba(240, 212, 122, 0.42);
+    border-radius: 2.5cqw;
+    pointer-events: none;
+}
+
+/* Die Notiz sitzt oben, der Titel bleibt unten an seinem Platz. */
+.tq-platz-note {
+    position: absolute;
+    top: 6.5cqw;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 2.25cqw;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(240, 212, 122, 0.65);
+}
+
+/* Im Raster sind die Karten rund 460px breit; als Hero rund 900. Beide Male
+   traegt cqw die Groessen, wie bei den Fotokarten auch. */
+.tq-platz.tq-hero .tq-platz-note { top: 5cqw; }

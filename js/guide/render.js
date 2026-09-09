@@ -270,19 +270,25 @@ function crumbTrail(id){
   return trail;
 }
 
-/* Which subtrees are open. The Arena starts open so the shape of the guide is
-   visible on arrival; everything below it stays folded until asked for. The
-   branch leading to the current page is always forced open, so navigating can
-   never land you on a row you cannot see. */
-const NAV_OPEN = new Set(['home', 'arena']);
+/* Welche Zweige offen stehen. Die Regel ist eine: **offen ist der Zweig, in
+   dem du gerade stehst** — die Vorfahren der aktuellen Zeile und, wenn sie
+   selbst Kinder hat, sie auch. Sonst keiner.
+
+   Vorher standen 'home' und 'arena' hier fest drin. Das war eine Vorgabe fuer
+   den Guide ("die Arena offen, damit die Form des Guides beim Ankommen
+   sichtbar ist"), und js/site-map.js hat den Renderer spaeter unveraendert
+   fuer jede Seite uebernommen — also trug auch Downloads den halb
+   aufgeklappten Guide neben sich, waehrend Legal die eigenen drei
+   Rechtsseiten zugeklappt liess, obwohl man genau dort stand. Die aktive
+   Zeile zaehlte nicht als ihr eigener Vorfahr. Auf einer Guide-Seite ergeben
+   sich 'home' und 'arena' jetzt von selbst, weil sie Vorfahren sind. */
+const NAV_OPEN = new Set();
 
 /* NAV_OPEN merkt sich ueber die Sitzung, welche Zweige offen stehen. Beim
    Backen gilt das nur fuer eine Seite: ohne diesen Schnitt traegt die letzte
    Datei jeden Zweig offen, den irgendeine vorherige geoeffnet hat. */
 function zuruecksetzenNav(){
   NAV_OPEN.clear();
-  NAV_OPEN.add('home');
-  NAV_OPEN.add('arena');
 }
 
 /* NAV is authored as a flat list of [id, depth] pairs. Flatten it once, then
@@ -311,6 +317,9 @@ function renderNav(active){
      sein, sobald man auf der Seite steht. */
   flat.forEach((n, at) => {
     if (n.id !== active) return;
+    /* Die Zeile selbst zuerst, sofern sie Kinder hat: wer auf Legal steht,
+       soll Privacy, Terms und Notice sehen, ohne erst zu klicken. */
+    if (at + 1 < flat.length && flat[at + 1].depth > n.depth) NAV_OPEN.add(n.key);
     let d = n.depth;
     for (let i = at - 1; i >= 0 && d > 0; i--){
       if (flat[i].depth < d){ NAV_OPEN.add(flat[i].key); d = flat[i].depth; }
@@ -393,6 +402,21 @@ function renderPage(id){
   const heroCard = CARD_BY_ZIEL[id];
   const hero = heroCard && !heroCard.ph ? heroCard : null;
   const bild = G_BASIS + 'assets/cards/';
+
+  /* Eine Seite ohne Karte kann stattdessen `platz` tragen: dieselbe Maske,
+     nur mit gestrichelter Flaeche statt Foto (.tq-platz in css/cards.css).
+     Gibt es das Bild spaeter, kommt es als Karte nach cards.json und dieser
+     Schluessel faellt weg — der Text steht dann schon an seinem Platz. */
+  const platzHtml = !hero && p.platz
+    ? '<div class="tq-card tq-hero tq-platz g-hero">' +
+      '<div class="tq-platz-flaeche"></div>' +
+      '<div class="tq-card-text"><span class="tq-platz-note">Image coming</span>' +
+      '<div class="tq-card-body">' +
+        '<span class="tq-t">' + p.platz.t + '</span>' +
+        (p.platz.s ? '<span class="tq-s">' + p.platz.s + '</span>' : '') +
+      '</div></div></div>'
+    : '';
+
   const heroHtml = hero
     ? '<div class="tq-card tq-hero g-hero"><img src="' + bild + hero.img +
       '-960.webp" srcset="' + bild + hero.img + '-480.webp 480w, ' +
@@ -406,7 +430,7 @@ function renderPage(id){
       '</div></div></div>'
     : '';
 
-  const marke = hero ? null : markeFuer(id);
+  const marke = (hero || platzHtml) ? null : markeFuer(id);
   /* Das Referenzbild traegt den Titel seiner Karte, in Gold wie auf der Karte
      selbst — sonst ist es auf einer Unterseite nur ein Stueck Foto. */
   const markeHtml = marke
@@ -423,7 +447,7 @@ function renderPage(id){
   /* Die Ueberschrift der Seite ist ein <h2>: das <h1> des Dokuments ist der
      "User Guide"-Hero, und ein Dokument bekommt kein zweites. */
   const body =
-    heroHtml +
+    heroHtml + platzHtml +
     '<div class="g-kopf"><div class="g-kopf-txt">' +
       (p.eyebrow ? '<p class="g-eyebrow">' + p.eyebrow + '</p>' : '') +
       '<h2 class="g-h1">' + headline + '</h2>' +

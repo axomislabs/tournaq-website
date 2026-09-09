@@ -2,709 +2,745 @@
  "00_shell/01_splash-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df87899c1b8e3ea18e677e0d1da681f9fcda9f44e9fb4284df1b88938a8a95f1",
+  "sha": "96c40468a2b8c71c49dbaf47af50bfd5305c76f579b021323e59e8f2631ec62b",
   "w": 430
  },
  "00_shell/01_splash-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df87899c1b8e3ea18e677e0d1da681f9fcda9f44e9fb4284df1b88938a8a95f1",
+  "sha": "96c40468a2b8c71c49dbaf47af50bfd5305c76f579b021323e59e8f2631ec62b",
   "w": 860
  },
  "00_shell/02_home-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fa52d2b7acc3ee8a250a30b24c9f93a77fab3306102a4f6f4c212c63663e2664",
+  "sha": "cb8c091c724baef43116916b16bee0a69a438e57fc4c4508da3d1aacb8fae208",
   "w": 430
  },
  "00_shell/02_home-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fa52d2b7acc3ee8a250a30b24c9f93a77fab3306102a4f6f4c212c63663e2664",
+  "sha": "cb8c091c724baef43116916b16bee0a69a438e57fc4c4508da3d1aacb8fae208",
   "w": 860
  },
  "00_shell/03_home_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca0e46141693682c98a632d5975977c5332b47395affac472d9e0912f2549db3",
+  "sha": "11496f9108f54bf021c84eb63f549c222ab7114263134c655745f2b890ac12fd",
   "w": 430
  },
  "00_shell/03_home_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca0e46141693682c98a632d5975977c5332b47395affac472d9e0912f2549db3",
+  "sha": "11496f9108f54bf021c84eb63f549c222ab7114263134c655745f2b890ac12fd",
   "w": 645
  },
  "00_shell/04_arena-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7d76e349b4fcbf48d5928924333eb2c88ab746ed688c86599b09f69d8f1e749c",
+  "sha": "b9e6b4239797988161968293f7a1c26f80850590bf6e11fecb2b3a649d25db49",
   "w": 430
  },
  "00_shell/04_arena-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7d76e349b4fcbf48d5928924333eb2c88ab746ed688c86599b09f69d8f1e749c",
+  "sha": "b9e6b4239797988161968293f7a1c26f80850590bf6e11fecb2b3a649d25db49",
   "w": 860
  },
  "00_shell/05_arena_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14d5d7be2fecb1f8529c5bd9637debad7f8e03703468f2a8ced40e8896936fe2",
+  "sha": "1d49579aa0de011133ad5168806a232cef3bd45f53a6f90de8a5797ae7e0349a",
   "w": 430
  },
  "00_shell/05_arena_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14d5d7be2fecb1f8529c5bd9637debad7f8e03703468f2a8ced40e8896936fe2",
+  "sha": "1d49579aa0de011133ad5168806a232cef3bd45f53a6f90de8a5797ae7e0349a",
   "w": 645
  },
  "00_shell/06_tournament_history-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "34ed8731de3a95c279c990884648f55e6e15785f1be2beb4e0467b3f012d7179",
+  "sha": "d672007d56fdeaf825e44dbcb59774b36d838aeed978727c7661744290f9c9d6",
   "w": 430
  },
  "00_shell/06_tournament_history-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "34ed8731de3a95c279c990884648f55e6e15785f1be2beb4e0467b3f012d7179",
+  "sha": "d672007d56fdeaf825e44dbcb59774b36d838aeed978727c7661744290f9c9d6",
   "w": 645
  },
  "00_shell/07_tournament_history_filtered-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14b27fd425487acbda09731c734a73331ddbc2cf36b223fe7d9eb6ad5d7c34d4",
+  "sha": "4e0b5fe5866c68dce84c3764fe211daef8a4f82f499ad3ee3051d5fed371afae",
   "w": 430
  },
  "00_shell/07_tournament_history_filtered-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14b27fd425487acbda09731c734a73331ddbc2cf36b223fe7d9eb6ad5d7c34d4",
+  "sha": "4e0b5fe5866c68dce84c3764fe211daef8a4f82f499ad3ee3051d5fed371afae",
   "w": 860
  },
  "00_shell/08_administration-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b3663beb41382e24a4070d8cf9b70e2c724e23d2b0a400f53bb9b5fa7323fa7",
+  "sha": "597ad950663647b7886a38ca0f150b0504e12e175aad478006a7a12e8d1e8d0e",
   "w": 430
  },
  "00_shell/08_administration-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b3663beb41382e24a4070d8cf9b70e2c724e23d2b0a400f53bb9b5fa7323fa7",
+  "sha": "597ad950663647b7886a38ca0f150b0504e12e175aad478006a7a12e8d1e8d0e",
   "w": 860
  },
  "00_shell/09_more-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "094372026443552dc5dd7b7553bff909d615216ea21668fc38388e94e0f15d44",
+  "sha": "ecb332759f4dc6677b120bcbc94174de740212dc12319fb4ddcadd510537b2d8",
   "w": 430
  },
  "00_shell/09_more-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "094372026443552dc5dd7b7553bff909d615216ea21668fc38388e94e0f15d44",
+  "sha": "ecb332759f4dc6677b120bcbc94174de740212dc12319fb4ddcadd510537b2d8",
   "w": 860
  },
  "00_shell/10_settings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "810069b44f782ab724779dd3330c4b4586a12ee035c28325697cf35c0e67df63",
+  "sha": "6ef785a630462fb2a4d15526aa29db3a4c13e7366d5ec0a3248334ccb482ccbe",
   "w": 430
  },
  "00_shell/10_settings-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "810069b44f782ab724779dd3330c4b4586a12ee035c28325697cf35c0e67df63",
+  "sha": "6ef785a630462fb2a4d15526aa29db3a4c13e7366d5ec0a3248334ccb482ccbe",
   "w": 860
  },
  "00_shell/11_contact_and_about-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "791e8198f560cde2976f596595132e3f4fc73d0a5ef3694cddfac66e5260b52c",
+  "sha": "3f90ad4d0269e0151ad802bde214ae0debfa25facea06c3df8b79da7d57d40a5",
   "w": 430
  },
  "00_shell/11_contact_and_about-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "791e8198f560cde2976f596595132e3f4fc73d0a5ef3694cddfac66e5260b52c",
+  "sha": "3f90ad4d0269e0151ad802bde214ae0debfa25facea06c3df8b79da7d57d40a5",
   "w": 645
  },
  "00_shell/12_sponsoring_and_promo-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "909db0c1dbeeee9f4bc1ee5a47f3ec58e5fc6e2b63081dc995ffec5d61b04992",
+  "sha": "63b457693c26bca955bc795de5284d7a0f2004cebaf65baa67bf26c686174d54",
   "w": 430
  },
  "00_shell/12_sponsoring_and_promo-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "909db0c1dbeeee9f4bc1ee5a47f3ec58e5fc6e2b63081dc995ffec5d61b04992",
+  "sha": "63b457693c26bca955bc795de5284d7a0f2004cebaf65baa67bf26c686174d54",
   "w": 645
  },
  "00_shell/13_become_a_tester-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9f14159009c1a4d77d8e141c9a1150f94b40ab81d6f9f1468f736a1f82d36cf2",
+  "sha": "ad082cecda34e8cf6bf34366c4fbc377fccb9b320a53ad28d367506b19e5b423",
   "w": 430
  },
  "00_shell/13_become_a_tester-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9f14159009c1a4d77d8e141c9a1150f94b40ab81d6f9f1468f736a1f82d36cf2",
+  "sha": "ad082cecda34e8cf6bf34366c4fbc377fccb9b320a53ad28d367506b19e5b423",
   "w": 860
  },
  "00_shell/14_coming_soon-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7e80a8934d93d3e61b08ba1894c219f09df210051252fccdae87bbaea5443f3a",
+  "sha": "1a07ff6bc5d5d6372a2620bc5305df983fcae67445b70c190b8ae586cd99ef1b",
   "w": 430
  },
  "00_shell/14_coming_soon-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7e80a8934d93d3e61b08ba1894c219f09df210051252fccdae87bbaea5443f3a",
+  "sha": "1a07ff6bc5d5d6372a2620bc5305df983fcae67445b70c190b8ae586cd99ef1b",
   "w": 860
  },
  "01_admin/01_administration-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b3663beb41382e24a4070d8cf9b70e2c724e23d2b0a400f53bb9b5fa7323fa7",
+  "sha": "597ad950663647b7886a38ca0f150b0504e12e175aad478006a7a12e8d1e8d0e",
   "w": 430
  },
  "01_admin/01_administration-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b3663beb41382e24a4070d8cf9b70e2c724e23d2b0a400f53bb9b5fa7323fa7",
+  "sha": "597ad950663647b7886a38ca0f150b0504e12e175aad478006a7a12e8d1e8d0e",
   "w": 860
  },
  "01_admin/02_players-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "83688514534113290431d115e24ba0fa4c5ef616156a30839f731bfe25afd8c3",
+  "sha": "97c2c93db2652c14ceaad29cd9928048f7675fca606ae95cc64a2dc4eb8b8892",
   "w": 430
  },
  "01_admin/02_players-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "83688514534113290431d115e24ba0fa4c5ef616156a30839f731bfe25afd8c3",
+  "sha": "97c2c93db2652c14ceaad29cd9928048f7675fca606ae95cc64a2dc4eb8b8892",
   "w": 860
  },
  "01_admin/03_players_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bc517d753ff61a20cded6c50f08566446647f9172a9b958bcc6eeb09274115e2",
+  "sha": "9b5ff86190b00a9146fcff53ec8dd2ee2db676b51badb1671408d9da9fe76d80",
   "w": 430
  },
  "01_admin/03_players_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bc517d753ff61a20cded6c50f08566446647f9172a9b958bcc6eeb09274115e2",
+  "sha": "9b5ff86190b00a9146fcff53ec8dd2ee2db676b51badb1671408d9da9fe76d80",
   "w": 645
  },
  "01_admin/04_player_create-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6dd00af7476276bb05c063cad46a6dfba88088249573661d1ddf806a7a3d8209",
+  "sha": "9e541fcd7b80260ef383ddaafbd40d8bb5c6b766fe5bc83c60ae51fac77ba1cd",
   "w": 430
  },
  "01_admin/04_player_create-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6dd00af7476276bb05c063cad46a6dfba88088249573661d1ddf806a7a3d8209",
+  "sha": "9e541fcd7b80260ef383ddaafbd40d8bb5c6b766fe5bc83c60ae51fac77ba1cd",
   "w": 860
  },
  "01_admin/05_player_detail-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d93ed2455aeb053ac8bd67e508bb89e276fee8c8c81427ecc26c9cae211e951",
+  "sha": "c6f5f051768171b0357ddf2259d55c4bd34179e5c7c2ecf349f9b89c5c3543c8",
   "w": 430
  },
  "01_admin/05_player_detail-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d93ed2455aeb053ac8bd67e508bb89e276fee8c8c81427ecc26c9cae211e951",
+  "sha": "c6f5f051768171b0357ddf2259d55c4bd34179e5c7c2ecf349f9b89c5c3543c8",
   "w": 645
  },
  "01_admin/06_player_assign_to_team-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "de8810be6c3db2cba4a9073d5aa8ae489a7037390b8bf9e45ee3576a823e4ecf",
+  "sha": "6132fea34a256c634820784e9c6bf82522a006717c5a68a805fd2c8354f883d3",
   "w": 430
  },
  "01_admin/06_player_assign_to_team-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "de8810be6c3db2cba4a9073d5aa8ae489a7037390b8bf9e45ee3576a823e4ecf",
+  "sha": "6132fea34a256c634820784e9c6bf82522a006717c5a68a805fd2c8354f883d3",
   "w": 860
  },
  "01_admin/07_teams-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df413d26d5fe3b9efd1e0b1d20198bc2b1e1b2f9bf626daad28cae796132f10c",
+  "sha": "9b6c6fb69c0253c0a059502eea712a02db75746efbf194df6e611f1b87f8c483",
   "w": 430
  },
  "01_admin/07_teams-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "df413d26d5fe3b9efd1e0b1d20198bc2b1e1b2f9bf626daad28cae796132f10c",
+  "sha": "9b6c6fb69c0253c0a059502eea712a02db75746efbf194df6e611f1b87f8c483",
   "w": 860
  },
  "01_admin/08_team_create-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "228bc8dfc2abb7b263eec2da271aed416f194823628dc94cf8d8b4c466351b0d",
+  "sha": "0bc51c87c8d0949c551598931e4500028d6ac67c23a2117b126e721e8ce33fc5",
   "w": 430
  },
  "01_admin/08_team_create-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "228bc8dfc2abb7b263eec2da271aed416f194823628dc94cf8d8b4c466351b0d",
+  "sha": "0bc51c87c8d0949c551598931e4500028d6ac67c23a2117b126e721e8ce33fc5",
   "w": 860
  },
  "01_admin/09_team_detail-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "20c7f07f22f057c9bf266d410fbe098a7716d3f6a87a282ae49a5ac857c11677",
+  "sha": "92be45f64e408fd5b179dca6a0490ddbae55559ebebde43b510986db2972c3e0",
   "w": 430
  },
  "01_admin/09_team_detail-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "20c7f07f22f057c9bf266d410fbe098a7716d3f6a87a282ae49a5ac857c11677",
+  "sha": "92be45f64e408fd5b179dca6a0490ddbae55559ebebde43b510986db2972c3e0",
   "w": 645
  },
  "01_admin/10_team_add_player-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9d121c75a45b8012dc3926baa561d833b1cfe5b26e9e1bf9fe97ef52af479ca8",
+  "sha": "5f886e464c5ff3d940c1ae844ed0bb9a570c769dd1a689dcf29519ccceca528b",
   "w": 430
  },
  "01_admin/10_team_add_player-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9d121c75a45b8012dc3926baa561d833b1cfe5b26e9e1bf9fe97ef52af479ca8",
+  "sha": "5f886e464c5ff3d940c1ae844ed0bb9a570c769dd1a689dcf29519ccceca528b",
   "w": 860
  },
  "01_admin/11_groups-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "eae2978d959dd46f7bfdd917375f4c692cbb312c778e7b4a63e04cbc8d85a8ab",
+  "sha": "cb106bed36807ad72e2ddc4542ad472216189bcc49c696292d337e86ca8f13a3",
   "w": 430
  },
  "01_admin/11_groups-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "eae2978d959dd46f7bfdd917375f4c692cbb312c778e7b4a63e04cbc8d85a8ab",
+  "sha": "cb106bed36807ad72e2ddc4542ad472216189bcc49c696292d337e86ca8f13a3",
   "w": 860
  },
  "01_admin/12_group_create-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce4c418a58b5a6a578634e2d44367df0be9271be39926c8d6ca69308382a0441",
+  "sha": "369e6172916efce07518a87b89e69c3903029328113b7886fa55c28c5776a132",
   "w": 430
  },
  "01_admin/12_group_create-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce4c418a58b5a6a578634e2d44367df0be9271be39926c8d6ca69308382a0441",
+  "sha": "369e6172916efce07518a87b89e69c3903029328113b7886fa55c28c5776a132",
   "w": 860
  },
  "01_admin/13_group_detail-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e6d55e4698d7e2ed8197bbfda8ec0ce50f7ee074fdbd577a1e66da330c516987",
+  "sha": "5224b9754dfb112553291ac3989611c6c0feef03966688cd789f45ab1c7097b5",
   "w": 430
  },
  "01_admin/13_group_detail-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e6d55e4698d7e2ed8197bbfda8ec0ce50f7ee074fdbd577a1e66da330c516987",
+  "sha": "5224b9754dfb112553291ac3989611c6c0feef03966688cd789f45ab1c7097b5",
+  "w": 645
+ },
+ "01_admin/14_players_gender_filter-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "dbe66af882a7d172a4b0889f4ca7c8ade0f987102e155468bbcbb4c74919b186",
+  "w": 430
+ },
+ "01_admin/14_players_gender_filter-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "dbe66af882a7d172a4b0889f4ca7c8ade0f987102e155468bbcbb4c74919b186",
+  "w": 645
+ },
+ "01_admin/15_teams_composition_filter-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "c3c7b3fab355a2072176946bc576def9529762abd11b71507c9bf3eaeba142d9",
+  "w": 430
+ },
+ "01_admin/15_teams_composition_filter-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "c3c7b3fab355a2072176946bc576def9529762abd11b71507c9bf3eaeba142d9",
+  "w": 645
+ },
+ "01_admin/16_player_gender_selector-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "e865bf3ca96a371d94d0a39fe6bceccb5e8a714b2213b2fc5a470b875ff54d0a",
+  "w": 430
+ },
+ "01_admin/16_player_gender_selector-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "e865bf3ca96a371d94d0a39fe6bceccb5e8a714b2213b2fc5a470b875ff54d0a",
   "w": 645
  },
  "02_quick_game/01_games-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8f3f67ca908950dc36db20f04756474933d011c87fc9e554e594ae33965f048b",
+  "sha": "7fd3b8d15c9578020a5180c1cdcacb4e64b5d2aae9e384149f9c9c5528dbb720",
   "w": 430
  },
  "02_quick_game/01_games-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8f3f67ca908950dc36db20f04756474933d011c87fc9e554e594ae33965f048b",
+  "sha": "7fd3b8d15c9578020a5180c1cdcacb4e64b5d2aae9e384149f9c9c5528dbb720",
   "w": 860
  },
  "02_quick_game/02_games_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1ab2853bb790169970677cb3dc3feda434d5657dd2bd571504c284bd5b798b28",
+  "sha": "096bfe34607e87f3d2dc5574937f080c9d8ca0c5aa7a51975119616c9cbfb52f",
   "w": 430
  },
  "02_quick_game/02_games_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1ab2853bb790169970677cb3dc3feda434d5657dd2bd571504c284bd5b798b28",
+  "sha": "096bfe34607e87f3d2dc5574937f080c9d8ca0c5aa7a51975119616c9cbfb52f",
   "w": 645
  },
  "02_quick_game/03_quick_start_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "84d9c0fb7005fbca443a5ea1b69e5d7798042ad6769be83cfbe815cdae85e4d0",
+  "sha": "9ad28fcf9f2b5c0a7bf2a6836c09827884f23083ae3f7bdf565851608ff5fca0",
   "w": 430
  },
  "02_quick_game/03_quick_start_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "84d9c0fb7005fbca443a5ea1b69e5d7798042ad6769be83cfbe815cdae85e4d0",
+  "sha": "9ad28fcf9f2b5c0a7bf2a6836c09827884f23083ae3f7bdf565851608ff5fca0",
   "w": 860
  },
  "02_quick_game/04_quick_start_teams-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "281fd342c001853755bcf9b47a7ab7706be9254c4e175a74af8859013ec52527",
+  "sha": "49ca4564f71b3b365bf7431317f3232caa1abce33ec63c1cf7a56f24337f2c9b",
   "w": 430
  },
  "02_quick_game/04_quick_start_teams-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "281fd342c001853755bcf9b47a7ab7706be9254c4e175a74af8859013ec52527",
+  "sha": "49ca4564f71b3b365bf7431317f3232caa1abce33ec63c1cf7a56f24337f2c9b",
   "w": 860
  },
  "02_quick_game/05_scorecard_splash-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bd1a26ea4ee03008d120fe967b2dd6d33ab0f57738f13c78069f8779e2ea466a",
+  "sha": "cc959739eb1b6a1c5bc56a5a3e17e74b89aef5d466f05e9c09e81e5d63b4ac5d",
   "w": 430
  },
  "02_quick_game/05_scorecard_splash-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bd1a26ea4ee03008d120fe967b2dd6d33ab0f57738f13c78069f8779e2ea466a",
+  "sha": "cc959739eb1b6a1c5bc56a5a3e17e74b89aef5d466f05e9c09e81e5d63b4ac5d",
   "w": 860
  },
  "02_quick_game/06_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d14f475ce878a85267b7553e66a620eea41b4040c2a29a3fd8ed8ba7307375d3",
+  "sha": "5bfe5a510f8a360608d87c8947bcfc2fc6e92399ebf89c7ffea54bc82a35bd7d",
   "w": 430
  },
  "02_quick_game/06_scorecard-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d14f475ce878a85267b7553e66a620eea41b4040c2a29a3fd8ed8ba7307375d3",
+  "sha": "5bfe5a510f8a360608d87c8947bcfc2fc6e92399ebf89c7ffea54bc82a35bd7d",
   "w": 860
  },
  "02_quick_game/07_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c717cfe981edf9749c7882b3e30671c5ac219820306e2e306c734529a953ad5c",
+  "sha": "92800381136ccb76b052bef3d84e3d7298df4af116d27d12e2a884355f8ba767",
   "w": 1600
  },
  "02_quick_game/07_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c717cfe981edf9749c7882b3e30671c5ac219820306e2e306c734529a953ad5c",
+  "sha": "92800381136ccb76b052bef3d84e3d7298df4af116d27d12e2a884355f8ba767",
   "w": 860
  },
  "02_quick_game/08_scorecard_three_sets-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4ac0bcdea30ec7ca8d46a829d4b6fe26b2fedd3b50ee4a08bfa80da148441020",
+  "sha": "7f7cce23fddeb3b5a69acc3f58286ce902e8ccfc5162a71e0fb06bfcacd73365",
   "w": 430
  },
  "02_quick_game/08_scorecard_three_sets-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4ac0bcdea30ec7ca8d46a829d4b6fe26b2fedd3b50ee4a08bfa80da148441020",
+  "sha": "7f7cce23fddeb3b5a69acc3f58286ce902e8ccfc5162a71e0fb06bfcacd73365",
   "w": 645
  },
  "02_quick_game/09_dialog_switch_sides-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "26d2941fa3dadd8595dd248fa84c8cb52638221eee43d7950430ca80c41e8196",
+  "sha": "853732fa1c69264781cbc826aa8e679d53beab7e6cc280f582bd4453066b489c",
   "w": 430
  },
  "02_quick_game/09_dialog_switch_sides-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "26d2941fa3dadd8595dd248fa84c8cb52638221eee43d7950430ca80c41e8196",
+  "sha": "853732fa1c69264781cbc826aa8e679d53beab7e6cc280f582bd4453066b489c",
   "w": 860
  },
  "02_quick_game/10_dialog_game_won-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2e88ac29e0d0c0b1603d8b203a805c3ea14901824f5f1f9b62a457390a1dcfbb",
+  "sha": "bf6bf64a78163fc4e192d0827644139dea7accb3f05ec90fa5cf31479b87b4bc",
   "w": 430
  },
  "02_quick_game/10_dialog_game_won-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2e88ac29e0d0c0b1603d8b203a805c3ea14901824f5f1f9b62a457390a1dcfbb",
+  "sha": "bf6bf64a78163fc4e192d0827644139dea7accb3f05ec90fa5cf31479b87b4bc",
   "w": 860
  },
  "03_social_scramble/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b3683aad167f423a710c76e8ae8440d2899f5cdc2dbc65a3d341635b69ca380e",
+  "sha": "b1ea221506a9f87a3f67551e71c98ae4896fb0486e0271c180c959ee190f5fd3",
   "w": 430
  },
  "03_social_scramble/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b3683aad167f423a710c76e8ae8440d2899f5cdc2dbc65a3d341635b69ca380e",
+  "sha": "b1ea221506a9f87a3f67551e71c98ae4896fb0486e0271c180c959ee190f5fd3",
   "w": 860
  },
  "03_social_scramble/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "85c2f1a8e1a0489157c7292ed0f88cb638f8e283c497d681440a61658997626d",
+  "sha": "82b591447d1d335f84e3742750811cdff89c7e7c5b7da06128e4e05c2542b43a",
   "w": 430
  },
  "03_social_scramble/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "85c2f1a8e1a0489157c7292ed0f88cb638f8e283c497d681440a61658997626d",
+  "sha": "82b591447d1d335f84e3742750811cdff89c7e7c5b7da06128e4e05c2542b43a",
   "w": 860
  },
  "03_social_scramble/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0ba2a0161c1efe0fcc446cb64bc41e2040926c0d62b105207fdeccb01b007348",
+  "sha": "29b99cb33389ebb31eb73d0d24a309414eb667970bf9fbfca8307a03e3eae423",
   "w": 430
  },
  "03_social_scramble/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0ba2a0161c1efe0fcc446cb64bc41e2040926c0d62b105207fdeccb01b007348",
+  "sha": "29b99cb33389ebb31eb73d0d24a309414eb667970bf9fbfca8307a03e3eae423",
   "w": 645
  },
  "03_social_scramble/04_overview-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fac71ae383ae0d48bb30ef4080f8201ef36180de4dc4ed0b163018cf03bc7a2d",
+  "sha": "7ea91f57dcc38cfb4a5e7b1fe257c8addfaaf7daddd4d10d12fea696f2cccf93",
   "w": 430
  },
  "03_social_scramble/04_overview-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fac71ae383ae0d48bb30ef4080f8201ef36180de4dc4ed0b163018cf03bc7a2d",
+  "sha": "7ea91f57dcc38cfb4a5e7b1fe257c8addfaaf7daddd4d10d12fea696f2cccf93",
   "w": 860
  },
  "03_social_scramble/05_overview_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "072499eed57f419f4c70ca749559314057a5bafd6aafa8e45dca101b8dee3c70",
+  "sha": "5573528d1334f82e55e4dbb1a0dc93d75a6775f3a4c3ccb00256ce4e6329c278",
   "w": 430
  },
  "03_social_scramble/05_overview_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "072499eed57f419f4c70ca749559314057a5bafd6aafa8e45dca101b8dee3c70",
+  "sha": "5573528d1334f82e55e4dbb1a0dc93d75a6775f3a4c3ccb00256ce4e6329c278",
   "w": 645
  },
  "03_social_scramble/06_overview_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7b1ff06c0de08e1b4bec0b98eb4ffd95c32c2665922a61f44997c1a4be511384",
+  "sha": "46dd8717d6893d44948804ed8bd9cccb2dadb653616d589cf5e4d29c7219a31c",
   "w": 430
  },
  "03_social_scramble/06_overview_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7b1ff06c0de08e1b4bec0b98eb4ffd95c32c2665922a61f44997c1a4be511384",
+  "sha": "46dd8717d6893d44948804ed8bd9cccb2dadb653616d589cf5e4d29c7219a31c",
   "w": 645
  },
  "03_social_scramble/07_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3bbc0db5cc6c9204d88df662f97c5f1ef8677130188eebfc9a71ccfd6e716f17",
+  "sha": "e0a7b52cbb23057d9225faa0b930ab5bfb15d2e709ceb957c1f794151274769c",
   "w": 430
  },
  "03_social_scramble/07_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3bbc0db5cc6c9204d88df662f97c5f1ef8677130188eebfc9a71ccfd6e716f17",
+  "sha": "e0a7b52cbb23057d9225faa0b930ab5bfb15d2e709ceb957c1f794151274769c",
   "w": 645
  },
  "03_social_scramble/08_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fd025c5ec05033e62354f1496f644118240c33ec8c5600876b07f0902a02cc2d",
+  "sha": "20a842b79913004633f85d1e2c56f32502ae330d9f6845eff8f535d5a91d672a",
   "w": 1600
  },
  "03_social_scramble/08_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fd025c5ec05033e62354f1496f644118240c33ec8c5600876b07f0902a02cc2d",
+  "sha": "20a842b79913004633f85d1e2c56f32502ae330d9f6845eff8f535d5a91d672a",
   "w": 860
  },
  "03_social_scramble/09_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "83d3f6f0e2a090527d6fd0bd2508e5d91abc0a14bd3dfe461d49b76e369efbf4",
+  "sha": "ae4ef0245cd025cfa6b0ece7cf6cc6558d1e615439e6029a7e4012af42413fa0",
   "w": 430
  },
  "03_social_scramble/09_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "83d3f6f0e2a090527d6fd0bd2508e5d91abc0a14bd3dfe461d49b76e369efbf4",
+  "sha": "ae4ef0245cd025cfa6b0ece7cf6cc6558d1e615439e6029a7e4012af42413fa0",
   "w": 645
  },
  "03_social_scramble/10_roster_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1682a9e3c5426fff872aab9121b40e4198f4af6e1307b3426fe6eff011235500",
+  "sha": "e1e5b8901a0172de225d59751a3261644482d55ce591352b3f15234a259c2c21",
   "w": 430
  },
  "03_social_scramble/10_roster_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1682a9e3c5426fff872aab9121b40e4198f4af6e1307b3426fe6eff011235500",
+  "sha": "e1e5b8901a0172de225d59751a3261644482d55ce591352b3f15234a259c2c21",
   "w": 860
  },
  "03_social_scramble/11_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "12cbb9cfa01297e12cbc26a95489866f3b951e4beccc2ab992bf8e349f72ffe9",
+  "sha": "37ce666a133a85307327b068f8aa1848439b83c7973472c7973dc42a1b367e4d",
   "w": 430
  },
  "03_social_scramble/11_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "12cbb9cfa01297e12cbc26a95489866f3b951e4beccc2ab992bf8e349f72ffe9",
+  "sha": "37ce666a133a85307327b068f8aa1848439b83c7973472c7973dc42a1b367e4d",
   "w": 645
  },
  "03_social_scramble/12_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8706c381444e572bb0b2f77bf978c39dc8642c5abc703d984b4e21fed605ad21",
+  "sha": "53f4d7782636ab2bc8b78c87a8f40b83067dfd6ca67896223276f2cd4f7f4945",
   "w": 430
  },
  "03_social_scramble/12_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8706c381444e572bb0b2f77bf978c39dc8642c5abc703d984b4e21fed605ad21",
+  "sha": "53f4d7782636ab2bc8b78c87a8f40b83067dfd6ca67896223276f2cd4f7f4945",
   "w": 645
  },
  "03_social_scramble/13_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fe00beafea29abbedc7e86a482a209f8b2a05b84804d761c891687445d3b07c4",
+  "sha": "6321ffafcca7ad55ca61514e8328a1d11a6659bfdab2d68ca93fd2c9c0308c46",
   "w": 430
  },
  "03_social_scramble/13_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fe00beafea29abbedc7e86a482a209f8b2a05b84804d761c891687445d3b07c4",
+  "sha": "6321ffafcca7ad55ca61514e8328a1d11a6659bfdab2d68ca93fd2c9c0308c46",
   "w": 645
  },
  "03_social_scramble/14_setup_coverage_nudge-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a88491ea968fdfa446550fa61910dc3acf0953bfb136168ef73db95210d3440d",
+  "sha": "07b9326e0aa7f53ff77cac0c793e88d32c92c7330a6635c50021c278bb8e9aec",
   "w": 430
  },
  "03_social_scramble/14_setup_coverage_nudge-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a88491ea968fdfa446550fa61910dc3acf0953bfb136168ef73db95210d3440d",
+  "sha": "07b9326e0aa7f53ff77cac0c793e88d32c92c7330a6635c50021c278bb8e9aec",
   "w": 645
  },
  "03_social_scramble/15_dialog_manual_result-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a3da9051c311ecb08e0d80521281978f18310c435c8b76b5e4d61a4c3a94add7",
+  "sha": "0723964c46c2e411a6e6f4f074d2ab7cce8cc3d9ae3a2c8114ccf65b3e0bd870",
   "w": 430
  },
  "03_social_scramble/15_dialog_manual_result-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a3da9051c311ecb08e0d80521281978f18310c435c8b76b5e4d61a4c3a94add7",
+  "sha": "0723964c46c2e411a6e6f4f074d2ab7cce8cc3d9ae3a2c8114ccf65b3e0bd870",
   "w": 860
  },
  "03_social_scramble/16_imported_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5da7b31a7bc02e871e6fecb57fa4e1e11cd19a3ee2af7099fb7c9fd2858484c0",
+  "sha": "1a85531d9778f3cff6d5b9409b4a4b265425633fe1e179aadad9b8e7af1617df",
   "w": 430
  },
  "03_social_scramble/16_imported_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5da7b31a7bc02e871e6fecb57fa4e1e11cd19a3ee2af7099fb7c9fd2858484c0",
+  "sha": "1a85531d9778f3cff6d5b9409b4a4b265425633fe1e179aadad9b8e7af1617df",
   "w": 645
  },
  "03_social_scramble/17_splash_game_complete-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bfecf3eb05e8936b1c914ef602311e857d92b9c30393a4aa691316b965251797",
+  "sha": "ba62b196b4af0a290c999bd2564b99151ec1e5d1abaa898efb4aa75297b804ae",
   "w": 430
  },
  "03_social_scramble/17_splash_game_complete-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bfecf3eb05e8936b1c914ef602311e857d92b9c30393a4aa691316b965251797",
+  "sha": "ba62b196b4af0a290c999bd2564b99151ec1e5d1abaa898efb4aa75297b804ae",
   "w": 645
  },
  "03_social_scramble/18_dialog_game_complete-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4afbdc30130c096928521b101a0e1d147443be01ea7ad7dce2972a2d48ecb476",
+  "sha": "b16452c42de63ba7346009ba8a93e6e348138aef09315837ee2b484f3459eebb",
   "w": 430
  },
  "03_social_scramble/18_dialog_game_complete-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4afbdc30130c096928521b101a0e1d147443be01ea7ad7dce2972a2d48ecb476",
+  "sha": "b16452c42de63ba7346009ba8a93e6e348138aef09315837ee2b484f3459eebb",
   "w": 860
  },
  "03_social_scramble/19_sheet_next_game-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "678844fbd5611658a430a9ee87fd37aaa952c814bbe52676d7fb2d7047b6f19f",
+  "sha": "1b5464a2a03f62ce733cd2c66b18fcb7891a3cdce57ca9be7d0a37dd00d9855f",
   "w": 430
  },
  "03_social_scramble/19_sheet_next_game-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "678844fbd5611658a430a9ee87fd37aaa952c814bbe52676d7fb2d7047b6f19f",
+  "sha": "1b5464a2a03f62ce733cd2c66b18fcb7891a3cdce57ca9be7d0a37dd00d9855f",
   "w": 645
  },
  "03_social_scramble/20_scorecard_time_up-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b89e0f4e40ee3449c4634ad6cf3bee7b27491bf1a6859a839eb171ad2a00a638",
+  "sha": "709f83a367e59cc64f337db9bffeb385d5809e228fcd1d6a8d6a3a3102fbc877",
   "w": 430
  },
  "03_social_scramble/20_scorecard_time_up-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b89e0f4e40ee3449c4634ad6cf3bee7b27491bf1a6859a839eb171ad2a00a638",
+  "sha": "709f83a367e59cc64f337db9bffeb385d5809e228fcd1d6a8d6a3a3102fbc877",
   "w": 645
  },
  "03_social_scramble/21_dialog_manual_score-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1d3493e8f951c3c62f02f58c4a63a486650b8e4546d3691462c97a5bae7d5411",
+  "sha": "59820d14b2c98248943596c825e265e751c4675daeafbf8f17896902f4feab39",
   "w": 430
  },
  "03_social_scramble/21_dialog_manual_score-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1d3493e8f951c3c62f02f58c4a63a486650b8e4546d3691462c97a5bae7d5411",
+  "sha": "59820d14b2c98248943596c825e265e751c4675daeafbf8f17896902f4feab39",
   "w": 860
  },
  "03_social_scramble/22_dialog_override_result-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b90708fc1ebbb089bc279328ef96dc47c019156e0960cc53a181a6687fbfd67a",
+  "sha": "48c68f38e6ba673aaa7e068b848f2a03b1f21dae13382039e706ce2aac93daa7",
   "w": 430
  },
  "03_social_scramble/22_dialog_override_result-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b90708fc1ebbb089bc279328ef96dc47c019156e0960cc53a181a6687fbfd67a",
+  "sha": "48c68f38e6ba673aaa7e068b848f2a03b1f21dae13382039e706ce2aac93daa7",
   "w": 860
  },
  "03_social_scramble/22_sheet_tournament_complete-430.webp": {
@@ -722,1297 +758,1321 @@
  "03_social_scramble/23_sheet_tournament_complete-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca443d20e2881cb649f53964402e9a9d5127af14ee4119ec424982b4644f72a8",
+  "sha": "0e8e858d3b97120b5de2722459a0cc6a4cf02833fb821dc32abefec1b2bd4261",
   "w": 430
  },
  "03_social_scramble/23_sheet_tournament_complete-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca443d20e2881cb649f53964402e9a9d5127af14ee4119ec424982b4644f72a8",
+  "sha": "0e8e858d3b97120b5de2722459a0cc6a4cf02833fb821dc32abefec1b2bd4261",
   "w": 645
  },
  "03_social_scramble/24_scorecard_pace-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "578914703454d889862323be4e954e75b7397cc65aa9478f59451878f395c172",
+  "sha": "af9d7a48d6420dc8cefb7da77d64d8e9a10ef493c101211d94bb9af36f9af820",
   "w": 430
  },
  "03_social_scramble/24_scorecard_pace-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "578914703454d889862323be4e954e75b7397cc65aa9478f59451878f395c172",
+  "sha": "af9d7a48d6420dc8cefb7da77d64d8e9a10ef493c101211d94bb9af36f9af820",
   "w": 645
  },
  "03_social_scramble/25_scorecard_pace_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b5027fe4eac4f04df4f5e6133d311f7a5dc00c79b4c6b2213d0b98d7e7b587d6",
+  "sha": "c04ea4b910141f4b54933640f0e0e6391bf7aa5950c488e0b08605f6be0dd5c6",
   "w": 1600
  },
  "03_social_scramble/25_scorecard_pace_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b5027fe4eac4f04df4f5e6133d311f7a5dc00c79b4c6b2213d0b98d7e7b587d6",
+  "sha": "c04ea4b910141f4b54933640f0e0e6391bf7aa5950c488e0b08605f6be0dd5c6",
+  "w": 860
+ },
+ "03_social_scramble/26_setup_roster_sheet-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7b47a4ffe67fcf824855e041618c7b8a425108a4d3ec364b8e7773f0306bbb01",
+  "w": 430
+ },
+ "03_social_scramble/26_setup_roster_sheet-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7b47a4ffe67fcf824855e041618c7b8a425108a4d3ec364b8e7773f0306bbb01",
   "w": 860
  },
  "04_royal_rotation/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "99fad3d63d3680222c71861c65b6c3822fa74a96668f08601a0d6438cb9a3188",
+  "sha": "b986584fce37d70c200becdd02c29ec851b5935002f91e11ab18109fb550cd6e",
   "w": 430
  },
  "04_royal_rotation/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "99fad3d63d3680222c71861c65b6c3822fa74a96668f08601a0d6438cb9a3188",
+  "sha": "b986584fce37d70c200becdd02c29ec851b5935002f91e11ab18109fb550cd6e",
   "w": 860
  },
  "04_royal_rotation/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "236fb6e830f089f1345cc2a35597c15532a4d6916536444083822997afc6ee03",
+  "sha": "b8d5e72bfaf95b0cfc51c9f30aa54647ef0a84c080f608b31111b08e44775efc",
   "w": 430
  },
  "04_royal_rotation/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "236fb6e830f089f1345cc2a35597c15532a4d6916536444083822997afc6ee03",
+  "sha": "b8d5e72bfaf95b0cfc51c9f30aa54647ef0a84c080f608b31111b08e44775efc",
   "w": 860
  },
  "04_royal_rotation/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c7bb13f0acd0a72878f4c30f3cf5ba8a8a5eaf5ea7810340192595def615d94b",
+  "sha": "1e9cc0a11a86062d2c09d923c4f1106499a6e12ca48349ba7e39f8574cba816e",
   "w": 430
  },
  "04_royal_rotation/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c7bb13f0acd0a72878f4c30f3cf5ba8a8a5eaf5ea7810340192595def615d94b",
+  "sha": "1e9cc0a11a86062d2c09d923c4f1106499a6e12ca48349ba7e39f8574cba816e",
   "w": 645
  },
  "04_royal_rotation/04_overview-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fc89e2e09928a2d5543e623d4a7ebfbe79b8abb0ca5d2418fcdd2c108985bf74",
+  "sha": "727a898473e5fd625d55c0f758ef71afba09c4eb0bb75bd116a89d6a92d2190f",
   "w": 430
  },
  "04_royal_rotation/04_overview-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fc89e2e09928a2d5543e623d4a7ebfbe79b8abb0ca5d2418fcdd2c108985bf74",
+  "sha": "727a898473e5fd625d55c0f758ef71afba09c4eb0bb75bd116a89d6a92d2190f",
   "w": 860
  },
  "04_royal_rotation/05_overview_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b4be62eab323cf767a767e7f83c774b8cdae5766d917b99756a99763e3caa7b1",
+  "sha": "8da36e3b1ca87982cdbbbe9afe5bcd9ae1f3f6ad30adba16152c2dae98a34c47",
   "w": 430
  },
  "04_royal_rotation/05_overview_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b4be62eab323cf767a767e7f83c774b8cdae5766d917b99756a99763e3caa7b1",
+  "sha": "8da36e3b1ca87982cdbbbe9afe5bcd9ae1f3f6ad30adba16152c2dae98a34c47",
   "w": 645
  },
  "04_royal_rotation/06_overview_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "096e2f9140d24a72fe5144349141236fd4a212ea66c383fc6f5eb2090cbfe3bb",
+  "sha": "8d36faa42fe210e744790c427e2eb262fabbbbf4f4c5003cdc78d7cb6c0fbb81",
   "w": 430
  },
  "04_royal_rotation/06_overview_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "096e2f9140d24a72fe5144349141236fd4a212ea66c383fc6f5eb2090cbfe3bb",
+  "sha": "8d36faa42fe210e744790c427e2eb262fabbbbf4f4c5003cdc78d7cb6c0fbb81",
   "w": 645
  },
  "04_royal_rotation/07_court_manual_assigning-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e6325fdfadff9c8071230213f026fd35a2b837d29cc42a3f40e8c18f3244fd6e",
+  "sha": "0fe7d1909c0d9390a39fb95463a063c0b8feb1373ee828bfdf51b97037a36860",
   "w": 430
  },
  "04_royal_rotation/07_court_manual_assigning-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e6325fdfadff9c8071230213f026fd35a2b837d29cc42a3f40e8c18f3244fd6e",
+  "sha": "0fe7d1909c0d9390a39fb95463a063c0b8feb1373ee828bfdf51b97037a36860",
   "w": 645
  },
  "04_royal_rotation/08_court_manual_assigning_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8340398131a6a49335d8b49cd8dbf06ab69d57bb229d3917344f91d0512d554a",
+  "sha": "5b93503b0005635390a8bd61bbbea00d836031809c77e2c4d8d5f338535a55f3",
   "w": 1600
  },
  "04_royal_rotation/08_court_manual_assigning_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8340398131a6a49335d8b49cd8dbf06ab69d57bb229d3917344f91d0512d554a",
+  "sha": "5b93503b0005635390a8bd61bbbea00d836031809c77e2c4d8d5f338535a55f3",
   "w": 860
  },
  "04_royal_rotation/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c8021287ebb52e11e7bb2d264079ad81d7b11c9bb7faab156c5711c4b520c3a4",
+  "sha": "ebc3bf68281017f6370c095b58c094eb8d65fa61824b49c1684a64d748485e13",
   "w": 430
  },
  "04_royal_rotation/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c8021287ebb52e11e7bb2d264079ad81d7b11c9bb7faab156c5711c4b520c3a4",
+  "sha": "ebc3bf68281017f6370c095b58c094eb8d65fa61824b49c1684a64d748485e13",
   "w": 645
  },
  "04_royal_rotation/10_court_manual_running_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "73a9e894e743a8f982246672228bf3958207a77a78fc676b1a22cfeefd8fe50b",
+  "sha": "bedd5e91e316cd3f01cbb3516f8487eb1db8924610f4ca52b497d2bd1c2d9a6d",
   "w": 1600
  },
  "04_royal_rotation/10_court_manual_running_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "73a9e894e743a8f982246672228bf3958207a77a78fc676b1a22cfeefd8fe50b",
+  "sha": "bedd5e91e316cd3f01cbb3516f8487eb1db8924610f4ca52b497d2bd1c2d9a6d",
   "w": 860
  },
  "04_royal_rotation/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "95161637b4782e3de04d667fdc6846a0f05bb3500eda2de1da6e89c13cffbf9f",
+  "sha": "103fcd0ca3fcf28ba1ab3a613af01e93c02733fb117fc6a72a58a62db349676c",
   "w": 430
  },
  "04_royal_rotation/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "95161637b4782e3de04d667fdc6846a0f05bb3500eda2de1da6e89c13cffbf9f",
+  "sha": "103fcd0ca3fcf28ba1ab3a613af01e93c02733fb117fc6a72a58a62db349676c",
   "w": 645
  },
  "04_royal_rotation/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8cd537de67a6cf95ffece84b5d22f3e46265878842b738030bcd508acab063e2",
+  "sha": "3b04106c8891e06487ef24619db3c003b043d8f038b0d45cabccc6bb584ee691",
   "w": 1600
  },
  "04_royal_rotation/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8cd537de67a6cf95ffece84b5d22f3e46265878842b738030bcd508acab063e2",
+  "sha": "3b04106c8891e06487ef24619db3c003b043d8f038b0d45cabccc6bb584ee691",
   "w": 860
  },
  "04_royal_rotation/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "636745a5c3bb60aa0a56e8efe95d3384d703ebe537e780b7bd17cc0c24de0cb4",
+  "sha": "9931083e60bf776d9d10ba19ee775461c9675789b7f990685a0c2969abc218ad",
   "w": 430
  },
  "04_royal_rotation/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "636745a5c3bb60aa0a56e8efe95d3384d703ebe537e780b7bd17cc0c24de0cb4",
+  "sha": "9931083e60bf776d9d10ba19ee775461c9675789b7f990685a0c2969abc218ad",
   "w": 645
  },
  "04_royal_rotation/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4b0925043c9f4a183c124ad17f5b143b70d4cc33a513c20b0017ce6fd6a3d4dd",
+  "sha": "20f804634b22c146ad80a18ea715b9098152ff46e86700f18a6f7a8b090bd6ba",
   "w": 1600
  },
  "04_royal_rotation/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4b0925043c9f4a183c124ad17f5b143b70d4cc33a513c20b0017ce6fd6a3d4dd",
+  "sha": "20f804634b22c146ad80a18ea715b9098152ff46e86700f18a6f7a8b090bd6ba",
   "w": 860
  },
  "04_royal_rotation/15_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "19a5c11181a65b7803be81192b1b0aa4492c5a940bb68c56cc8a5bb8f382f423",
+  "sha": "a9422f3ee35b30951b67685a566ce77960b393006635424de42ea8f22ff2b3ef",
   "w": 430
  },
  "04_royal_rotation/15_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "19a5c11181a65b7803be81192b1b0aa4492c5a940bb68c56cc8a5bb8f382f423",
+  "sha": "a9422f3ee35b30951b67685a566ce77960b393006635424de42ea8f22ff2b3ef",
   "w": 645
  },
  "04_royal_rotation/16_roster_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5d06388ae314f0f56a495a6853fcad8bf8c3dd5923cc2ce8efa231a3a389f3c6",
+  "sha": "ebd93f2ce2b6e559f3e11ff2682c8131f79f91bbc5ee4125374bc526408e2ab9",
   "w": 430
  },
  "04_royal_rotation/16_roster_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5d06388ae314f0f56a495a6853fcad8bf8c3dd5923cc2ce8efa231a3a389f3c6",
+  "sha": "ebd93f2ce2b6e559f3e11ff2682c8131f79f91bbc5ee4125374bc526408e2ab9",
   "w": 860
  },
  "04_royal_rotation/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "26919b9b5882ef5ac0d000725dffbd426fc2bd2d1a3914a5a3ab03f474ab2427",
+  "sha": "840b2ffbb72bbc0688edd92a58fdbbeab5608594c11fc428764d6e2da6b4a8e5",
   "w": 430
  },
  "04_royal_rotation/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "26919b9b5882ef5ac0d000725dffbd426fc2bd2d1a3914a5a3ab03f474ab2427",
+  "sha": "840b2ffbb72bbc0688edd92a58fdbbeab5608594c11fc428764d6e2da6b4a8e5",
   "w": 645
  },
  "04_royal_rotation/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca98c7f9c083cd2ea49ecc1bd0d15d088a5d70a107e7ba3aed4f2794084a8c1a",
+  "sha": "cb8edbaacf6146a53155c480459e1d8729069af568a865aa0f9823c8a2a790ba",
   "w": 430
  },
  "04_royal_rotation/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca98c7f9c083cd2ea49ecc1bd0d15d088a5d70a107e7ba3aed4f2794084a8c1a",
+  "sha": "cb8edbaacf6146a53155c480459e1d8729069af568a865aa0f9823c8a2a790ba",
   "w": 645
  },
  "04_royal_rotation/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7783ea5dd6d1d0edb84f7e5852e0ecbd066144191ff2acc421f8bbf206e8e8b2",
+  "sha": "04d38c7e117f347276c97174c2b0e21d551ed10fdae5fd6d244468d6d8034089",
   "w": 430
  },
  "04_royal_rotation/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7783ea5dd6d1d0edb84f7e5852e0ecbd066144191ff2acc421f8bbf206e8e8b2",
+  "sha": "04d38c7e117f347276c97174c2b0e21d551ed10fdae5fd6d244468d6d8034089",
   "w": 645
  },
  "04_royal_rotation/20_teams_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d6dd7efa1ad4208be0772ddd8afc6d1b1415fa892edfdd1381370c6ae95e505",
+  "sha": "46c7c043e767f21882c3399d65e90490ddc9dc95b1933f1e43e894096554be37",
   "w": 430
  },
  "04_royal_rotation/20_teams_sheet-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d6dd7efa1ad4208be0772ddd8afc6d1b1415fa892edfdd1381370c6ae95e505",
+  "sha": "46c7c043e767f21882c3399d65e90490ddc9dc95b1933f1e43e894096554be37",
   "w": 645
  },
  "04_royal_rotation/21_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3342a7630fe87300156ff829985488a0366301e5e8e78cc956e22e969be0e9c8",
+  "sha": "e45c298f1fa73d94cc7b1e5a8cab91746d7dfc88454c3a43acedf40b5c53572c",
   "w": 430
  },
  "04_royal_rotation/21_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3342a7630fe87300156ff829985488a0366301e5e8e78cc956e22e969be0e9c8",
+  "sha": "e45c298f1fa73d94cc7b1e5a8cab91746d7dfc88454c3a43acedf40b5c53572c",
   "w": 860
  },
  "04_royal_rotation/22_dialog_strike-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14b467eda822ac4bd6bb88d65a7a369225ee196361365c11d5d33a11d6681d87",
+  "sha": "fb11a749d6d2f4d0153c5be2e9e17c825c77032384edeacde7498225b0f88d44",
   "w": 430
  },
  "04_royal_rotation/22_dialog_strike-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "14b467eda822ac4bd6bb88d65a7a369225ee196361365c11d5d33a11d6681d87",
+  "sha": "fb11a749d6d2f4d0153c5be2e9e17c825c77032384edeacde7498225b0f88d44",
   "w": 860
  },
  "04_royal_rotation/23_court_time_up-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce2456cfe18aba07b7f319e079929400e4de20689eb59abfde6ff5866960cbd1",
+  "sha": "55148bb79c4abb509bc5a2eea4d4856f6bdb96a9e3b88f28e08d84c3f3352278",
   "w": 430
  },
  "04_royal_rotation/23_court_time_up-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce2456cfe18aba07b7f319e079929400e4de20689eb59abfde6ff5866960cbd1",
+  "sha": "55148bb79c4abb509bc5a2eea4d4856f6bdb96a9e3b88f28e08d84c3f3352278",
   "w": 645
  },
  "04_royal_rotation/24_scorecard_pace-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35e71f4ded0472fcb1416485ea32f7fa0a77793063697adf8d919686b23fcab9",
+  "sha": "c78dae449017a13c2b3824000748c0eebd657c25331aced22a696c6fd4c4f2df",
   "w": 430
  },
  "04_royal_rotation/24_scorecard_pace-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35e71f4ded0472fcb1416485ea32f7fa0a77793063697adf8d919686b23fcab9",
+  "sha": "c78dae449017a13c2b3824000748c0eebd657c25331aced22a696c6fd4c4f2df",
   "w": 645
  },
  "04_royal_rotation/25_scorecard_pace_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d58ef1a14302822a653ebd7a5bf5b5ce9d7e43c9b53e007efb3b07eae252cdd3",
+  "sha": "6b30948fe8d93ce5cad97965976be84a998b3c8cd3907ad40ae8a168232ac708",
   "w": 1600
  },
  "04_royal_rotation/25_scorecard_pace_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d58ef1a14302822a653ebd7a5bf5b5ce9d7e43c9b53e007efb3b07eae252cdd3",
+  "sha": "6b30948fe8d93ce5cad97965976be84a998b3c8cd3907ad40ae8a168232ac708",
   "w": 860
  },
  "04_royal_rotation/26_overview_pace_overdue-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9afef6b5656493e34d3c66e3718211cae48b45df942cd4d9ac3abdc65a50ac52",
+  "sha": "66ce3bdf80dd77779635561d2abc8b92ab1047fa061f5061ab3469047aea7d5a",
   "w": 430
  },
  "04_royal_rotation/26_overview_pace_overdue-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9afef6b5656493e34d3c66e3718211cae48b45df942cd4d9ac3abdc65a50ac52",
+  "sha": "66ce3bdf80dd77779635561d2abc8b92ab1047fa061f5061ab3469047aea7d5a",
   "w": 645
  },
  "05_royal_duo/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "23be8dcc3642e2cf10d8fa46d737051269dc4579acd48ce7bcfef45287061396",
+  "sha": "90c41db65b1f62a1090bea5fffb30d37fa3b896a4b4370656333497f31b12eaa",
   "w": 430
  },
  "05_royal_duo/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "23be8dcc3642e2cf10d8fa46d737051269dc4579acd48ce7bcfef45287061396",
+  "sha": "90c41db65b1f62a1090bea5fffb30d37fa3b896a4b4370656333497f31b12eaa",
   "w": 860
  },
  "05_royal_duo/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4c46eb99bb8644ad94ee4c9c452169737502a583ce1af62ab9205836e2a5e202",
+  "sha": "d57a4971b9af37640d0547c1e24a1c0578e96c84efe952ace3c835a4e9042bb3",
   "w": 430
  },
  "05_royal_duo/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4c46eb99bb8644ad94ee4c9c452169737502a583ce1af62ab9205836e2a5e202",
+  "sha": "d57a4971b9af37640d0547c1e24a1c0578e96c84efe952ace3c835a4e9042bb3",
   "w": 860
  },
  "05_royal_duo/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f337b72757671ba943900c5d5b64aaa3c60b52b026e04ad1cb45e8218e153c87",
+  "sha": "d3133da7a20b64e28248df1fef391c2a015e1b20523192d79202737f030825c7",
   "w": 430
  },
  "05_royal_duo/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f337b72757671ba943900c5d5b64aaa3c60b52b026e04ad1cb45e8218e153c87",
+  "sha": "d3133da7a20b64e28248df1fef391c2a015e1b20523192d79202737f030825c7",
   "w": 645
  },
  "05_royal_duo/04_overview-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8cd0a986ec67603ce802bb721b22f0083e4e6d6577e0a884a92b6f683ef36ffd",
+  "sha": "ebc9157d3a06a17ba47d10a9c561913428c01a8d74884ef2b8d2699c1cdd94c1",
   "w": 430
  },
  "05_royal_duo/04_overview-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8cd0a986ec67603ce802bb721b22f0083e4e6d6577e0a884a92b6f683ef36ffd",
+  "sha": "ebc9157d3a06a17ba47d10a9c561913428c01a8d74884ef2b8d2699c1cdd94c1",
   "w": 860
  },
  "05_royal_duo/05_overview_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3e2cf0976269ccf24a469285586591007d9d0ff51ea513ca14af083f6b7eeb08",
+  "sha": "0fe1396c9a554b2a57308fa2cb317119b8c91e3353d5940c117bd0b3561196c6",
   "w": 430
  },
  "05_royal_duo/05_overview_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3e2cf0976269ccf24a469285586591007d9d0ff51ea513ca14af083f6b7eeb08",
+  "sha": "0fe1396c9a554b2a57308fa2cb317119b8c91e3353d5940c117bd0b3561196c6",
   "w": 645
  },
  "05_royal_duo/06_overview_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "44f991b92cb0ca2ef2426afe1e6992b28716690856981352bd1736a44f2eb590",
+  "sha": "7f5d8ece8e079e060230d7f7260895e00ccfca007ad1f77f294f7f9d2eb4083a",
   "w": 430
  },
  "05_royal_duo/06_overview_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "44f991b92cb0ca2ef2426afe1e6992b28716690856981352bd1736a44f2eb590",
+  "sha": "7f5d8ece8e079e060230d7f7260895e00ccfca007ad1f77f294f7f9d2eb4083a",
   "w": 645
  },
  "05_royal_duo/07_court_manual_assigning-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fa3a16ad5fcfa199e8e1e51f2a32dbcfacb66990a0e82a6139d66e2c71be5d9a",
+  "sha": "3586f096cc17d8ed7300d33d6858dffce0f2afc057c0b53378cc082084f6793c",
   "w": 430
  },
  "05_royal_duo/07_court_manual_assigning-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fa3a16ad5fcfa199e8e1e51f2a32dbcfacb66990a0e82a6139d66e2c71be5d9a",
+  "sha": "3586f096cc17d8ed7300d33d6858dffce0f2afc057c0b53378cc082084f6793c",
   "w": 645
  },
  "05_royal_duo/08_court_manual_assigning_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "660da823f38ada504b18f17db77a6d48d3cb67d7ef24fd2d7a10802b16f49c5d",
+  "sha": "1106ae4955dcd0f8a8e0b760e67aab9e495614c9a1764c839da44822ffe9b0fc",
   "w": 1600
  },
  "05_royal_duo/08_court_manual_assigning_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "660da823f38ada504b18f17db77a6d48d3cb67d7ef24fd2d7a10802b16f49c5d",
+  "sha": "1106ae4955dcd0f8a8e0b760e67aab9e495614c9a1764c839da44822ffe9b0fc",
   "w": 860
  },
  "05_royal_duo/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ccbf9958ab4b9c842c849b130601d91c77bedb4634e3fb5f19e844c6276c3247",
+  "sha": "e87046ef62abff83e32d73fe9444ffe19c41c8b71d460b4be824fdf08e2f6921",
   "w": 430
  },
  "05_royal_duo/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ccbf9958ab4b9c842c849b130601d91c77bedb4634e3fb5f19e844c6276c3247",
+  "sha": "e87046ef62abff83e32d73fe9444ffe19c41c8b71d460b4be824fdf08e2f6921",
   "w": 645
  },
  "05_royal_duo/10_court_manual_running_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d167ff1e8a64deb44ea24c2394c9ccf2e4da80b8a37d7ca25e632c3bff351a17",
+  "sha": "c72a02adcbbc69f8afd528c48b58f0ebd7c57e01ce2e4a21d2fbc593a80767c1",
   "w": 1600
  },
  "05_royal_duo/10_court_manual_running_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d167ff1e8a64deb44ea24c2394c9ccf2e4da80b8a37d7ca25e632c3bff351a17",
+  "sha": "c72a02adcbbc69f8afd528c48b58f0ebd7c57e01ce2e4a21d2fbc593a80767c1",
   "w": 860
  },
  "05_royal_duo/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c115209337de2c31ea0ada2766d872d4e6f03a84f0b4e68b6d1bab7669b36873",
+  "sha": "d312259172b91b1c9b8e3fc96e87ae6a2ed5863c12b23cd450d51da769ebd771",
   "w": 430
  },
  "05_royal_duo/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c115209337de2c31ea0ada2766d872d4e6f03a84f0b4e68b6d1bab7669b36873",
+  "sha": "d312259172b91b1c9b8e3fc96e87ae6a2ed5863c12b23cd450d51da769ebd771",
   "w": 645
  },
  "05_royal_duo/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1523f52e15d3f5275caa555906548f0ed01a006fb350378eb315bb88441ea8b3",
+  "sha": "e1d5bbd7985c39af93b97536b3f5e2a20288d98c9a13bf65c166eb33b3f2ac11",
   "w": 1600
  },
  "05_royal_duo/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1523f52e15d3f5275caa555906548f0ed01a006fb350378eb315bb88441ea8b3",
+  "sha": "e1d5bbd7985c39af93b97536b3f5e2a20288d98c9a13bf65c166eb33b3f2ac11",
   "w": 860
  },
  "05_royal_duo/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "246745b9a65bacbe823ddefb210e26e3356983020638284566b1f6caaa0f6946",
+  "sha": "437f646a97b65facf97693de0bcceaad4ebc677405e181d3ff4104ac7cb99527",
   "w": 430
  },
  "05_royal_duo/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "246745b9a65bacbe823ddefb210e26e3356983020638284566b1f6caaa0f6946",
+  "sha": "437f646a97b65facf97693de0bcceaad4ebc677405e181d3ff4104ac7cb99527",
   "w": 645
  },
  "05_royal_duo/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e4421164d2116190253338668ae5d925cc17f24a7059d01dd7efd853cb587390",
+  "sha": "9cbd349952949e848f7ff8e34eed3958a53eb35208b7438f94e3536b85c13d58",
   "w": 1600
  },
  "05_royal_duo/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e4421164d2116190253338668ae5d925cc17f24a7059d01dd7efd853cb587390",
+  "sha": "9cbd349952949e848f7ff8e34eed3958a53eb35208b7438f94e3536b85c13d58",
   "w": 860
  },
  "05_royal_duo/15_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "885ae0fa2aba8e2070fde82c8397def3c0af20fb8a8cd8d202116c28cf33f0d5",
+  "sha": "1043396fe80f640489e6a15f40ae7f1328a0e967155e0378ec0b04cfe6608db1",
   "w": 430
  },
  "05_royal_duo/15_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "885ae0fa2aba8e2070fde82c8397def3c0af20fb8a8cd8d202116c28cf33f0d5",
+  "sha": "1043396fe80f640489e6a15f40ae7f1328a0e967155e0378ec0b04cfe6608db1",
   "w": 645
  },
  "05_royal_duo/16_roster_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2943e6ba81495513807b3982bc5756a08a14237719c1125f0f72d730b524750e",
+  "sha": "9af80b5049970bac99a1cbfccc8dbc1a32042f9b0b3ba23fd6c790c59687f1ec",
   "w": 430
  },
  "05_royal_duo/16_roster_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2943e6ba81495513807b3982bc5756a08a14237719c1125f0f72d730b524750e",
+  "sha": "9af80b5049970bac99a1cbfccc8dbc1a32042f9b0b3ba23fd6c790c59687f1ec",
   "w": 860
  },
  "05_royal_duo/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1585bb4c7f2db035532745c53f67073520f87c0340e16dfd6beceb3e52bb24f0",
+  "sha": "3833749788be7a630fb56cc3ce306c3af94065c40d6a0451ed9ba05c58ef882c",
   "w": 430
  },
  "05_royal_duo/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1585bb4c7f2db035532745c53f67073520f87c0340e16dfd6beceb3e52bb24f0",
+  "sha": "3833749788be7a630fb56cc3ce306c3af94065c40d6a0451ed9ba05c58ef882c",
   "w": 645
  },
  "05_royal_duo/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "88f7ca99e29981e16ae5ee05d1b929d9faacb68de53555d5726cb42eb8a34d58",
+  "sha": "8126a5dc49b4d746e814b8f7b3ebceb7470e3ec243702ae49a9389573b428cd4",
   "w": 430
  },
  "05_royal_duo/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "88f7ca99e29981e16ae5ee05d1b929d9faacb68de53555d5726cb42eb8a34d58",
+  "sha": "8126a5dc49b4d746e814b8f7b3ebceb7470e3ec243702ae49a9389573b428cd4",
   "w": 645
  },
  "05_royal_duo/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2b84e3af18e98b824b29614768a335f064be8594eee3bd104bb8d16da5f44ce2",
+  "sha": "ead75dd1c67e345dede9e16a1321c0abd4767f0306f1ae516a163452a80ee8c9",
   "w": 430
  },
  "05_royal_duo/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2b84e3af18e98b824b29614768a335f064be8594eee3bd104bb8d16da5f44ce2",
+  "sha": "ead75dd1c67e345dede9e16a1321c0abd4767f0306f1ae516a163452a80ee8c9",
   "w": 645
  },
  "05_royal_duo/20_teams_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4bd8d72fb3a1e60821e14d0147041fe420b221b76b1a3b703f9d0f2baf7ecf33",
+  "sha": "b29a3dda7604714ea7a80a9f30a00f1b35491d80ac418d3a6cbfe7e1d5540dc8",
   "w": 430
  },
  "05_royal_duo/20_teams_sheet-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4bd8d72fb3a1e60821e14d0147041fe420b221b76b1a3b703f9d0f2baf7ecf33",
+  "sha": "b29a3dda7604714ea7a80a9f30a00f1b35491d80ac418d3a6cbfe7e1d5540dc8",
   "w": 645
  },
  "05_royal_duo/21_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4c6e3ba2375e78b43b5dc8a5e75f73eb5d469da56f39e163533039a4589f8e34",
+  "sha": "f9243f5c0b935f445932dba8e1cb69197d5b948230e0dbdbc25144db1560ffa9",
   "w": 430
  },
  "05_royal_duo/21_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4c6e3ba2375e78b43b5dc8a5e75f73eb5d469da56f39e163533039a4589f8e34",
+  "sha": "f9243f5c0b935f445932dba8e1cb69197d5b948230e0dbdbc25144db1560ffa9",
   "w": 860
  },
  "05_royal_duo/22_dialog_strike-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca5cb687aa16fe7e76db80f1d9e192c3eb5613051146758645fb17bf6b8b741d",
+  "sha": "acb28740c04a3f0cf7562aeb08bf208b22e601620b754e4fce3a559c9d175234",
   "w": 430
  },
  "05_royal_duo/22_dialog_strike-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ca5cb687aa16fe7e76db80f1d9e192c3eb5613051146758645fb17bf6b8b741d",
+  "sha": "acb28740c04a3f0cf7562aeb08bf208b22e601620b754e4fce3a559c9d175234",
   "w": 860
  },
  "05_royal_duo/23_court_time_up-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "13dac7673cb0e441250a4e286a637ac10b862510394e53f5a8068c4b6c0e44d5",
+  "sha": "e010364cbcabb9939275c54f5aa23cec6e7270c58761b8625315d4db085e7f6e",
   "w": 430
  },
  "05_royal_duo/23_court_time_up-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "13dac7673cb0e441250a4e286a637ac10b862510394e53f5a8068c4b6c0e44d5",
+  "sha": "e010364cbcabb9939275c54f5aa23cec6e7270c58761b8625315d4db085e7f6e",
   "w": 645
+ },
+ "05_royal_duo/24_setup_duo_sheet-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5e01e35db2636f637fd01cd0aa716cacd5cde99588bccd7f79c89f111643b884",
+  "w": 430
+ },
+ "05_royal_duo/24_setup_duo_sheet-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5e01e35db2636f637fd01cd0aa716cacd5cde99588bccd7f79c89f111643b884",
+  "w": 860
  },
  "06_royal_shuffle/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "07c04a5aa272daa4d70a63bdc1915dc4dbde29ada3f1449fed904757a3257e4b",
+  "sha": "46c41a0c5867e8dcb7c64c883b27030ce96df0104d64529e72703e081b2e77da",
   "w": 430
  },
  "06_royal_shuffle/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "07c04a5aa272daa4d70a63bdc1915dc4dbde29ada3f1449fed904757a3257e4b",
+  "sha": "46c41a0c5867e8dcb7c64c883b27030ce96df0104d64529e72703e081b2e77da",
   "w": 860
  },
  "06_royal_shuffle/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "61081a9520d47f3ac96951abfc5e1e1d3f64ae04d14dc14be9ebf0d1acdb9db0",
+  "sha": "2240fcd9ed1a2c6ee982a804981a761c213f7e4cd3c6f62ed60aedb2d55016d9",
   "w": 430
  },
  "06_royal_shuffle/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "61081a9520d47f3ac96951abfc5e1e1d3f64ae04d14dc14be9ebf0d1acdb9db0",
+  "sha": "2240fcd9ed1a2c6ee982a804981a761c213f7e4cd3c6f62ed60aedb2d55016d9",
   "w": 860
  },
  "06_royal_shuffle/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f6bc2a41ef5400d8ca953711f7d842f7650a321d14c2a5a6d91f58d7932b2e96",
+  "sha": "ab831c0a7b858d2ac654079f3ac8f09445590a29dc1784ba24e8738d46c36864",
   "w": 430
  },
  "06_royal_shuffle/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f6bc2a41ef5400d8ca953711f7d842f7650a321d14c2a5a6d91f58d7932b2e96",
+  "sha": "ab831c0a7b858d2ac654079f3ac8f09445590a29dc1784ba24e8738d46c36864",
   "w": 645
  },
  "06_royal_shuffle/04_overview-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55d1c64b2f773ee84c9350fbbecaacf525b26c3382bb2e4d3e5f988090a880e8",
+  "sha": "b58c3ff64e575c3e0926dc48cd4e6d6f92c340b1d9150be75367f35dce461104",
   "w": 430
  },
  "06_royal_shuffle/04_overview-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55d1c64b2f773ee84c9350fbbecaacf525b26c3382bb2e4d3e5f988090a880e8",
+  "sha": "b58c3ff64e575c3e0926dc48cd4e6d6f92c340b1d9150be75367f35dce461104",
   "w": 860
  },
  "06_royal_shuffle/05_overview_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d290028f0e4dd570dbc533124cd0efa0920997020f6c3d867dbbcb35f17d20c",
+  "sha": "623fc6f1de6fd1ebb16bbd5c1a165e5217f6fae778c57629c77df80b0f026362",
   "w": 430
  },
  "06_royal_shuffle/05_overview_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4d290028f0e4dd570dbc533124cd0efa0920997020f6c3d867dbbcb35f17d20c",
+  "sha": "623fc6f1de6fd1ebb16bbd5c1a165e5217f6fae778c57629c77df80b0f026362",
   "w": 645
  },
  "06_royal_shuffle/06_overview_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "dc4f7f8cd8e0355193add7d06f727a67fa082633315dd6992f40fa26d94d1e5b",
+  "sha": "8b7344a2e592d0eecc8e0272610ba8ecf5ded2d40e00af06dc243b3b49dd96d8",
   "w": 430
  },
  "06_royal_shuffle/06_overview_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "dc4f7f8cd8e0355193add7d06f727a67fa082633315dd6992f40fa26d94d1e5b",
+  "sha": "8b7344a2e592d0eecc8e0272610ba8ecf5ded2d40e00af06dc243b3b49dd96d8",
   "w": 645
  },
  "06_royal_shuffle/07_court_manual_assigning-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d797007c208459b9d593693aa0477ab17598b8465cc892be2ff537256a2f672b",
+  "sha": "e1ff4eecae406f7a684eea58993c5caf215d0aa63c658e6a40846d6f2702cecf",
   "w": 430
  },
  "06_royal_shuffle/07_court_manual_assigning-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d797007c208459b9d593693aa0477ab17598b8465cc892be2ff537256a2f672b",
+  "sha": "e1ff4eecae406f7a684eea58993c5caf215d0aa63c658e6a40846d6f2702cecf",
   "w": 645
  },
  "06_royal_shuffle/08_court_manual_assigning_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "23bfb5692ec2e32f87daf46e17bcb72d5447f0206513f2ede771e0cc90f19f79",
+  "sha": "35d19b45b8dc29bd3c5d3b303a5a83c8c90aa0cc87de22fdf7e9972474324b0e",
   "w": 1600
  },
  "06_royal_shuffle/08_court_manual_assigning_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "23bfb5692ec2e32f87daf46e17bcb72d5447f0206513f2ede771e0cc90f19f79",
+  "sha": "35d19b45b8dc29bd3c5d3b303a5a83c8c90aa0cc87de22fdf7e9972474324b0e",
   "w": 860
  },
  "06_royal_shuffle/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a83bd5c705dd25465770aa3ddea180702cb2f6765ef5644340ecefb439009206",
+  "sha": "f865cd63c3f41454894ec41ab4a702e4bbc12d616bd652cd66d5bb9815a617c0",
   "w": 430
  },
  "06_royal_shuffle/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a83bd5c705dd25465770aa3ddea180702cb2f6765ef5644340ecefb439009206",
+  "sha": "f865cd63c3f41454894ec41ab4a702e4bbc12d616bd652cd66d5bb9815a617c0",
   "w": 645
  },
  "06_royal_shuffle/10_court_manual_running_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c22009d0431a24da1fd6eb7ecee9e9fbe6771937918f75ff4fe45a60d3ecf431",
+  "sha": "13f6d57761d83633a5e0c6770a9b2c5faac339f23d50f42bfa689a283177d3b5",
   "w": 1600
  },
  "06_royal_shuffle/10_court_manual_running_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c22009d0431a24da1fd6eb7ecee9e9fbe6771937918f75ff4fe45a60d3ecf431",
+  "sha": "13f6d57761d83633a5e0c6770a9b2c5faac339f23d50f42bfa689a283177d3b5",
   "w": 860
  },
  "06_royal_shuffle/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "dc14220f80e30c09fd86b00b348e421481e728bd9635139a7922d7ea1d55efc5",
+  "sha": "0c0a4b0bd1c9fa44ca77f6f55f2ee51f6169d53956e0068db3679b894834bd67",
   "w": 430
  },
  "06_royal_shuffle/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "dc14220f80e30c09fd86b00b348e421481e728bd9635139a7922d7ea1d55efc5",
+  "sha": "0c0a4b0bd1c9fa44ca77f6f55f2ee51f6169d53956e0068db3679b894834bd67",
   "w": 645
  },
  "06_royal_shuffle/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2002d2b5862a0c6cea07035be2f59492a42d5e5d8cabac5f7d2fe6fe425eb438",
+  "sha": "032c97e4b6edffc6765cb524e35af253668fdd743e220393b1261433a22921c8",
   "w": 1600
  },
  "06_royal_shuffle/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2002d2b5862a0c6cea07035be2f59492a42d5e5d8cabac5f7d2fe6fe425eb438",
+  "sha": "032c97e4b6edffc6765cb524e35af253668fdd743e220393b1261433a22921c8",
   "w": 860
  },
  "06_royal_shuffle/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8d64fc0b3b3d943f69f0c797ab1e62a958457505f95576a8975bbd59c0515789",
+  "sha": "c9055074b52a3c8254b9eec9d9b341c2a9d2f5c1edc5cb9cfcc42bc127056d72",
   "w": 430
  },
  "06_royal_shuffle/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8d64fc0b3b3d943f69f0c797ab1e62a958457505f95576a8975bbd59c0515789",
+  "sha": "c9055074b52a3c8254b9eec9d9b341c2a9d2f5c1edc5cb9cfcc42bc127056d72",
   "w": 645
  },
  "06_royal_shuffle/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0f03ee94af9695aab3b35b2b507fd79a05a0925ba1cefda134590ac13b359de8",
+  "sha": "c166fef0999b87c31cef220449e586ea3f1a943f8e607bb5e70ab23f7cb3a6c4",
   "w": 1600
  },
  "06_royal_shuffle/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0f03ee94af9695aab3b35b2b507fd79a05a0925ba1cefda134590ac13b359de8",
+  "sha": "c166fef0999b87c31cef220449e586ea3f1a943f8e607bb5e70ab23f7cb3a6c4",
   "w": 860
  },
  "06_royal_shuffle/15_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c31196476c3c39690894c55a71106d75770ad6b0b2f1c8c19956538be34e81e1",
+  "sha": "3f8f9d9b58dce62e7314aaba31d78dfb811cd60b75b436528f68b7f1e7d80de4",
   "w": 430
  },
  "06_royal_shuffle/15_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c31196476c3c39690894c55a71106d75770ad6b0b2f1c8c19956538be34e81e1",
+  "sha": "3f8f9d9b58dce62e7314aaba31d78dfb811cd60b75b436528f68b7f1e7d80de4",
   "w": 645
  },
  "06_royal_shuffle/16_roster_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c1022828fcdd3ae19b954f5eb623dd373a4ac6618defc855b9f6c3c6e3e5a391",
+  "sha": "9cf251814286284bd5ec20151b3bca9fef388807fa964c252eba7ec69d466c26",
   "w": 430
  },
  "06_royal_shuffle/16_roster_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c1022828fcdd3ae19b954f5eb623dd373a4ac6618defc855b9f6c3c6e3e5a391",
+  "sha": "9cf251814286284bd5ec20151b3bca9fef388807fa964c252eba7ec69d466c26",
   "w": 860
  },
  "06_royal_shuffle/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "32fadb4561be59c5026c7d6b4879fb7dc9ddac80aab0172ad2ae0b7ae056e30a",
+  "sha": "6db7b08aef25556ce6c8759a2e1fec88974d10aab20653b60c5797246e029a16",
   "w": 430
  },
  "06_royal_shuffle/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "32fadb4561be59c5026c7d6b4879fb7dc9ddac80aab0172ad2ae0b7ae056e30a",
+  "sha": "6db7b08aef25556ce6c8759a2e1fec88974d10aab20653b60c5797246e029a16",
   "w": 645
  },
  "06_royal_shuffle/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a12a5e11e655f32cdabefc548ffccdec05354be13f55ece220d0abf1b1c73e38",
+  "sha": "c933c1c73731a5523ee1e8b4e21913a0c5138ed1dbcd93ce2e3313d27db50437",
   "w": 430
  },
  "06_royal_shuffle/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a12a5e11e655f32cdabefc548ffccdec05354be13f55ece220d0abf1b1c73e38",
+  "sha": "c933c1c73731a5523ee1e8b4e21913a0c5138ed1dbcd93ce2e3313d27db50437",
   "w": 645
  },
  "06_royal_shuffle/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9773e1b4b9473c75cb1bfbcab8235056eaa394687ae84620b0970e6365c6475e",
+  "sha": "c430aead1f6a8688ab188cdcb62334547ffc78eb2f9145c788ebc61bf210d386",
   "w": 430
  },
  "06_royal_shuffle/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9773e1b4b9473c75cb1bfbcab8235056eaa394687ae84620b0970e6365c6475e",
+  "sha": "c430aead1f6a8688ab188cdcb62334547ffc78eb2f9145c788ebc61bf210d386",
   "w": 645
  },
  "06_royal_shuffle/20_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bfeecb5e742e6a37a820102f30c887d1816fc591a7e7f70f140a3e879be70fd9",
+  "sha": "7e5f3737226f4955960a5e28eb5bbd3a4ef165276fb0012ab0871ea16bed0e0b",
   "w": 430
  },
  "06_royal_shuffle/20_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bfeecb5e742e6a37a820102f30c887d1816fc591a7e7f70f140a3e879be70fd9",
+  "sha": "7e5f3737226f4955960a5e28eb5bbd3a4ef165276fb0012ab0871ea16bed0e0b",
   "w": 860
  },
  "06_royal_shuffle/21_dialog_game_won-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5ef878c50e1919981427acc8239aefb6c377c1509da3f6acb0d9d4f3e5d3b381",
+  "sha": "5418ef3acb25407c418c7da51b348497d0cb259452f5b8685c76593acc49e71d",
   "w": 430
  },
  "06_royal_shuffle/21_dialog_game_won-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5ef878c50e1919981427acc8239aefb6c377c1509da3f6acb0d9d4f3e5d3b381",
+  "sha": "5418ef3acb25407c418c7da51b348497d0cb259452f5b8685c76593acc49e71d",
   "w": 860
  },
  "06_royal_shuffle/23_court_time_up-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0b98820b68ac9ea8fb2d7cb1c0be95fe468f9eaf053b19329e6a7ef555817431",
+  "sha": "5906c08a5c202f4e8ea7dfcb39ffc55d5af340bdf0dc5752c5e987b646ac296b",
   "w": 430
  },
  "06_royal_shuffle/23_court_time_up-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0b98820b68ac9ea8fb2d7cb1c0be95fe468f9eaf053b19329e6a7ef555817431",
+  "sha": "5906c08a5c202f4e8ea7dfcb39ffc55d5af340bdf0dc5752c5e987b646ac296b",
   "w": 645
  },
  "07_doghouse_shuffle/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cb63dbd1131c88027b41c6a88d488ab7f4ca06fde664ee4da9b3aa83ce47d904",
+  "sha": "8dc4a762e5959b3491d99b86f4d1e14b6e153858fc86d1efedfb2db5d9c6034b",
   "w": 430
  },
  "07_doghouse_shuffle/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cb63dbd1131c88027b41c6a88d488ab7f4ca06fde664ee4da9b3aa83ce47d904",
+  "sha": "8dc4a762e5959b3491d99b86f4d1e14b6e153858fc86d1efedfb2db5d9c6034b",
   "w": 860
  },
  "07_doghouse_shuffle/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "164031823d030053cc58f2240cd935dc99461f5c6334d714c655d36863332171",
+  "sha": "4e22475d029d51bd5bf35b3fe1071f97800a785e239d93d5aa82f95f291165f5",
   "w": 430
  },
  "07_doghouse_shuffle/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "164031823d030053cc58f2240cd935dc99461f5c6334d714c655d36863332171",
+  "sha": "4e22475d029d51bd5bf35b3fe1071f97800a785e239d93d5aa82f95f291165f5",
   "w": 860
  },
  "07_doghouse_shuffle/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d091cefe58a3cf2f5c86e2f41b510341fe1994c998ca0a0d10716decfdf28c9e",
+  "sha": "d565a53f09572c58c8253dff095f2310e48223133c04873215b591e412985e92",
   "w": 430
  },
  "07_doghouse_shuffle/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d091cefe58a3cf2f5c86e2f41b510341fe1994c998ca0a0d10716decfdf28c9e",
+  "sha": "d565a53f09572c58c8253dff095f2310e48223133c04873215b591e412985e92",
   "w": 645
  },
  "07_doghouse_shuffle/04_overview-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "67ad52551e2d22f2eaa0bc243caa2694f034852c3dc2afae5348936ec2c47740",
+  "sha": "8d502b4e157847a3bdcad9ba475e735e9315fc85e01dd09403c5326bfbb445aa",
   "w": 430
  },
  "07_doghouse_shuffle/04_overview-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "67ad52551e2d22f2eaa0bc243caa2694f034852c3dc2afae5348936ec2c47740",
+  "sha": "8d502b4e157847a3bdcad9ba475e735e9315fc85e01dd09403c5326bfbb445aa",
   "w": 860
  },
  "07_doghouse_shuffle/05_overview_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "615b3de9a0962c86cec1ea148b3c814f231680ea56a8bc3ccff22a9a6ee74713",
+  "sha": "dcb87ae0ecaeb1421ebc7d228d62f657ccbbcc3a7340a05f36439fb5336c0de0",
   "w": 430
  },
  "07_doghouse_shuffle/05_overview_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "615b3de9a0962c86cec1ea148b3c814f231680ea56a8bc3ccff22a9a6ee74713",
+  "sha": "dcb87ae0ecaeb1421ebc7d228d62f657ccbbcc3a7340a05f36439fb5336c0de0",
   "w": 645
  },
  "07_doghouse_shuffle/06_overview_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "aa3cef983eabe979098d925256f348f0c847dd8c2bc4eac2241fc318284a3ee3",
+  "sha": "9edf9620c5a9112d77fc1bd89532fff9997546784e1e54380e7c6dab82e9883d",
   "w": 430
  },
  "07_doghouse_shuffle/06_overview_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "aa3cef983eabe979098d925256f348f0c847dd8c2bc4eac2241fc318284a3ee3",
+  "sha": "9edf9620c5a9112d77fc1bd89532fff9997546784e1e54380e7c6dab82e9883d",
   "w": 645
  },
  "07_doghouse_shuffle/07_court_manual_assigning-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d798e10d5ba61cf03ea3a5b0048c6426cba495002a8e71e4d215ef050bac4fd6",
+  "sha": "97bb7a3afa02a770a893185b2bb65f4100e9194e9cc8cfd1bd93d47759f1d45b",
   "w": 430
  },
  "07_doghouse_shuffle/07_court_manual_assigning-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d798e10d5ba61cf03ea3a5b0048c6426cba495002a8e71e4d215ef050bac4fd6",
+  "sha": "97bb7a3afa02a770a893185b2bb65f4100e9194e9cc8cfd1bd93d47759f1d45b",
   "w": 645
  },
  "07_doghouse_shuffle/08_court_manual_assigning_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "596c7ce9a82beea0a9ffacc1b5c15717907be21f70239f7447677e5451394b66",
+  "sha": "fa7c91be84bbb58e3c9e62fd0361c142f37a7b0e95f9bee73753a865f7115a22",
   "w": 1600
  },
  "07_doghouse_shuffle/08_court_manual_assigning_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "596c7ce9a82beea0a9ffacc1b5c15717907be21f70239f7447677e5451394b66",
+  "sha": "fa7c91be84bbb58e3c9e62fd0361c142f37a7b0e95f9bee73753a865f7115a22",
   "w": 860
  },
  "07_doghouse_shuffle/09_court_manual_running-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bc6b0cb2580bcb873c722d92cb9ee6a62bc5c5da16b692abca17b0aabf9b836d",
+  "sha": "219865d5ad6da2e0a669b2155c1469888fb1c93157006b431aeb4616d071e761",
   "w": 430
  },
  "07_doghouse_shuffle/09_court_manual_running-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bc6b0cb2580bcb873c722d92cb9ee6a62bc5c5da16b692abca17b0aabf9b836d",
+  "sha": "219865d5ad6da2e0a669b2155c1469888fb1c93157006b431aeb4616d071e761",
   "w": 645
  },
  "07_doghouse_shuffle/10_court_manual_running_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce915673839b5e1d63c0395cfb1debb7f51da302296f503dd2d2d46d6346c56f",
+  "sha": "c9c9bb4f16fddb96ef3c89f07a3848284b0ecd1a7edd90d88f645b4f4db62ded",
   "w": 1600
  },
  "07_doghouse_shuffle/10_court_manual_running_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ce915673839b5e1d63c0395cfb1debb7f51da302296f503dd2d2d46d6346c56f",
+  "sha": "c9c9bb4f16fddb96ef3c89f07a3848284b0ecd1a7edd90d88f645b4f4db62ded",
   "w": 860
  },
  "07_doghouse_shuffle/11_court_automated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "11ae8d4213ae7a37d7e901e514228694688800e6c599d25c2361bbf677ca6415",
+  "sha": "3d1223b64c73ce92b005b38463d4ef8f30aa4b670bf1a3c7c3590e9221b97e9b",
   "w": 430
  },
  "07_doghouse_shuffle/11_court_automated-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "11ae8d4213ae7a37d7e901e514228694688800e6c599d25c2361bbf677ca6415",
+  "sha": "3d1223b64c73ce92b005b38463d4ef8f30aa4b670bf1a3c7c3590e9221b97e9b",
   "w": 645
  },
  "07_doghouse_shuffle/12_court_automated_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6c15ef90fc07c06db5a268b8bf522ea75124e0c3994e72e0e99a5e24e581f60d",
+  "sha": "db50139668e161a7734a19e950c2e3bbbc01c2e8fa975b87f43eabe124159a1e",
   "w": 1600
  },
  "07_doghouse_shuffle/12_court_automated_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6c15ef90fc07c06db5a268b8bf522ea75124e0c3994e72e0e99a5e24e581f60d",
+  "sha": "db50139668e161a7734a19e950c2e3bbbc01c2e8fa975b87f43eabe124159a1e",
   "w": 860
  },
  "07_doghouse_shuffle/13_court_allplay-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7e7828758f9bd5df942531bac651c12bdbe1933b6677c43ed464a173a3c16e32",
+  "sha": "cb3383f2a93e94d50b0a261394f74ece7bc7c6ea4a749dc39a3437ee6314419f",
   "w": 430
  },
  "07_doghouse_shuffle/13_court_allplay-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7e7828758f9bd5df942531bac651c12bdbe1933b6677c43ed464a173a3c16e32",
+  "sha": "cb3383f2a93e94d50b0a261394f74ece7bc7c6ea4a749dc39a3437ee6314419f",
   "w": 645
  },
  "07_doghouse_shuffle/14_court_allplay_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bd6287a495a1c7738c1e6dc9d29e3651da4b7edb0d10fe1ed66d09304c2d7eb0",
+  "sha": "cdae107859786287b4010570dc3da0d27cd615a969d5c08785c8adafd9010289",
   "w": 1600
  },
  "07_doghouse_shuffle/14_court_allplay_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bd6287a495a1c7738c1e6dc9d29e3651da4b7edb0d10fe1ed66d09304c2d7eb0",
+  "sha": "cdae107859786287b4010570dc3da0d27cd615a969d5c08785c8adafd9010289",
   "w": 860
  },
  "07_doghouse_shuffle/15_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f211001449158f72a3de01a3f42cc2428e0ad7919ae6f95b0d15a1f1c18971f9",
+  "sha": "1cc885a8ed29601054c3627c65a33d6430e3053f761b550e9ad92ff3cab8344c",
   "w": 430
  },
  "07_doghouse_shuffle/15_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f211001449158f72a3de01a3f42cc2428e0ad7919ae6f95b0d15a1f1c18971f9",
+  "sha": "1cc885a8ed29601054c3627c65a33d6430e3053f761b550e9ad92ff3cab8344c",
   "w": 645
  },
  "07_doghouse_shuffle/16_roster_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c50df7bfaed18b3d707984c58a5fb1ac137a3fd1ab171af6d5f5a62654491c37",
+  "sha": "a6371bbc88f3fa33823999e09a27282b464af0889b5a73d92221c1d9b5d9023f",
   "w": 430
  },
  "07_doghouse_shuffle/16_roster_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c50df7bfaed18b3d707984c58a5fb1ac137a3fd1ab171af6d5f5a62654491c37",
+  "sha": "a6371bbc88f3fa33823999e09a27282b464af0889b5a73d92221c1d9b5d9023f",
   "w": 860
  },
  "07_doghouse_shuffle/17_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7ffdf1d063603bb92cc65f30771337bd48fb73898e7af660a93fee8bb7b0ef7d",
+  "sha": "7ab9f9cb0e7383270577b495309a9be337a0c9baa81e65d79cf855fb3ca29ca4",
   "w": 430
  },
  "07_doghouse_shuffle/17_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7ffdf1d063603bb92cc65f30771337bd48fb73898e7af660a93fee8bb7b0ef7d",
+  "sha": "7ab9f9cb0e7383270577b495309a9be337a0c9baa81e65d79cf855fb3ca29ca4",
   "w": 645
  },
  "07_doghouse_shuffle/18_final_rankings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "db078f028400c3d92ffeb1d89387e177c46f0009de60257bf29ee99aa66e6423",
+  "sha": "5dc065ef52801f21c2328873dae91e7b492f3c81229798eaf3220d1b10e57404",
   "w": 430
  },
  "07_doghouse_shuffle/18_final_rankings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "db078f028400c3d92ffeb1d89387e177c46f0009de60257bf29ee99aa66e6423",
+  "sha": "5dc065ef52801f21c2328873dae91e7b492f3c81229798eaf3220d1b10e57404",
   "w": 645
  },
  "07_doghouse_shuffle/19_overview_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "31600c1371c9c1ba2227ced301a16ee78f7104597f41dbd25ae023cd87364503",
+  "sha": "97cde163cf435593260cdb6c3b5ccfb3a8f6c8e68501af9798ee086b660644a6",
   "w": 430
  },
  "07_doghouse_shuffle/19_overview_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "31600c1371c9c1ba2227ced301a16ee78f7104597f41dbd25ae023cd87364503",
+  "sha": "97cde163cf435593260cdb6c3b5ccfb3a8f6c8e68501af9798ee086b660644a6",
   "w": 645
  },
  "07_doghouse_shuffle/20_dialog_challenger_rotated-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9adeb9f50848f5878d5fe4d1f24d16dac17c44a428c71b4008494f96c0494bec",
+  "sha": "c87fadd24dd621dccbe49ce081f000cb150b706a66e26eebd9b63ebe21e9b207",
   "w": 430
  },
  "07_doghouse_shuffle/20_dialog_challenger_rotated-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9adeb9f50848f5878d5fe4d1f24d16dac17c44a428c71b4008494f96c0494bec",
+  "sha": "c87fadd24dd621dccbe49ce081f000cb150b706a66e26eebd9b63ebe21e9b207",
   "w": 860
  },
  "07_doghouse_shuffle/21_dialog_escaped-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "71d25c18fc521358036ff212cdc2f9e4976732f75acb497ce3e17824326e1fb8",
+  "sha": "f67aa29c90a7c5b4c0daa91391728d39524650315be8f1adce880c3714ae4e26",
   "w": 430
  },
  "07_doghouse_shuffle/21_dialog_escaped-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "71d25c18fc521358036ff212cdc2f9e4976732f75acb497ce3e17824326e1fb8",
+  "sha": "f67aa29c90a7c5b4c0daa91391728d39524650315be8f1adce880c3714ae4e26",
   "w": 860
  },
  "07_doghouse_shuffle/22_dialog_ejected_loss_limit-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35575413a97b5fdcbedddecd89269bd022f0719d1b423da34a0561bb956b9942",
+  "sha": "1013bf56dc51e0ed16bed879b3825cb9f988cded1c5e3059f74918149123b2b6",
   "w": 430
  },
  "07_doghouse_shuffle/22_dialog_ejected_loss_limit-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35575413a97b5fdcbedddecd89269bd022f0719d1b423da34a0561bb956b9942",
+  "sha": "1013bf56dc51e0ed16bed879b3825cb9f988cded1c5e3059f74918149123b2b6",
   "w": 860
  },
  "07_doghouse_shuffle/23_court_time_up-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "746a71efc70c3ddc328bb41a1ac4572ee82c48163a0dd7bd366f08e0acb6dc29",
+  "sha": "12f11c932734afd9542f34894479c6412b0a9aee10744f29c46bff8dd641e4ca",
   "w": 430
  },
  "07_doghouse_shuffle/23_court_time_up-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "746a71efc70c3ddc328bb41a1ac4572ee82c48163a0dd7bd366f08e0acb6dc29",
+  "sha": "12f11c932734afd9542f34894479c6412b0a9aee10744f29c46bff8dd641e4ca",
   "w": 645
  },
  "08_league/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e8ae8dde15ef5d1f16900fb14c52d313939f7734e15d096be009d0f335e25c65",
+  "sha": "6af721992d080993de704d01cbab89b551fc5e79a2a98b34d00cc7a1acbf082a",
   "w": 430
  },
  "08_league/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "e8ae8dde15ef5d1f16900fb14c52d313939f7734e15d096be009d0f335e25c65",
+  "sha": "6af721992d080993de704d01cbab89b551fc5e79a2a98b34d00cc7a1acbf082a",
   "w": 860
  },
  "08_league/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ef8d98c56411db9acdb52bcba9daa940d042780f4fdc52bc4a063b6b8412e347",
+  "sha": "3e522fc0bde36a333b2d7f57a6a18207ba13cb6e73cd7bf9c61698a9da95fab3",
   "w": 430
  },
  "08_league/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ef8d98c56411db9acdb52bcba9daa940d042780f4fdc52bc4a063b6b8412e347",
+  "sha": "3e522fc0bde36a333b2d7f57a6a18207ba13cb6e73cd7bf9c61698a9da95fab3",
   "w": 860
  },
  "08_league/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cc6eadb59a83e5c8878459a739577f802642fd07dac32584b524daad37704c74",
+  "sha": "fe929fe1c2f47814781cd547d46d44fb0c34b8bfa82044b0637834b7072c1342",
   "w": 430
  },
  "08_league/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "cc6eadb59a83e5c8878459a739577f802642fd07dac32584b524daad37704c74",
+  "sha": "fe929fe1c2f47814781cd547d46d44fb0c34b8bfa82044b0637834b7072c1342",
   "w": 645
  },
  "08_league/04_table-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55e1e93b91cc2d753bf9eca2b87d45d841b3042bd8025fa17dff835c21aea81e",
+  "sha": "412ba413d6fe3f655785bb4489f5537bb18842ed8cc8032803cbdcb361a462ac",
   "w": 430
  },
  "08_league/04_table-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55e1e93b91cc2d753bf9eca2b87d45d841b3042bd8025fa17dff835c21aea81e",
+  "sha": "412ba413d6fe3f655785bb4489f5537bb18842ed8cc8032803cbdcb361a462ac",
   "w": 860
  },
  "08_league/05_table_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6ddd66b5f15f686d9a3e89af6c6f0c3741c70565a7a633deb10b89e4e8e71b2f",
+  "sha": "e92be7513d9cbced3b81d5dc010949bd946ae18b18bb0bdd8f1e905a34a663f0",
   "w": 430
  },
  "08_league/05_table_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6ddd66b5f15f686d9a3e89af6c6f0c3741c70565a7a633deb10b89e4e8e71b2f",
+  "sha": "e92be7513d9cbced3b81d5dc010949bd946ae18b18bb0bdd8f1e905a34a663f0",
   "w": 645
  },
  "08_league/06_schedule_by_round-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "541119f53ff2d058c2e2711ef6ad16327fcbbd13cb586f521576b8788da45651",
+  "sha": "183b7d12bb261a6d22bcea7ad908301316f4be87692e2b61d59d0011685737ab",
   "w": 430
  },
  "08_league/06_schedule_by_round-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "541119f53ff2d058c2e2711ef6ad16327fcbbd13cb586f521576b8788da45651",
+  "sha": "183b7d12bb261a6d22bcea7ad908301316f4be87692e2b61d59d0011685737ab",
   "w": 645
  },
  "08_league/07_schedule_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "640113c9dd53a6389a62e030c90e18e32c85f80e75e18700e4a52e481ac2d38e",
+  "sha": "1624b007eb6673c0578ac0c3e89dc8c95324b559067aac4f8f692cc0210361e9",
   "w": 430
  },
  "08_league/07_schedule_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "640113c9dd53a6389a62e030c90e18e32c85f80e75e18700e4a52e481ac2d38e",
+  "sha": "1624b007eb6673c0578ac0c3e89dc8c95324b559067aac4f8f692cc0210361e9",
   "w": 645
  },
  "08_league/08_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7f9f63149a54d354e9b7716b81f66e4f90b588ed26041bead77f7657c4b4e270",
+  "sha": "9d53f393320c70b6829446d186c3d61bac4040700e48aaaba6bd345b4483de18",
   "w": 430
  },
  "08_league/08_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7f9f63149a54d354e9b7716b81f66e4f90b588ed26041bead77f7657c4b4e270",
+  "sha": "9d53f393320c70b6829446d186c3d61bac4040700e48aaaba6bd345b4483de18",
   "w": 645
  },
  "08_league/09_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "704257f03147b326ae9e8572a7855273ec1a9624718c5b28537b330b379f1177",
+  "sha": "900d77b282d4c234d5a45a77d11d3dc867f849f86ccf95c459f01453ae53ee62",
   "w": 1600
  },
  "08_league/09_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "704257f03147b326ae9e8572a7855273ec1a9624718c5b28537b330b379f1177",
+  "sha": "900d77b282d4c234d5a45a77d11d3dc867f849f86ccf95c459f01453ae53ee62",
   "w": 860
  },
  "08_league/10_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6b12f270ecd18a9cb6c85bdf969409bbca119ba78c4872be910819cb9b1144f3",
+  "sha": "214e8ca893feb6daec0bb8afae8eb34ad7dc44a0fa4929b01acaddce820c8d73",
   "w": 430
  },
  "08_league/10_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6b12f270ecd18a9cb6c85bdf969409bbca119ba78c4872be910819cb9b1144f3",
+  "sha": "214e8ca893feb6daec0bb8afae8eb34ad7dc44a0fa4929b01acaddce820c8d73",
   "w": 645
  },
  "08_league/11_standings_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "931da063feafb99d1ebc1a91e9faccf2b30062a2fcbb04ac74d37fc0115e4c67",
+  "sha": "48c0a3cdbe7f4983dc6f8d07d5c8dd390075b3982e0e8f10584415bb43e92f07",
   "w": 430
  },
  "08_league/11_standings_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "931da063feafb99d1ebc1a91e9faccf2b30062a2fcbb04ac74d37fc0115e4c67",
+  "sha": "48c0a3cdbe7f4983dc6f8d07d5c8dd390075b3982e0e8f10584415bb43e92f07",
   "w": 860
  },
  "08_league/12_crosstable-1600.webp": {
@@ -2023,7 +2083,7 @@
    1461
   ],
   "q": 85,
-  "sha": "bda7ef6a0ac1d22428151484a950613adc67f9bccf52699cafdd897678ac6014",
+  "sha": "5cada9b8be67758b4f2672b2a06d716d209bbb354c54ab1b244eb86ce5c31ac5",
   "w": 1600
  },
  "08_league/12_crosstable-860.webp": {
@@ -2034,151 +2094,151 @@
    1461
   ],
   "q": 85,
-  "sha": "bda7ef6a0ac1d22428151484a950613adc67f9bccf52699cafdd897678ac6014",
+  "sha": "5cada9b8be67758b4f2672b2a06d716d209bbb354c54ab1b244eb86ce5c31ac5",
   "w": 860
  },
  "08_league/13_table_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f03d2deae0f00aa29686903008db4a29eeedeb1b684720e7344a499ceabedcb0",
+  "sha": "5cda1c0b661258b51ff52f99affcc49d8a616abdf52ee755bcc4302574be6e98",
   "w": 430
  },
  "08_league/13_table_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f03d2deae0f00aa29686903008db4a29eeedeb1b684720e7344a499ceabedcb0",
+  "sha": "5cda1c0b661258b51ff52f99affcc49d8a616abdf52ee755bcc4302574be6e98",
   "w": 645
  },
  "08_league/14_final_standings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b8dda848f4c66e92e0ef486c0adc5f087ca701d25e960ef51d448a03dda1f358",
+  "sha": "59474575a1005800c2174669645307240d781fece5e680f31a2dbfdfacdaf4c3",
   "w": 430
  },
  "08_league/14_final_standings-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b8dda848f4c66e92e0ef486c0adc5f087ca701d25e960ef51d448a03dda1f358",
+  "sha": "59474575a1005800c2174669645307240d781fece5e680f31a2dbfdfacdaf4c3",
   "w": 860
  },
  "09_elimination_single/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "472e47a75f015a6c0c93da780de9f07fd2dab4893c3f8fd3da261392fd63ee08",
+  "sha": "67643ffbc7fad047735f2cc6dd076a6f7997b0e4ed3221e915ecd0064ed01bcf",
   "w": 430
  },
  "09_elimination_single/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "472e47a75f015a6c0c93da780de9f07fd2dab4893c3f8fd3da261392fd63ee08",
+  "sha": "67643ffbc7fad047735f2cc6dd076a6f7997b0e4ed3221e915ecd0064ed01bcf",
   "w": 860
  },
  "09_elimination_single/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "05d62a34d7c1885a6ec7b92521fb03f2173612a3836667c396f328fd882d7c59",
+  "sha": "9ccb37169f9e89140c9a526769241e614ab5d557357035fbc0e66b8df5432e88",
   "w": 430
  },
  "09_elimination_single/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "05d62a34d7c1885a6ec7b92521fb03f2173612a3836667c396f328fd882d7c59",
+  "sha": "9ccb37169f9e89140c9a526769241e614ab5d557357035fbc0e66b8df5432e88",
   "w": 860
  },
  "09_elimination_single/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "509c04e222f17f9f0460899493c22a64c9891ebfdeccc145e212c23fd3bcefd3",
+  "sha": "f710897d1ee93c49cf8bc275c26e8152599c3eda8e378eae062f75f57e2cb7e1",
   "w": 430
  },
  "09_elimination_single/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "509c04e222f17f9f0460899493c22a64c9891ebfdeccc145e212c23fd3bcefd3",
+  "sha": "f710897d1ee93c49cf8bc275c26e8152599c3eda8e378eae062f75f57e2cb7e1",
   "w": 645
  },
  "09_elimination_single/04_bracket-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d568eec976f2555c5fc4615b5afea9348202457a43da4ee417af2fc2498502a8",
+  "sha": "ff5bc0aa3d2a973a5629dbe437ae71b1745decacdb649cf1e3e563506a2b063c",
   "w": 430
  },
  "09_elimination_single/04_bracket-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d568eec976f2555c5fc4615b5afea9348202457a43da4ee417af2fc2498502a8",
+  "sha": "ff5bc0aa3d2a973a5629dbe437ae71b1745decacdb649cf1e3e563506a2b063c",
   "w": 860
  },
  "09_elimination_single/05_bracket_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5e5f4fd3443c520f6e873d4f4ec87df66f94ff9b96fd1d773df521798604bea4",
+  "sha": "456b5fe948462a95e8922ed408e25a5c7ea545dcbb9f71f1511fb14d67ac1ec5",
   "w": 430
  },
  "09_elimination_single/05_bracket_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "5e5f4fd3443c520f6e873d4f4ec87df66f94ff9b96fd1d773df521798604bea4",
+  "sha": "456b5fe948462a95e8922ed408e25a5c7ea545dcbb9f71f1511fb14d67ac1ec5",
   "w": 645
  },
  "09_elimination_single/06_schedule_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "372dc45459b7bf119ec6f1e222f51542ca12e3ff7bcdbb852041d9854b6fa973",
+  "sha": "0abfcc0b5f937eda8053e314facd294219f9156413bfb37bc61bdfa21e9bf0dc",
   "w": 430
  },
  "09_elimination_single/06_schedule_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "372dc45459b7bf119ec6f1e222f51542ca12e3ff7bcdbb852041d9854b6fa973",
+  "sha": "0abfcc0b5f937eda8053e314facd294219f9156413bfb37bc61bdfa21e9bf0dc",
   "w": 645
  },
  "09_elimination_single/07_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3428ffeda3be8e7f8a715cb50e2a8e133c9c26c71fe633bc7f98973ab1e119d1",
+  "sha": "cdd2af1acfc3e08031a6224297fb267969af1adfc58d141df789a549ac8234b0",
   "w": 430
  },
  "09_elimination_single/07_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3428ffeda3be8e7f8a715cb50e2a8e133c9c26c71fe633bc7f98973ab1e119d1",
+  "sha": "cdd2af1acfc3e08031a6224297fb267969af1adfc58d141df789a549ac8234b0",
   "w": 645
  },
  "09_elimination_single/08_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "201a55d0e126366c3b40a7ff454cde9dd5b897ab82dada793b101365dd8ea725",
+  "sha": "e1000998387012221f38fe5662cafee14245ffd4a2c973e2ce1e9d961aea5549",
   "w": 1600
  },
  "09_elimination_single/08_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "201a55d0e126366c3b40a7ff454cde9dd5b897ab82dada793b101365dd8ea725",
+  "sha": "e1000998387012221f38fe5662cafee14245ffd4a2c973e2ce1e9d961aea5549",
   "w": 860
  },
  "09_elimination_single/09_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a2d8c24bf181006736596e32903e24199270ff37626d705c265fe7a17384640e",
+  "sha": "a0a712af20222b1b29440f75147ebd30cd1cdad77b3953aa0204f32aef73d0b7",
   "w": 430
  },
  "09_elimination_single/09_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a2d8c24bf181006736596e32903e24199270ff37626d705c265fe7a17384640e",
+  "sha": "a0a712af20222b1b29440f75147ebd30cd1cdad77b3953aa0204f32aef73d0b7",
   "w": 645
  },
  "09_elimination_single/10_standings_table-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "71cfe1d60d9c25a9004094290fe0f8333ba19513256b1fc747763c76acd1a93f",
+  "sha": "db692b149922ebd0bae1ba4e9eac2e3c56e44f7b2fab8d4a9e7146d6cfae583b",
   "w": 430
  },
  "09_elimination_single/10_standings_table-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "71cfe1d60d9c25a9004094290fe0f8333ba19513256b1fc747763c76acd1a93f",
+  "sha": "db692b149922ebd0bae1ba4e9eac2e3c56e44f7b2fab8d4a9e7146d6cfae583b",
   "w": 645
  },
  "09_elimination_single/11_standings_bracket-860.webp": {
@@ -2189,67 +2249,79 @@
    1509
   ],
   "q": 85,
-  "sha": "b9b507354ebf842e98dac54377b139b64f5a8bb58523e7c4811f0bbe3b5b5c7f",
+  "sha": "f30f6438ee4086c50a6474b34a7ca2df8832d08aea4ef5be5164a831eac6b61d",
   "w": 860
  },
  "09_elimination_single/12_bracket_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6449a6b1bc5937e43b67ee95ac19a1c7080d5157a76d5bc09ffd2760105a7f75",
+  "sha": "cad3838b2a6809e37891a804c58402a62d320e92ff35445571288ba1426245a3",
   "w": 430
  },
  "09_elimination_single/12_bracket_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6449a6b1bc5937e43b67ee95ac19a1c7080d5157a76d5bc09ffd2760105a7f75",
+  "sha": "cad3838b2a6809e37891a804c58402a62d320e92ff35445571288ba1426245a3",
   "w": 645
  },
  "09_elimination_single/13_final_standings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "573f275fd3d963548930c6daf73d6d4b5d4f64dead60700da55ecaa070620a8f",
+  "sha": "fc9feaf45bebe42e11dbb723cc7fca01b03eeceb5a60ad3457af63a6ee8acf79",
   "w": 430
  },
  "09_elimination_single/13_final_standings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "573f275fd3d963548930c6daf73d6d4b5d4f64dead60700da55ecaa070620a8f",
+  "sha": "fc9feaf45bebe42e11dbb723cc7fca01b03eeceb5a60ad3457af63a6ee8acf79",
   "w": 645
+ },
+ "09_elimination_single/14_setup_teams_sheet-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8635d3e0c05a793ef4542b53fb798b87ad76c4f07601b5991a68d03452dc4f1d",
+  "w": 430
+ },
+ "09_elimination_single/14_setup_teams_sheet-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8635d3e0c05a793ef4542b53fb798b87ad76c4f07601b5991a68d03452dc4f1d",
+  "w": 860
  },
  "10_elimination_double/01_bracket-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bbc68763cabc6d52796a2daadb6f55562efe85c8e629683d8fdab0465c6027ae",
+  "sha": "0e2e79e36076cf788d477f8f244ecd22c0d934d57d70df40326b422b7fc6896d",
   "w": 430
  },
  "10_elimination_double/01_bracket-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bbc68763cabc6d52796a2daadb6f55562efe85c8e629683d8fdab0465c6027ae",
+  "sha": "0e2e79e36076cf788d477f8f244ecd22c0d934d57d70df40326b422b7fc6896d",
   "w": 860
  },
  "10_elimination_double/02_bracket_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "05f3c3f6639cb8aa2aafbdcb3b8063d42f02942fa39a60c3fc52a5bbd08aec39",
+  "sha": "a8eb9ef98b924e982e9a71029ccc0c0429ba9b48c6d7df58cbacfcd81d3a393e",
   "w": 430
  },
  "10_elimination_double/02_bracket_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "05f3c3f6639cb8aa2aafbdcb3b8063d42f02942fa39a60c3fc52a5bbd08aec39",
+  "sha": "a8eb9ef98b924e982e9a71029ccc0c0429ba9b48c6d7df58cbacfcd81d3a393e",
   "w": 645
  },
  "10_elimination_double/03_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35594885dfa0a992b43fca63258da2813c51614f1290efbb0124deb6199b61bd",
+  "sha": "ab7f34e4bd027baaea4caf5b35fbca22c10172bbcb1debd869fc2a638e85cc82",
   "w": 430
  },
  "10_elimination_double/03_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "35594885dfa0a992b43fca63258da2813c51614f1290efbb0124deb6199b61bd",
+  "sha": "ab7f34e4bd027baaea4caf5b35fbca22c10172bbcb1debd869fc2a638e85cc82",
   "w": 645
  },
  "10_elimination_double/04_bracket_canvas-1600.webp": {
@@ -2260,7 +2332,7 @@
    1535
   ],
   "q": 85,
-  "sha": "48ec6be76cb3f0437b8f8379c80f614ba4f767713afe5334aa234d093870e01f",
+  "sha": "0c7d3274424808b3125ae216d3fc77ff981080c211ff20fc2bac2797f3563037",
   "w": 1600
  },
  "10_elimination_double/04_bracket_canvas-860.webp": {
@@ -2271,7 +2343,7 @@
    1535
   ],
   "q": 85,
-  "sha": "48ec6be76cb3f0437b8f8379c80f614ba4f767713afe5334aa234d093870e01f",
+  "sha": "0c7d3274424808b3125ae216d3fc77ff981080c211ff20fc2bac2797f3563037",
   "w": 860
  },
  "10_elimination_double/05_bracket_completed-1600.webp": {
@@ -2282,7 +2354,7 @@
    1535
   ],
   "q": 85,
-  "sha": "f33eca07134cc1ff3533317b68203fe2973ff448db0a7cf7a043a51bb6e7b39f",
+  "sha": "ec9f08a1df75b3decd0ad771bfa8c794753ddcf17841d07a525561210910fc31",
   "w": 1600
  },
  "10_elimination_double/05_bracket_completed-860.webp": {
@@ -2293,127 +2365,127 @@
    1535
   ],
   "q": 85,
-  "sha": "f33eca07134cc1ff3533317b68203fe2973ff448db0a7cf7a043a51bb6e7b39f",
+  "sha": "ec9f08a1df75b3decd0ad771bfa8c794753ddcf17841d07a525561210910fc31",
   "w": 860
  },
  "11_tournaq_classic/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "00fc6b69b298776ec03f9f31a25b6f9c08d50c28af8fcc05e3e2fb0ecc3bf3dc",
+  "sha": "79850e1f6ea5f10a37291fd829cccc2d10df14f813da52c8b3980914d04e1055",
   "w": 430
  },
  "11_tournaq_classic/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "00fc6b69b298776ec03f9f31a25b6f9c08d50c28af8fcc05e3e2fb0ecc3bf3dc",
+  "sha": "79850e1f6ea5f10a37291fd829cccc2d10df14f813da52c8b3980914d04e1055",
   "w": 860
  },
  "11_tournaq_classic/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b0d9407e6f7bce6965dbf5c82acb835a3f86bca502cf432bc81eb633056044a1",
+  "sha": "56ba1c81fac694919ee9d9095ec2cf4177201c3d7da339acb765a8390ccfceca",
   "w": 430
  },
  "11_tournaq_classic/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b0d9407e6f7bce6965dbf5c82acb835a3f86bca502cf432bc81eb633056044a1",
+  "sha": "56ba1c81fac694919ee9d9095ec2cf4177201c3d7da339acb765a8390ccfceca",
   "w": 860
  },
  "11_tournaq_classic/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9c21f0ee9a9406f2514b80a3fe1a4551667845de81c1adfdb1873c941cf6a4e9",
+  "sha": "ee37e5840a802b7e3737b5b374dfb1ac0b3d77ed340e3d45b90b0cf77afe0cbd",
   "w": 430
  },
  "11_tournaq_classic/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9c21f0ee9a9406f2514b80a3fe1a4551667845de81c1adfdb1873c941cf6a4e9",
+  "sha": "ee37e5840a802b7e3737b5b374dfb1ac0b3d77ed340e3d45b90b0cf77afe0cbd",
   "w": 645
  },
  "11_tournaq_classic/04_schedule-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "026565dc0a5cabf9e79ff2fea0991038e486efdbf290c788045ebb31b0133624",
+  "sha": "bb337d92e838248ec0f2c6e1a90e9d725f89807a108e8065759664bd55bb51dd",
   "w": 430
  },
  "11_tournaq_classic/04_schedule-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "026565dc0a5cabf9e79ff2fea0991038e486efdbf290c788045ebb31b0133624",
+  "sha": "bb337d92e838248ec0f2c6e1a90e9d725f89807a108e8065759664bd55bb51dd",
   "w": 860
  },
  "11_tournaq_classic/05_schedule_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a8c2245b2016992f08670c97e0f58b413b3a0ffbd8623c63fc7e3df097ed0bec",
+  "sha": "90e4f18b09ab17be76f4baf02f0770044244ab4926a3f594445c1a6cb14dbc8c",
   "w": 430
  },
  "11_tournaq_classic/05_schedule_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "a8c2245b2016992f08670c97e0f58b413b3a0ffbd8623c63fc7e3df097ed0bec",
+  "sha": "90e4f18b09ab17be76f4baf02f0770044244ab4926a3f594445c1a6cb14dbc8c",
   "w": 645
  },
  "11_tournaq_classic/06_schedule_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "43cbaba1ba1c47215feeb4302ddd1be2af6162583790ec52bf02e1b7b9b16dca",
+  "sha": "dce729c6c736089ec600e2aad65bc6a743e784e1ba5b10acb2a247f8ba9966e9",
   "w": 430
  },
  "11_tournaq_classic/06_schedule_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "43cbaba1ba1c47215feeb4302ddd1be2af6162583790ec52bf02e1b7b9b16dca",
+  "sha": "dce729c6c736089ec600e2aad65bc6a743e784e1ba5b10acb2a247f8ba9966e9",
   "w": 645
  },
  "11_tournaq_classic/07_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0ccae5587d6403e33bb4acc15d360284f27b26355284f4e4954c800c0f8508ae",
+  "sha": "6045e2132923a89dc524751ed92130cbad1cea0a5ebe8a3a0d8d9978267fd253",
   "w": 430
  },
  "11_tournaq_classic/07_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0ccae5587d6403e33bb4acc15d360284f27b26355284f4e4954c800c0f8508ae",
+  "sha": "6045e2132923a89dc524751ed92130cbad1cea0a5ebe8a3a0d8d9978267fd253",
   "w": 645
  },
  "11_tournaq_classic/08_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fce5c32129d231fc407e03a24e15246fafc127f7a344a3e65fe8c59e4a898b54",
+  "sha": "835cef92a2887f612797ecea85153c704421432c40b1dd8fbd0ce08ba2f3d02b",
   "w": 1600
  },
  "11_tournaq_classic/08_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fce5c32129d231fc407e03a24e15246fafc127f7a344a3e65fe8c59e4a898b54",
+  "sha": "835cef92a2887f612797ecea85153c704421432c40b1dd8fbd0ce08ba2f3d02b",
   "w": 860
  },
  "11_tournaq_classic/09_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9e4399f53e312f7d9578c314c28f7ebc5860757cd5031edf6bdfb7ce8335b50b",
+  "sha": "80879af9875edbc2827d0a0b426c71bf7e78c205a589675978bd8c894e28934b",
   "w": 430
  },
  "11_tournaq_classic/09_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9e4399f53e312f7d9578c314c28f7ebc5860757cd5031edf6bdfb7ce8335b50b",
+  "sha": "80879af9875edbc2827d0a0b426c71bf7e78c205a589675978bd8c894e28934b",
   "w": 645
  },
  "11_tournaq_classic/10_standings_table-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "59c648f7a0cbd4323f7e1f689e94f741f80ea0b7ee1826f3ac1294bf357bc954",
+  "sha": "3757551d069300a0b5c3abd5af949058a7ea0c50d224adceeb7e9912a9598b46",
   "w": 430
  },
  "11_tournaq_classic/10_standings_table-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "59c648f7a0cbd4323f7e1f689e94f741f80ea0b7ee1826f3ac1294bf357bc954",
+  "sha": "3757551d069300a0b5c3abd5af949058a7ea0c50d224adceeb7e9912a9598b46",
   "w": 645
  },
  "11_tournaq_classic/11_standings_bracket-1600.webp": {
@@ -2424,7 +2496,7 @@
    1397
   ],
   "q": 85,
-  "sha": "a9318e0e277ac9d6d152117120193c61aa5605a6cb6eea78c29c7185f28776f9",
+  "sha": "cd1b707ecbafcf2a834c10588707caa3913407baca09e7dff2c3756de910c997",
   "w": 1600
  },
  "11_tournaq_classic/11_standings_bracket-860.webp": {
@@ -2435,19 +2507,19 @@
    1397
   ],
   "q": 85,
-  "sha": "a9318e0e277ac9d6d152117120193c61aa5605a6cb6eea78c29c7185f28776f9",
+  "sha": "cd1b707ecbafcf2a834c10588707caa3913407baca09e7dff2c3756de910c997",
   "w": 860
  },
  "11_tournaq_classic/12_schedule_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "92a2a6391b1b7c33e86ecd287640d2e85b11f959db11625eeed2c842bcd7922e",
+  "sha": "85591467ce2cace6174ed9eee3453d7909c0e07815653a08c1a62edd7c33266d",
   "w": 430
  },
  "11_tournaq_classic/12_schedule_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "92a2a6391b1b7c33e86ecd287640d2e85b11f959db11625eeed2c842bcd7922e",
+  "sha": "85591467ce2cace6174ed9eee3453d7909c0e07815653a08c1a62edd7c33266d",
   "w": 645
  },
  "11_tournaq_classic/13_final_standings-1600.webp": {
@@ -2458,7 +2530,7 @@
    1397
   ],
   "q": 85,
-  "sha": "c297e8a0ba154f920315a893d564f52d69f3c6cf5fdeb573dccc8cc79c8f80da",
+  "sha": "6e6518abbd66604dd5cdb053f1942f0c7e953b0fb052ad13340340a59b0b9abc",
   "w": 1600
  },
  "11_tournaq_classic/13_final_standings-860.webp": {
@@ -2469,43 +2541,43 @@
    1397
   ],
   "q": 85,
-  "sha": "c297e8a0ba154f920315a893d564f52d69f3c6cf5fdeb573dccc8cc79c8f80da",
+  "sha": "6e6518abbd66604dd5cdb053f1942f0c7e953b0fb052ad13340340a59b0b9abc",
   "w": 860
  },
  "11_tournaq_classic/14_advanced_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "db480833f45a4321621d9521e3cb5bbf6aef05d5be482b0e868234299e814f26",
+  "sha": "c5280ef975223e17261de332d47c6016f2c76516c65a07b4baa1d0c2923ac3ca",
   "w": 430
  },
  "11_tournaq_classic/14_advanced_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "db480833f45a4321621d9521e3cb5bbf6aef05d5be482b0e868234299e814f26",
+  "sha": "c5280ef975223e17261de332d47c6016f2c76516c65a07b4baa1d0c2923ac3ca",
   "w": 645
  },
  "11_tournaq_classic/15_advanced_schedule_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "19a4770a7a50b7b03b75caf3563eb449404ab079062b6eb828fe828d90207e91",
+  "sha": "5ddd32ba26f50d78f2e7f69584d22b8d7f9b6b89a51fef54f21b96b15593d164",
   "w": 430
  },
  "11_tournaq_classic/15_advanced_schedule_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "19a4770a7a50b7b03b75caf3563eb449404ab079062b6eb828fe828d90207e91",
+  "sha": "5ddd32ba26f50d78f2e7f69584d22b8d7f9b6b89a51fef54f21b96b15593d164",
   "w": 645
  },
  "11_tournaq_classic/16_advanced_standings_table-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "65ca198723e37d558602b9b8e15f0a5360095ac6d5229a9700a77f80fb7b5d0e",
+  "sha": "9bc32df33f20b40acc4af170f99b397d82cf27d56afbb24090995825f25fb7df",
   "w": 430
  },
  "11_tournaq_classic/16_advanced_standings_table-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "65ca198723e37d558602b9b8e15f0a5360095ac6d5229a9700a77f80fb7b5d0e",
+  "sha": "9bc32df33f20b40acc4af170f99b397d82cf27d56afbb24090995825f25fb7df",
   "w": 645
  },
  "11_tournaq_classic/17_advanced_standings_bracket-1600.webp": {
@@ -2516,7 +2588,7 @@
    1709
   ],
   "q": 85,
-  "sha": "4b244335446b3ce7d2dbcc0dc7f69e8dc037f351d2efd05d2651d639c128ada5",
+  "sha": "0286c31abff462b97e01d33727c114511327cf17f215ca9407a16710ec2889d9",
   "w": 1600
  },
  "11_tournaq_classic/17_advanced_standings_bracket-860.webp": {
@@ -2527,7 +2599,7 @@
    1709
   ],
   "q": 85,
-  "sha": "4b244335446b3ce7d2dbcc0dc7f69e8dc037f351d2efd05d2651d639c128ada5",
+  "sha": "0286c31abff462b97e01d33727c114511327cf17f215ca9407a16710ec2889d9",
   "w": 860
  },
  "11_tournaq_classic/18_advanced_final_standings-1600.webp": {
@@ -2538,7 +2610,7 @@
    1709
   ],
   "q": 85,
-  "sha": "255b4afdde1eb1102dc94861a96ecfb22eb8a9fdb1a1e7e90c3840135cb9a2a2",
+  "sha": "e609e7e9b67c070095a60aaaac1734e2693d702f8fdffae8be8428ebb2affe8b",
   "w": 1600
  },
  "11_tournaq_classic/18_advanced_final_standings-860.webp": {
@@ -2549,127 +2621,127 @@
    1709
   ],
   "q": 85,
-  "sha": "255b4afdde1eb1102dc94861a96ecfb22eb8a9fdb1a1e7e90c3840135cb9a2a2",
+  "sha": "e609e7e9b67c070095a60aaaac1734e2693d702f8fdffae8be8428ebb2affe8b",
   "w": 860
  },
  "12_swiss_system/01_hub-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0d1343f8f2c29542a5be0e44274cdb9e1073442b0350e7cd5a4479ad002f14b4",
+  "sha": "044825367d60a0d02536a7060a28a8128b1d93ee95e9736e86bf7b586c140e94",
   "w": 430
  },
  "12_swiss_system/01_hub-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0d1343f8f2c29542a5be0e44274cdb9e1073442b0350e7cd5a4479ad002f14b4",
+  "sha": "044825367d60a0d02536a7060a28a8128b1d93ee95e9736e86bf7b586c140e94",
   "w": 860
  },
  "12_swiss_system/02_setup-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2094aca9330e1a3cb2baf2308d15fa72dfe5a4d014ca0c5bfae71583929a9505",
+  "sha": "f0dc50463350a31166910212a65464d235352b10870f1513951982d8612f16e7",
   "w": 430
  },
  "12_swiss_system/02_setup-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2094aca9330e1a3cb2baf2308d15fa72dfe5a4d014ca0c5bfae71583929a9505",
+  "sha": "f0dc50463350a31166910212a65464d235352b10870f1513951982d8612f16e7",
   "w": 860
  },
  "12_swiss_system/03_setup_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f6e0d65ff23c3b3342e11b938bbca7dec432fe01ff91b89b1e8709a8a5674459",
+  "sha": "023eabd22031f97a3704580487e15e28149a954fcfbf6912362f67ecd27347f3",
   "w": 430
  },
  "12_swiss_system/03_setup_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f6e0d65ff23c3b3342e11b938bbca7dec432fe01ff91b89b1e8709a8a5674459",
+  "sha": "023eabd22031f97a3704580487e15e28149a954fcfbf6912362f67ecd27347f3",
   "w": 645
  },
  "12_swiss_system/04_rounds-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b9e0b3ed41723c07b2ec38bdab2569364b0edecf3c499ec520670625cc2874c9",
+  "sha": "186a8d7d091ddb76967d0a9cf4ff647b0361240a7d49e253e5342ec8089e317a",
   "w": 430
  },
  "12_swiss_system/04_rounds-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b9e0b3ed41723c07b2ec38bdab2569364b0edecf3c499ec520670625cc2874c9",
+  "sha": "186a8d7d091ddb76967d0a9cf4ff647b0361240a7d49e253e5342ec8089e317a",
   "w": 860
  },
  "12_swiss_system/05_rounds_full-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2a55647c326b514095a2b9acdabc2b340c852520f0c08b3c2d988b5c962ebcbe",
+  "sha": "71daa2b7d10608ce697ad6aa7117ee336f08720b0a656151d775787f8dfbffeb",
   "w": 430
  },
  "12_swiss_system/05_rounds_full-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "2a55647c326b514095a2b9acdabc2b340c852520f0c08b3c2d988b5c962ebcbe",
+  "sha": "71daa2b7d10608ce697ad6aa7117ee336f08720b0a656151d775787f8dfbffeb",
   "w": 645
  },
  "12_swiss_system/06_schedule_by_court-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3e09e66f646812ebb684de20484cf74e02d0ad5e0fc1b9eac7f6edf49fa760e6",
+  "sha": "f2371ba8225c0fdb591f96cda60529a4066c862f8a860481dcf3a9ae78d5202d",
   "w": 430
  },
  "12_swiss_system/06_schedule_by_court-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "3e09e66f646812ebb684de20484cf74e02d0ad5e0fc1b9eac7f6edf49fa760e6",
+  "sha": "f2371ba8225c0fdb591f96cda60529a4066c862f8a860481dcf3a9ae78d5202d",
   "w": 645
  },
  "12_swiss_system/07_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b5fb2ea942cede39a10cb2d4a635177acbea91b8aa46e7285e26e2f713a45d9",
+  "sha": "95df45a4a2724cfd5e312024960556d2b56875362dae85a79b3add729ab9045c",
   "w": 430
  },
  "12_swiss_system/07_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "8b5fb2ea942cede39a10cb2d4a635177acbea91b8aa46e7285e26e2f713a45d9",
+  "sha": "95df45a4a2724cfd5e312024960556d2b56875362dae85a79b3add729ab9045c",
   "w": 645
  },
  "12_swiss_system/08_scorecard_landscape-1600.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4047bfad2f5bea84e58f9ffc1639946a976fc1922581661564bd88475d5785e4",
+  "sha": "98a5d884bd6e6af9670f854128028c0f1aee7d7b7373c23828507f6f72f680e5",
   "w": 1600
  },
  "12_swiss_system/08_scorecard_landscape-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4047bfad2f5bea84e58f9ffc1639946a976fc1922581661564bd88475d5785e4",
+  "sha": "98a5d884bd6e6af9670f854128028c0f1aee7d7b7373c23828507f6f72f680e5",
   "w": 860
  },
  "12_swiss_system/09_court_allocation-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f72ae28f73101da0e58560edb1c3bdf3295cddb7fe9fbda63bedfa10f8334eb0",
+  "sha": "3ca86fa8367dad35feff881f29166f732e16896aee937ee3ed6937511b6fbf67",
   "w": 430
  },
  "12_swiss_system/09_court_allocation-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f72ae28f73101da0e58560edb1c3bdf3295cddb7fe9fbda63bedfa10f8334eb0",
+  "sha": "3ca86fa8367dad35feff881f29166f732e16896aee937ee3ed6937511b6fbf67",
   "w": 645
  },
  "12_swiss_system/10_standings_table-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9a06ba87aa9f91f4f747b635f8e7e5e0eb440283a4695a70a111d78e16c60be2",
+  "sha": "6bd09407422d953606a7bef10f62f365d9cce5e82e5347d4f468cd0adbd7c19a",
   "w": 430
  },
  "12_swiss_system/10_standings_table-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "9a06ba87aa9f91f4f747b635f8e7e5e0eb440283a4695a70a111d78e16c60be2",
+  "sha": "6bd09407422d953606a7bef10f62f365d9cce5e82e5347d4f468cd0adbd7c19a",
   "w": 645
  },
  "12_swiss_system/11_standings_chart-1600.webp": {
@@ -2680,7 +2752,7 @@
    1475
   ],
   "q": 85,
-  "sha": "59493be387c75a8ffcc918c3edb65e8a5062cdf7cf51ebbc699f39b9b0ff2b81",
+  "sha": "e5b04534e0d6a8e741735c7d8c15b1b32dcd15115570626a71e9e4f99818b65a",
   "w": 1600
  },
  "12_swiss_system/11_standings_chart-860.webp": {
@@ -2691,296 +2763,440 @@
    1475
   ],
   "q": 85,
-  "sha": "59493be387c75a8ffcc918c3edb65e8a5062cdf7cf51ebbc699f39b9b0ff2b81",
+  "sha": "e5b04534e0d6a8e741735c7d8c15b1b32dcd15115570626a71e9e4f99818b65a",
   "w": 860
  },
  "12_swiss_system/12_rounds_completed-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d1c0a0283ae338f5807317f0e131ba5f0329fd74f2db6d2cdefff40a027c2ac7",
+  "sha": "70455ec2a85f00c0131ca5233d7e2dd53339acdb43a5d1c375cad5e89d7e0821",
   "w": 430
  },
  "12_swiss_system/12_rounds_completed-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d1c0a0283ae338f5807317f0e131ba5f0329fd74f2db6d2cdefff40a027c2ac7",
+  "sha": "70455ec2a85f00c0131ca5233d7e2dd53339acdb43a5d1c375cad5e89d7e0821",
   "w": 645
  },
  "12_swiss_system/13_final_standings-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "648b38a8b8761103117a39de370b3768c1a510e34f33c529af6b42a16bd857e5",
+  "sha": "3d1791eee7ac983881665445bcfd9a3556d2d6e403034f706e7f55f49723fb10",
   "w": 430
  },
  "12_swiss_system/13_final_standings-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "648b38a8b8761103117a39de370b3768c1a510e34f33c529af6b42a16bd857e5",
+  "sha": "3d1791eee7ac983881665445bcfd9a3556d2d6e403034f706e7f55f49723fb10",
   "w": 645
  },
  "90_features/01_court_allocation_grid-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6b12f270ecd18a9cb6c85bdf969409bbca119ba78c4872be910819cb9b1144f3",
+  "sha": "214e8ca893feb6daec0bb8afae8eb34ad7dc44a0fa4929b01acaddce820c8d73",
   "w": 430
  },
  "90_features/01_court_allocation_grid-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "6b12f270ecd18a9cb6c85bdf969409bbca119ba78c4872be910819cb9b1144f3",
+  "sha": "214e8ca893feb6daec0bb8afae8eb34ad7dc44a0fa4929b01acaddce820c8d73",
   "w": 645
  },
  "90_features/02_court_settings_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "93495e52691ed00376ece1d0dd1c4051d8657323c37e8389d3ec3b7037e6bed7",
+  "sha": "a92f3b2db4fced3399b3d1cdabfd288875fde431f508de1795de58a845cb9c51",
   "w": 430
  },
  "90_features/02_court_settings_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "93495e52691ed00376ece1d0dd1c4051d8657323c37e8389d3ec3b7037e6bed7",
+  "sha": "a92f3b2db4fced3399b3d1cdabfd288875fde431f508de1795de58a845cb9c51",
   "w": 860
  },
  "90_features/03_match_details_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ddeb85ed0c3513fe5e629602ce2ba60be6efbf52342456f252e9eaa2156a8a73",
+  "sha": "56d975c4d165397b5abca491fdf30aa58a2eb5e016b59157a939ac23f3027f3b",
   "w": 430
  },
  "90_features/03_match_details_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "ddeb85ed0c3513fe5e629602ce2ba60be6efbf52342456f252e9eaa2156a8a73",
+  "sha": "56d975c4d165397b5abca491fdf30aa58a2eb5e016b59157a939ac23f3027f3b",
   "w": 860
  },
  "90_features/04_break_picker-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c47e0ff9b1e02fb8cb3dcda1e7bd0b4f3e19193a70adcf6e032365f3d816a4b3",
+  "sha": "c7f1c86b7729e5b4b3ba6b275e4c6d874663ce1ca3dbee0e2c62415352efb37c",
   "w": 430
  },
  "90_features/04_break_picker-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c47e0ff9b1e02fb8cb3dcda1e7bd0b4f3e19193a70adcf6e032365f3d816a4b3",
+  "sha": "c7f1c86b7729e5b4b3ba6b275e4c6d874663ce1ca3dbee0e2c62415352efb37c",
   "w": 860
  },
  "90_features/05_eject_choice_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "57cd072e2491cd04d7fead367ac5348a31c5de52c5912ea1f93ce7f84f3aa044",
+  "sha": "a24a25aa1dccbbcc16851d24875dcfcf55e1ad19e2236a9667de006cf4be8296",
   "w": 430
  },
  "90_features/05_eject_choice_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "57cd072e2491cd04d7fead367ac5348a31c5de52c5912ea1f93ce7f84f3aa044",
+  "sha": "a24a25aa1dccbbcc16851d24875dcfcf55e1ad19e2236a9667de006cf4be8296",
   "w": 860
  },
  "90_features/06_take_a_break_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c616f96a1cd82757c326b3630e6009adc725c2f5f0a8901a60e348f6896f86ea",
+  "sha": "18e7dc4d8f95e54632db5ff1b6a72894eae434d1c1346b4bc279653293bd1fe0",
   "w": 430
  },
  "90_features/06_take_a_break_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "c616f96a1cd82757c326b3630e6009adc725c2f5f0a8901a60e348f6896f86ea",
+  "sha": "18e7dc4d8f95e54632db5ff1b6a72894eae434d1c1346b4bc279653293bd1fe0",
   "w": 860
  },
  "90_features/07_return_from_break_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "31bae11dc3ad49c81c277088c8a5d2d6ba4a10ccb76d86a569c852c73e277519",
+  "sha": "0b3b39474b5c2be1b6d0feccea6cb8633692686cdd585427be6f18bbbd5ad1ee",
   "w": 430
  },
  "90_features/07_return_from_break_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "31bae11dc3ad49c81c277088c8a5d2d6ba4a10ccb76d86a569c852c73e277519",
+  "sha": "0b3b39474b5c2be1b6d0feccea6cb8633692686cdd585427be6f18bbbd5ad1ee",
   "w": 860
  },
  "90_features/08_stand_in_seat-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4fc05f4be80e07884f569b8edf9e9b9eb7acf52db01e63295e705d2a3c458c33",
+  "sha": "f4b7e8b60920ec9fc3d58243b6f2767834447f4a4ac742354ec149ec6d4106e2",
   "w": 430
  },
  "90_features/08_stand_in_seat-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "4fc05f4be80e07884f569b8edf9e9b9eb7acf52db01e63295e705d2a3c458c33",
+  "sha": "f4b7e8b60920ec9fc3d58243b6f2767834447f4a4ac742354ec149ec6d4106e2",
   "w": 645
  },
  "90_features/09_challenger_change_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bad22edf64ff4f1ad40cf859b2b71dcd972d6b99aa40d2932ebd004c5194dd76",
+  "sha": "398937e6cbcb1ea4e915a514c11d84dc44f600d969d2db5866c706285286532b",
   "w": 430
  },
  "90_features/09_challenger_change_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "bad22edf64ff4f1ad40cf859b2b71dcd972d6b99aa40d2932ebd004c5194dd76",
+  "sha": "398937e6cbcb1ea4e915a514c11d84dc44f600d969d2db5866c706285286532b",
   "w": 860
  },
  "90_features/10_teams_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b861e4da4e6efb0442ae61e373c3f50f925b822e4471756ea4639c57635f6af4",
+  "sha": "c0ec23c6a551f9d6fc7240682b46a3cbb1155ab50e8c4e8ffec97316a9b0674c",
   "w": 430
  },
  "90_features/10_teams_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b861e4da4e6efb0442ae61e373c3f50f925b822e4471756ea4639c57635f6af4",
+  "sha": "c0ec23c6a551f9d6fc7240682b46a3cbb1155ab50e8c4e8ffec97316a9b0674c",
   "w": 860
  },
  "90_features/11_seeding_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55e1e93b91cc2d753bf9eca2b87d45d841b3042bd8025fa17dff835c21aea81e",
+  "sha": "412ba413d6fe3f655785bb4489f5537bb18842ed8cc8032803cbdcb361a462ac",
   "w": 430
  },
  "90_features/11_seeding_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "55e1e93b91cc2d753bf9eca2b87d45d841b3042bd8025fa17dff835c21aea81e",
+  "sha": "412ba413d6fe3f655785bb4489f5537bb18842ed8cc8032803cbdcb361a462ac",
   "w": 860
  },
  "90_features/12_court_count_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b767b7795f6c622ac474b6090fc19f6e46b47cd43a3f1d75c23e812873960b95",
+  "sha": "f6d969ac181b770795554abd7ba1d7d44bf20d312e5dad854aa6e43e8c0b2531",
   "w": 430
  },
  "90_features/12_court_count_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "b767b7795f6c622ac474b6090fc19f6e46b47cd43a3f1d75c23e812873960b95",
+  "sha": "f6d969ac181b770795554abd7ba1d7d44bf20d312e5dad854aa6e43e8c0b2531",
   "w": 860
  },
  "90_features/13_schedule_preview_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "46c6bae60614d37fe7171b1c11b22235a94f546e48bd14d4e3caa1cb10774fa7",
+  "sha": "8187b45755587b6536db5274007aa57bd9222a89f55d2b0a02bb4f034625bee2",
   "w": 430
  },
  "90_features/13_schedule_preview_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "46c6bae60614d37fe7171b1c11b22235a94f546e48bd14d4e3caa1cb10774fa7",
+  "sha": "8187b45755587b6536db5274007aa57bd9222a89f55d2b0a02bb4f034625bee2",
   "w": 860
  },
  "90_features/14_game_format_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1672299adc230640e9c4ccd3b761cafaf706568a14eaaaf54888483f5949499c",
+  "sha": "7b3a44ecc5eec4eca0ffa660bc3d06cdb2244d517d4739a839f9460578c2013e",
   "w": 430
  },
  "90_features/14_game_format_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "1672299adc230640e9c4ccd3b761cafaf706568a14eaaaf54888483f5949499c",
+  "sha": "7b3a44ecc5eec4eca0ffa660bc3d06cdb2244d517d4739a839f9460578c2013e",
   "w": 860
  },
  "90_features/15_pill_locked_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "279059e73bba83c5a8487247f58e96997ad193d94ed668e973d9d0a7fb367b48",
+  "sha": "97cdd74af607a14f6460e70489e5f9237522c9e36630df37a36900b804312689",
   "w": 430
  },
  "90_features/15_pill_locked_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "279059e73bba83c5a8487247f58e96997ad193d94ed668e973d9d0a7fb367b48",
+  "sha": "97cdd74af607a14f6460e70489e5f9237522c9e36630df37a36900b804312689",
   "w": 860
  },
  "90_features/16_qr_export_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "572005ee2fffba3b65df76a2d70d11f16225cb47814ccede1079ea5d297788d8",
+  "sha": "48976bd9609ffea83de2a4fcf0c1d0d823929bdad34132406607f34b492f85b4",
   "w": 430
  },
  "90_features/16_qr_export_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "572005ee2fffba3b65df76a2d70d11f16225cb47814ccede1079ea5d297788d8",
+  "sha": "48976bd9609ffea83de2a4fcf0c1d0d823929bdad34132406607f34b492f85b4",
   "w": 860
  },
  "90_features/17_import_override_confirm-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d5a10a483a9df9a9566c9353838cee5229c0ed4bc6d63256f840540c6e2ac0ee",
+  "sha": "31ec20c983bd4a69dc4f235cb7932c6df832610cdc40605f68cf1cb529c0bdba",
   "w": 430
  },
  "90_features/17_import_override_confirm-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "d5a10a483a9df9a9566c9353838cee5229c0ed4bc6d63256f840540c6e2ac0ee",
+  "sha": "31ec20c983bd4a69dc4f235cb7932c6df832610cdc40605f68cf1cb529c0bdba",
   "w": 860
  },
  "90_features/18_workbook_menu-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f7e13830b3307687bdf4efc457e690875d8dea82e997639b0ed7bcfd7fc9743f",
+  "sha": "8fcb1a7d5816361baf02cc87432752c9f37ae10ae08b2633b0bd8689aa28a2e5",
   "w": 430
  },
  "90_features/18_workbook_menu-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "f7e13830b3307687bdf4efc457e690875d8dea82e997639b0ed7bcfd7fc9743f",
+  "sha": "8fcb1a7d5816361baf02cc87432752c9f37ae10ae08b2633b0bd8689aa28a2e5",
   "w": 860
  },
  "90_features/19_copy_tournament_sheet-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7b692fa773171fef7bbf2640281af71301cb92090794a5323e2b7e7a26d8e04a",
+  "sha": "7264d6086df0ca57a43dae5903a92e31a2a9d561216547bf9e5fc94773439757",
   "w": 430
  },
  "90_features/19_copy_tournament_sheet-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "7b692fa773171fef7bbf2640281af71301cb92090794a5323e2b7e7a26d8e04a",
+  "sha": "7264d6086df0ca57a43dae5903a92e31a2a9d561216547bf9e5fc94773439757",
   "w": 860
  },
  "90_features/20_manual_result_dialog-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0649a24bd6d5b3b47a9c9daa42a9ceb4fc9daabb11ddf74438bbbcf56830c7f9",
+  "sha": "1a8a50ee3656939b2299e16fa0290cecd6f90e929bdb049e194d101584a8cd4d",
   "w": 430
  },
  "90_features/20_manual_result_dialog-860.webp": {
   "crop": null,
   "q": 80,
-  "sha": "0649a24bd6d5b3b47a9c9daa42a9ceb4fc9daabb11ddf74438bbbcf56830c7f9",
+  "sha": "1a8a50ee3656939b2299e16fa0290cecd6f90e929bdb049e194d101584a8cd4d",
   "w": 860
  },
  "90_features/21_imported_scorecard-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "51eb8d23212212966cfa37622a268d8046ceed3ecf1c0d922f3570471cf166ae",
+  "sha": "425e3d3dd4a8b618db2f6b0d20c19c6a2c71ffd44d9d49805ad434926e55302c",
   "w": 430
  },
  "90_features/21_imported_scorecard-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "51eb8d23212212966cfa37622a268d8046ceed3ecf1c0d922f3570471cf166ae",
+  "sha": "425e3d3dd4a8b618db2f6b0d20c19c6a2c71ffd44d9d49805ad434926e55302c",
   "w": 645
  },
  "90_features/22_hub_imported_scorecards-430.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fcdcf75d2f409623d2c41e17daae8a3825196ee2f3d2a25636af411a36a0d7b6",
+  "sha": "dda2170cf49b4a16af74af02399404dc5cc09aff410190102e1f71d159d7b1c7",
   "w": 430
  },
  "90_features/22_hub_imported_scorecards-645.webp": {
   "crop": null,
   "q": 80,
-  "sha": "fcdcf75d2f409623d2c41e17daae8a3825196ee2f3d2a25636af411a36a0d7b6",
+  "sha": "dda2170cf49b4a16af74af02399404dc5cc09aff410190102e1f71d159d7b1c7",
   "w": 645
+ },
+ "91_dark/01_home-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "264e8ab5ca043de911fddfbb2a2389a6ccad99f560636c9bd17fc9c186d7553a",
+  "w": 430
+ },
+ "91_dark/01_home-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "264e8ab5ca043de911fddfbb2a2389a6ccad99f560636c9bd17fc9c186d7553a",
+  "w": 860
+ },
+ "91_dark/02_settings-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "43c57f444b05ad91c64380191e5fcfc3d9b6e90265bdf6f15c2448c8f94ee80a",
+  "w": 430
+ },
+ "91_dark/02_settings-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "43c57f444b05ad91c64380191e5fcfc3d9b6e90265bdf6f15c2448c8f94ee80a",
+  "w": 645
+ },
+ "91_dark/03_overview-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "a861f7a5553d2561ad541d935b306b556cd870e5e6d7cfc697d85d5caa53ff8a",
+  "w": 430
+ },
+ "91_dark/03_overview-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "a861f7a5553d2561ad541d935b306b556cd870e5e6d7cfc697d85d5caa53ff8a",
+  "w": 645
+ },
+ "91_dark/04_scorecard-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "03bfd52c53c94fe9f72bc464021bcf7358853526bc3dde3c47e01f10d2bb2afa",
+  "w": 430
+ },
+ "91_dark/04_scorecard-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "03bfd52c53c94fe9f72bc464021bcf7358853526bc3dde3c47e01f10d2bb2afa",
+  "w": 860
+ },
+ "92_gender/01_team_composition_unknown-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8db87e31602b38ee89f15f7a9bb3a89bdc66229cb6bf509873a87bb3c47fc1ae",
+  "w": 430
+ },
+ "92_gender/01_team_composition_unknown-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8db87e31602b38ee89f15f7a9bb3a89bdc66229cb6bf509873a87bb3c47fc1ae",
+  "w": 645
+ },
+ "92_gender/02_team_composition_men-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "92be45f64e408fd5b179dca6a0490ddbae55559ebebde43b510986db2972c3e0",
+  "w": 430
+ },
+ "92_gender/02_team_composition_men-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "92be45f64e408fd5b179dca6a0490ddbae55559ebebde43b510986db2972c3e0",
+  "w": 645
+ },
+ "92_gender/03_roster_hidden_by_category-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "6e360b532ce629afee87ec596f0e7543298281fbf389d2f1eb8d285391cb6ca1",
+  "w": 430
+ },
+ "92_gender/03_roster_hidden_by_category-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "6e360b532ce629afee87ec596f0e7543298281fbf389d2f1eb8d285391cb6ca1",
+  "w": 860
+ },
+ "92_gender/04_roster_gender_filter-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7b47a4ffe67fcf824855e041618c7b8a425108a4d3ec364b8e7773f0306bbb01",
+  "w": 430
+ },
+ "92_gender/04_roster_gender_filter-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7b47a4ffe67fcf824855e041618c7b8a425108a4d3ec364b8e7773f0306bbb01",
+  "w": 860
+ },
+ "92_gender/05_roster_create_gender-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "16a26f68eabb21f0c85dff0bb93a37db69362995c32ac27e1e35f93496fa5c8b",
+  "w": 430
+ },
+ "92_gender/05_roster_create_gender-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "16a26f68eabb21f0c85dff0bb93a37db69362995c32ac27e1e35f93496fa5c8b",
+  "w": 860
+ },
+ "92_gender/06_team_roster_composition-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8635d3e0c05a793ef4542b53fb798b87ad76c4f07601b5991a68d03452dc4f1d",
+  "w": 430
+ },
+ "92_gender/06_team_roster_composition-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "8635d3e0c05a793ef4542b53fb798b87ad76c4f07601b5991a68d03452dc4f1d",
+  "w": 860
+ },
+ "92_gender/07_category_pill-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5573528d1334f82e55e4dbb1a0dc93d75a6775f3a4c3ccb00256ce4e6329c278",
+  "w": 430
+ },
+ "92_gender/07_category_pill-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5573528d1334f82e55e4dbb1a0dc93d75a6775f3a4c3ccb00256ce4e6329c278",
+  "w": 645
+ },
+ "92_gender/08_category_help-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "860a407b01b32b1ed2ad7a5426632274cabe56ea1ed8f97357ac84086698cae7",
+  "w": 430
+ },
+ "92_gender/08_category_help-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "860a407b01b32b1ed2ad7a5426632274cabe56ea1ed8f97357ac84086698cae7",
+  "w": 860
  },
  "99_marketing/01_home-1280.webp": {
   "crop": null,

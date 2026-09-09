@@ -443,6 +443,49 @@ PLACEMENTS = {
          'The same scoreboard across the width of the phone.',
          'A Quick Game scorecard in landscape'),
     ],
+
+    # ── Administration ───────────────────────────────────────────────────────
+    # The three admin nodes carried no pictures at all. Gender is the reason to
+    # change that: it is the one player property that shows up again later, in
+    # a different place, and decides what that place offers you.
+    'admin-hand': [
+        ('01_admin/16_player_gender_selector',
+         'Recording a gender',
+         'Three chips on the player\u2019s page, saved the moment you tap one. '
+         '\u201cNot specified\u201d is the default and stays a valid answer \u2014 nothing '
+         'in the app requires a gender, it only does more when it has one.',
+         'A player detail page with the gender chips'),
+        ('01_admin/14_players_gender_filter',
+         'Filtering the pool',
+         'A second row of chips under the search box, and it only appears once '
+         'your club actually has more than one kind of player recorded \u2014 so a '
+         'list you cannot usefully filter never grows a filter.',
+         'The players list filtered to the women in the club'),
+        ('01_admin/15_teams_composition_filter',
+         'Teams work it out themselves',
+         'Men, Women or Mixed on a team is never something you set: it is read '
+         'off whoever is in the team right now. Swap a member and the badge '
+         'follows. A team whose members are not all recorded reads Unknown, and '
+         'the team page is where you can see which member to fix.',
+         'The teams list filtered to the men\u2019s teams'),
+    ],
+    'admin-setup': [
+        ('92_gender/03_roster_hidden_by_category',
+         'The category filters the roster',
+         'Set a tournament to Men\u2019s and the roster sheet stops offering the '
+         'women in your club, with a line saying how many it put away rather '
+         'than a quietly shorter list. Players with no gender recorded are '
+         'still offered \u2014 the category narrows the list, it does not demand '
+         'that your club be fully tagged first.',
+         'A roster sheet in a men\u2019s event, showing the hidden-player count'),
+        ('92_gender/05_roster_create_gender',
+         'Adding somebody on the spot',
+         'The same three chips as Administration, at the bottom of the sheet, '
+         'so a player typed in during setup is not left blank. In a Men\u2019s '
+         'event the choice is pre-filled and Female is not offered \u2014 it would '
+         'only create somebody the event could not admit.',
+         'The create-player row inside a roster sheet, with its gender chips'),
+    ],
 }
 
 

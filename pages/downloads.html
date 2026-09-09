@@ -15,6 +15,7 @@
 
 
     <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/cards.css">
   <link rel="stylesheet" href="../css/guide.css">
     <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
@@ -57,6 +58,28 @@
     </header>
 
     <main>
+
+        <!-- Die Bildkarte, mit der die Seite aufmacht — dieselbe Maske wie auf
+             der Startseite und im User Guide. Dasselbe Foto traegt die
+             Downloads-Karte auf pages/index.html; gebaut aus
+             tools/cards/cards.json mit build-cards.py --only downloads. -->
+        <div class="tq-card tq-hero hero-card" style="--tq-t: 6cqw">
+            <img src="../assets/cards/downloads-960.webp"
+                 srcset="../assets/cards/downloads-480.webp 480w,
+                         ../assets/cards/downloads-960.webp 960w,
+                         ../assets/cards/downloads-1600.webp 1600w"
+                 sizes="(max-width: 900px) 92vw, 890px"
+                 width="1600" height="1000"
+                 loading="eager" fetchpriority="high" decoding="async"
+                 data-i18n-alt="downloads.card.hero.alt"
+                 alt="A weathered wooden signpost on the beach carrying a download symbol, a TournaQ flag and a match behind it">
+            <div class="tq-card-text">
+                <div class="tq-card-body">
+                    <span class="tq-t" data-i18n="downloads.card.hero.title">Downloads</span>
+                    <span class="tq-s" data-i18n-html="downloads.card.hero.sub">Get TournaQ Volley onto your phone<br>and try it at the next session.</span>
+                </div>
+            </div>
+        </div>
 
         <section>
             <h1 class="section-title" data-i18n="downloads.section.title">Available Downloads</h1>

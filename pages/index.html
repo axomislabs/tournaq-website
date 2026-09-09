@@ -74,10 +74,52 @@
       color: var(--olive);
     }
 
-    /* Die Bildkarte, mit der die Seite aufmacht. Sie steht vor dem ersten
-       <section>, das seinen Abstand selbst mitbringt — also hier setzen. */
-    .hero-card {
-      margin-bottom: 44px;
+    /* ── Einleitung ───────────────────────────────────────────────────────
+       Vier Absaetze Fliesstext brauchen eine Spalte, keine Seitenbreite: bei
+       1180px waeren das ueber 180 Zeichen je Zeile. Deshalb linksbuendig in
+       einer festen Spalte, waehrend Ueberschrift und Karten die volle Breite
+       behalten — die uebrigen Abschnitte tragen nur ein bis zwei Saetze und
+       bleiben deshalb mittig. */
+    .intro-copy {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .intro-copy p {
+      font-size: 15px;
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+
+    .intro-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .intro-copy .intro-open {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .intro-copy strong {
+      color: var(--olive-dark);
+    }
+
+    /* Die Platzhalterkarten stehen weiter unten in derselben Reihe wie die
+       Bildkarten des Guide — .tq-grid aus css/cards.css. Nur der Abstand
+       nach oben gehoert der Seite. */
+    .intro-cards {
+      margin-top: 30px;
+    }
+
+    .intro-cards-h {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      margin: 34px 0 14px;
     }
 
     /* ── "What's the score again?" cards ── */
@@ -515,9 +557,8 @@
     <div class="lang-switcher"></div>
 
     <div class="hero">
-      <h1 data-i18n="index.hero.title">Just play. We'll keep the score.</h1>
-      <p class="subtitle" data-i18n="index.hero.subtitle">TournaQ Volley — beach volleyball games and tournaments that run themselves, from your
-        phone.</p>
+      <h1 data-i18n="index.hero.title">Welcome to TournaQ Volley</h1>
+      <p class="subtitle" data-i18n="index.hero.subtitle">The Tournament Engine</p>
     </div>
   </header>
 
@@ -526,8 +567,12 @@
     <!-- 0 · Das Bild, mit dem die Seite aufmacht. Dieselbe Bildkarte wie im
          Guide: Foto aus assets/cards/, Titel und Subline als HTML darueber,
          damit sie uebersetzbar bleiben. Gebaut aus "TournaQ Bilder/TournaQ
-         Start.png" mit tools/cards/build-cards.py --only start. -->
-    <div class="tq-card tq-hero tq-card--rechts hero-card" style="--tq-t: 6cqw">
+         Start.png" mit tools/cards/build-cards.py --only start.
+         Der Text steht links wie auf jeder anderen Bildkarte der Seite —
+         die gespiegelte Fassung (.tq-card--rechts) wich dem Telefon aus,
+         das links unten im Sand steht, riss die Karte dafuer aber aus der
+         Reihe. -->
+    <div class="tq-card tq-hero hero-card" style="--tq-t: 6cqw">
       <img src="../assets/cards/start-960.webp"
            srcset="../assets/cards/start-480.webp 480w,
                    ../assets/cards/start-960.webp 960w,
@@ -545,7 +590,112 @@
       </div>
     </div>
 
-    <!-- 1 · The everyday pain, in the player's own voice -->
+    <!-- 1 · Die Einleitung. Sagt in eigenen Worten, was TournaQ Volley ist,
+         und schickt von dort in die fuenf uebrigen Bereiche der Seite. Die
+         Karten sind dieselben Bildkarten wie im Guide — Foto aus
+         assets/cards/, Titel und Subline als HTML darueber, damit sie
+         uebersetzbar bleiben. Gebaut aus tools/cards/cards.json mit
+         tools/cards/build-cards.py. -->
+    <section id="engine">
+      <h2 class="section-title" data-i18n="index.engine.title">The volleyball tournament engine</h2>
+
+      <div class="intro-copy">
+        <p class="intro-open" data-i18n-html="index.engine.p1"><strong>TournaQ Volley</strong> is the tournament engine that
+          helps you plan and run volleyball games and tournaments. Whether you just need a quick scoreboard, want to
+          bring individual players together for a couple of hours, or run a full tournament properly — it is all the
+          same app.</p>
+
+        <p data-i18n="index.engine.p2">Score a single match so nobody loses count. Keep an overview of a casual session
+          that would otherwise dissolve into guesswork. Or plan a real event, run it, and stay in touch with your
+          players while it happens.</p>
+
+        <p data-i18n="index.engine.p3">How you work with it is up to you. Prepare the tournament on one central phone
+          and let the engine do the calculating, then carry on in your spreadsheet — or type the results back into the
+          app and let it work out the ranking. Both routes are supported, neither needs a signal, and neither one locks
+          you in.</p>
+
+        <p data-i18n="index.engine.p4">TournaQ Volley is built to cover the whole range: beach and indoor, volleyball
+          and footvolley, 2 v 2 up to 6 v 6. It scales from one single game to a tournament of two or three hundred
+          matches across 10, 20 or as many courts as you have.</p>
+      </div>
+
+      <p class="intro-cards-h" data-i18n="index.next.title">Where to go from here</p>
+
+      <div class="tq-grid intro-cards">
+        <a class="tq-card" href="platform.html">
+          <img src="../assets/cards/platform-480.webp"
+               srcset="../assets/cards/platform-480.webp 480w,
+                       ../assets/cards/platform-960.webp 960w,
+                       ../assets/cards/platform-1600.webp 1600w"
+               sizes="(max-width: 900px) 92vw, 460px"
+               width="1600" height="1000" loading="lazy" decoding="async" alt="">
+          <span class="tq-card-text">
+            <span class="tq-card-body">
+              <span class="tq-t" data-i18n="index.next.platform.title">Platform</span>
+              <span class="tq-s" data-i18n="index.next.platform.sub">How TournaQ fits around your event, your camp or your club — and how it plans ahead, not just runs the day.</span>
+            </span>
+          </span>
+        </a>
+        <a class="tq-card" href="guide.html">
+          <img src="../assets/cards/user-guide-480.webp"
+               srcset="../assets/cards/user-guide-480.webp 480w,
+                       ../assets/cards/user-guide-960.webp 960w,
+                       ../assets/cards/user-guide-1600.webp 1600w"
+               sizes="(max-width: 900px) 92vw, 460px"
+               width="1600" height="1000" loading="lazy" decoding="async" alt="">
+          <span class="tq-card-text">
+            <span class="tq-card-body">
+              <span class="tq-t" data-i18n="index.next.guide.title">User Guide</span>
+              <span class="tq-s" data-i18n="index.next.guide.sub">Every path through the app, from the first tap to the finished scorecard.</span>
+            </span>
+          </span>
+        </a>
+        <a class="tq-card" href="downloads.html">
+          <img src="../assets/cards/downloads-480.webp"
+               srcset="../assets/cards/downloads-480.webp 480w,
+                       ../assets/cards/downloads-960.webp 960w,
+                       ../assets/cards/downloads-1600.webp 1600w"
+               sizes="(max-width: 900px) 92vw, 460px"
+               width="1600" height="1000" loading="lazy" decoding="async" alt="">
+          <span class="tq-card-text">
+            <span class="tq-card-body">
+              <span class="tq-t" data-i18n="index.next.downloads.title">Downloads</span>
+              <span class="tq-s" data-i18n="index.next.downloads.sub">Get TournaQ Volley onto your phone and try it at the next session.</span>
+            </span>
+          </span>
+        </a>
+        <a class="tq-card" href="legal.html">
+          <img src="../assets/cards/legal-480.webp"
+               srcset="../assets/cards/legal-480.webp 480w,
+                       ../assets/cards/legal-960.webp 960w,
+                       ../assets/cards/legal-1600.webp 1600w"
+               sizes="(max-width: 900px) 92vw, 460px"
+               width="1600" height="1000" loading="lazy" decoding="async" alt="">
+          <span class="tq-card-text">
+            <span class="tq-card-body">
+              <span class="tq-t" data-i18n="index.next.legal.title">Legal</span>
+              <span class="tq-s" data-i18n="index.next.legal.sub">Terms, privacy and imprint, all in one place.</span>
+            </span>
+          </span>
+        </a>
+        <a class="tq-card" href="contact.html">
+          <img src="../assets/cards/contact-480.webp"
+               srcset="../assets/cards/contact-480.webp 480w,
+                       ../assets/cards/contact-960.webp 960w,
+                       ../assets/cards/contact-1600.webp 1600w"
+               sizes="(max-width: 900px) 92vw, 460px"
+               width="1600" height="1000" loading="lazy" decoding="async" alt="">
+          <span class="tq-card-text">
+            <span class="tq-card-body">
+              <span class="tq-t" data-i18n="index.next.contact.title">Contact</span>
+              <span class="tq-s" data-i18n="index.next.contact.sub">A question, an idea, or an event you would like a hand with — write to us.</span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 2 · The everyday pain, in the player's own voice -->
     <section id="admin">
       <h2 class="section-title" data-i18n="index.admin.title">The volleyball is great. The admin is not.</h2>
       <p class="lead" data-i18n="index.admin.lead">It's 32 degrees. That last rally was unbelievable. And now nobody is quite sure whether it's
@@ -585,7 +735,7 @@
       </div>
     </section>
 
-    <!-- 2 · Quick Game -->
+    <!-- 3 · Quick Game -->
     <section id="quick">
       <h2 class="section-title"><span data-i18n="index.quick.title">Just need a scoreboard?</span> <span class="section-ref" data-i18n="index.quick.ref">(Quick Game)</span></h2>
       <p class="lead" data-i18n="index.quick.lead">Sometimes there is no tournament. Two teams, one match, and nobody wants to spend ten minutes
@@ -624,7 +774,7 @@
       </div>
     </section>
 
-    <!-- 3 · The social heart -->
+    <!-- 4 · The social heart -->
     <section id="mix">
       <h2 class="section-title"><span data-i18n="index.mix.title">Mix the people, not just the teams</span> <span class="section-ref" data-i18n="index.mix.ref">(Single Player Competitions)</span></h2>
       <p class="lead" data-i18n="index.mix.lead">The best sessions are the ones where everyone plays with everyone. In these formats you enter as
@@ -687,7 +837,7 @@
 
     </section>
 
-    <!-- 4 · Team competitions -->
+    <!-- 5 · Team competitions -->
     <section id="teams">
       <h2 class="section-title"><span data-i18n="index.teams.title">Or turn up with your partner</span> <span class="section-ref" data-i18n="index.teams.ref">(Team Competitions)</span></h2>
       <!-- Key renamed from index.teams.lead: the old copy promised "a title at the
@@ -808,7 +958,7 @@
       </div>
     </section>
 
-    <!-- 5 · Depth: a real tournament from your pocket -->
+    <!-- 6 · Depth: a real tournament from your pocket -->
     <section id="session">
       <h2 class="section-title" data-i18n="index.session.title">A real tournament, run from your pocket</h2>
       <p class="lead" data-i18n-html="index.session.lead">Plenty of apps hand you a scoreboard. <em>TournaQ hands you the whole session.</em></p>
@@ -853,7 +1003,7 @@
       </div>
     </section>
 
-    <!-- 6 · Practical magic -->
+    <!-- 7 · Practical magic -->
     <section id="offline">
       <h2 class="section-title" data-i18n="index.offline.title">The beach doesn't have wifi. TournaQ doesn't need it.</h2>
       <p class="lead" data-i18n="index.offline.lead">No signal, no account, no sign-up. Everything runs on the phone in your hand — and there is still
@@ -887,7 +1037,7 @@
       </div>
     </section>
 
-    <!-- 7 · Sport scope -->
+    <!-- 8 · Sport scope -->
     <section id="sports">
       <h2 class="section-title" data-i18n="index.sports.title">Built for the volley family</h2>
       <p class="lead" data-i18n="index.sports.lead">TournaQ Volley is made first and foremost for beach volleyball and footvolley. Anything scored
@@ -902,7 +1052,7 @@
       </div>
     </section>
 
-    <!-- 8 · Closing CTA -->
+    <!-- 9 · Closing CTA -->
     <div class="closing">
       <h2 data-i18n="index.closing.title">Bring it to your next session</h2>
       <p data-i18n="index.closing.text">TournaQ is in beta and being shaped by the people using it on court. Join in, run your next tournament with
@@ -914,14 +1064,14 @@
       </div>
     </div>
 
-    <!-- 9 · Quiet partner line -->
+    <!-- 10 · Quiet partner line -->
     <div class="partner-line">
       <p data-i18n="index.partner.text">Already using a platform for registration and payments? Keep it — TournaQ takes over at the court and hands
         the results back.</p>
       <a href="platform.html" data-i18n="index.partner.link">For organisers &amp; platforms →</a>
     </div>
 
-    <!-- 10 · Contact -->
+    <!-- 11 · Contact -->
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>

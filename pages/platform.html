@@ -27,6 +27,7 @@
   <meta name="theme-color" content="#3A3E16">
 
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/cards.css">
   <link rel="stylesheet" href="../css/guide.css">
   <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
@@ -164,38 +165,6 @@
       font-size: 14px;
     }
 
-    /* ── Exchange (integration model) ── */
-    .exchange-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 22px;
-    }
-
-    @media (max-width: 680px) {
-      .exchange-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .exchange-col {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px 24px;
-    }
-
-    .exchange-col h3 {
-      font-size: 15px;
-      color: var(--olive);
-      margin-bottom: 10px;
-    }
-
-    .exchange-col ul {
-      font-size: 14px;
-      margin-top: 0;
-    }
-
     /* ── Partner CTA ── */
     .partner-cta {
       background: var(--olive-dark);
@@ -290,6 +259,28 @@
 
   <main>
 
+    <!-- 0 · Das Bild, mit dem die Seite aufmacht — dieselbe Bildkarte wie
+         auf der Startseite und im User Guide. Dasselbe Foto traegt die
+         Platform-Karte auf pages/index.html; gebaut aus tools/cards/cards.json
+         mit tools/cards/build-cards.py --only platform. -->
+    <div class="tq-card tq-hero hero-card" style="--tq-t: 6cqw">
+      <img src="../assets/cards/platform-960.webp"
+           srcset="../assets/cards/platform-480.webp 480w,
+                   ../assets/cards/platform-960.webp 960w,
+                   ../assets/cards/platform-1600.webp 1600w"
+           sizes="(max-width: 900px) 92vw, 890px"
+           width="1600" height="1000"
+           loading="eager" fetchpriority="high" decoding="async"
+           data-i18n-alt="platform.card.hero.alt"
+           alt="A glowing TournaQ engine on the beach, wired to schedules, brackets and results while a match is played beside it">
+      <div class="tq-card-text">
+        <div class="tq-card-body">
+          <span class="tq-t" data-i18n="platform.card.hero.title">TournaQ Platform</span>
+          <span class="tq-s" data-i18n-html="platform.card.hero.sub">The competition engine<br>behind your event</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 1 · The TournaQ idea -->
     <section id="idea">
       <h2 class="section-title" data-i18n="platform.idea.title">The TournaQ Idea</h2>
@@ -378,69 +369,7 @@
       </div>
     </section>
 
-    <!-- 3 · Integration model -->
-    <section id="integration">
-      <h2 class="section-title" data-i18n="platform.integration.title">The Integration Model</h2>
-      <p class="section-text" data-i18n="platform.integration.text">The intended integration is a two-way handover: an event platform passes in what it
-        already knows, TournaQ runs the competition, and the results flow back automatically.</p>
-
-      <div class="exchange-grid">
-        <div class="exchange-col">
-          <h3 data-i18n="platform.handsover.title">→ What your platform hands over</h3>
-          <ul>
-            <li data-i18n="platform.handsover.li1">Event identity — name, date, venue</li>
-            <li data-i18n="platform.handsover.li2">Participants: players, teams and categories</li>
-            <li data-i18n="platform.handsover.li3">Format and competition rules</li>
-            <li data-i18n="platform.handsover.li4">Court availability and time constraints</li>
-            <li data-i18n="platform.handsover.li5">Seeding or ranking input, where it exists</li>
-          </ul>
-        </div>
-
-        <div class="exchange-col">
-          <h3 data-i18n="platform.handsback.title">← What TournaQ hands back</h3>
-          <ul>
-            <li data-i18n="platform.handsback.li1">The generated draw and match schedule</li>
-            <li data-i18n="platform.handsback.li2">Live match state while the event runs</li>
-            <li data-i18n="platform.handsback.li3">Standings and bracket progression</li>
-            <li data-i18n="platform.handsback.li4">Final results and placements</li>
-            <li data-i18n="platform.handsback.li5">Ranking points and event statistics</li>
-          </ul>
-        </div>
-      </div>
-
-      <p style="margin-top: 20px;" data-i18n-html="platform.integration.cta">These interfaces are being designed right now. If your platform would use this
-        handover, <a href="mailto:team@tournaq.com?subject=TournaQ%20Platform%20Integration" class="email-link">get in
-          touch</a> — coming in early is how you make sure it fits your system when it lands.</p>
-
-      <h3 style="margin-top: 34px; color: var(--olive-dark); font-size: 18px;" data-i18n="platform.travels.title">How the handover travels</h3>
-      <p data-i18n="platform.travels.text">The app is offline, so the handover needs a route. Today that route is manual and already works. The next step
-        is to make the same exchange automatic.</p>
-
-      <div class="exchange-grid">
-        <div class="exchange-col">
-          <span class="phase-status completed-status" data-i18n="platform.badge.available">✓ Available today</span>
-          <h3 data-i18n="platform.manual.title">Manual exchange</h3>
-          <ul>
-            <li data-i18n="platform.manual.li1">QR code handover of scorecards and results between devices</li>
-            <li data-i18n="platform.manual.li2">File export and import of players, teams and groups</li>
-            <li data-i18n="platform.manual.li3">No infrastructure on either side — it works in a dead spot</li>
-          </ul>
-        </div>
-
-        <div class="exchange-col">
-          <span class="phase-status inprogress-status" data-i18n="platform.badge.indesign">In design</span>
-          <h3 data-i18n="platform.auto.title">Automatic exchange</h3>
-          <ul>
-            <li data-i18n="platform.auto.li1">A hosted endpoint your system calls to push an event in</li>
-            <li data-i18n="platform.auto.li2">Draw, live match state and results pushed back to you</li>
-            <li data-i18n="platform.auto.li3">Devices at the venue reconciled once they see a network again</li>
-          </ul>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- 4 · Principles -->
+    <!-- 3 · Principles -->
     <section id="principles">
       <h2 class="section-title" data-i18n="platform.principles.title">Design Principles</h2>
 
@@ -482,7 +411,7 @@
       </div>
     </section>
 
-    <!-- 5 · Partner CTA -->
+    <!-- 4 · Partner CTA -->
     <div class="partner-cta">
       <h2 data-i18n="platform.cta.title">Connect Your Platform</h2>
       <p data-i18n="platform.cta.text">We are building the handover interfaces now. If you run an event platform, a club system or a tour, get in
@@ -494,7 +423,7 @@
       </div>
     </div>
 
-    <!-- 6 · Contact -->
+    <!-- 5 · Contact -->
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>

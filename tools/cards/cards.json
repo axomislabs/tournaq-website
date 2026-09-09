@@ -355,6 +355,93 @@
         "x": "50%",
         "y": "52%"
       }
+    },
+    {
+      "slug": "platform",
+      "bild": "Platform.png",
+      "titel": "Platform",
+      "sub": "How TournaQ fits around your event,\nyour camp or your club.",
+      "alt": "Platform — How TournaQ fits around your event, your camp or your club.",
+      "hinweis": "Karte auf pages/index.html und Hero auf pages/platform.html. Keine Guide-Seite, deshalb kein ziel.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      }
+    },
+    {
+      "slug": "user-guide",
+      "bild": "User Guide.png",
+      "titel": "TournaQ User Guide",
+      "sub": "Every path through the app, from the\nfirst tap to the finished scorecard.",
+      "ziel": "home",
+      "alt": "TournaQ User Guide — Every path through the app, from the first tap to the finished scorecard.",
+      "hinweis": "Hero auf der Guide-Startseite und Karte auf pages/index.html.",
+      "foto": {
+        "x": "50%",
+        "y": "40%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      },
+      "kurz": "Every path through the app."
+    },
+    {
+      "slug": "downloads",
+      "bild": "Downloads.png",
+      "titel": "Downloads",
+      "sub": "Get TournaQ Volley onto your phone\nand try it at the next session.",
+      "alt": "Downloads — Get TournaQ Volley onto your phone and try it at the next session.",
+      "hinweis": "Karte auf pages/index.html. Keine Guide-Seite, deshalb kein ziel.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      }
+    },
+    {
+      "slug": "legal",
+      "bild": "Legal.png",
+      "titel": "Legal",
+      "sub": "Terms, privacy and imprint,\nall in one place.",
+      "alt": "Legal — Terms, privacy and imprint, all in one place.",
+      "hinweis": "Karte auf pages/index.html. Keine Guide-Seite, deshalb kein ziel.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      }
+    },
+    {
+      "slug": "contact",
+      "bild": "Contact.png",
+      "titel": "Contact",
+      "sub": "A question, an idea, or an event\nyou would like a hand with.",
+      "alt": "Contact — A question, an idea, or an event you would like a hand with.",
+      "hinweis": "Karte auf pages/index.html. Keine Guide-Seite, deshalb kein ziel.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      }
     }
   ]
 }

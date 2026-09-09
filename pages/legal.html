@@ -12,6 +12,7 @@
   <link rel="manifest" href="../site.webmanifest">
   <meta name="theme-color" content="#3A3E16">
     <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/cards.css">
   <link rel="stylesheet" href="../css/guide.css">
     <script src="../js/main-nav.js" defer></script>
   <script src="../js/i18n.js" defer></script>
@@ -54,6 +55,28 @@
     </header>
 
     <main>
+
+        <!-- Die Bildkarte, mit der die Seite aufmacht — dieselbe Maske wie auf
+             der Startseite und im User Guide. Dasselbe Foto traegt die
+             Legal-Karte auf pages/index.html; gebaut aus
+             tools/cards/cards.json mit build-cards.py --only legal. -->
+        <div class="tq-card tq-hero hero-card" style="--tq-t: 6cqw">
+            <img src="../assets/cards/legal-960.webp"
+                 srcset="../assets/cards/legal-480.webp 480w,
+                         ../assets/cards/legal-960.webp 960w,
+                         ../assets/cards/legal-1600.webp 1600w"
+                 sizes="(max-width: 900px) 92vw, 890px"
+                 width="1600" height="1000"
+                 loading="eager" fetchpriority="high" decoding="async"
+                 data-i18n-alt="legal.card.hero.alt"
+                 alt="A ring binder labelled Legal Documents on a desk, beside a clipboard, a pen and a plant">
+            <div class="tq-card-text">
+                <div class="tq-card-body">
+                    <span class="tq-t" data-i18n="legal.card.hero.title">Legal</span>
+                    <span class="tq-s" data-i18n-html="legal.card.hero.sub">Terms, privacy and imprint,<br>all in one place.</span>
+                </div>
+            </div>
+        </div>
 
         <section>
 
