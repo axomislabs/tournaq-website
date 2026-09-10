@@ -47,7 +47,12 @@ const imgcards = (cards) => ({t:'imgcards', cards});
    werden von tools/bake-guide.mjs nicht erraten, sondern beim Erzeugen aus
    tools/specs/*.json eingetragen. `w`/`h` halten das Seitenverhaeltnis, damit
    beim Laden nichts springt. */
-const shot = (src, w, h, sizes, title, body, alt) => ({t:'shot', src, w, h, sizes, title, body, alt});
+const shot = (src, w, h, sizes, title, body, alt, o) => ({t:'shot', src, w, h, sizes, title, body, alt, ...(o || {})});
+/* Dieselbe Ansicht zweimal nebeneinander, hell und dunkel, unter einer
+   Bildunterschrift. Als achtes Argument an `shot`. `dunkel` traegt nur, was
+   sich unterscheidet — Pfad, vorhandene Breiten, Alternativtext; `w`/`h`
+   gelten fuer beide, die zwei Aufnahmen zeigen denselben Schirm. */
+const dunkel = (src, sizes, alt) => ({dark:{src, sizes, alt}});
 const flow  = (spec) => ({t:'flow', spec});
 /* Ein Verweis von der Einleitung auf einen Block weiter unten. `href` bleibt
    der echte Anker, damit die gebackene Seite auch ohne JavaScript springt;
@@ -110,16 +115,125 @@ home: {
       item('i-arena','TournaQ Arena','Every game mode the app has. Pick one, and it takes you to that mode\u2019s Tournament Hub.'),
       item('i-trophy','Tournament Hub','Create a new tournament, or copy one you have run before. All your tournaments are managed from here.'),
       item('i-grid','Running a Tournament','Adjust what needs adjusting once it is live, and keep the overview over every match.'),
-      item('i-score','Scorecards','One card per game format, so tracking a result is a tap rather than a translation.'),
+      item('i-score','Scorecards','One card per game format, so tracking a result is a tap rather than a translation \u2014 or write the final score in without opening a card at all.'),
       item('i-qr','Exported Scorecard','Hand a scorecard to another device by QR code — no internet involved.', {tone:'tint'}),
+      item('i-menu','More','Sponsoring & Promo, Contact & About, Settings and Become a Tester. Beside the flow rather than on it — the language, the appearance and the privacy options live in Settings.', {tone:'tint'}),
     ]),
-    fbox('i-doc','Two ways to keep the results','Either route ends in the same ranking, and neither needs a signal — pick whichever suits the event.', [
-      {icon:'i-upload', title:'Export and import', body:'Take the game plan out, keep score however you like, bring the results back in for the ranking'},
+    fbox('i-doc','Three ways to keep the results','Every route ends in the same ranking, and none of them needs a signal — pick whichever suits the event.', [
       {icon:'i-score', title:'Score in the app', body:'A card built for your game format, with timing, side changes and serving already in it'},
+      {icon:'i-edit', title:'Manually Set Score', body:'For a game played without live scoring — write the final score in set by set, no scorecard opened, and the ranking moves exactly as if you had tapped through every rally'},
+      {icon:'i-upload', title:'Export and import', body:'Take the game plan out, keep score however you like, bring the results back in for the ranking'},
       {icon:'i-share', title:'Spread the load', body:'Scorecards travel to other devices by QR code, entirely offline'},
     ]),
+    sect('The home screen','i-south'),
+    shot('guide/00_shell/02_home',430,932,[430, 860],
+      'The three destinations',
+      'Arena, Administration and More, and under them the Quick Guide — the app in one picture — and the link to tournaq.com. On the right the same home screen, in the dark palette.',
+      'The TournaQ home screen with Arena, Administration and More',
+      dunkel('guide/91_dark/01_home',[430, 860],
+        'The TournaQ home screen in dark mode')),
+    fbox('i-menu','The app comes in light and in dark','Every screen in this guide has both, and the switch is one tap in More › Settings. ' + pageLink('navigation','Navigation &amp; Settings') + ' has the rest of the shell — where the settings live, and what the dark palette looks like across the app.'),
     note('Draft note · scope',
       'This page replaces the current two-panel Principle screen. The existing panels become the <b>flow map</b> above; everything else is new depth reached by tapping a node. Nothing here navigates <b>into</b> the app — the guide stays a place to read, which is the rule the current explainers already follow.'),
+  ],
+},
+
+/* ── Navigation & Settings ───────────────────────────────────────────────
+   Die Huelle der App: wo die drei Ziele liegen, wo die Schalter sitzen, und
+   wie das Ganze in Dunkel aussieht. Steht im Rail hinter den Scorecards, weil
+   es niemand vor seinem ersten Turnier braucht — der Dunkelmodus stand bis
+   dahin auf der Startseite des Guides, gleich hinter der Einleitung, und war
+   dort viel zu frueh fuer sein Gewicht. Auf der Startseite blieb das Paar
+   hell/dunkel des Home-Schirms und der Verweis hierher. ── */
+navigation: {
+  title:'Navigation & Settings', route:'/guide/navigation', icon:'i-menu', parent:'home',
+  eyebrow:'The app shell',
+  h1:['Navigation & ','Settings'],
+  lead:'Where things are, and the few switches that change how the app looks and speaks. Three cards on the home screen lead into everything the app can do; More holds the screens beside that flow, and Settings holds the language, the appearance and the privacy options. Every screen in this guide exists in both palettes — the dark one is at the bottom of this page, next to its light twin.',
+  blocks:[
+    panel('Where everything is','Three cards on the home screen, and everything in the app sits under one of them.',[
+      item('i-arena','TournaQ Arena','Every format the app can run, and everything you have already run, underneath.'),
+      item('i-admin','Administration','Players, teams and groups, saved once and reused in every format.'),
+      item('i-menu','More','Sponsoring, contact, settings and the beta — everything you open once, or once a season.'),
+      item('i-map','Quick Guide','Below the three cards sits the app in one picture — tap it for the full flow — and a link to tournaq.com for everything beyond the app.', {tone:'tint'}),
+    ]),
+    shot('guide/00_shell/03_home_full',430,932,[430, 645],
+      'The whole screen',
+      'Below the three destinations sits the Quick Guide — the app in one picture, tap for the full flow — and the More about TournaQ card with the link to tournaq.com.',
+      'The full home screen including the Quick Guide card and the link to tournaq.com'),
+    sect('More','i-south'),
+    panel('Four screens behind More','Everything you open once, or once a season — none of it needed with a match running.',[
+      item('i-star','Sponsoring & Promo','Ads, partnerships, and the ways to support the app.'),
+      item('i-share','Contact & About','Social, support, the legal documents and the version number.'),
+      item('i-edit','Settings','Language, appearance, and the ad consent options.'),
+      item('i-people','Become a Tester','The route into the beta, on iOS and on Android.'),
+    ]),
+    shot('guide/00_shell/09_more',430,932,[430, 860],
+      'More',
+      'Sponsoring & Promo, Contact & About, Settings and Become a Tester — four cards, in that order. The screens you need occasionally, kept out of the way of the ones you need mid-match.',
+      'The More screen with sponsoring, contact, settings and the tester route'),
+    sect('Sponsoring & Promo','i-south'),
+    panel('What is on it','Advertising and sponsorship pay for the continued development — the screen says so, and then gives you every way to be part of it.',[
+      item('i-star','Support TournaQ','The reason the ads are there, and the ad slot itself, with a thank-you under it.'),
+      item('i-share','Follow the Journey','Events and games where TournaQ was on the court — tag the app on Instagram and it gets shared.'),
+      item('i-check','Enjoying TournaQ?','A rating, from inside the app.'),
+      item('i-clock','Three opportunities, marked Coming Soon','Partner Spotlight, Tournament Partnerships and Promote Your Event — named so you can see where it is going, none of them live yet.'),
+      item('i-people','Interested in partnering?','How TournaQ works with platforms, clubs and federations, with the platform page on tournaq.com one tap away.'),
+      item('i-edit','Help Shape TournaQ','Give Feedback or Email Us, for suggestions about future features and partnerships.', {tone:'tint'}),
+    ]),
+    shot('guide/00_shell/12_sponsoring_and_promo',430,1234,[430, 645],
+      'Sponsoring & Promo',
+      'The ad slot at the top, the two ways to give something back under it, and the partnership options below — three of them still marked Coming Soon.',
+      'The Sponsoring and Promo screen with the ad slot, the Instagram and rating rows and the partnership options'),
+    sect('Contact & About','i-south'),
+    panel('What is on it','Every way to reach the team, and the documents you occasionally have to look up.',[
+      item('i-share','Social','Instagram, @tournaq.'),
+      item('i-doc','Contact & support','Email to team@tournaq.com, a feedback form for bugs and feature requests, and the link to the website.'),
+      item('i-map','Resources','The feature overview on tournaq.com — every mode and every feature, beyond what fits into the app.'),
+      item('i-shield','Legal','Privacy Policy, Terms of Use, and the Legal Notice with the developer and app information required in the EU.'),
+      item('i-doc','The version number','At the foot of the screen. The one thing worth quoting when you report something.', {tone:'tint'}),
+    ]),
+    shot('guide/00_shell/11_contact_and_about',430,1057,[430, 645],
+      'Contact & About',
+      'Social at the top, then the three ways to get in touch, the link to the feature overview, and the legal documents. The app version sits at the very bottom.',
+      'The Contact and About screen with social, support, resources and legal links'),
+    sect('Become a Tester','i-south'),
+    panel('Two routes in, one per platform','Testing new features before they are released — TestFlight on iOS, the tester program on Android.',[
+      item('i-qr','iOS · Download via TestFlight','A QR code that installs the beta directly. Signing up is optional here — it only helps us stay in touch.'),
+      item('i-people','iOS & Android · Scan to sign up','The same sign-up by QR code, or as a form if you are already on the device you are reading this on.'),
+      item('i-clock','Android · Signing up is required','Testers are added to the program by hand afterwards, so there can be a short wait.'),
+      item('i-edit','Got a bigger idea?','Organising a big tournament, missing a mode or a feature, needing support — tester requests are prioritised.', {tone:'tint'}),
+    ]),
+    shot('guide/00_shell/13_become_a_tester',430,932,[430, 860],
+      'Become a Tester',
+      'The TestFlight route at the top, the sign-up for both platforms under it, and the note that Android needs that sign-up before anything arrives.',
+      'The Become a Tester screen with the TestFlight QR code and the sign-up options'),
+    sect('Settings','i-south'),
+    fbox('i-menu','Appearance sits in More › Settings, next to the language','Automatic follows whatever the phone is set to; Light and Dark pin it yourself. It is the whole app rather than a handful of screens — the same guide, read on a phone in a dark hall, looks like this.'),
+    shot('guide/00_shell/10_settings',430,932,[430, 860],
+      'Where the switch is',
+      'Language and Appearance, one row of chips each. The change lands as you tap it and is remembered for next time — there is nothing to save and nothing to restart.',
+      'The Settings screen with language, appearance and privacy options',
+      dunkel('guide/91_dark/02_settings',[430, 645],
+        'The Settings screen in dark mode, showing the Appearance chips')),
+    sect('When a card is not built yet','i-south'),
+    shot('guide/00_shell/14_coming_soon',430,932,[430, 860],
+      'Coming soon',
+      'Tapping a format that has not shipped lands here rather than nowhere: what it will do, the page about it on the website, and the two ways to say what you need from it.',
+      'A Coming Soon screen for Player Profiles with the feedback and email buttons'),
+    sect('The app in dark','i-south'),
+    shot('guide/03_social_scramble/05_overview_full',430,1724,[430, 645],
+      'The screen that stays open all afternoon',
+      'A running tournament: the pill row, the schedule and every result so far. This is the one an organiser looks at most, which is the reason the dark palette had to reach further than the settings screen.',
+      'A tournament overview with the pill row, the schedule and every result so far',
+      dunkel('guide/91_dark/03_overview',[430, 645],
+        'A tournament overview in dark mode')),
+    shot('guide/02_quick_game/06_scorecard',430,932,[430, 860],
+      'And the one a referee holds',
+      'Scores, serve, sides and the clock, in the same contrast as the rest. An evening session under floodlights is exactly when a white screen stops being readable.',
+      'A scorecard with the two team panels, the set line and the match actions',
+      dunkel('guide/91_dark/04_scorecard',[430, 860],
+        'A scorecard in dark mode')),
   ],
 },
 
@@ -159,6 +273,54 @@ administration: {
       item('i-edit','Edit or remove','Fix a name, retire a player, move someone between groups.'),
     ]),
     fbox('i-check','Good for','A regular group that changes slowly. Once the names are right they stay right, and every tournament from then on starts from them.'),
+    sect('Three things to set up', 'i-south'),
+    grid([
+      {icon:'i-admin', label:'Set up a player', cap:'The Players hub, and everything on a player’s page.', to:'admin-hand-player'},
+      {icon:'i-people', label:'Set up a team', cap:'Two players, a name, and a badge the team works out itself.', to:'admin-hand-team'},
+      {icon:'i-shield', label:'Set up a group', cap:'Clubs, levels, courses — the filter that makes setup fast.', to:'admin-hand-group'},
+    ]),
+  ],
+  next:['admin-hand-player','administration'],
+},
+
+/* ── Administration · by hand · the three things you set up ───────────────
+   Aus dem Inbox-Panel "Reading the library" auf admin-hand aufgeteilt
+   (Herkunft: archive/features/user-administration.html). Die englischen
+   Saetze stehen unveraendert, damit die vorhandenen DE/ES-Eintraege in
+   js/guide/locales.js weiter greifen. ── */
+'admin-hand-player': {
+  title:'Set up a player', route:'/guide/administration/by-hand/player', icon:'i-admin', parent:'admin-hand',
+  eyebrow:'By hand · Players',
+  h1:['Set up ','a player'],
+  lead:'A player needs a name and nothing else. The teams, the groups and the gender on record can go in now, or the day they start to matter.',
+  blocks:[
+    panel('The Players hub','The searchable library of everyone you have ever entered, with what they belong to and what they have played.',[
+      item('i-grid','The whole list','Scroll the library, edit or delete inline. This is the screen a club with sixty members actually lives in.'),
+      item('i-edit','Create a player','Add a name — or take a suggested one — and optionally assign them to existing teams and groups at the moment of creation.'),
+      item('i-doc','A player’s detail','What they belong to and what they have played, with everything editable from the same screen.'),
+      item('i-swap','Assign to a team','Put an existing player into an existing team without going through either hub — the assignment works from both ends.'),
+    ]),
+    shot('guide/01_admin/02_players',430,932,[430, 860],
+      'The Players hub',
+      'Every saved player in one list, filterable by name, team or tournament. Each entry shows how many teams, groups and tournaments they belong to.',
+      'The Players hub listing every saved player with filters'),
+    shot('guide/01_admin/03_players_full',430,1727,[430, 645],
+      'The whole list',
+      'Scroll the library, edit or delete inline. This is the screen a club with sixty members actually lives in.',
+      'The full players list scrolled out, with inline edit and delete'),
+    shot('guide/01_admin/04_player_create',430,932,[430, 860],
+      'Create a player',
+      'Add a name — or take a suggested one — and optionally assign them to existing teams and groups at the moment of creation.',
+      'The create-player screen with its team and group assignments'),
+    shot('guide/01_admin/05_player_detail',430,932,[430, 645],
+      'A player’s detail',
+      'What they belong to and what they have played, with everything editable from the same screen.',
+      'A player detail page listing teams, groups and tournaments played'),
+    shot('guide/01_admin/06_player_assign_to_team',430,932,[430, 860],
+      'Assign to a team',
+      'Put an existing player into an existing team without going through either hub — the assignment works from both ends.',
+      'The sheet that assigns an existing player to an existing team'),
+    sect('Gender on the record', 'i-south'),
     shot('guide/01_admin/16_player_gender_selector',430,932,[430, 645],
       'Recording a gender',
       'Three chips on the player’s page, saved the moment you tap one. “Not specified” is the default and stays a valid answer — nothing in the app requires a gender, it only does more when it has one.',
@@ -167,13 +329,76 @@ administration: {
       'Filtering the pool',
       'A second row of chips under the search box, and it only appears once your club actually has more than one kind of player recorded — so a list you cannot usefully filter never grows a filter.',
       'The players list filtered to the women in the club'),
+  ],
+  next:['admin-hand-team','admin-hand'],
+},
+
+'admin-hand-team': {
+  title:'Set up a team', route:'/guide/administration/by-hand/team', icon:'i-people', parent:'admin-hand',
+  eyebrow:'By hand · Teams',
+  h1:['Set up ','a team'],
+  lead:'A team is two players and a name. The bracket modes enter teams rather than players, so a pairing made here is one you never have to make again on a setup sheet.',
+  blocks:[
+    panel('The Teams hub','Every saved team, browsable by name, player or tournament, each showing its player count and group membership.',[
+      item('i-edit','Create a team','Name it, link it to existing player profiles, and assign it to one or more groups. It is immediately available in Add Existing Teams across every bracket mode.'),
+      item('i-doc','A team’s detail','The roster, the groups it belongs to and the events it has played, all editable in place.'),
+      item('i-swap','Or build it from the player','Put an existing player into an existing team without going through either hub — the assignment works from both ends.'),
+    ]),
+    shot('guide/01_admin/07_teams',430,932,[430, 860],
+      'The Teams hub',
+      'Every saved team, browsable by name, player or tournament, each showing its player count and group membership.',
+      'The Teams hub listing saved teams with their player counts'),
+    shot('guide/01_admin/08_team_create',430,932,[430, 860],
+      'Create a team',
+      'Name it, link it to existing player profiles, and assign it to one or more groups. It is immediately available in Add Existing Teams across every bracket mode.',
+      'The create-team screen with its player and group pickers'),
+    shot('guide/01_admin/09_team_detail',430,932,[430, 645],
+      'A team’s detail',
+      'The roster, the groups it belongs to and the events it has played, all editable in place.',
+      'A team detail page showing roster, groups and events played'),
+    sect('What a team works out for itself', 'i-south'),
     shot('guide/01_admin/15_teams_composition_filter',430,1087,[430, 645],
       'Teams work it out themselves',
       'Men, Women or Mixed on a team is never something you set: it is read off whoever is in the team right now. Swap a member and the badge follows. A team whose members are not all recorded reads Unknown, and the team page is where you can see which member to fix.',
       'The teams list filtered to the men’s teams'),
-
+    shot('guide/92_gender/01_team_composition_unknown',430,932,[430, 645],
+      'A team nobody has recorded yet',
+      'Wave Wolves reads Unknown because both its players read “Not specified”. The badge is not missing — it is saying what the roster actually knows. The group underneath carries the same kind of badge, worked out the same way from its members.',
+      'A team detail page badged Unknown, with both players marked Not specified'),
+    shot('guide/92_gender/02_team_composition_men',430,932,[430, 645],
+      'The same screen once the players are recorded',
+      'Two players set to Male, and Sand Vipers reads Men. Nothing on this page was typed: record the people, and the team, the group and every list that shows them follow on their own.',
+      'The same team detail page badged Men, with both players marked Male'),
   ],
-  next:['admin-bulk','administration'],
+  next:['admin-hand-group','admin-hand'],
+},
+
+'admin-hand-group': {
+  title:'Set up a group', route:'/guide/administration/by-hand/group', icon:'i-shield', parent:'admin-hand',
+  eyebrow:'By hand · Groups',
+  h1:['Set up ','a group'],
+  lead:'A group is a label you can filter by afterwards: a club, a venue, a level, a course. Nothing forces you to use one — but a roster sorted into groups is the difference between picking a field in seconds and scrolling sixty names.',
+  blocks:[
+    panel('The Groups hub','Every group you have made, with what belongs to it. A player or a team can be in several at once.',[
+      item('i-edit','Create a group','Name it and add the players and teams that belong to it — a club, a venue, or a recurring series.'),
+      item('i-target','A group’s detail','Its members, and the filter that makes setup fast: pick the group during tournament setup and add its people in a few taps.'),
+      item('i-people','Players and teams both','A group holds either, and the same person can belong to as many groups as you like.'),
+    ]),
+    shot('guide/01_admin/11_groups',430,932,[430, 860],
+      'The Groups hub',
+      'Every group you have made, with what belongs to it. A player or a team can be in several at once.',
+      'The Groups hub listing clubs, venues and recurring series'),
+    shot('guide/01_admin/12_group_create',430,932,[430, 860],
+      'Create a group',
+      'Name it and add the players and teams that belong to it — a club, a venue, or a recurring series.',
+      'The create-group screen with its player and team pickers'),
+    shot('guide/01_admin/13_group_detail',430,1644,[430, 645],
+      'A group’s detail',
+      'Its members, and the filter that makes setup fast: pick the group during tournament setup and add its people in a few taps.',
+      'A group detail page listing the players and teams it holds'),
+    fbox('i-trophy','Where a group pays off','On a setup sheet the group filter comes before the search box: pick the club and its whole roster is one tap away. That is the whole reason to sort people into groups, and it is why this is worth doing before the season rather than during it.'),
+  ],
+  next:['admin-bulk','admin-hand'],
 },
 
 'admin-bulk': {
@@ -204,15 +429,23 @@ administration: {
       item('i-admin','Or type someone new','A player who turns up unannounced goes straight in, without leaving setup.'),
       item('i-sync','It works both ways','Names added here are kept, so the roster grows by being used rather than by being maintained.'),
     ]),
-    fbox('i-check','Which sheet you land on depends on the mode','Every mode asks for something slightly different — teams and legs for a League, strikes and swaps for a queue mode. The nine setup pages below are the mode-by-mode version of this screen.'),
+    fbox('i-check','Which sheet you land on depends on the mode','Every mode asks for something slightly different — teams and legs for a League, strikes and swaps for a queue mode. The ten setup pages below are the mode-by-mode version of this screen.'),
     shot('guide/92_gender/03_roster_hidden_by_category',430,932,[430, 860],
       'The category filters the roster',
       'Set a tournament to Men’s and the roster sheet stops offering the women in your club, with a line saying how many it put away rather than a quietly shorter list. Players with no gender recorded are still offered — the category narrows the list, it does not demand that your club be fully tagged first.',
       'A roster sheet in a men’s event, showing the hidden-player count'),
+    shot('guide/92_gender/04_roster_gender_filter',430,932,[430, 860],
+      'Filtering the sheet by hand',
+      'Under the group filter and the search box sits a second row — All, Male, Female, Not specified — for the times the category is not the question. An Open event with sixteen names in it is a faster pick when you can take the eight you came for.',
+      'A player roster sheet with the gender filter row above the list'),
     shot('guide/92_gender/05_roster_create_gender',430,932,[430, 860],
       'Adding somebody on the spot',
       'The same three chips as Administration, at the bottom of the sheet, so a player typed in during setup is not left blank. In a Men’s event the choice is pre-filled and Female is not offered — it would only create somebody the event could not admit.',
       'The create-player row inside a roster sheet, with its gender chips'),
+    shot('guide/92_gender/06_team_roster_composition',430,932,[430, 860],
+      'The same row on the teams sheet',
+      'In the bracket modes you are picking teams rather than players, so the chips read Men, Women, Mixed and Unknown — the composition each team already has. Add all still adds all; the filter only decides what “all” currently means.',
+      'A teams roster sheet in Elimination setup, filtered by composition'),
     sect('Setting it up, mode by mode', 'i-south'),
     grid([
       {icon:'i-trophy', label:'Leagues', cap:'What this mode asks you at setup.', to:'m-league-hub'},
@@ -222,11 +455,23 @@ administration: {
       {icon:'i-trophy', label:'Social Scrambles', cap:'What this mode asks you at setup.', to:'m-social-scramble-hub'},
       {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-royal-shuffle-hub'},
       {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-royal-rotation-hub'},
+      {icon:'i-trophy', label:'Royal Duos', cap:'What this mode asks you at setup.', to:'m-royal-duo-hub'},
       {icon:'i-trophy', label:'Doghouse Shuffles', cap:'What this mode asks you at setup.', to:'m-doghouse-hub'},
       {icon:'i-trophy', label:'Quick Game', cap:'What this mode asks you at setup.', to:'quick-game-hub'},
     ]),
   ],
   next:['tournament-hub','administration'],
+  /* ══ INBOX · migriert aus archive/features/user-administration.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Player & Team Administration page · to review','i-south'),
+    fbox('i-people','Add Existing Players','During tournament setup, Add Existing Players opens the same library you built in Administration — with search, a group filter, and a counter tracking the spots left.'),
+    shot('guide/01_admin/10_team_add_player',430,932,[430, 860],
+      'Add players in-game',
+      'The same library, reached from inside tournament setup, with a counter tracking how many spots are still open.',
+      'The Add Existing Players sheet during tournament setup'),
+  ],
 },
 
 /* ── Arena ───────────────────────────────────────────────────────────── */
@@ -265,6 +510,34 @@ arena: {
     ]),
   ],
   next:['quick-game','brackets','scrambles','queue-modes','scorecards'],
+  /* ══ INBOX · migriert aus archive/features/navigation.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the App Navigation page · to review','i-south'),
+    panel('Ten formats, three groups','The Arena groups every format by the kind of session it suits. The number on a card is how many of those you have run.',[
+      item('i-bolt','Quick Games','At the top, above the tournament formats.'),
+      item('i-people','Single Competitions & Socials','Where you enter as a player, on your own account.'),
+      item('i-trophy','Team Competitions','Where you enter as a pair or a squad.'),
+    ]),
+    panel('Tournament history','Nothing is deleted when a session ends. Every tournament stays on the device with all its results.',[
+      item('i-clock','Grouped by mode','The same screen carries your history, grouped by mode with a count against each, so a previous event is a couple of taps away.'),
+      item('i-target','Filtered to one mode','Pick a mode and the history narrows to it — the fastest route back into something you ran last month.'),
+      item('i-grid','All tournaments','The full list across every mode, with the date, the player or team count and how far each got. Completed and in-progress events sit together, marked.'),
+    ]),
+    shot('guide/00_shell/05_arena_full',430,1745,[430, 645],
+      'History underneath',
+      'The same screen carries your tournament history, grouped by mode with a count against each, so a previous event is a couple of taps away.',
+      'The full Arena screen with the format cards above the tournament history'),
+    shot('guide/00_shell/07_tournament_history_filtered',430,932,[430, 860],
+      'Filtered history',
+      'Pick a mode and the history narrows to it — the fastest route back into something you ran last month.',
+      'Tournament history filtered to a single mode'),
+    shot('guide/00_shell/06_tournament_history',430,2143,[430, 645],
+      'All tournaments',
+      'The full list across every mode, with the date, the player or team count and how far each got. Completed and in-progress events sit together, marked.',
+      'The full tournament history listing events across every mode'),
+  ],
 },
 
 /* ── Quick Game ──────────────────────────────────────────────────────── */
@@ -338,6 +611,7 @@ arena: {
       {icon:'i-trophy', label:'Social Scrambles', cap:'What this mode asks you at setup.', to:'m-social-scramble-hub'},
       {icon:'i-trophy', label:'Royal Shuffles', cap:'What this mode asks you at setup.', to:'m-royal-shuffle-hub'},
       {icon:'i-trophy', label:'Royal Rotations', cap:'What this mode asks you at setup.', to:'m-royal-rotation-hub'},
+      {icon:'i-trophy', label:'Royal Duos', cap:'What this mode asks you at setup.', to:'m-royal-duo-hub'},
       {icon:'i-trophy', label:'Doghouse Shuffles', cap:'What this mode asks you at setup.', to:'m-doghouse-hub'},
       {icon:'i-trophy', label:'Quick Game', cap:'What this mode asks you at setup.', to:'quick-game-hub'},
     ]),
@@ -350,7 +624,7 @@ arena: {
   title:'Settings Every Mode Shares', route:'/guide/tournament-hub/settings', icon:'i-clock', parent:'tournament-hub',
   eyebrow:'Tournament Hub · reference',
   h1:['Settings every ','mode shares'],
-  lead:'Schedule, game format, pace, roster, name. Each mode page lists what is its own; this is everything the eight of them have in common — with the app’s own help text, word for word.',
+  lead:'Schedule, game format, pace, roster, name. Each mode page lists what is its own; this is everything the nine of them have in common — with the app’s own help text, word for word.',
   blocks:[
     opts('Schedule Preview — the controls inside the card',[
       opt('Start date','Date picker','Today · yesterday to +365 days',
@@ -402,9 +676,17 @@ arena: {
          help:'“You added {selected} teams, but the setup is planned for {target}. Adjusting updates the bracket, seeding and schedule — keep {target} if you’d rather review the line-up first.”'}),
       opt('Tournament Name','Free text, plus a suggest button','A random name in the mode’s own style',
         {when:'Create stays disabled while the name is empty.'}),
+      opt('Category','Men’s, Women’s, Mixed, Open','Whatever the roster adds up to, until you pick',
+        {what:'What kind of event this is. It binds who the roster sheet offers and nothing else — no draw, no pairing and no sit-out rotation reads it.',
+         when:'Rides the name row, because both describe the event rather than shape it. Mixed is not offered in Royal Shuffles and Doghouse Shuffles: a one-of-each-per-court rule laid over a queue would keep the smaller group on court every round while the larger one took turns sitting out.',
+         help:'“Men\'s and Women\'s bind the roster: a player recorded as the other gender is not offered. Anyone whose gender nobody has recorded still is. It changes nothing about the draw, the pairings or who sits out.”'}),
       opt('Create Tournament','The button that ends setup','Disabled until the page is ready',
         {what:'The line above it says what is still missing — “Add all {count} teams to continue”, or simply “Ready to start!”.'}),
     ]),
+    shot('guide/92_gender/08_category_help',430,932,[430, 860],
+      'The category, and what it deliberately does not touch',
+      'The help sheet is unusually insistent about its own limits, and that is the point: a label that quietly filtered a draw would be worse than no label at all. It narrows the roster sheet. Everything downstream — who partners whom, who sits out, who plays where — runs exactly as it would in an Open event.',
+      'The Category help sheet open over a Social Scramble setup page'),
     fbox('i-bolt','Two families, two kinds of setup page','The bracket modes — Leagues, Eliminations, TournaQ Classics, Swiss Systems — play to a points target, so they carry a game format, a pace and a full slot list. The player-pool modes run a clock instead: the round ends when the minutes are up, so they ask for a match duration and a break, and never for sets or a target score.'),
   ],
   next:['tournament-hub','tournament'],
@@ -447,10 +729,58 @@ tournament: {
       {icon:'i-grid', label:'Social Scrambles', cap:'What the live screen shows for this mode.', to:'m-social-scramble-run'},
       {icon:'i-grid', label:'Royal Shuffles', cap:'What the live screen shows for this mode.', to:'m-royal-shuffle-run'},
       {icon:'i-grid', label:'Royal Rotations', cap:'What the live screen shows for this mode.', to:'m-royal-rotation-run'},
+      {icon:'i-grid', label:'Royal Duos', cap:'What the live screen shows for this mode.', to:'m-royal-duo-run'},
       {icon:'i-grid', label:'Doghouse Shuffles', cap:'What the live screen shows for this mode.', to:'m-doghouse-run'},
     ]),
   ],
   next:['scorecards','exported'],
+  /* ══ INBOX · migriert aus archive/features/live-tournament.html,
+     archive/features/device-scalability.html und archive/features/tournament-features.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Live Tournament page · to review','i-south'),
+    panel('A break is not the same as leaving','TournaQ keeps a player’s place and their points, and puts them back where they were.',[
+      item('i-clock','Choose who, and for how long','Pick the player and whether they are out for this round only or until you bring them back. Everything they have already banked stays with them.'),
+      item('i-people','What happens to their seat','Their spot becomes an anonymous placeholder so anyone courtside can step in, and nothing else is reshuffled — the rest of the draw is untouched.'),
+      item('i-check','Bringing them back','Return them and they slot back into the rotation. Nobody else’s position moves, and the schedule does not have to be rebuilt.'),
+      split('Someone steps in'),
+      item('i-swap','A stand-in on a live court','The placeholder left by a break or an ejection can be filled by whoever is available, so the round runs on time instead of playing three against four while you find somebody.'),
+      item('i-people','Changing the challengers','In the rotation formats, the pair due on next can be swapped by hand — for the player still tying a shoelace, or the one who has just walked in.'),
+    ]),
+    shot('guide/90_features/04_break_picker',430,932,[430, 860],
+      'Choose who, and for how long',
+      'Pick the player and whether they are out for this round only or until you bring them back. Everything they have already banked stays with them.',
+      'The break picker showing the player list and the length of the break'),
+    shot('guide/90_features/08_stand_in_seat',430,1175,[430, 645],
+      'A stand-in on a live court',
+      'The placeholder left by a break or an ejection can be filled by whoever is available, so the round runs on time.',
+      'A placeholder seat on a live court being filled by a stand-in'),
+    fbox('i-shield','Two ways to absorb it','The hard case: a player going home mid-session has to be handled without invalidating the evening so far. TournaQ asks which you want rather than choosing for you, because the right answer depends on how much of the session is left.',[
+      {icon:'i-swap', title:'Re-pair the remaining rounds', body:'The draw is rebuilt without them, so nobody sits out a round that was meant to be full'},
+      {icon:'i-people', title:'Leave the seat as a placeholder', body:'Nobody else’s pairings move, and anyone courtside can step into it'},
+      {icon:'i-check', title:'Either way', body:'The games they have already played still count towards the ranking'},
+      {icon:'i-admin', title:'The player list is the control panel', body:'Everyone in the session with their games and points, and on each row the four things you need mid-evening: pause, rename, swap, remove'},
+    ]),
+    shot('guide/90_features/05_eject_choice_dialog',430,932,[430, 860],
+      'Someone has to leave',
+      'Re-pair the remaining rounds without them, or leave their seat as a placeholder so nobody else’s pairings move.',
+      'The dialog offering two ways to handle a player leaving mid-session'),
+    sect('From the Device & Screen and Tournament Management pages · to review','i-south'),
+    panel('Two more things this page does',null,[
+      item('i-grid','Long screens scroll rather than shrink','A fifteen-match schedule or a full bracket is longer than any phone. Every fixture, every court, every time slot — scrolled rather than squeezed, and the same page on a tablet simply shows more of it at once. Brackets and crosstables get their own canvas: pinch to zoom, drag to pan, and tap a team to trace its path.'),
+      item('i-copy','Imported scorecards, kept apart','Results that arrived from other devices sit on their own tab in the hub, next to your own history, so it stays obvious which were scored here and which were not.'),
+      item('i-court','The organiser’s view is a phone screen','Progress, settings and the schedule on one screen; the whole court plan — every round against every court — legible on a phone rather than requiring a laptop.'),
+    ]),
+    shot('guide/99_marketing/07_court_allocation',430,934,[430, 860, 1280],
+      'Court allocation on a phone',
+      'The whole plan — every round against every court — legible on the device you are already holding.',
+      'The court allocation plan shown on a phone screen'),
+    shot('guide/90_features/22_hub_imported_scorecards',430,932,[430, 645],
+      'Imported scorecards, kept apart',
+      'Results that arrived from other devices sit on their own tab in the hub, next to your own history.',
+      'The hub tab holding scorecards imported from other devices'),
+  ],
 },
 
 /* ── What the tournament page can do ─────────────────────────────────── */
@@ -466,6 +796,10 @@ tournament: {
       {icon:'i-shield', title:'Tinted, with a padlock', body:'The setting exists and is changeable — just not from this screen, or not any more. Tapping tells you which.'},
       {icon:'i-doc', title:'Grey, no glyph', body:'A fact, not a setting. Nothing anywhere can change it, so the pill offers nothing to tap.'},
     ]),
+    shot('guide/92_gender/07_category_pill',430,1724,[430, 645],
+      'One row, all four kinds of pill',
+      'Standings and Allocation open a screen; “4 rounds” and “2 courts” carry a pencil; “2v2” wears a padlock, because the draw is already set. “Mixed” is the event’s category, and it is grey with no glyph at all — the category is a statement about the event, never a switch you can still throw.',
+      'A Social Scramble overview, the pill row showing a grey Mixed category pill'),
     opts('The three reasons a pill is locked',[
       opt('The draw is set','A match has started or been played, so nothing about the draw may move — redrawing would discard results.','Redraw, Adjust draw, Legs, Odd Teams, Format — and on Swiss the round-1 reroll',
         {help:'“The draw is fixed once a match has started.”'}),
@@ -512,6 +846,10 @@ scorecards: {
       {icon:'i-timer', label:'Scramble scorecard', cap:'Timed rounds instead of sets. For Social Scrambles.', to:'sc-scramble'},
       {icon:'i-queue', label:'Queue scorecard', cap:'The court plus who is waiting. For Royal Shuffles, Royal Rotations, Doghouse Shuffles and Royal Duos.', to:'sc-queue'},
     ]),
+    shot('guide/08_league/08_scorecard',430,998,[430, 645],
+      'What a scorecard looks like',
+      'This is the classic one, the card most events land on: the sets across the top, the two teams under them, the match controls below, and the whole event stated in the pill row at the foot. The other two cards are this card with the parts a timed round or a waiting queue needs instead.',
+      'A classic TournaQ scorecard mid second set of three'),
     fbox('i-share','And one way to hand them over','Any scorecard can leave your device and come back with a result on it.', [
       {icon:'i-qr', title:'Exported scorecard', body:'Let somebody else run the game on their own phone'},
     ]),
@@ -524,11 +862,27 @@ scorecards: {
       {icon:'i-score', label:'Social Scrambles', cap:'The card this mode scores on.', to:'m-social-scramble-score'},
       {icon:'i-score', label:'Royal Shuffles', cap:'The card this mode scores on.', to:'m-royal-shuffle-score'},
       {icon:'i-score', label:'Royal Rotations', cap:'The card this mode scores on.', to:'m-royal-rotation-score'},
+      {icon:'i-score', label:'Royal Duos', cap:'The card this mode scores on.', to:'m-royal-duo-score'},
       {icon:'i-score', label:'Doghouse Shuffles', cap:'The card this mode scores on.', to:'m-doghouse-score'},
       {icon:'i-score', label:'Quick Game', cap:'The card this mode scores on.', to:'quick-game-score'},
     ]),
   ],
   next:['sc-classic','sc-scramble','sc-queue','exported'],
+  /* ══ INBOX · migriert aus archive/features/device-scalability.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Device & Screen page · to review','i-south'),
+    fbox('i-target','Built for one hand, either way up','The controls that matter during a rally sit where a thumb reaches, on the device you already have with you.',[
+      {icon:'i-score', title:'Big targets', body:'The serving side marked, undo within reach. Everything else on the card is secondary to the two buttons you press forty times a set'},
+      {icon:'i-swap', title:'Every scorecard rotates', body:'In landscape the numbers get bigger and the layout suits a phone propped on a post, read from two metres away rather than held. Nothing is hidden — the layout changes, the functions do not'},
+      {icon:'i-grid', title:'One layout learned once', body:'A quick game, a rotation format and a bracket tie all rotate to the same shape, so a referee handed a phone does not have to be told which format they are scoring'},
+    ]),
+    shot('guide/99_marketing/04_live_scorecard',430,934,[430, 860, 1280],
+      'Scoring',
+      'Big targets, the serving side marked, undo within reach. Everything else on the card is secondary to the two buttons you press forty times a set.',
+      'A live scorecard with large scoring targets and the serving side marked'),
+  ],
 },
 
 'sc-classic': {
@@ -546,6 +900,10 @@ scorecards: {
       item('i-swap','Gesture side switch','Or turn the automation off and swap sides yourself with a gesture.'),
     ]),
     fbox('i-check','Used by','Leagues, Eliminations (single and double), TournaQ Classics, Swiss Systems — and Quick Game.'),
+    shot('guide/08_league/08_scorecard',430,998,[430, 645],
+      'The card, top to bottom',
+      'Sets across the top, the two teams under them with a plus and a minus each, the match controls below, and the event stated in the pill row at the foot. Every mode in the list above scores on this card — what changes between them is the line that says where the match sits, and little else.',
+      'A classic TournaQ scorecard mid second set of three'),
     sect('Every control on the card','i-south'),
     opts('The classic card, top to bottom',[
       opt('The pill row','Match context — event name, position, court, sets, target points, duration — plus the event settings, locked here because the tournament page owns them. The roster is the exception: it is the one setting this card writes itself.','Under the title'),
@@ -565,18 +923,35 @@ scorecards: {
     ], ['Control','What it does','When you see it']),
     sect('What each mode does with it','i-south'),
     opts('What differs, mode by mode',[
-      opt('Leagues','The position reads “Round {n} · Match {m}” — a league has no bracket to read one from — and the Crosstable opens from the pill row.','<a href="#/m-league-score">Scoring a League match</a>'),
-      opt('Eliminations','A guard once the following match has started: “The next match has already started, so the winner of this match can’t change. You can still correct the points as long as the same team wins.” Byes open from the pill row.','<a href="#/m-elimination-score">Scoring an Elimination match</a>'),
-      opt('TournaQ Classics','The position names the phase and the tier the match belongs to.','<a href="#/m-classic-score">Scoring a TournaQ Classic match</a>'),
-      opt('Swiss Systems','Completing the last match of a round pairs the next round immediately — the card runs that reconcile itself.','<a href="#/m-swiss-score">Scoring a Swiss System match</a>'),
-      opt('Quick Game','Target score and side swap are dropdowns on the card, because there is no tournament to inherit them from. The options sheet says “Swap Teams”, the card closes with “Save &amp; Return to Games”, and tapping a team name edits the lineup. No schedule card and no referee banner.','<a href="#/quick-game-score">Scoring a Quick Game</a>'),
+      opt('Leagues','The position reads “Round {n} · Match {m}” — a league has no bracket to read one from — and the Crosstable opens from the pill row.',pageLink('m-league-score','Scoring a League match')),
+      opt('Eliminations','A guard once the following match has started: “The next match has already started, so the winner of this match can’t change. You can still correct the points as long as the same team wins.” Byes open from the pill row.',pageLink('m-elimination-score','Scoring an Elimination match')),
+      opt('TournaQ Classics','The position names the phase and the tier the match belongs to.',pageLink('m-classic-score','Scoring a TournaQ Classic match')),
+      opt('Swiss Systems','Completing the last match of a round pairs the next round immediately — the card runs that reconcile itself.',pageLink('m-swiss-score','Scoring a Swiss System match')),
+      opt('Quick Game','Target score and side swap are dropdowns on the card, because there is no tournament to inherit them from. The options sheet says “Swap Teams”, the card closes with “Save &amp; Return to Games”, and tapping a team name edits the lineup. No schedule card and no referee banner.',pageLink('quick-game-score','Scoring a Quick Game')),
     ], ['Mode','What is different here','The full card, control by control']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every match is scored on the phone that owns the tournament. Both of these end in the same standings the card would have produced.',[
+      item('i-qr','Export scorecard','Hand the match to another phone as a QR code. They score it on a full card of their own — right teams, right format, no signal needed — and you scan the result back.'),
+      item('i-edit','Manually Set Score','For a match played while you were looking the other way. Write the final score straight in, set by set, without opening a card at all.'),
+    ]),
+    shot('guide/90_features/16_qr_export_sheet',430,932,[430, 860],
+      'Handing the match over',
+      'The sheet names the match it is about to give away — who is playing, which round, which court — and then it is one code on a screen. Nothing is sent anywhere; the whole match fits in the picture.',
+      'The QR export sheet showing the code for one League match'),
+    shot('guide/90_features/20_manual_result_dialog',430,932,[430, 860],
+      'Writing a score in by hand',
+      'Manually Set Score is offered from the schedule as well as from the card, so a match nobody opened can still be recorded. Where a result already stands it asks first — “This game already has a score. Editing it will replace the current result.” — so a finished match is never overwritten by a stray tap.',
+      'The confirmation shown before a recorded score is replaced by hand'),
     grid([
-      {icon:'i-score', label:'Leagues', cap:'Every control on this card, in one table.', to:'m-league-score'},
-      {icon:'i-score', label:'Eliminations', cap:'Every control on this card, in one table.', to:'m-elimination-score'},
-      {icon:'i-score', label:'TournaQ Classics', cap:'Every control on this card, in one table.', to:'m-classic-score'},
-      {icon:'i-score', label:'Swiss Systems', cap:'Every control on this card, in one table.', to:'m-swiss-score'},
-      {icon:'i-bolt', label:'Quick Game', cap:'Every control on this card, in one table.', to:'quick-game-score'},
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
+    sect('Scoring it, mode by mode','i-south'),
+    grid([
+      {icon:'i-grid', label:'Scoring a League match', cap:'The card with a round and a match number on it, and the Crosstable one tap away.', to:'m-league-score'},
+      {icon:'i-bracket', label:'Scoring an Elimination match', cap:'The card carrying its place in the bracket — single and double alike.', to:'m-elimination-score'},
+      {icon:'i-trophy', label:'Scoring a TournaQ Classic match', cap:'The card naming the phase and the tier the match belongs to.', to:'m-classic-score'},
+      {icon:'i-swap', label:'Scoring a Swiss System match', cap:'The card that pairs the next round the moment the last one lands.', to:'m-swiss-score'},
+      {icon:'i-bolt', label:'Scoring a Quick Game', cap:'The same card with no tournament behind it — the format lives on the card itself.', to:'quick-game-score'},
     ]),
   ],
   next:['exported','scorecards'],
@@ -595,7 +970,11 @@ scorecards: {
       item('i-timer','Game timer','The round runs to a hard time limit. When it ends, everyone regroups.'),
     ]),
     fbox('i-clock','Why the timer decides','Every court has to finish together, or the next scramble cannot be drawn. The clock keeps the whole session in step.'),
-    fbox('i-check','Used by','Social Scrambles, and nothing else.'),
+    fbox('i-check','Used by','Social Scrambles.'),
+    shot('guide/03_social_scramble/07_scorecard',430,1344,[430, 645],
+      'The card, top to bottom',
+      'The clock sits where the set overview sits on the classic card, because the clock is what ends the round. Under the score: the referee, the event in its pill row, who is sitting this one out — and the games still to come, so whoever holds the phone knows what happens next.',
+      'A Social Scramble scorecard mid-game, with the round timer running'),
     sect('Every control on the card','i-south'),
     opts('The scramble card, top to bottom',[
       opt('The pill row','Event name — editable, because a name re-forms nothing — then round and court, and Standings, Allocation, Teams and the player count. Format, rounds and courts edit here only on a single-court session.','Under the title'),
@@ -609,8 +988,21 @@ scorecards: {
       opt('Back','“Back to Schedule” on your own device, “Back to Hub” on an imported card.','Bottom of the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','A scramble round moves fast and the phone is not always at the right court. Both of these end in the same standings the card would have produced.',[
+      item('i-qr','Export scorecard','Hand the game to another phone as a QR code. The card that arrives carries its round, its court and its players, and lists the games still to come as a frozen snapshot.'),
+      item('i-edit','Manually Set Score','For a game played without live scoring, or one the clock ran out on: type the final score for both sides and complete the game.'),
+    ]),
+    shot('guide/03_social_scramble/15_dialog_manual_result',430,932,[430, 860],
+      'Writing a score in by hand',
+      'Opened from the schedule rather than the card: “Use this when the game was played without live scoring. Enter the final score for both sides and complete the game.” A scramble game is one race to a number, so it is one box per side — no sets to fill in.',
+      'The Manually Set Score dialog on a Social Scramble schedule, one score box per side'),
     grid([
-      {icon:'i-timer', label:'Scoring a Social Scramble game', cap:'The timer, the breaks, the upcoming games and the pill row — every control, in one table.', to:'m-social-scramble-score'},
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
+    sect('Scoring it, mode by mode','i-south'),
+    grid([
+      {icon:'i-people', label:'Scoring a Social Scramble match', cap:'The timer, the breaks, the upcoming games and the pill row — every control, in one table.', to:'m-social-scramble-score'},
     ]),
   ],
   next:['m-social-scramble-score','scorecards'],
@@ -630,6 +1022,10 @@ scorecards: {
       item('i-timer','Game timer','The round runs to a hard time limit.'),
     ]),
     fbox('i-check','Used by','Royal Shuffles, Royal Rotations, Doghouse Shuffles and Royal Duos.'),
+    shot('guide/06_royal_shuffle/11_court_automated',430,1175,[430, 645],
+      'The card, top to bottom',
+      'Read it from the bottom up and it is a queue: the side on court with the score under their names, the challengers waiting above them, and Up Next above that. The eject buttons sit down the right edge, within thumb reach of the score, because ejecting is the other thing you do all round.',
+      'A Royal Shuffle court card with the court, the challengers and the Up Next queue'),
     sect('Every control on the card','i-south'),
     opts('The queue card, top to bottom',[
       opt('The pill row','The same pills the tournament page carries, plus this round and this court. The format pills edit here only on a single-court session; on more than one they lock, because every court feeds one shared ranking.','Under the title'),
@@ -649,14 +1045,25 @@ scorecards: {
     ], ['Control','What it does','When you see it']),
     sect('What each mode does with it','i-south'),
     opts('What differs, mode by mode',[
-      opt('Royal Shuffles','The strike prompt ends a hold: “Game Won! {names} reached {points} points! They will be ejected and return to the queue.” The table under the card ranks individual players.','<a href="#/m-royal-shuffle-score">Scoring a Royal Shuffle match</a>'),
-      opt('Royal Rotations','Pairs queue instead of individuals, so the card adds a partner picker — “Pick a partner for the floater” — and the table under it ranks teams.','<a href="#/m-royal-rotation-score">Scoring a Royal Rotation match</a>'),
-      opt('Doghouse Shuffles','Two thresholds instead of one — “Escaped!” at the escape target, and “Ejected! {names} lost {count} games!” at the loss limit.','<a href="#/m-doghouse-score">Scoring a Doghouse Shuffle match</a>'),
+      opt('Royal Shuffles','The strike prompt ends a hold: “Game Won! {names} reached {points} points! They will be ejected and return to the queue.” The table under the card ranks individual players.',pageLink('m-royal-shuffle-score','Scoring a Royal Shuffle match')),
+      opt('Royal Rotations','Pairs queue instead of individuals, so the card adds a partner picker — “Pick a partner for the floater” — and the table under it ranks teams.',pageLink('m-royal-rotation-score','Scoring a Royal Rotation match')),
+      opt('Doghouse Shuffles','Two thresholds instead of one — “Escaped!” at the escape target, and “Ejected! {names} lost {count} games!” at the loss limit.',pageLink('m-doghouse-score','Scoring a Doghouse Shuffle match')),
+      opt('Royal Duos','Fixed pairs queue as one unit, so nothing on the card ever splits a duo — and there are no stand-ins: a duo sits the round out or leaves the tournament. The table under the card ranks duos.',pageLink('m-royal-duo-score','Scoring a Royal Duo match')),
     ], ['Mode','What is different here','The full card, control by control']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','You cannot stand at every court, and a queue court runs whether you are watching or not. Both of these end in the same ranking the card would have produced.',[
+      item('i-qr','Export court','Hand the whole court to another phone as a QR code, the queue behind it included: in a queue mode a court, not a match, is what gets refereed.'),
+      item('i-edit','Manually Set Score','Write the court’s results in directly, without scoring its games one by one.'),
+    ]),
     grid([
-      {icon:'i-crown', label:'Royal Shuffles', cap:'Every control on this card, in one table.', to:'m-royal-shuffle-score'},
-      {icon:'i-crown', label:'Royal Rotations', cap:'Every control on this card, in one table.', to:'m-royal-rotation-score'},
-      {icon:'i-shield', label:'Doghouse Shuffles', cap:'Every control on this card, in one table.', to:'m-doghouse-score'},
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
+    sect('Scoring it, mode by mode','i-south'),
+    grid([
+      {icon:'i-crown', label:'Scoring a Royal Shuffle match', cap:'Individuals queue, and the strike prompt ends a hold.', to:'m-royal-shuffle-score'},
+      {icon:'i-crown', label:'Scoring a Royal Rotation match', cap:'Pairs queue, redrawn each round — so the card adds a partner picker.', to:'m-royal-rotation-score'},
+      {icon:'i-people', label:'Scoring a Royal Duo match', cap:'The same card with the pairs fixed for the whole tournament.', to:'m-royal-duo-score'},
+      {icon:'i-shield', label:'Scoring a Doghouse Shuffle match', cap:'Two thresholds on the card instead of one: escape, and loss limit.', to:'m-doghouse-score'},
     ]),
   ],
   next:['queue-modes','scorecards'],
@@ -676,6 +1083,14 @@ exported: {
       step(4,'i-sync','You collect the result','Scan it back and the result drops into your tournament.', {tone:'tint'}),
     ]),
     fbox('i-off','Paperless and offline','The whole exchange is two QR codes. Nothing goes through a server, so it works on a beach with no signal exactly as well as it does indoors.'),
+    shot('guide/90_features/16_qr_export_sheet',430,932,[430, 860],
+      'The code that hands it over',
+      'The sheet names the match it is about to give away — who is playing, which round, which court — and then it is one code on a screen. “Scan this code on the other device.” Nothing is sent anywhere; the whole match fits in the picture.',
+      'The QR export sheet showing the code for one League match'),
+    shot('guide/90_features/21_imported_scorecard',430,932,[430, 645],
+      'The same card, on their phone',
+      'What arrives is the ordinary classic scorecard, scored exactly the way it would be at home — but the header says “Imported Scorecard”, the pill row carries the host’s own position (“Semi-final · Match 1”) rather than the borrowed phone’s idea of it, and there is no schedule underneath to go back to.',
+      'An imported classic scorecard for an Elimination semi-final'),
     note('Draft note · direction of the arrow',
       'Your Principle diagram shows lines running <b>both ways</b> between Tournament and Exported Scorecard, which raised a question in the source notes. The draft treats that as correct and deliberate: the card goes out, the result comes back. It is a round trip, not a one-way export.'),
     sect('What changes on a borrowed card','i-south'),
@@ -688,6 +1103,19 @@ exported: {
       opt('Back to Hub','There is no schedule underneath a borrowed card, so it returns to the hub instead.','Bottom of the card'),
       opt('Coming home','On the host phone the scanner takes it back: “Result imported.” A code from elsewhere is refused — “This result is for a different tournament.” — and a code that is not a result at all says so.','The tournament page'),
     ], ['Control','What it does','When you see it']),
+    sect('What travels, mode by mode','i-south'),
+    fbox('i-share','A match, or a whole court','Team competitions and scrambles hand over one game at a time. Queue modes hand over the court itself — the queue behind it included — because a court, not a match, is the unit that gets refereed.'),
+    grid([
+      {icon:'i-grid', label:'Scoring a League match', cap:'One match travels, with its round and match number on it.', to:'m-league-score'},
+      {icon:'i-bracket', label:'Scoring an Elimination match', cap:'One tie travels, carrying its place in the bracket.', to:'m-elimination-score'},
+      {icon:'i-trophy', label:'Scoring a TournaQ Classic match', cap:'One match travels, carrying its phase and its tier.', to:'m-classic-score'},
+      {icon:'i-swap', label:'Scoring a Swiss System match', cap:'One pairing travels; the next round pairs when it comes back.', to:'m-swiss-score'},
+      {icon:'i-people', label:'Scoring a Social Scramble match', cap:'One timed game travels, with the upcoming games frozen as a snapshot.', to:'m-social-scramble-score'},
+      {icon:'i-crown', label:'Scoring a Royal Shuffle match', cap:'A whole court travels — queue, challengers and all.', to:'m-royal-shuffle-score'},
+      {icon:'i-crown', label:'Scoring a Royal Rotation match', cap:'A whole court travels, pairs redrawn on the borrowed phone.', to:'m-royal-rotation-score'},
+      {icon:'i-people', label:'Scoring a Royal Duo match', cap:'A whole court travels, with the duos fixed as they left.', to:'m-royal-duo-score'},
+      {icon:'i-shield', label:'Scoring a Doghouse Shuffle match', cap:'A whole court travels, both thresholds set as the host set them.', to:'m-doghouse-score'},
+    ]),
   ],
   next:['tournament','scorecards'],
 },
@@ -842,6 +1270,18 @@ scrambles: {
     ]),
   ],
   next:['m-royal-duo-hub','queue-modes'],
+  /* ══ INBOX · migriert aus pages/modes/royal-duo.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Duos page · to review','i-south'),
+    fbox('i-target','Best for',null,[
+      {icon:'i-check', title:'Partners who want to play a queue mode together instead of being split up by the draw'},
+      {icon:'i-check', title:'Clubs running a team ranking on a single evening, without a fixture list to schedule'},
+      {icon:'i-check', title:'Groups who like the pace of King of the Court but want a table that credits the pair'},
+    ]),
+    panel('Where it sits in the Arena','Royal Duos sits under Team Competitions, beneath a Queue Modes subheading — the roster is fixed teams and the ranking is by team, which is what puts it there rather than with the Scramble Modes.',[]),
+  ],
 },
 
 /* ── Royal Duos · the three steps ───────────────────────────────────── */
@@ -989,6 +1429,30 @@ scrambles: {
     ]),
   ],
   next:['m-royal-duo-score','tournament'],
+  /* ══ INBOX · migriert aus pages/modes/royal-duo.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Duos page · to review','i-south'),
+    panel('Standings, live and final','The pairs are fixed, so the ranking is by team — points follow the duo, not the two players separately.',[
+      item('i-people','Live standings','Every duo with its points, games played and win record, ordered as it stands right now. Players check it between rounds without asking anyone.'),
+      item('i-crown','Final rankings','When the last round is in, the table closes with the winning duo at the top. A pair that retired early keeps its figures and is flagged, rather than dropping off the table.'),
+      item('i-check','The finished session','The schedule keeps every result. A completed session stays in the hub with all its scores, so a question about last month’s session has an answer.'),
+    ]),
+    shot('guide/05_royal_duo/17_rankings',430,932,[430, 645],
+      'Live standings',
+      'Every duo with its points, games played and win record, ordered as it stands right now.',
+      'The Royal Duo standings table part-way through a session'),
+    shot('guide/05_royal_duo/18_final_rankings',430,932,[430, 645],
+      'Final rankings',
+      'The table closes with the winning duo at the top. A pair that retired early keeps its figures and is flagged, rather than dropping off the table.',
+      'The final Royal Duo rankings with the winning pair at the top'),
+    shot('guide/05_royal_duo/19_overview_completed',430,1083,[430, 645],
+      'The finished session',
+      'A completed session stays in the hub with all its scores, so a question about last month’s session has an answer.',
+      'A completed Royal Duo session retained in the hub with its results'),
+    fbox('i-court','What the allocation grid tells you here','The pairs never change, so what this screen shows is not who plays with whom but whether the draw is spreading the opponents around evenly.'),
+  ],
 },
 
 'm-royal-duo-score': {
@@ -1057,12 +1521,33 @@ scrambles: {
       opt('Teams table','Wins, points and ranking points per duo on this court.','Below the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same ranking as the card does.',[
+      item('i-qr','Export court','Hand the whole court to another phone as a QR code, the queue behind it included: in a queue mode a court, not a match, is what gets refereed.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the ranking moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
     ]),
   ],
   next:['sc-queue','m-royal-duo'],
+  /* ══ INBOX · migriert aus pages/modes/royal-duo.html ══
+     Zur Durchsicht geparkt, nicht platziert. Key loeschen, sobald der
+     Inhalt in blocks steht. Sichtbar ueber SHOW_INBOX in render.js. ══ */
+  inbox:[
+    sect('From the Royal Duos page · to review','i-south'),
+    panel('One partner, a moving queue','The partners are settled before the first whistle. What rotates is the queue inside each round — and TournaQ runs it.',[
+      item('i-queue','Challengers rotate automatically','When a hold ends the next duo comes on and the card says who they are. Nobody has to remember whose turn it was, and nobody quietly skips the queue.'),
+    ]),
+    shot('guide/05_royal_duo/21_dialog_challenger_rotated',430,932,[430, 860],
+      'The next duo is announced',
+      'When a hold ends the card names the pair coming on, so the queue runs without anyone arbitrating it.',
+      'The dialog announcing the next Royal Duo pair rotating onto the court'),
+  ],
 },
 
 /* ── League · the three steps ─────────────────────────────────────────── */
@@ -1270,6 +1755,14 @@ scrambles: {
       opt('App-bar QR menu','“Export scorecard” hands the match to another phone; “Manually Set Score” writes the final score straight in.','At 0–0 and again once complete — hidden mid-match, so nobody exports half a game'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same table as the card does.',[
+      item('i-qr','Export scorecard','Hand this match to another phone as a QR code. They score it on a full card of their own — right teams, right format, no signal needed — and you scan the result back.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the table moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-score', label:'Classic scorecard', cap:'What the other modes on this card do differently.', to:'sc-classic'},
@@ -1498,6 +1991,14 @@ scrambles: {
       opt('Winner-can’t-change guard','“The next match has already started, so the winner of this match can’t change. You can still correct the points as long as the same team wins.”','When the following match is already under way'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same bracket as the card does.',[
+      item('i-qr','Export scorecard','Hand this match to another phone as a QR code. They score it on a full card of their own — right teams, right format, no signal needed — and you scan the result back.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the bracket moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-score', label:'Classic scorecard', cap:'What the other modes on this card do differently.', to:'sc-classic'},
@@ -1730,6 +2231,14 @@ scrambles: {
       opt('App-bar QR menu','“Export scorecard” hands the match to another phone; “Manually Set Score” writes the final score straight in.','At 0–0 and again once complete — hidden mid-match, so nobody exports half a game'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same standings as the card does.',[
+      item('i-qr','Export scorecard','Hand this match to another phone as a QR code. They score it on a full card of their own — right teams, right format, no signal needed — and you scan the result back.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the standings moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-score', label:'Classic scorecard', cap:'What the other modes on this card do differently.', to:'sc-classic'},
@@ -1937,6 +2446,14 @@ scrambles: {
       opt('Pairs the next round','Finishing the last match of a round draws the next one immediately — this card runs that reconcile itself, so the pairing does not wait for anyone to open the round page.','On completing a match'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same standings as the card does.',[
+      item('i-qr','Export scorecard','Hand this match to another phone as a QR code. They score it on a full card of their own — right teams, right format, no signal needed — and you scan the result back.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the standings moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-score', label:'Classic scorecard', cap:'What the other modes on this card do differently.', to:'sc-classic'},
@@ -2173,6 +2690,14 @@ scrambles: {
       opt('Back','“Back to Schedule” on your own device, “Back to Hub” on an imported card.','Bottom of the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same standings as the card does.',[
+      item('i-qr','Export scorecard','Hand this game to another phone as a QR code. The card that arrives carries its round, its court and its players, and lists the games still to come as a frozen snapshot.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the standings moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-timer', label:'Scramble scorecard', cap:'What the other modes on this card do differently.', to:'sc-scramble'},
@@ -2425,6 +2950,14 @@ scrambles: {
       opt('Teams table','Wins, points and ranking points per team on this court.','Below the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same ranking as the card does.',[
+      item('i-qr','Export court','Hand the whole court to another phone as a QR code, the queue behind it included: in a queue mode a court, not a match, is what gets refereed.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the ranking moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
@@ -2664,6 +3197,14 @@ scrambles: {
       opt('Player table','Wins, points and ranking points for everyone on this court.','Below the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same ranking as the card does.',[
+      item('i-qr','Export court','Hand the whole court to another phone as a QR code, the queue behind it included: in a queue mode a court, not a match, is what gets refereed.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the ranking moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
@@ -2895,6 +3436,14 @@ scrambles: {
       opt('Player table','Wins, points and ranking points for everyone on this court.','Below the card'),
       opt('Landscape','Turn the phone and the same controls rearrange for a net post or a side table.','Any time'),
     ], ['Control','What it does','When you see it']),
+    sect('Scoring it without this card','i-south'),
+    panel('Two ways round the card','Not every game is scored on the phone that owns the tournament. Both of these end in the same ranking as the card does.',[
+      item('i-qr','Export court','Hand the whole court to another phone as a QR code, the queue behind it included: in a queue mode a court, not a match, is what gets refereed.'),
+      item('i-edit','Manually Set Score','For a game played while you were looking the other way. Write the final score straight in, without opening a card at all, and the ranking moves exactly as if you had tapped through every rally.'),
+    ]),
+    grid([
+      {icon:'i-qr', label:'Exported Scorecard', cap:'The QR round trip, end to end — what travels, what changes on a borrowed card, and how the result comes home.', to:'exported'},
+    ]),
     sect('The card itself','i-south'),
     grid([
       {icon:'i-queue', label:'Queue scorecard', cap:'What the other modes on this card do differently.', to:'sc-queue'},
@@ -3286,31 +3835,25 @@ scrambles: {
    und dieser Ast faellt weg. */
 const EXTERN = {
   'site-home':       {title:'Home',                              icon:'i-court',    url:'index.html'},
-
-  'site-features':   {title:'Features',                          icon:'i-target',   url:'features.html'},
-
-  'site-matrix':     {title:'Platform Features Hub',             icon:'i-grid',     url:'features/feature-matrix.html'},
-  'site-scoring':    {title:'Match Controls',                    icon:'i-score',    url:'features/scoring.html'},
-  'site-tournament': {title:'Tournament Management',             icon:'i-edit',     url:'features/tournament-features.html'},
-  'site-live':       {title:'Live Tournament',                   icon:'i-timer',    url:'features/live-tournament.html'},
-  'site-device':     {title:'Device &amp; Screen',               icon:'i-copy',     url:'features/device-scalability.html'},
-  'site-navigation': {title:'Navigation',                        icon:'i-map',      url:'features/navigation.html'},
-  'site-admin':      {title:'Player &amp; Team Administration',  icon:'i-admin',    url:'features/user-administration.html'},
-
-  'site-hub':        {title:'Games &amp; Tournaments Hub',       icon:'i-arena',    url:'modes/games-and-tournaments.html'},
-  'site-quick':      {title:'Quick Game',                        icon:'i-bolt',     url:'modes/quick-game.html'},
-  'site-social':     {title:'Social Scrambles',                  icon:'i-people',   url:'modes/social-scramble.html'},
-  'site-rotations':  {title:'Royal Rotations',                   icon:'i-crown',    url:'modes/royal-rotation.html'},
-  'site-doghouses':  {title:'Doghouse Shuffles',                 icon:'i-shield',   url:'modes/doghouse.html'},
-  'site-shuffles':   {title:'Royal Shuffles',                    icon:'i-crown',    url:'modes/royal-shuffle.html'},
-  'site-elim':       {title:'Eliminations',                      icon:'i-bracket',  url:'modes/ko-system.html'},
-  'site-leagues':    {title:'Leagues',                           icon:'i-grid',     url:'modes/league.html'},
-  'site-classics':   {title:'TournaQ Classics',                  icon:'i-trophy',   url:'modes/group-single-elimination.html'},
-  'site-swiss':      {title:'Swiss Systems',                     icon:'i-swap',     url:'modes/swiss-system.html'},
-  'site-duos':       {title:'Royal Duos',                       icon:'i-people',   url:'modes/royal-duo.html'},
-  'site-other':      {title:'Other Modes',                       icon:'i-star',     url:'modes/other-tournament-modes.html'},
+  /* Die Abschnitte der Startseite und der Platform-Seite. Das sind keine
+     Seiten, sondern Sprungmarken in einer — daran erkennbar, dass ihre
+     Adresse ein # traegt, woran navSeitenZahl() sie aus der Zaehlung nimmt.
+     In der Karte haengen sie unter ihrer Seite: so bekommt eine lange Seite
+     dasselbe aufklappbare Verzeichnis, das der Guide ueber seine Knoten hat.
+     Der Titel ist kurz und nicht die Ueberschrift Wort fuer Wort — eine
+     Zeile im Rail ist 13px hoch, keine Schlagzeile. */
+  'site-home-engine':  {title:'The Tournament Engine',           icon:'i-arena',    url:'index.html#engine'},
+  'site-home-quick':   {title:'Just a Scoreboard',               icon:'i-bolt',     url:'index.html#quick'},
+  'site-home-mix':     {title:'Mix the People',                  icon:'i-people',   url:'index.html#mix'},
+  'site-home-teams':   {title:'Turn Up With a Partner',          icon:'i-bracket',  url:'index.html#teams'},
+  'site-home-session': {title:'A Real Tournament',               icon:'i-trophy',   url:'index.html#session'},
+  'site-home-offline': {title:'Works Without Wifi',              icon:'i-off',      url:'index.html#offline'},
+  'site-home-sports':  {title:'The Volley Family',               icon:'i-court',    url:'index.html#sports'},
 
   'site-platform':   {title:'Platform',                          icon:'i-star',     url:'platform.html'},
+  'site-platform-idea':       {title:'The TournaQ Idea',         icon:'i-target',   url:'platform.html#idea'},
+  'site-platform-scope':      {title:'A Competition Engine',     icon:'i-arena',    url:'platform.html#scope'},
+  'site-platform-principles': {title:'Design Principles',        icon:'i-check',    url:'platform.html#principles'},
   'site-downloads':  {title:'Downloads',                         icon:'i-download', url:'downloads.html'},
   'site-legal':      {title:'Legal',                             icon:'i-doc',      url:'legal.html'},
   /* Die drei Rechtstexte liegen nicht unter pages/, sondern in legal/. Weil
@@ -3336,19 +3879,16 @@ const EXTERN = {
 const NAV = [
   {group:null, ids:[
      'site-home',
-     'site-features',
-       ['site-matrix',1],
-         ['site-scoring',2],['site-tournament',2],['site-live',2],
-         ['site-device',2],['site-navigation',2],['site-admin',2],
-       ['site-hub',1],
-         ['site-quick',2],['site-social',2],['site-shuffles',2],['site-rotations',2],
-         ['site-doghouses',2],['site-elim',2],['site-leagues',2],['site-classics',2],
-         ['site-swiss',2],['site-duos',2],['site-other',2],
+       ['site-home-engine',1],['site-home-quick',1],['site-home-mix',1],['site-home-teams',1],
+       ['site-home-session',1],['site-home-offline',1],['site-home-sports',1],
      'site-platform',
+       ['site-platform-idea',1],['site-platform-scope',1],['site-platform-principles',1],
 
      'home',
        ['administration',1],
-         ['admin-hand',2],['admin-bulk',2],['admin-setup',2],
+         ['admin-hand',2],
+          ['admin-hand-player',3],['admin-hand-team',3],['admin-hand-group',3],
+        ['admin-bulk',2],['admin-setup',2],
        ['arena',1],
          ['quick-game',2],['quick-game-hub',3],['quick-game-score',3],
          ['brackets',2],
@@ -3367,6 +3907,7 @@ const NAV = [
        ['tournament-hub',1],['setup-settings',2],
        ['tournament',1],['tournament-controls',2],
        ['scorecards',1],['sc-classic',2],['sc-scramble',2],['sc-queue',2],['exported',2],
+       ['navigation',1],
 
      'site-downloads',
      'site-legal',

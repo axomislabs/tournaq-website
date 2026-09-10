@@ -3,7 +3,7 @@
  *     node tools/bake-guide.mjs [--out v2]
  *
  * Warum: der Guide ist eine Datei mit Hash-Routen, und fuer Suchmaschinen
- * damit *eine* Seite mit *einem* Titel. Diese 23 Knoten tragen das Gewicht —
+ * damit *eine* Seite mit *einem* Titel. Diese 24 Knoten tragen das Gewicht —
  * die Modi, die Familien, die Scorecards. Was darunter liegt, bleibt
  * Hash-Route innerhalb der Seite, zu der es gehoert.
  *
@@ -33,6 +33,7 @@ const EIGENE_SEITE = [
   'queue-modes', 'm-royal-rotation', 'm-royal-shuffle', 'm-doghouse', 'm-royal-duo',
   'tournament-hub', 'tournament', 'scorecards',
   'sc-classic', 'sc-scramble', 'sc-queue', 'exported',
+  'navigation',
 ];
 
 /* Alles relativ, nichts wurzelrelativ. Der Guide liegt mit im Baum unter
@@ -56,6 +57,7 @@ for (const f of ['js/guide/pages.js', 'js/guide/render.js']) {
 }
 const PAGES = vm.runInContext('PAGES', ktx);
 const EXTERN = vm.runInContext('EXTERN', ktx);
+const SEITENZAHL = vm.runInContext('navSeitenZahl()', ktx);
 
 /* Das Sprite ist eine Quelle, keine Ausgabe: js/guide/sprite.js haelt es als
  * Zeichenkette, weil js/site-map.js es auf Seiten nachlegt, die keines
@@ -176,7 +178,7 @@ ${SPRITE}
 
       <aside class="g-map" id="g-map" aria-label="Guide map">
         <p class="g-map-h">TournaQ</p>
-        <p class="g-map-sub">${Object.keys(PAGES).length + Object.keys(EXTERN).length} pages</p>
+        <p class="g-map-sub">${SEITENZAHL} pages</p>
         <nav id="g-mapnav">${s.navi}</nav>
       </aside>
 
@@ -220,6 +222,12 @@ window.__guideKontext.link = window.__guideKontext.link.bind(window.__guideKonte
 </script>
 <script src="${basis}js/guide/pages.js" defer></script>
 <script src="${basis}js/guide/render.js" defer></script>
+<!-- Der Guide in DE/ES. Der Inhalt oben steht englisch im Dokument und ist der
+     Fallback; locales.js haelt die Uebersetzungen, uebersetzen.js legt sie
+     ueber PAGES, bevor boot.js zeichnet. Nur die Guide-Seiten laden das —
+     js/i18n.js bleibt fuer alle uebrigen Seiten zustaendig. -->
+<script src="${basis}js/guide/locales.js" defer></script>
+<script src="${basis}js/guide/uebersetzen.js" defer></script>
 <script src="${basis}js/guide/boot.js" defer></script>
 
 </body>

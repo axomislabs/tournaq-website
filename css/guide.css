@@ -107,6 +107,10 @@
 .g-map a:hover { background: rgba(85, 107, 47, 0.10); }
 .g-map a[aria-current="page"] { background: var(--olive); color: white; }
 .g-map a[aria-current="page"] .g-ic { color: var(--gold); opacity: 1; }
+/* Der Abschnitt der aktuellen Seite, der gerade im Bild steht. Leiser als die
+   Seite selbst darueber: es ist eine Stelle in ihr, keine zweite Seite. */
+.g-map a[aria-current="location"] { background: rgba(85, 107, 47, 0.13); }
+.g-map a[aria-current="location"] .g-ic { opacity: 1; }
 .g-map a.sub { margin-left: 14px; font-size: 13px; }
 .g-map a.sub2 { margin-left: 30px; font-size: 12.5px; }
 .g-map a.sub3 { margin-left: 46px; font-size: 12px; }
@@ -421,6 +425,38 @@ a.g-card:hover {
 .g-shot-title { font-size: 14.5px; font-weight: 800; color: var(--olive-dark); line-height: 1.3; }
 .g-shot-body  { font-size: 13px; line-height: 1.6; color: var(--muted); margin-top: 5px; }
 
+/* Hell und dunkel nebeneinander: zwei Aufnahmen desselben Schirms in einem
+   Block, jede mit ihrem Etikett darueber. Die Bilder werden schmaler als das
+   einzelne, damit das Paar in derselben Spalte bleibt; auf schmalen Schirmen
+   teilen sie sich die Breite weiter, statt untereinander zu rutschen — der
+   Vergleich ist der Zweck, und der geht beim Stapeln verloren. */
+.g-shot-media.paar { gap: 16px; align-items: flex-start; }
+
+.g-shot-halb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 0 1 200px;
+}
+
+.g-shot-halb img { max-width: 200px; }
+
+.g-shot-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Im zweispaltigen Satz steht das Paar in der Bildspalte — die ist fuer ein
+   Telefonbild gemacht, zwei passen nur nebeneinander, wenn sie schrumpfen. */
+.shots-side .g-shot.paar { grid-template-columns: 260px minmax(0, 1fr); }
+.shots-side .g-shot.paar .g-shot-halb { flex: 0 1 122px; }
+.shots-side .g-shot.paar .g-shot-halb img { max-width: 122px; }
+
 /* Zweispaltig: Bild links, Text rechts — die Form der Modus-Seiten. */
 .shots-side .g-shot {
   display: grid;
@@ -698,6 +734,68 @@ a.g-card:hover {
   }
 
 }
+
+/* ── Weiter im selben Zweig ──────────────────────────────
+   Der Zweig noch einmal unter dem Inhalt — hoch zur Elternseite, daneben die
+   Geschwister. Bewusst keine eigene Formensprache: die Karten sind dieselben
+   .g-card wie oben im Raster, damit am Fuss der Seite nichts Neues auftaucht,
+   sondern das Bekannte wiederkehrt. Die Trennlinie darueber sagt, dass der
+   Inhalt hier endet und nur noch der Weg weitergeht. */
+.g-zweig {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid var(--g-rail);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.g-zweig-auf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--olive-light);
+  box-shadow: var(--g-shadow);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.g-zweig-auf:hover { border-color: var(--olive); box-shadow: var(--g-shadow-hover); }
+.g-zweig-auf .g-disc { background: white; }
+.g-zweig-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+
+.g-zweig-k {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--g-faint);
+}
+
+.g-zweig-t { font-size: 15px; font-weight: 750; color: var(--olive-dark); margin-top: 2px; }
+.g-zweig-auf:hover .g-zweig-t { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Derselbe Pfeil, eine Vierteldrehung anders herum: hier geht es zurueck. */
+.g-zweig-auf .g-chev.auf { margin-right: -2px; opacity: 0.75; }
+.g-zweig-auf .g-chev.auf .g-ic { transform: rotate(90deg); }
+.g-zweig-auf:hover .g-chev.auf { opacity: 1; }
+
+/* Die Seite, auf der man gerade steht: dieselbe Karte, nur stumm. Gestrichelt
+   statt durchgezogen, damit sie auch ohne Farbe als „nicht anklickbar“ lesbar
+   bleibt — der Graugrad allein traegt das nicht. */
+.g-card.jetzt {
+  background: var(--olive-light);
+  border-style: dashed;
+  border-color: var(--g-rail);
+  box-shadow: none;
+}
+
+.g-card.jetzt .g-disc { background: white; color: var(--g-faint); }
+.g-card.jetzt .g-card-label,
+.g-card.jetzt .g-card-cap { color: var(--g-faint); }
+.g-card.jetzt .g-chip { color: var(--g-faint); border-color: var(--g-rail); }
 
 /* ── Closing CTA ──────────────────────────────────────────────────── */
 .g-cta {

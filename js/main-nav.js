@@ -1,8 +1,9 @@
 (function () {
   var path = window.location.pathname;
-  var inFeaturesDir = path.indexOf('/features/') !== -1;
-  var inModes = path.indexOf('/modes/') !== -1;
-  var isSubpage = inFeaturesDir || inModes;
+  // pages/modes/* sit one level below the site root and need a '../' prefix.
+  // The baked guide pages also live under a /modes/ path but pin their own
+  // prefix with data-nav-base, so they never reach this sniff.
+  var isSubpage = path.indexOf('/modes/') !== -1;
   // Pages living outside the published tree (local drafts) can pin the link
   // prefix with data-nav-base on <html>; everything else sniffs the path.
   var navBase = document.documentElement.getAttribute('data-nav-base');
@@ -14,7 +15,6 @@
   placeholder.outerHTML = `
     <div class="nav-links">
       <a href="${base}index.html" data-i18n="nav.home">Home</a>
-      <a href="${base}features.html" data-i18n="nav.features">Features</a>
       <a href="${base}platform.html" data-i18n="nav.platform">Platform</a>
       <a href="${base}guide.html" data-i18n="nav.guide">User Guide</a>
       <a href="${base}downloads.html" data-i18n="nav.downloads">Downloads</a>
@@ -25,22 +25,14 @@
 
   // Highlight active link by filename. Pages that do not want the filename
   // sniffed — the baked guide pages live under /guide/modes/ and would be read
-  // as feature sub-pages — name their nav entry with data-nav-active on <html>.
+  // as mode pages — name their nav entry with data-nav-active on <html>.
+  // pages/modes/* have no top-row entry of their own since the Features
+  // section was archived; the left rail carries where-you-are for them.
   var currentFile = document.documentElement.getAttribute('data-nav-active')
                  || path.split('/').pop();
-  var matched = false;
   document.querySelectorAll('.nav-links a').forEach(function (a) {
     if (a.getAttribute('href').split('/').pop() === currentFile) {
       a.classList.add('active');
-      matched = true;
     }
   });
-  // Sub-pages: highlight Features in the main nav
-  if (!matched && isSubpage) {
-    document.querySelectorAll('.nav-links a').forEach(function (a) {
-      if (a.getAttribute('href').indexOf('features.html') !== -1) {
-        a.classList.add('active');
-      }
-    });
-  }
 })();

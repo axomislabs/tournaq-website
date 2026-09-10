@@ -1,0 +1,2530 @@
+{
+ "Court": {
+  "de": "Platz",
+  "es": "Pista",
+  "quelle": "kotcCourtLabel",
+  "n": 319,
+  "hinweis": "app uneins: Platz/Court/Felder — Platz gewaehlt (kotcCourtLabel, scheduleAxisCourt)"
+ },
+ "Round": {
+  "de": "Runde",
+  "es": "Ronda",
+  "quelle": "courtsAnchorRound",
+  "n": 234
+ },
+ "Team": {
+  "de": "Team",
+  "es": "Equipo",
+  "quelle": "filterTeam",
+  "n": 144
+ },
+ "Teams": {
+  "de": "Teams",
+  "es": "Equipos",
+  "quelle": "navTeams",
+  "n": 143
+ },
+ "Tournament": {
+  "de": "Turnier",
+  "es": "Torneo",
+  "quelle": "filterTournament",
+  "n": 139
+ },
+ "Queue": {
+  "de": "Warteschlange",
+  "es": "Cola",
+  "quelle": "scrambleKingQueueLabel",
+  "n": 125
+ },
+ "Players": {
+  "de": "Spieler",
+  "es": "Jugadores",
+  "quelle": "navPlayers",
+  "n": 124
+ },
+ "Score": {
+  "de": "Punkte",
+  "es": "Marcador",
+  "quelle": "bracketManualScore",
+  "n": 119
+ },
+ "Out": {
+  "de": "Raus",
+  "es": "Fuera",
+  "quelle": "royalDuoEjected",
+  "n": 113
+ },
+ "Courts": {
+  "de": "Plätze",
+  "es": "Pistas",
+  "quelle": "setupCourts",
+  "n": 110,
+  "hinweis": "app uneins: Felder/Courts/Plätze — Plätze gewaehlt (courtsSectionLanes)"
+ },
+ "Rounds": {
+  "de": "Runden",
+  "es": "Rondas",
+  "quelle": "setupSummaryRoundsLabel",
+  "n": 108
+ },
+ "Scorecard": {
+  "de": "Spielblatt",
+  "es": "Planilla",
+  "quelle": "matchScorecard",
+  "n": 100,
+  "hinweis": "matchScorecard"
+ },
+ "Player": {
+  "de": "Spieler",
+  "es": "Jugador",
+  "quelle": "filterPlayer",
+  "n": 98
+ },
+ "Time": {
+  "de": "Zeit",
+  "es": "Tiempo",
+  "quelle": "labelTime",
+  "n": 95
+ },
+ "Points": {
+  "de": "Punkte",
+  "es": "Puntos",
+  "quelle": "scrambleKingPointsLabel",
+  "n": 93
+ },
+ "Schedule": {
+  "de": "Zeitplan",
+  "es": "Horario",
+  "quelle": "overviewSectionSchedule",
+  "n": 85
+ },
+ "TournaQ": {
+  "de": "TournaQ",
+  "es": "TournaQ",
+  "quelle": "appName",
+  "n": 84
+ },
+ "Mode": {
+  "de": "Modus",
+  "es": "Modo",
+  "quelle": "filterMode",
+  "n": 82
+ },
+ "All": {
+  "de": "Alle",
+  "es": "Todos",
+  "quelle": "scrambleKingTeamsFilterAll",
+  "n": 80
+ },
+ "Format": {
+  "de": "Format",
+  "es": "Formato",
+  "quelle": "setupFormat",
+  "n": 70
+ },
+ "Back": {
+  "de": "Zurück",
+  "es": "Atrás",
+  "quelle": "quickStartBack",
+  "n": 70
+ },
+ "Name": {
+  "de": "Name",
+  "es": "Nombre",
+  "quelle": "labelName",
+  "n": 68
+ },
+ "Bracket": {
+  "de": "Baum",
+  "es": "Cuadro",
+  "quelle": "standingsTabBracket",
+  "n": 66,
+  "hinweis": "standingsTabBracket — Website-Marketing sagt weiter \"Bracket\""
+ },
+ "Group": {
+  "de": "Gruppe",
+  "es": "Grupo",
+  "quelle": "filterClub",
+  "n": 65
+ },
+ "Setup": {
+  "de": "Einrichtung",
+  "es": "Configuración",
+  "quelle": "statusSetup",
+  "n": 62
+ },
+ "Shuffle": {
+  "de": "Mischen",
+  "es": "Mezclar",
+  "quelle": "royalDuoTeamSourceShuffled",
+  "n": 58
+ },
+ "Played": {
+  "de": "Gespielt",
+  "es": "Jugados",
+  "quelle": "swissPlayedLabel",
+  "n": 56
+ },
+ "Standings": {
+  "de": "Rangliste",
+  "es": "Clasificación",
+  "quelle": "standingsPillLabel",
+  "n": 53,
+  "hinweis": "standingsPillLabel; in Leagues heisst dieselbe Ansicht Tabelle (leagueChipStandings)"
+ },
+ "Final": {
+  "de": "Finale",
+  "es": "Final",
+  "quelle": "setupRoundFinal",
+  "n": 53
+ },
+ "Draw": {
+  "de": "Auslosung",
+  "es": "Sorteo",
+  "quelle": "setupSummaryDrawLabel",
+  "n": 51
+ },
+ "Start": {
+  "de": "Start",
+  "es": "Iniciar",
+  "quelle": "btnStart",
+  "n": 50
+ },
+ "Table": {
+  "de": "Tabelle",
+  "es": "Tabla",
+  "quelle": "standingsTabTable",
+  "n": 49
+ },
+ "Scramble": {
+  "de": "Scramble",
+  "es": "Scramble",
+  "quelle": "explainerScorecardsScrambleBadge",
+  "n": 49
+ },
+ "Games": {
+  "de": "Spiele",
+  "es": "Partidos",
+  "quelle": "statGames",
+  "n": 48
+ },
+ "Doghouse": {
+  "de": "Doghouse",
+  "es": "Doghouse",
+  "quelle": "doghouseInDoghouseLabel",
+  "n": 48
+ },
+ "Single": {
+  "de": "Einfach",
+  "es": "Sencilla",
+  "quelle": "leagueLegsSingle",
+  "n": 47
+ },
+ "Add": {
+  "de": "Hinzufügen",
+  "es": "Añadir",
+  "quelle": "btnAdd",
+  "n": 46
+ },
+ "More": {
+  "de": "Mehr",
+  "es": "Más",
+  "quelle": "navMore",
+  "n": 44
+ },
+ "Groups": {
+  "de": "Gruppen",
+  "es": "Grupos",
+  "quelle": "navClubs",
+  "n": 43
+ },
+ "Elimination": {
+  "de": "Elimination",
+  "es": "Eliminación",
+  "quelle": "modeEliminationName",
+  "n": 43
+ },
+ "Referee": {
+  "de": "Schiedsrichter",
+  "es": "Árbitro",
+  "quelle": "refereeSheetTitle",
+  "n": 38
+ },
+ "REFEREE": {
+  "de": "SCHIRI",
+  "es": "ÁRBITRO",
+  "quelle": "queueRefereeTag",
+  "n": 38
+ },
+ "Off": {
+  "de": "Aus",
+  "es": "Desactivado",
+  "quelle": "cqPlacementOff",
+  "n": 38
+ },
+ "Duos": {
+  "de": "Duos",
+  "es": "Parejas",
+  "quelle": "royalDuoSectionTeams",
+  "n": 37
+ },
+ "League": {
+  "de": "Liga",
+  "es": "Liga",
+  "quelle": "modeLeagueName",
+  "n": 35,
+  "hinweis": "modeLeagueName"
+ },
+ "Classic": {
+  "de": "Klassisch",
+  "es": "Clásico",
+  "quelle": "explainerScorecardsClassicBadge",
+  "n": 35
+ },
+ "social": {
+  "de": "Ein Social",
+  "es": "social",
+  "quelle": "explainerArenaJumpSocial",
+  "n": 34
+ },
+ "Social": {
+  "de": "Social",
+  "es": "Social",
+  "quelle": "contactSectionSocial",
+  "n": 34
+ },
+ "Slot": {
+  "de": "Slot",
+  "es": "Franja",
+  "quelle": "courtsAnchorSlot",
+  "n": 34
+ },
+ "Quick": {
+  "de": "Schnell",
+  "es": "Rápido",
+  "quelle": "gameTileQuick",
+  "n": 34
+ },
+ "Allocation": {
+  "de": "Belegung",
+  "es": "Asignación",
+  "quelle": "courtsAllocationChip",
+  "n": 34
+ },
+ "Starts": {
+  "de": "Beginnt",
+  "es": "Empieza",
+  "quelle": "setupSummaryStartsLabel",
+  "n": 33
+ },
+ "Open": {
+  "de": "Offen",
+  "es": "Abierto",
+  "quelle": "tournamentCategoryOpen",
+  "n": 32
+ },
+ "Ends": {
+  "de": "Endet",
+  "es": "Termina",
+  "quelle": "setupSummaryEndsLabel",
+  "n": 32
+ },
+ "Auto": {
+  "de": "Auto",
+  "es": "Auto",
+  "quelle": "autoGroupBadge",
+  "n": 32
+ },
+ "About": {
+  "de": "Info",
+  "es": "Información",
+  "quelle": "rosterMenuInfo",
+  "n": 32
+ },
+ "Settings": {
+  "de": "Einstellungen",
+  "es": "Configuración",
+  "quelle": "navSettings",
+  "n": 31
+ },
+ "Royal Duo": {
+  "de": "Royal Duo",
+  "es": "Royal Duo",
+  "quelle": "modeRoyalDuoName",
+  "n": 31
+ },
+ "Never": {
+  "de": "Nie",
+  "es": "Nunca",
+  "quelle": "leagueRestNeverB2B",
+  "n": 30
+ },
+ "Royal Rotation": {
+  "de": "Royal Rotation",
+  "es": "Royal Rotation",
+  "quelle": "modeScrambleKingName",
+  "n": 29
+ },
+ "New": {
+  "de": "Neu",
+  "es": "Nuevo",
+  "quelle": "rosterActionNew",
+  "n": 29
+ },
+ "Eject": {
+  "de": "Rauswerfen",
+  "es": "Expulsar",
+  "quelle": "overviewEjectBtn",
+  "n": 29
+ },
+ "Edit": {
+  "de": "Bearbeiten",
+  "es": "Editar",
+  "quelle": "tooltipEdit",
+  "n": 29
+ },
+ "Swap": {
+  "de": "Ersetzen",
+  "es": "Cambiar",
+  "quelle": "tooltipSwap",
+  "n": 28
+ },
+ "Sets": {
+  "de": "Sätze",
+  "es": "Sets",
+  "quelle": "leagueColSets",
+  "n": 28
+ },
+ "Plays": {
+  "de": "Spielt",
+  "es": "Juega",
+  "quelle": "courtsSegmentPlays",
+  "n": 27
+ },
+ "Manual": {
+  "de": "Manuell",
+  "es": "Manual",
+  "quelle": "doghouseAssignmentManual",
+  "n": 27
+ },
+ "Royal Shuffle": {
+  "de": "Royal Shuffle",
+  "es": "Royal Shuffle",
+  "quelle": "modeKotcQueueName",
+  "n": 26
+ },
+ "Doghouse Shuffle": {
+  "de": "Doghouse Shuffle",
+  "es": "Doghouse Shuffle",
+  "quelle": "modeDoghouseQueueName",
+  "n": 26
+ },
+ "Social Scramble": {
+  "de": "Social Scramble",
+  "es": "Social Scramble",
+  "quelle": "modeSocialScrambleName",
+  "n": 25
+ },
+ "History": {
+  "de": "Verlauf",
+  "es": "Historial",
+  "quelle": "scoreHistoryCompact",
+  "n": 25
+ },
+ "Create": {
+  "de": "Erstellen",
+  "es": "Crear",
+  "quelle": "btnCreate",
+  "n": 25
+ },
+ "Administration": {
+  "de": "Verwaltung",
+  "es": "Administración",
+  "quelle": "navAdmin",
+  "n": 25,
+  "hinweis": "navAdministration"
+ },
+ "Assignment": {
+  "de": "Zuweisung",
+  "es": "Asignación",
+  "quelle": "labelAssignment",
+  "n": 24
+ },
+ "Challengers": {
+  "de": "Herausforderer",
+  "es": "Retadores",
+  "quelle": "kotcChallengers",
+  "n": 23
+ },
+ "Automated": {
+  "de": "Automatisch",
+  "es": "Automatizado",
+  "quelle": "doghouseAssignmentAutomated",
+  "n": 22
+ },
+ "quick game": {
+  "de": "Ein Quick Game",
+  "es": "juego rápido",
+  "quelle": "explainerArenaJumpQuick",
+  "n": 21
+ },
+ "min": {
+  "de": "Min.",
+  "es": "min",
+  "quelle": "breakCustomSuffix",
+  "n": 21
+ },
+ "Quick Game": {
+  "de": "Quick Game",
+  "es": "Quick Game",
+  "quelle": "quickStartTitle",
+  "n": 21,
+  "hinweis": "APP UNEINS: modeQuickGameName=Schnelles Spiel, principleQuickBadge=Quick Game — englisch gewaehlt"
+ },
+ "End": {
+  "de": "Ende",
+  "es": "Fin",
+  "quelle": "scorecardEnd",
+  "n": 21
+ },
+ "by hand": {
+  "de": "von Hand",
+  "es": "a mano",
+  "quelle": "explainerAdminJumpHand",
+  "n": 20
+ },
+ "Knockout": {
+  "de": "K.-o.-Phase",
+  "es": "Eliminatoria",
+  "quelle": "gkSectionKnockout",
+  "n": 20
+ },
+ "Ejected": {
+  "de": "Rausgeworfen",
+  "es": "Expulsado",
+  "quelle": "doghouseEjected",
+  "n": 20
+ },
+ "Double": {
+  "de": "Doppelt",
+  "es": "Doble",
+  "quelle": "leagueLegsDouble",
+  "n": 20
+ },
+ "Clock": {
+  "de": "Uhrzeit",
+  "es": "Hora",
+  "quelle": "courtsAnchorClock",
+  "n": 20
+ },
+ "Now": {
+  "de": "Jetzt",
+  "es": "Ahora",
+  "quelle": "timelineStartNow",
+  "n": 19
+ },
+ "TournaQ Classic": {
+  "de": "TournaQ Classic",
+  "es": "TournaQ Classic",
+  "quelle": "modeGroupSeName",
+  "n": 18
+ },
+ "Swiss System": {
+  "de": "Schweizer System",
+  "es": "Sistema Suizo",
+  "quelle": "modeSwissName",
+  "n": 18,
+  "hinweis": "modeSwissName"
+ },
+ "Placeholder": {
+  "de": "Platzhalter",
+  "es": "Suplente",
+  "quelle": "overviewPlaceholderName",
+  "n": 18
+ },
+ "Pairing": {
+  "de": "Paarung",
+  "es": "Emparejamiento",
+  "quelle": "royalDuoTeamSourceLabel",
+  "n": 18
+ },
+ "Random": {
+  "de": "Zufällig",
+  "es": "Aleatorio",
+  "quelle": "setupSeedingRandom",
+  "n": 17
+ },
+ "Tournaments": {
+  "de": "Turniere",
+  "es": "Torneos",
+  "quelle": "adminSectionTournaments",
+  "n": 16
+ },
+ "Byes": {
+  "de": "Freilos",
+  "es": "Bye",
+  "quelle": "setupOddTeamsByes",
+  "n": 16
+ },
+ "Tournament Setup": {
+  "de": "Turnier-Einrichtung",
+  "es": "Configuración del torneo",
+  "quelle": "doghouseTournamentSetup",
+  "n": 15
+ },
+ "Slots": {
+  "de": "Blöcke",
+  "es": "Bloques",
+  "quelle": "setupSummarySlotsLabel",
+  "n": 15
+ },
+ "Wins": {
+  "de": "Siege",
+  "es": "Victorias",
+  "quelle": "kotcStatWins",
+  "n": 14
+ },
+ "Tournament Hub": {
+  "de": "Turnier-Hub",
+  "es": "Hub de Torneos",
+  "quelle": "hubTournamentHub",
+  "n": 14,
+  "hinweis": "hubTournamentHub"
+ },
+ "Loss Limit": {
+  "de": "Verlustlimit",
+  "es": "Límite de pérdidas",
+  "quelle": "labelLossLimit",
+  "n": 14
+ },
+ "Available": {
+  "de": "Verfügbar",
+  "es": "Disponible",
+  "quelle": "labelAvailable",
+  "n": 14
+ },
+ "Undo": {
+  "de": "Rückgängig",
+  "es": "Deshacer",
+  "quelle": "btnUndo",
+  "n": 13
+ },
+ "Target score": {
+  "de": "Zielpunkte",
+  "es": "Puntos meta",
+  "quelle": "bracketTargetScore",
+  "n": 13
+ },
+ "Royal Rotations": {
+  "de": "Royal Rotations",
+  "es": "Royal Rotations",
+  "quelle": "modeScrambleKingNamePlural",
+  "n": 13,
+  "hinweis": "Markenname"
+ },
+ "Imported": {
+  "de": "Importiert",
+  "es": "Importados",
+  "quelle": "scrambleTabImported",
+  "n": 12
+ },
+ "Double elimination": {
+  "de": "Doppeltes K.-o.",
+  "es": "Eliminación doble",
+  "quelle": "gkFormatDouble",
+  "n": 12
+ },
+ "Double Elimination": {
+  "de": "Double Elimination",
+  "es": "Eliminación Doble",
+  "quelle": "modeDoubleElimName",
+  "n": 12
+ },
+ "Royal Duos": {
+  "de": "Royal Duos",
+  "es": "Royal Duos",
+  "quelle": "modeRoyalDuoNamePlural",
+  "n": 11,
+  "hinweis": "Markenname"
+ },
+ "Options": {
+  "de": "Optionen",
+  "es": "Opciones",
+  "quelle": "labelOptions",
+  "n": 11
+ },
+ "Home": {
+  "de": "Startseite",
+  "es": "Inicio",
+  "quelle": "navHome",
+  "n": 11
+ },
+ "Automatic": {
+  "de": "Automatisch",
+  "es": "Automático",
+  "quelle": "langAutomatic",
+  "n": 11
+ },
+ "Schedule preview": {
+  "de": "Zeitplanvorschau",
+  "es": "Vista previa del horario",
+  "quelle": "overviewSectionTimeline",
+  "n": 10
+ },
+ "Schedule Preview": {
+  "de": "Zeitplan-Vorschau",
+  "es": "Vista previa del horario",
+  "quelle": "setupSchedulePreview",
+  "n": 10
+ },
+ "Mixed": {
+  "de": "Mixed",
+  "es": "Mixto",
+  "quelle": "teamGenderMixed",
+  "n": 10
+ },
+ "Men": {
+  "de": "Herren",
+  "es": "Masc.",
+  "quelle": "teamGenderMen",
+  "n": 10
+ },
+ "Lost": {
+  "de": "Verl",
+  "es": "Perd",
+  "quelle": "statLost",
+  "n": 10
+ },
+ "LOSERS": {
+  "de": "VERLIERER",
+  "es": "PERDEDORES",
+  "quelle": "deTagLosers",
+  "n": 10
+ },
+ "Gold": {
+  "de": "Gold",
+  "es": "Oro",
+  "quelle": "gkTierGold",
+  "n": 10
+ },
+ "Dark": {
+  "de": "Dunkel",
+  "es": "Oscuro",
+  "quelle": "themeDark",
+  "n": 10
+ },
+ "Completed": {
+  "de": "Abgeschlossen",
+  "es": "Completado",
+  "quelle": "gameStatusCompleted",
+  "n": 10
+ },
+ "scrambles": {
+  "de": "den Scrambles",
+  "es": "los scrambles",
+  "quelle": "explainerScorecardsJumpScramble",
+  "n": 9
+ },
+ "TournaQ Arena": {
+  "de": "TournaQ Arena",
+  "es": "TournaQ Arena",
+  "quelle": "navTournaments",
+  "n": 9,
+  "hinweis": "Markenname"
+ },
+ "Strike Points": {
+  "de": "Strike-Punkte",
+  "es": "Puntos de strike",
+  "quelle": "kotcSetupStrikeLabel",
+  "n": 9
+ },
+ "Single elimination": {
+  "de": "Einfaches K.-o.",
+  "es": "Eliminación simple",
+  "quelle": "gkFormatSingle",
+  "n": 9
+ },
+ "Single Elimination": {
+  "de": "Single Elimination",
+  "es": "Eliminación Simple",
+  "quelle": "modeSingleElimName",
+  "n": 9
+ },
+ "Return": {
+  "de": "Zurück",
+  "es": "Volver",
+  "quelle": "breakReturnBtn",
+  "n": 9
+ },
+ "Referees": {
+  "de": "Schiedsrichter",
+  "es": "Árbitros",
+  "quelle": "refereeCoverageTitle",
+  "n": 9
+ },
+ "Qualification": {
+  "de": "Qualifikation",
+  "es": "Clasificación",
+  "quelle": "gkSectionQualification",
+  "n": 9
+ },
+ "Overview": {
+  "de": "Übersicht",
+  "es": "Resumen",
+  "quelle": "overviewSectionOverview",
+  "n": 9
+ },
+ "Optional": {
+  "de": "Optional",
+  "es": "Opcional",
+  "quelle": "principleOptional",
+  "n": 9
+ },
+ "Jumper": {
+  "de": "Springer",
+  "es": "Saltador",
+  "quelle": "scrambleKingOddPlayerJumperLabel",
+  "n": 9
+ },
+ "Eliminations": {
+  "de": "Eliminations",
+  "es": "Eliminaciones",
+  "quelle": "modeEliminationNamePlural",
+  "n": 9,
+  "hinweis": "APP UNEINS: DE englisch, ES uebersetzt — je App-Sprache uebernommen"
+ },
+ "Doghouse Shuffles": {
+  "de": "Doghouse Shuffles",
+  "es": "Doghouse Shuffles",
+  "quelle": "modeDoghouseQueueNamePlural",
+  "n": 9,
+  "hinweis": "Markenname"
+ },
+ "Court allocation": {
+  "de": "Platzbelegung",
+  "es": "Asignación de pistas",
+  "quelle": "courtsAllocationTitle",
+  "n": 9
+ },
+ "Category": {
+  "de": "Kategorie",
+  "es": "Categoría",
+  "quelle": "tournamentCategoryLabel",
+  "n": 9
+ },
+ "late": {
+  "de": "spät",
+  "es": "tarde",
+  "quelle": "scrambleStatusLate",
+  "n": 8
+ },
+ "classics": {
+  "de": "den Klassikern",
+  "es": "los clásicos",
+  "quelle": "explainerScorecardsJumpClassic",
+  "n": 8
+ },
+ "a quick game": {
+  "de": "einem Quick Game",
+  "es": "un Quick Game",
+  "quelle": "principleJumpQuick",
+  "n": 8
+ },
+ "Walkovers": {
+  "de": "Walkovers",
+  "es": "Walkovers",
+  "quelle": "leagueWalkoversTitle",
+  "n": 8
+ },
+ "WINNERS": {
+  "de": "GEWINNER",
+  "es": "GANADORES",
+  "quelle": "deTagWinners",
+  "n": 8
+ },
+ "Up Next": {
+  "de": "Als Nächstes",
+  "es": "Siguiente",
+  "quelle": "kotcUpNext",
+  "n": 8
+ },
+ "Silver": {
+  "de": "Silber",
+  "es": "Plata",
+  "quelle": "gkTierSilver",
+  "n": 8
+ },
+ "Seeding": {
+  "de": "Setzung",
+  "es": "Siembra",
+  "quelle": "bracketSeeding",
+  "n": 8
+ },
+ "Royal Shuffles": {
+  "de": "Royal Shuffles",
+  "es": "Royal Shuffles",
+  "quelle": "modeKotcQueueNamePlural",
+  "n": 8,
+  "hinweis": "Markenname"
+ },
+ "Queue Modes": {
+  "de": "Warteschlangen-Modi",
+  "es": "Modos de cola",
+  "quelle": "tournamentsSubsectionQueue",
+  "n": 8
+ },
+ "Leagues": {
+  "de": "Ligen",
+  "es": "Ligas",
+  "quelle": "modeLeagueNamePlural",
+  "n": 8,
+  "hinweis": "modeLeagueNamePlural"
+ },
+ "LATE": {
+  "de": "SPÄT",
+  "es": "TARDE",
+  "quelle": "labelLate",
+  "n": 8
+ },
+ "Import": {
+  "de": "Importieren",
+  "es": "Importar",
+  "quelle": "rosterImportConfirm",
+  "n": 8
+ },
+ "Gender": {
+  "de": "Geschlecht",
+  "es": "Género",
+  "quelle": "labelGender",
+  "n": 8
+ },
+ "Escape Points": {
+  "de": "Ausstiegspunkte",
+  "es": "Puntos de escape",
+  "quelle": "labelEscapePoints",
+  "n": 8
+ },
+ "Crosstable": {
+  "de": "Kreuztabelle",
+  "es": "Tabla cruzada",
+  "quelle": "leagueCrosstable",
+  "n": 8
+ },
+ "Assign": {
+  "de": "Zuweisen",
+  "es": "Asignar",
+  "quelle": "btnAssign",
+  "n": 8
+ },
+ "Social Scrambles": {
+  "de": "Social Scrambles",
+  "es": "Social Scrambles",
+  "quelle": "modeSocialScramblesName",
+  "n": 7,
+  "hinweis": "Markenname"
+ },
+ "Set Score": {
+  "de": "Ergebnis eingeben",
+  "es": "Introducir resultado",
+  "quelle": "matchSetScore",
+  "n": 7
+ },
+ "Scoreboard": {
+  "de": "Spielstand",
+  "es": "Marcador",
+  "quelle": "pageGameScorecard",
+  "n": 7
+ },
+ "RESET": {
+  "de": "RESET",
+  "es": "RESET",
+  "quelle": "deTagReset",
+  "n": 7
+ },
+ "Match duration": {
+  "de": "Spieldauer",
+  "es": "Duración del partido",
+  "quelle": "timelineMatchDuration",
+  "n": 7
+ },
+ "Match Duration": {
+  "de": "Matchdauer",
+  "es": "Duración del partido",
+  "quelle": "setupMatchDuration",
+  "n": 7
+ },
+ "Legs": {
+  "de": "Durchgänge",
+  "es": "Vueltas",
+  "quelle": "leagueLegsLabel",
+  "n": 7
+ },
+ "Grand final": {
+  "de": "Grand Final",
+  "es": "Gran final",
+  "quelle": "deSetupGrandFinalLabel",
+  "n": 7
+ },
+ "Grand Final": {
+  "de": "Grand Final",
+  "es": "Gran Final",
+  "quelle": "deGrandFinalLabel",
+  "n": 7
+ },
+ "Game format": {
+  "de": "Spielformat",
+  "es": "Formato de juego",
+  "quelle": "setupGameFormat",
+  "n": 7
+ },
+ "GRAND FINAL": {
+  "de": "GRAND FINAL",
+  "es": "GRAN FINAL",
+  "quelle": "deTagGrandFinal",
+  "n": 7
+ },
+ "Bye": {
+  "de": "Freilos",
+  "es": "Descanso",
+  "quelle": "swissLadderBye",
+  "n": 7
+ },
+ "BYE": {
+  "de": "FREI",
+  "es": "BYE",
+  "quelle": "bracketTagBye",
+  "n": 7
+ },
+ "Women": {
+  "de": "Damen",
+  "es": "Fem.",
+  "quelle": "teamGenderWomen",
+  "n": 6
+ },
+ "TournaQ Classics": {
+  "de": "TournaQ Classics",
+  "es": "TournaQ Classics",
+  "quelle": "modeGroupSeNamePlural",
+  "n": 6,
+  "hinweis": "Markenname, bleibt englisch"
+ },
+ "Swiss Systems": {
+  "de": "Schweizer Systeme",
+  "es": "Sistemas Suizos",
+  "quelle": "modeSwissNamePlural",
+  "n": 6,
+  "hinweis": "modeSwissNamePlural"
+ },
+ "Suggestions": {
+  "de": "Vorschläge",
+  "es": "Sugerencias",
+  "quelle": "setupSuggestions",
+  "n": 6
+ },
+ "Single match": {
+  "de": "Ein Spiel",
+  "es": "Un partido",
+  "quelle": "deSetupGrandFinalSingle",
+  "n": 6
+ },
+ "Remove": {
+  "de": "Entfernen",
+  "es": "Eliminar",
+  "quelle": "btnRemove",
+  "n": 6
+ },
+ "Re-roll": {
+  "de": "Neu würfeln",
+  "es": "Volver a sortear",
+  "quelle": "quickStartReRoll",
+  "n": 6
+ },
+ "Phase": {
+  "de": "Phase",
+  "es": "Fase",
+  "quelle": "courtsAnchorPhase",
+  "n": 6
+ },
+ "Pace alerts": {
+  "de": "Tempo-Hinweise",
+  "es": "Alertas de ritmo",
+  "quelle": "timelinePaceAlertsTitle",
+  "n": 6
+ },
+ "Manually Set Score": {
+  "de": "Ergebnis manuell eingeben",
+  "es": "Resultado manual",
+  "quelle": "scorecardManualScore",
+  "n": 6
+ },
+ "Group stage": {
+  "de": "Gruppenphase",
+  "es": "Fase de grupos",
+  "quelle": "gkPhaseGroups",
+  "n": 6
+ },
+ "Copy": {
+  "de": "Kopieren",
+  "es": "Copiar",
+  "quelle": "btnCopy",
+  "n": 6
+ },
+ "Anything": {
+  "de": "Alles",
+  "es": "Cualquiera",
+  "quelle": "courtsUseAuto",
+  "n": 6
+ },
+ "Upcoming Games": {
+  "de": "Nächste Spiele",
+  "es": "Próximos juegos",
+  "quelle": "scorecardUpcomingGames",
+  "n": 5
+ },
+ "Upcoming": {
+  "de": "Ausstehend",
+  "es": "Próximo",
+  "quelle": "statusUpcoming",
+  "n": 5
+ },
+ "Tournament History": {
+  "de": "Turnierhistorie",
+  "es": "Historial de Torneos",
+  "quelle": "tournamentsSectionHistory",
+  "n": 5
+ },
+ "Team Competitions": {
+  "de": "Teamwettbewerbe",
+  "es": "Competiciones por Equipos",
+  "quelle": "tournamentsSectionTeam",
+  "n": 5
+ },
+ "Suggested": {
+  "de": "Vorschlag",
+  "es": "Sugerido",
+  "quelle": "refereeSheetSuggested",
+  "n": 5
+ },
+ "Start time": {
+  "de": "Startzeit",
+  "es": "Hora de inicio",
+  "quelle": "timelineEditStartTime",
+  "n": 5
+ },
+ "Round Timer": {
+  "de": "Rundentimer",
+  "es": "Temporizador",
+  "quelle": "scrambleKingRoundTimer",
+  "n": 5
+ },
+ "Ranking points": {
+  "de": "Ranglistenpunkte",
+  "es": "Puntos de ranking",
+  "quelle": "cqPlacementScaleLabel",
+  "n": 5
+ },
+ "Ranking Points": {
+  "de": "Rangpunkte",
+  "es": "Puntos ranking",
+  "quelle": "scrambleKingRankingPointsLabel",
+  "n": 5
+ },
+ "Quick Games": {
+  "de": "Spiele",
+  "es": "Partidos",
+  "quelle": "pageGames",
+  "n": 5
+ },
+ "Play-in": {
+  "de": "Play-in",
+  "es": "Play-in",
+  "quelle": "setupOddTeamsPlayIn",
+  "n": 5
+ },
+ "PLAY-IN": {
+  "de": "PLAY-IN",
+  "es": "PLAY-IN",
+  "quelle": "bracketTagPlayIn",
+  "n": 5
+ },
+ "Overdue": {
+  "de": "Überfällig",
+  "es": "Retrasado",
+  "quelle": "statusOverdue",
+  "n": 5
+ },
+ "Odd teams": {
+  "de": "Ungerade Teams",
+  "es": "Equipos impares",
+  "quelle": "bracketOddTeamsSection",
+  "n": 5
+ },
+ "Odd Teams": {
+  "de": "Ungerade Teams",
+  "es": "Equipos impares",
+  "quelle": "setupOddTeamsLabel",
+  "n": 5
+ },
+ "Due": {
+  "de": "Fällig",
+  "es": "Pendiente",
+  "quelle": "statusDue",
+  "n": 5
+ },
+ "Done": {
+  "de": "Fertig",
+  "es": "Listo",
+  "quelle": "btnDone",
+  "n": 5
+ },
+ "Confirm": {
+  "de": "Bestätigen",
+  "es": "Confirmar",
+  "quelle": "btnConfirm",
+  "n": 5
+ },
+ "Auto-Allplay": {
+  "de": "Auto-Allplay",
+  "es": "Auto-Allplay",
+  "quelle": "setupFormatAutoAllplay",
+  "n": 5
+ },
+ "Appearance": {
+  "de": "Darstellung",
+  "es": "Apariencia",
+  "quelle": "settingsAppearance",
+  "n": 5
+ },
+ "All rounds": {
+  "de": "Alle Runden",
+  "es": "Todas las rondas",
+  "quelle": "deSetupSecondChanceAll",
+  "n": 5
+ },
+ "actual": {
+  "de": "tatsächlich",
+  "es": "real",
+  "quelle": "overviewActual",
+  "n": 4
+ },
+ "Who plays": {
+  "de": "Wer spielt",
+  "es": "Quién juega",
+  "quelle": "explainerSetupWhoLabel",
+  "n": 4
+ },
+ "Up to 2": {
+  "de": "Bis zu 2",
+  "es": "Hasta 2",
+  "quelle": "leagueRestMaxTwo",
+  "n": 4
+ },
+ "Unknown": {
+  "de": "Unbekannt",
+  "es": "Desconocido",
+  "quelle": "labelUnknown",
+  "n": 4
+ },
+ "Tournament overview": {
+  "de": "Turnierübersicht",
+  "es": "Resumen del torneo",
+  "quelle": "explainerRunningOverviewLabel",
+  "n": 4
+ },
+ "The draw is set": {
+  "de": "Die Auslosung steht",
+  "es": "El sorteo está fijado",
+  "quelle": "pillLockedDrawTitle",
+  "n": 4
+ },
+ "Style": {
+  "de": "Stil",
+  "es": "Estilo",
+  "quelle": "labelStyle",
+  "n": 4
+ },
+ "Stop": {
+  "de": "Stopp",
+  "es": "Detener",
+  "quelle": "btnStop",
+  "n": 4
+ },
+ "Sponsoring": {
+  "de": "Sponsoring",
+  "es": "Patrocinio",
+  "quelle": "sectionSponsoring",
+  "n": 4
+ },
+ "Semi-final": {
+  "de": "Halbfinale",
+  "es": "Semifinal",
+  "quelle": "setupRoundSemiFinal",
+  "n": 4
+ },
+ "Seeded": {
+  "de": "Gesetzt",
+  "es": "Preclasificado",
+  "quelle": "setupSeedingSeeded",
+  "n": 4
+ },
+ "Save": {
+  "de": "Speichern",
+  "es": "Guardar",
+  "quelle": "btnSave",
+  "n": 4
+ },
+ "Round duration": {
+  "de": "Rundendauer",
+  "es": "Duración de ronda",
+  "quelle": "setupRoundDuration",
+  "n": 4
+ },
+ "Redraw": {
+  "de": "Neu auslosen",
+  "es": "Volver a sortear",
+  "quelle": "bracketRedraw",
+  "n": 4
+ },
+ "Pick teams": {
+  "de": "Teams wählen",
+  "es": "Elegir equipos",
+  "quelle": "royalDuoTeamSourcePicked",
+  "n": 4
+ },
+ "Not specified": {
+  "de": "Keine Angabe",
+  "es": "Sin especificar",
+  "quelle": "genderUnspecified",
+  "n": 4
+ },
+ "Match History": {
+  "de": "Spielhistorie",
+  "es": "Historial de Partidos",
+  "quelle": "pageGameplayHistory",
+  "n": 4
+ },
+ "Language": {
+  "de": "Sprache",
+  "es": "Idioma",
+  "quelle": "settingsLanguage",
+  "n": 4
+ },
+ "Game Scorecard": {
+  "de": "Spielprotokoll",
+  "es": "Planilla del partido",
+  "quelle": "menuGameScorecard",
+  "n": 4
+ },
+ "Fewer rounds": {
+  "de": "Weniger Runden",
+  "es": "Menos rondas",
+  "quelle": "swissRoundsFewerTitle",
+  "n": 4
+ },
+ "Fast": {
+  "de": "Schnell",
+  "es": "Rápido",
+  "quelle": "setupPaceFast",
+  "n": 4
+ },
+ "Export scorecard": {
+  "de": "Spielblatt exportieren",
+  "es": "Exportar planilla",
+  "quelle": "scrambleExportScorecard",
+  "n": 4
+ },
+ "Continue": {
+  "de": "Weiter",
+  "es": "Continuar",
+  "quelle": "btnContinue",
+  "n": 4
+ },
+ "Bronze": {
+  "de": "Bronze",
+  "es": "Bronce",
+  "quelle": "gkTierBronze",
+  "n": 4
+ },
+ "Breaks": {
+  "de": "Pausen",
+  "es": "Descansos",
+  "quelle": "setupSummaryBreaksLabel",
+  "n": 4
+ },
+ "Your tournaments": {
+  "de": "Deine Turniere",
+  "es": "Tus torneos",
+  "quelle": "explainerTournamentsTitle",
+  "n": 3
+ },
+ "Your Tournaments": {
+  "de": "Deine Turniere",
+  "es": "Tus torneos",
+  "quelle": "principleStep3Label",
+  "n": 3
+ },
+ "Undo Set": {
+  "de": "Satz rückgängig",
+  "es": "Deshacer set",
+  "quelle": "matchUndoSet",
+  "n": 3
+ },
+ "Today": {
+  "de": "Heute",
+  "es": "Hoy",
+  "quelle": "dateToday",
+  "n": 3
+ },
+ "Team name": {
+  "de": "Teamname",
+  "es": "Nombre del equipo",
+  "quelle": "setupTeamNameHint",
+  "n": 3
+ },
+ "Target Players": {
+  "de": "Anzahl Spieler",
+  "es": "Jugadores objetivo",
+  "quelle": "setupTargetPlayers",
+  "n": 3
+ },
+ "Swap Sides": {
+  "de": "Seiten tauschen",
+  "es": "Cambiar lados",
+  "quelle": "scorecardSwapSides",
+  "n": 3
+ },
+ "Side swap": {
+  "de": "Seitenwechsel",
+  "es": "Cambio de lado",
+  "quelle": "sideSwapLabel",
+  "n": 3
+ },
+ "Sets and target points": {
+  "de": "Sätze und Zielpunkte",
+  "es": "Sets y puntos objetivo",
+  "quelle": "explainerScorecardsSetsLabel",
+  "n": 3
+ },
+ "Scheduled": {
+  "de": "Geplant",
+  "es": "Programado",
+  "quelle": "scrambleStatusScheduled",
+  "n": 3
+ },
+ "Restart": {
+  "de": "Neustart",
+  "es": "Reiniciar",
+  "quelle": "btnRestart",
+  "n": 3
+ },
+ "Ready to start": {
+  "de": "Startbereit",
+  "es": "Listo para empezar",
+  "quelle": "scrambleKingReadyToStart",
+  "n": 3
+ },
+ "No limit": {
+  "de": "Kein Limit",
+  "es": "Sin límite",
+  "quelle": "leagueRestNoLimit",
+  "n": 3
+ },
+ "Match Controls": {
+  "de": "Spielaktionen",
+  "es": "Controles de partido",
+  "quelle": "doghouseMatchControls",
+  "n": 3
+ },
+ "Male": {
+  "de": "Männlich",
+  "es": "Masculino",
+  "quelle": "genderMale",
+  "n": 3
+ },
+ "Legal": {
+  "de": "Rechtliches",
+  "es": "Legal",
+  "quelle": "contactSectionLegal",
+  "n": 3
+ },
+ "Keep a referee free": {
+  "de": "Schiedsrichter freihalten",
+  "es": "Reservar un árbitro",
+  "quelle": "refereeCoverageReserved",
+  "n": 3
+ },
+ "Filter by Group": {
+  "de": "Nach Gruppe filtern",
+  "es": "Filtrar por grupo",
+  "quelle": "filterByGroupTitle",
+  "n": 3
+ },
+ "Fill every court": {
+  "de": "Alle Courts belegen",
+  "es": "Llenar todas las pistas",
+  "quelle": "refereeCoverageManual",
+  "n": 3
+ },
+ "Eject Team": {
+  "de": "Team rauswerfen",
+  "es": "Expulsar equipo",
+  "quelle": "doghouseEjectTeam",
+  "n": 3
+ },
+ "Custom": {
+  "de": "Eigen",
+  "es": "Propio",
+  "quelle": "courtsFormatOverridden",
+  "n": 3
+ },
+ "Cross-group": {
+  "de": "Gruppenübergreifend",
+  "es": "Entre grupos",
+  "quelle": "gkSeedingCross",
+  "n": 3
+ },
+ "Bracket reset": {
+  "de": "Bracket-Reset",
+  "es": "Reinicio de bracket",
+  "quelle": "deSetupGrandFinalReset",
+  "n": 3
+ },
+ "Back to schedule": {
+  "de": "Zurück zum Plan",
+  "es": "Volver al calendario",
+  "quelle": "scrambleKingBackToSchedule",
+  "n": 3
+ },
+ "Back to Schedule": {
+  "de": "Zurück zum Zeitplan",
+  "es": "Volver al horario",
+  "quelle": "scorecardBackToSchedule",
+  "n": 3
+ },
+ "Adjust draw": {
+  "de": "Auslosung anpassen",
+  "es": "Ajustar sorteo",
+  "quelle": "drawAdjust",
+  "n": 3
+ },
+ "Add Anyway": {
+  "de": "Trotzdem hinzufügen",
+  "es": "Añadir igual",
+  "quelle": "btnAddAnyway",
+  "n": 3
+ },
+ "the full tournament": {
+  "de": "das ganze Turnier",
+  "es": "el torneo completo",
+  "quelle": "principleJumpTournament",
+  "n": 2
+ },
+ "queues": {
+  "de": "den Queues",
+  "es": "las colas",
+  "quelle": "explainerScorecardsJumpQueue",
+  "n": 2
+ },
+ "out this round": {
+  "de": "Runde aus",
+  "es": "fuera esta ronda",
+  "quelle": "breakStatusThisRound",
+  "n": 2
+ },
+ "keep control": {
+  "de": "behalte die Kontrolle",
+  "es": "mantén el control",
+  "quelle": "explainerRunningJumpControl",
+  "n": 2
+ },
+ "custom start": {
+  "de": "eigener Start",
+  "es": "inicio propio",
+  "quelle": "leagueSlotAnchored",
+  "n": 2
+ },
+ "Withdraw": {
+  "de": "Zurückziehen",
+  "es": "Retirar",
+  "quelle": "bracketWithdrawBtn",
+  "n": 2
+ },
+ "TBD": {
+  "de": "offen",
+  "es": "Pendiente",
+  "quelle": "bracketTbd",
+  "n": 2
+ },
+ "Swap Teams": {
+  "de": "Teams tauschen",
+  "es": "Cambiar Equipos",
+  "quelle": "scoreSwapTeams",
+  "n": 2
+ },
+ "Suggest": {
+  "de": "Vorschlag",
+  "es": "Sugerir",
+  "quelle": "btnSuggest",
+  "n": 2
+ },
+ "Standard": {
+  "de": "Standard",
+  "es": "Estándar",
+  "quelle": "setupPaceStandard",
+  "n": 2
+ },
+ "Sponsoring & Promo": {
+  "de": "Sponsoring & Promo",
+  "es": "Patrocinio y Promo",
+  "quelle": "navSponsoring",
+  "n": 2
+ },
+ "Source": {
+  "de": "Quelle",
+  "es": "Origen",
+  "quelle": "filterSource",
+  "n": 2
+ },
+ "Sit out this round": {
+  "de": "Runde aussetzen",
+  "es": "Saltar esta ronda",
+  "quelle": "royalDuoEjectRound",
+  "n": 2
+ },
+ "Side change": {
+  "de": "Seitenwechsel",
+  "es": "Cambio de lado",
+  "quelle": "bracketSideChange",
+  "n": 2
+ },
+ "Side Change": {
+  "de": "Seitenwechsel",
+  "es": "Cambio de Lado",
+  "quelle": "sideChangeTitle",
+  "n": 2
+ },
+ "Second chance": {
+  "de": "Zweite Chance",
+  "es": "Segunda oportunidad",
+  "quelle": "deSetupSecondChanceLabel",
+  "n": 2
+ },
+ "Schedules": {
+  "de": "Spielplan",
+  "es": "Calendario",
+  "quelle": "explainerRunningSchedulesLabel",
+  "n": 2
+ },
+ "SESSION TIMER": {
+  "de": "SITZUNGS-TIMER",
+  "es": "TEMPORIZADOR",
+  "quelle": "doghouseSessionTimer",
+  "n": 2
+ },
+ "Resume": {
+  "de": "Fortsetzen",
+  "es": "Reanudar",
+  "quelle": "btnResume",
+  "n": 2
+ },
+ "Remove from tournament": {
+  "de": "Aus dem Turnier nehmen",
+  "es": "Retirar del torneo",
+  "quelle": "royalDuoEjectTournament",
+  "n": 2
+ },
+ "Remove from Tournament": {
+  "de": "Aus Turnier entfernen",
+  "es": "Eliminar del Torneo",
+  "quelle": "dialogRemoveFromTournament",
+  "n": 2
+ },
+ "Relaxed": {
+  "de": "Gemächlich",
+  "es": "Pausado",
+  "quelle": "setupPaceRelaxed",
+  "n": 2
+ },
+ "Ranking method": {
+  "de": "Wertung",
+  "es": "Criterio de clasificación",
+  "quelle": "leagueTiebreakTitle",
+  "n": 2
+ },
+ "Quick Start": {
+  "de": "Schnellstart",
+  "es": "Inicio rápido",
+  "quelle": "quickStartShort",
+  "n": 2
+ },
+ "Quarter-final": {
+  "de": "Viertelfinale",
+  "es": "Cuartos de final",
+  "quelle": "setupRoundQuarterFinal",
+  "n": 2
+ },
+ "Privacy Options": {
+  "de": "Datenschutzoptionen",
+  "es": "Opciones de Privacidad",
+  "quelle": "contactPrivacyOptions",
+  "n": 2
+ },
+ "Per round": {
+  "de": "Pro Runde",
+  "es": "Por ronda",
+  "quelle": "courtsFormatRounds",
+  "n": 2
+ },
+ "Overall rank": {
+  "de": "Gesamtrang",
+  "es": "Rango global",
+  "quelle": "gkSeedingOverall",
+  "n": 2
+ },
+ "Overall Ranking": {
+  "de": "Gesamtwertung",
+  "es": "Clasificación general",
+  "quelle": "scrambleKingOverallRanking",
+  "n": 2
+ },
+ "One group": {
+  "de": "Eine Gruppe",
+  "es": "Un grupo",
+  "quelle": "courtsUseGroup",
+  "n": 2
+ },
+ "One court per group": {
+  "de": "Ein Platz pro Gruppe",
+  "es": "Una pista por grupo",
+  "quelle": "setupDefaultCourtPlan",
+  "n": 2
+ },
+ "One Set": {
+  "de": "Ein Satz",
+  "es": "Un Set",
+  "quelle": "formatOneSet",
+  "n": 2
+ },
+ "Not from here": {
+  "de": "Nicht von hier aus",
+  "es": "No desde aquí",
+  "quelle": "pillLockedElsewhereTitle",
+  "n": 2
+ },
+ "None": {
+  "de": "Keine",
+  "es": "Ninguno",
+  "quelle": "labelNone",
+  "n": 2
+ },
+ "More rounds": {
+  "de": "Mehr Runden",
+  "es": "Más rondas",
+  "quelle": "swissRoundsMoreTitle",
+  "n": 2
+ },
+ "Match Options": {
+  "de": "Spieloptionen",
+  "es": "Opciones del partido",
+  "quelle": "matchOptions",
+  "n": 2
+ },
+ "Light": {
+  "de": "Hell",
+  "es": "Claro",
+  "quelle": "themeLight",
+  "n": 2
+ },
+ "Keep Playing": {
+  "de": "Weiterspielen",
+  "es": "Seguir Jugando",
+  "quelle": "targetReachedKeepPlaying",
+  "n": 2
+ },
+ "Generation": {
+  "de": "Auslosung",
+  "es": "Generación",
+  "quelle": "setupGeneration",
+  "n": 2
+ },
+ "Game Options": {
+  "de": "Spieloptionen",
+  "es": "Opciones de Partido",
+  "quelle": "scoreGameOptions",
+  "n": 2
+ },
+ "Finish court": {
+  "de": "Court abschließen",
+  "es": "Finalizar pista",
+  "quelle": "scrambleKingFinishCourt",
+  "n": 2
+ },
+ "Final table": {
+  "de": "Endstand",
+  "es": "Tabla final",
+  "quelle": "gkGroupFinal",
+  "n": 2
+ },
+ "Final Ranking": {
+  "de": "Endstand",
+  "es": "Clasificación final",
+  "quelle": "finalRankingTitle",
+  "n": 2
+ },
+ "Female": {
+  "de": "Weiblich",
+  "es": "Femenino",
+  "quelle": "genderFemale",
+  "n": 2
+ },
+ "Export court": {
+  "de": "Court exportieren",
+  "es": "Exportar pista",
+  "quelle": "scrambleKingExportCourt",
+  "n": 2
+ },
+ "Existing player": {
+  "de": "Vorhandener Spieler",
+  "es": "Jugador existente",
+  "quelle": "doghouseSourceExisting",
+  "n": 2
+ },
+ "Discard": {
+  "de": "Verwerfen",
+  "es": "Descartar",
+  "quelle": "btnDiscard",
+  "n": 2
+ },
+ "Delete": {
+  "de": "Löschen",
+  "es": "Eliminar",
+  "quelle": "btnDelete",
+  "n": 2
+ },
+ "Contact & About": {
+  "de": "Kontakt & Info",
+  "es": "Contacto e Info",
+  "quelle": "navContact",
+  "n": 2
+ },
+ "Complete Set": {
+  "de": "Satz abschließen",
+  "es": "Completar set",
+  "quelle": "completeSet",
+  "n": 2
+ },
+ "Complete Game": {
+  "de": "Spiel abschließen",
+  "es": "Completar partido",
+  "quelle": "completeGame",
+  "n": 2
+ },
+ "Change Service": {
+  "de": "Aufschlag wechseln",
+  "es": "Cambiar Servicio",
+  "quelle": "scoreChangeService",
+  "n": 2
+ },
+ "Back-to-back": {
+  "de": "In Folge",
+  "es": "Seguidos",
+  "quelle": "leagueRestLabel",
+  "n": 2
+ },
+ "Back to Hub": {
+  "de": "Zurück zur Übersicht",
+  "es": "Volver al inicio",
+  "quelle": "scrambleBackToHub",
+  "n": 2
+ },
+ "Auto-eject off": {
+  "de": "Auto-Rauswurf aus",
+  "es": "Autoexpulsión no",
+  "quelle": "challengerEjectPillOff",
+  "n": 2
+ },
+ "Assign a referee manually": {
+  "de": "Schiedsrichter manuell zuweisen",
+  "es": "Asignar árbitro manualmente",
+  "quelle": "matchAssignRefereeManually",
+  "n": 2
+ },
+ "All day": {
+  "de": "Ganztags",
+  "es": "Todo el día",
+  "quelle": "courtsAllDay",
+  "n": 2
+ },
+ "Advance to next server": {
+  "de": "Zum nächsten Aufschläger wechseln",
+  "es": "Pasar al siguiente servidor",
+  "quelle": "scoreChangeServiceSubtitle",
+  "n": 2
+ },
+ "Add existing teams": {
+  "de": "Bestehende Teams hinzufügen",
+  "es": "Añadir equipos existentes",
+  "quelle": "royalDuoAddExistingTeams",
+  "n": 2
+ },
+ "Add break": {
+  "de": "Pause hinzufügen",
+  "es": "Añadir pausa",
+  "quelle": "setupAddBreak",
+  "n": 2
+ },
+ "You collect the result": {
+  "de": "Du holst das Ergebnis",
+  "es": "Recoges el resultado",
+  "quelle": "explainerSharedStep4Label",
+  "n": 1
+ },
+ "Yesterday": {
+  "de": "Gestern",
+  "es": "Ayer",
+  "quelle": "dateYesterday",
+  "n": 1
+ },
+ "XLS results import": {
+  "de": "XLS-Ergebnisimport",
+  "es": "Importar resultados XLS",
+  "quelle": "explainerRunningImportLabel",
+  "n": 1
+ },
+ "XLS export": {
+  "de": "XLS-Export",
+  "es": "Exportar a XLS",
+  "quelle": "explainerRunningExportLabel",
+  "n": 1
+ },
+ "Women's": {
+  "de": "Damen",
+  "es": "Femenino",
+  "quelle": "tournamentCategoryWomen",
+  "n": 1
+ },
+ "View point-by-point history": {
+  "de": "Punkt-für-Punkt-Verlauf anzeigen",
+  "es": "Ver historial punto a punto",
+  "quelle": "matchViewHistory",
+  "n": 1
+ },
+ "Use the default": {
+  "de": "Standard verwenden",
+  "es": "Usar el predeterminado",
+  "quelle": "courtsFormatResetToDefault",
+  "n": 1
+ },
+ "Undo Finish": {
+  "de": "Rückgängig",
+  "es": "Deshacer",
+  "quelle": "scrambleKingUndoFinishCourt",
+  "n": 1
+ },
+ "Tournament name": {
+  "de": "Turniername",
+  "es": "Nombre del torneo",
+  "quelle": "renameTournamentHint",
+  "n": 1
+ },
+ "Tournament Name": {
+  "de": "Turniername",
+  "es": "Nombre del torneo",
+  "quelle": "doghouseTournamentName",
+  "n": 1
+ },
+ "This round only": {
+  "de": "Nur diese Runde",
+  "es": "Solo esta ronda",
+  "quelle": "breakOptThisRoundTitle",
+  "n": 1
+ },
+ "They score the game": {
+  "de": "Sie zählen das Spiel",
+  "es": "Anotan el partido",
+  "quelle": "explainerSharedStep3Label",
+  "n": 1
+ },
+ "They scan it": {
+  "de": "Sie scannen ihn",
+  "es": "Lo escanean",
+  "quelle": "explainerSharedStep2Label",
+  "n": 1
+ },
+ "The queue, live": {
+  "de": "Die Queue, live",
+  "es": "La cola, en vivo",
+  "quelle": "explainerScorecardsQueueLabel",
+  "n": 1
+ },
+ "The Tournament Engine": {
+  "de": "Die Turnier-Engine",
+  "es": "El Motor de Torneos",
+  "quelle": "principleFooterEngine",
+  "n": 1
+ },
+ "Terms of Use": {
+  "de": "Nutzungsbedingungen",
+  "es": "Términos de Uso",
+  "quelle": "contactTermsOfUse",
+  "n": 1
+ },
+ "Temporary": {
+  "de": "Temporär",
+  "es": "Temporal",
+  "quelle": "scopeTemporary",
+  "n": 1
+ },
+ "Take this duo out": {
+  "de": "Duo herausnehmen",
+  "es": "Retirar esta pareja",
+  "quelle": "royalDuoEjectTitle",
+  "n": 1
+ },
+ "Suggest a name": {
+  "de": "Namen vorschlagen",
+  "es": "Sugerir un nombre",
+  "quelle": "tooltipSuggestName",
+  "n": 1
+ },
+ "Start serving suggestions": {
+  "de": "Aufschlagvorschläge",
+  "es": "Sugerencias de saque",
+  "quelle": "explainerRunningServeLabel",
+  "n": 1
+ },
+ "Start Match": {
+  "de": "Spiel starten",
+  "es": "Iniciar partido",
+  "quelle": "scorecardStartMatch",
+  "n": 1
+ },
+ "Start Court": {
+  "de": "Court starten",
+  "es": "Iniciar pista",
+  "quelle": "scrambleKingStartCourt",
+  "n": 1
+ },
+ "Sides Switched — Continue": {
+  "de": "Seiten gewechselt — Weiter",
+  "es": "Lados Cambiados — Continuar",
+  "quelle": "sideChangeContinue",
+  "n": 1
+ },
+ "Side switch automation": {
+  "de": "Seitenwechsel automatisch",
+  "es": "Cambio de lado automático",
+  "quelle": "explainerScorecardsSidesLabel",
+  "n": 1
+ },
+ "Setup incomplete": {
+  "de": "Einrichtung unvollständig",
+  "es": "Configuración incompleta",
+  "quelle": "doghouseSetupIncomplete",
+  "n": 1
+ },
+ "Sets per game": {
+  "de": "Sätze pro Spiel",
+  "es": "Sets por partido",
+  "quelle": "setupSetsPerGame",
+  "n": 1
+ },
+ "Set schedule": {
+  "de": "Zeitplan",
+  "es": "Programar",
+  "quelle": "bracketSetSchedule",
+  "n": 1
+ },
+ "Scramble Modes": {
+  "de": "Scramble-Modi",
+  "es": "Modos Scramble",
+  "quelle": "tournamentsSectionSingle",
+  "n": 1
+ },
+ "Scorecards with context": {
+  "de": "Spielstände mit Kontext",
+  "es": "Planillas con contexto",
+  "quelle": "explainerRunningCardsLabel",
+  "n": 1
+ },
+ "Scorecard sharing": {
+  "de": "Spielblatt teilen",
+  "es": "Compartir planilla",
+  "quelle": "explainerRunningShareLabel",
+  "n": 1
+ },
+ "Scope": {
+  "de": "Geltungsbereich",
+  "es": "Alcance",
+  "quelle": "labelScope",
+  "n": 1
+ },
+ "Scheduled duration": {
+  "de": "Geplante Dauer",
+  "es": "Duración programada",
+  "quelle": "setupScheduledDuration",
+  "n": 1
+ },
+ "Runner-up": {
+  "de": "Finalist",
+  "es": "Finalista",
+  "quelle": "bracketRunnerUp",
+  "n": 1
+ },
+ "Rounds and timing": {
+  "de": "Runden und Zeiten",
+  "es": "Rondas y horarios",
+  "quelle": "explainerSetupRoundsLabel",
+  "n": 1
+ },
+ "Reroll round 1": {
+  "de": "Runde 1 neu losen",
+  "es": "Resortear la ronda 1",
+  "quelle": "swissRerollRound1",
+  "n": 1
+ },
+ "Remove all": {
+  "de": "Alle entfernen",
+  "es": "Eliminar todos",
+  "quelle": "doghouseRemoveAll",
+  "n": 1
+ },
+ "Rematch": {
+  "de": "Wiederholung",
+  "es": "Revancha",
+  "quelle": "swissPairedRematch",
+  "n": 1
+ },
+ "Released": {
+  "de": "Freigegeben",
+  "es": "Liberada",
+  "quelle": "courtsUseReleased",
+  "n": 1
+ },
+ "Refs covered": {
+  "de": "Refs gedeckt",
+  "es": "Con árbitro",
+  "quelle": "refereePillCovered",
+  "n": 1
+ },
+ "Referee suggestions": {
+  "de": "Schiedsrichtervorschläge",
+  "es": "Sugerencias de árbitro",
+  "quelle": "explainerRunningRefLabel",
+  "n": 1
+ },
+ "Privacy Policy": {
+  "de": "Datenschutzrichtlinie",
+  "es": "Política de Privacidad",
+  "quelle": "contactPrivacyPolicy",
+  "n": 1
+ },
+ "Points match history": {
+  "de": "Punkteverlauf",
+  "es": "Historial de puntos",
+  "quelle": "explainerScorecardsHistoryLabel",
+  "n": 1
+ },
+ "Point-by-point scoring timeline": {
+  "de": "Punkt-für-Punkt-Verlauf",
+  "es": "Línea de tiempo punto a punto",
+  "quelle": "scoreGameplayHistorySubtitle",
+  "n": 1
+ },
+ "Player 2": {
+  "de": "Spieler 2",
+  "es": "Jugador 2",
+  "quelle": "playerTwo",
+  "n": 1
+ },
+ "Planned start": {
+  "de": "Geplanter Start",
+  "es": "Inicio planificado",
+  "quelle": "scorecardPlannedStart",
+  "n": 1
+ },
+ "Paperless and offline": {
+  "de": "Papierlos und offline",
+  "es": "Sin papel y sin conexión",
+  "quelle": "explainerSharedOfflineTitle",
+  "n": 1
+ },
+ "Pair up players": {
+  "de": "Spieler koppeln",
+  "es": "Emparejar jugadores",
+  "quelle": "royalDuoPairUpPlayers",
+  "n": 1
+ },
+ "Pace controls": {
+  "de": "Tempokontrolle",
+  "es": "Control de ritmo",
+  "quelle": "explainerRunningPaceLabel",
+  "n": 1
+ },
+ "Odd player handling": {
+  "de": "Ungerader Spieler",
+  "es": "Jugador impar",
+  "quelle": "scrambleKingOddPlayerLabel",
+  "n": 1
+ },
+ "Odd number of teams": {
+  "de": "Ungerade Teamzahl",
+  "es": "Número impar de equipos",
+  "quelle": "swissByeHelpTitle",
+  "n": 1
+ },
+ "Notify at target score": {
+  "de": "Bei Zielpunkten melden",
+  "es": "Avisar al llegar a meta",
+  "quelle": "bracketNotifyTarget",
+  "n": 1
+ },
+ "No winner determined": {
+  "de": "Kein Sieger ermittelt",
+  "es": "Ganador no determinado",
+  "quelle": "noWinnerDetermined",
+  "n": 1
+ },
+ "No side swap": {
+  "de": "Kein Seitenwechsel",
+  "es": "Sin cambio de lado",
+  "quelle": "sideSwapNone",
+  "n": 1
+ },
+ "No referee": {
+  "de": "Kein Schiedsrichter",
+  "es": "Sin árbitro",
+  "quelle": "refereeSheetNone",
+  "n": 1
+ },
+ "No group": {
+  "de": "Keine Gruppe",
+  "es": "Sin grupo",
+  "quelle": "radioNoClub",
+  "n": 1
+ },
+ "No break": {
+  "de": "Keine Pause",
+  "es": "Sin descanso",
+  "quelle": "bracketNoBreak",
+  "n": 1
+ },
+ "Men's": {
+  "de": "Herren",
+  "es": "Masculino",
+  "quelle": "tournamentCategoryMen",
+  "n": 1
+ },
+ "Maximise court use": {
+  "de": "Plätze voll nutzen",
+  "es": "Aprovechar las pistas",
+  "quelle": "courtsPlanMaximise",
+  "n": 1
+ },
+ "Match complete": {
+  "de": "Spiel abgeschlossen",
+  "es": "Partido completado",
+  "quelle": "matchComplete",
+  "n": 1
+ },
+ "Links": {
+  "de": "Verknüpfungen",
+  "es": "Vínculos",
+  "quelle": "sectionRelations",
+  "n": 1
+ },
+ "Legal Notice": {
+  "de": "Impressum",
+  "es": "Aviso Legal",
+  "quelle": "contactLegalNotice",
+  "n": 1
+ },
+ "Keeping time": {
+  "de": "Zeit im Griff",
+  "es": "Controlar el tiempo",
+  "quelle": "explainerRunningTimeBadge",
+  "n": 1
+ },
+ "In Progress": {
+  "de": "Laufend",
+  "es": "En Progreso",
+  "quelle": "gameStatusInProgress",
+  "n": 1
+ },
+ "Imported Scorecard": {
+  "de": "Importiertes Spielblatt",
+  "es": "Planilla importada",
+  "quelle": "scrambleImportedScorecard",
+  "n": 1
+ },
+ "Import tournament": {
+  "de": "Turnier importieren",
+  "es": "Importar torneo",
+  "quelle": "workbookImport",
+  "n": 1
+ },
+ "Import the file": {
+  "de": "Datei importieren",
+  "es": "Importar el archivo",
+  "quelle": "explainerAdminBulkStep3Label",
+  "n": 1
+ },
+ "Import result": {
+  "de": "Ergebnis importieren",
+  "es": "Importar resultado",
+  "quelle": "scrambleImportResult",
+  "n": 1
+ },
+ "How it works": {
+  "de": "So läuft es",
+  "es": "Cómo funciona",
+  "quelle": "explainerSharedBadge",
+  "n": 1
+ },
+ "Hide detail": {
+  "de": "Details ausblenden",
+  "es": "Ocultar detalle",
+  "quelle": "setupHideDetail",
+  "n": 1
+ },
+ "Head-to-head": {
+  "de": "Direkter Vergleich",
+  "es": "Enfrentamiento directo",
+  "quelle": "leagueTbHeadToHead",
+  "n": 1
+ },
+ "Group name": {
+  "de": "Gruppenname",
+  "es": "Nombre del grupo",
+  "quelle": "hintClubName",
+  "n": 1
+ },
+ "Gameplay Controls": {
+  "de": "Spielsteuerung",
+  "es": "Controles de Juego",
+  "quelle": "sectionGameplayControls",
+  "n": 1
+ },
+ "Game timer": {
+  "de": "Spielzeit",
+  "es": "Cronómetro",
+  "quelle": "explainerScorecardsQueueTimerLabel",
+  "n": 1
+ },
+ "Game pace": {
+  "de": "Spieltempo",
+  "es": "Ritmo de juego",
+  "quelle": "setupGamePace",
+  "n": 1
+ },
+ "Game Complete": {
+  "de": "Spiel beendet",
+  "es": "Partido finalizado",
+  "quelle": "gameSummaryTitle",
+  "n": 1
+ },
+ "From the start": {
+  "de": "Von Beginn an",
+  "es": "Desde el inicio",
+  "quelle": "courtsPhaseStart",
+  "n": 1
+ },
+ "Fill empty places": {
+  "de": "Freie Plätze füllen",
+  "es": "Rellenar plazas libres",
+  "quelle": "deSetupWildcardTitle",
+  "n": 1
+ },
+ "Export tournament": {
+  "de": "Turnier exportieren",
+  "es": "Exportar torneo",
+  "quelle": "workbookExport",
+  "n": 1
+ },
+ "Export the card": {
+  "de": "Karte exportieren",
+  "es": "Exportar la tarjeta",
+  "quelle": "explainerSharedStep1Label",
+  "n": 1
+ },
+ "Export result": {
+  "de": "Ergebnis exportieren",
+  "es": "Exportar resultado",
+  "quelle": "scrambleExportResult",
+  "n": 1
+ },
+ "Export game": {
+  "de": "Spiel exportieren",
+  "es": "Exportar juego",
+  "quelle": "scrambleExportGame",
+  "n": 1
+ },
+ "Español": {
+  "de": "Español",
+  "es": "Español",
+  "quelle": "langSpanish",
+  "n": 1
+ },
+ "English": {
+  "de": "English",
+  "es": "English",
+  "quelle": "langEnglish",
+  "n": 1
+ },
+ "Draw again": {
+  "de": "Neu auslosen",
+  "es": "Sortear de nuevo",
+  "quelle": "royalDuoReshuffleAll",
+  "n": 1
+ },
+ "Download template": {
+  "de": "Vorlage herunterladen",
+  "es": "Descargar plantilla",
+  "quelle": "rosterDownloadTemplate",
+  "n": 1
+ },
+ "Deutsch": {
+  "de": "Deutsch",
+  "es": "Deutsch",
+  "quelle": "langGerman",
+  "n": 1
+ },
+ "Create a duo": {
+  "de": "Duo anlegen",
+  "es": "Crear pareja",
+  "quelle": "royalDuoCreateTeam",
+  "n": 1
+ },
+ "Create Tournament": {
+  "de": "Turnier erstellen",
+  "es": "Crear Torneo",
+  "quelle": "btnCreateTournament",
+  "n": 1
+ },
+ "Court plan": {
+  "de": "Platzplan",
+  "es": "Plan de pistas",
+  "quelle": "courtsSectionPlan",
+  "n": 1
+ },
+ "Court allocations": {
+  "de": "Feldbelegung",
+  "es": "Asignación de canchas",
+  "quelle": "explainerRunningCourtsLabel",
+  "n": 1
+ },
+ "Copy tournament": {
+  "de": "Turnier kopieren",
+  "es": "Copiar torneo",
+  "quelle": "copyTournamentTitle",
+  "n": 1
+ },
+ "Copy a tournament": {
+  "de": "Turnier kopieren",
+  "es": "Copiar un torneo",
+  "quelle": "explainerTournamentsCopyTitle",
+  "n": 1
+ },
+ "Coming Soon": {
+  "de": "Demnächst",
+  "es": "Próximamente",
+  "quelle": "comingSoon",
+  "n": 1
+ },
+ "Clear all": {
+  "de": "Alle löschen",
+  "es": "Borrar todo",
+  "quelle": "doghouseClearAll",
+  "n": 1
+ },
+ "Clear": {
+  "de": "Löschen",
+  "es": "Eliminar",
+  "quelle": "btnClear",
+  "n": 1
+ },
+ "Change referee": {
+  "de": "Schiedsrichter wechseln",
+  "es": "Cambiar árbitro",
+  "quelle": "queueChangeReferee",
+  "n": 1
+ },
+ "Cancel": {
+  "de": "Abbrechen",
+  "es": "Cancelar",
+  "quelle": "btnCancel",
+  "n": 1
+ },
+ "COMING SOON": {
+  "de": "DEMNÄCHST",
+  "es": "PRÓXIMAMENTE",
+  "quelle": "comingSoonLabel",
+  "n": 1
+ },
+ "Bulk upload": {
+  "de": "Massenimport",
+  "es": "Carga masiva",
+  "quelle": "explainerAdminBulkBadge",
+  "n": 1
+ },
+ "Break before knockout": {
+  "de": "Pause vor dem K.-o.",
+  "es": "Descanso antes de la eliminatoria",
+  "quelle": "gkSeamBreakLabel",
+  "n": 1
+ },
+ "Break Between Rounds": {
+  "de": "Pause zwischen Runden",
+  "es": "Pausa entre rondas",
+  "quelle": "setupBreakBetweenRounds",
+  "n": 1
+ },
+ "Bracket generation": {
+  "de": "Bracketaufbau",
+  "es": "Generación",
+  "quelle": "bracketGenerationTitle",
+  "n": 1
+ },
+ "Become a Tester": {
+  "de": "Tester werden",
+  "es": "Sé probador",
+  "quelle": "navBecomeTester",
+  "n": 1
+ },
+ "Auto-eject challenger": {
+  "de": "Herausforderer raus",
+  "es": "Expulsar retador",
+  "quelle": "autoEjectChallengerLabel",
+  "n": 1
+ },
+ "Anchored starts": {
+  "de": "Feste Startzeiten",
+  "es": "Inicios fijados",
+  "quelle": "setupSummaryAnchoredLabel",
+  "n": 1
+ },
+ "All groups": {
+  "de": "Alle Gruppen",
+  "es": "Todos los grupos",
+  "quelle": "filterAllClubs",
+  "n": 1
+ },
+ "All Tournaments": {
+  "de": "Alle Turniere",
+  "es": "Todos los torneos",
+  "quelle": "tournamentsAllLabel",
+  "n": 1
+ },
+ "Brackets": {
+  "de": "Bäume",
+  "es": "Cuadros",
+  "quelle": "kuratiert",
+  "n": 0
+ },
+ "Scorecards": {
+  "de": "Spielblätter",
+  "es": "Planillas",
+  "quelle": "kuratiert",
+  "n": 0
+ }
+}

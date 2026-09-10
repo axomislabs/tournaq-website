@@ -15,6 +15,22 @@ let G_BASIS   = '../';
 let G_LINK    = id => '#/' + (id === 'home' ? '' : id);
 let G_NACHBAR = '';   // Praefix vor den Website-Seiten aus EXTERN
 
+/* Die einzigen Zeichenketten, die der Renderer selbst mitbringt statt aus
+   js/guide/pages.js zu lesen. Sie stehen hier in einer Liste, damit
+   tools/guide-strings.mjs sie findet — sonst waeren sie die zwei Saetze, die
+   in jeder Sprache englisch blieben.
+
+   `gt` faellt auf das Englische zurueck, wenn js/guide/uebersetzen.js nicht
+   geladen ist: genau der Fall beim Backen unter Node, wo die erzeugte Seite
+   ihr englisches Original tragen soll. */
+const GUIDE_RENDER_STRINGS = [
+  'Back to',
+  'The tournament engine — get the app',
+  'Light',
+  'Dark',
+];
+const gt = s => (typeof guideT === 'function' ? guideT(s) : s);
+
 function setzeKontext(o = {}){
   if (o.basis   !== undefined) G_BASIS   = o.basis;
   if (o.link    !== undefined) G_LINK    = o.link;
@@ -26,6 +42,18 @@ function setzeKontext(o = {}){
    Website-Seite ueber ihre eigene Adresse. */
 function navZiel(id){
   return EXTERN[id] ? G_NACHBAR + EXTERN[id].url : href(id);
+}
+
+
+/* Wie viele Seiten die Karte fuehrt — die Zahl unter ihrer Ueberschrift.
+   Gezaehlt, nicht getippt: die Beschriftung stand noch auf "23 pages", lange
+   nachdem der Guide darueber hinausgewachsen war. Die Abschnittszeilen aus
+   EXTERN zaehlen nicht mit; sie tragen ein # und sind damit eine Stelle in
+   einer Seite, keine eigene. Drei Stellen fragen: js/guide/boot.js,
+   js/site-map.js und tools/bake-guide.mjs. */
+function navSeitenZahl(){
+  return Object.keys(PAGES).length +
+         Object.keys(EXTERN).filter(id => EXTERN[id].url.indexOf('#') < 0).length;
 }
 
 /* ══ Rendering ═══════════════════════════════════════════════════════════
@@ -124,15 +152,34 @@ function renderBlock(b){
        entscheidet die Klasse am umgebenden g-stack, nicht der Block, damit
        eine Seite beide Formen nebeneinander zeigen kann. */
     case 'shot': {
-      const basis = G_BASIS + 'assets/' + b.src;
-      const quer  = b.w > b.h;
-      const srcset = b.sizes.map(w => basis + '-' + w + '.webp ' + w + 'w').join(', ');
-      return '<figure class="g-shot' + (quer ? ' quer' : '') + '">' +
-        '<div class="g-shot-media"><img src="' + basis + '-' + b.sizes[0] + '.webp" ' +
+      const quer = b.w > b.h;
+      const bild = (src, sizes, alt, halb) => {
+        const basis = G_BASIS + 'assets/' + src;
+        const srcset = sizes.map(w => basis + '-' + w + '.webp ' + w + 'w').join(', ');
+        return '<img src="' + basis + '-' + sizes[0] + '.webp" ' +
           'srcset="' + srcset + '" ' +
-          'sizes="' + (quer ? '(max-width: 760px) 90vw, 420px' : '(max-width: 760px) 62vw, 240px') + '" ' +
+          'sizes="' + (halb ? '(max-width: 760px) 42vw, 200px'
+                     : quer ? '(max-width: 760px) 90vw, 420px'
+                            : '(max-width: 760px) 62vw, 240px') + '" ' +
           'width="' + b.w + '" height="' + b.h + '" loading="lazy" decoding="async" ' +
-          'alt="' + (b.alt || '') + '"></div>' +
+          'alt="' + (alt || '') + '">';
+      };
+      /* Traegt der Block ein `dark`, steht dieselbe Ansicht zweimal
+         nebeneinander unter einer Bildunterschrift — hell und dunkel sind
+         derselbe Schirm, also auch dieselbe Erklaerung. Die zwei Etiketten
+         sind das einzige, was der Renderer hier selbst sagt; sie stehen
+         darum in GUIDE_RENDER_STRINGS. */
+      const halb = (marke, src, sizes, alt) =>
+        '<div class="g-shot-halb"><span class="g-shot-tag">' + gt(marke) + '</span>' +
+        bild(src, sizes, alt, true) + '</div>';
+      const media = b.dark
+        ? '<div class="g-shot-media paar">' +
+            halb('Light', b.src, b.sizes, b.alt) +
+            halb('Dark', b.dark.src, b.dark.sizes || b.sizes, b.dark.alt || b.alt) +
+          '</div>'
+        : '<div class="g-shot-media">' + bild(b.src, b.sizes, b.alt, false) + '</div>';
+      return '<figure class="g-shot' + (quer ? ' quer' : '') + (b.dark ? ' paar' : '') + '">' +
+        media +
         '<figcaption><div class="g-shot-title">' + b.title + '</div>' +
         (b.body ? '<div class="g-shot-body">' + b.body + '</div>' : '') +
         '</figcaption></figure>';
@@ -261,6 +308,97 @@ function renderFlow(){
   }).join('') + '</div>';
 }
 
+
+
+/* ══ Weiter im selben Zweig ═══════════════════════════════════════════════
+   Der Guide hat ueberall dieselbe Form: eine Hauptseite und darunter drei,
+   vier Schritte — Administration mit "Upfront, by hand", "Bulk upload" und
+   "During tournament setup", jeder Modus mit "Setting up", "Running" und
+   "Scoring". Auf der Hauptseite stehen sie als Karten. Steigt man in einen
+   Schritt hinein, bleiben die Karten oben zurueck: der Krumenpfad ist beim
+   Weiterlesen laengst ausser Sicht, und die Seitenleiste faellt auf dem Handy
+   ganz weg. Am Fuss der Seite gab es dann keinen Weg mehr zum Nachbarschritt,
+   nur zurueck ueber den Browser.
+
+   Darum steht der Zweig unter dem Inhalt noch einmal: hoch zur Elternseite,
+   daneben die Geschwister — und die Seite, auf der man steht, ausgegraut
+   statt verlinkt, damit sichtbar bleibt, wo im Dreischritt man ist.
+
+   Nichts davon wird eigens verfasst. Die Geschwister kommen aus dem Baum,
+   ihre Beschriftungen aus dem `grid` der Elternseite. Also stehen unten
+   dieselben Karten wie oben, und nicht ein zweiter Satz Texte, den beim
+   naechsten Umbenennen niemand mitzieht. */
+function renderZweig(id){
+  const elternId = PAGES[id] && PAGES[id].parent;
+  if (!elternId) return '';                       // die Startseite des Guides
+  const eltern = PAGES[elternId];
+  const kinder = Object.keys(PAGES).filter(k => PAGES[k].parent === elternId);
+
+  /* Ein `grid` der Elternseite kann auch ganz woanders hinzeigen — die
+     Tournament-Hub-Seite listet die Einrichtungsseiten aller Modi, nicht ihre
+     eigenen Kinder. Deshalb wird hier nur nachgeschlagen, was ohnehin ein
+     Geschwister ist; alles andere faellt beim Zugriff durch. */
+  const karte = {};
+  (eltern.blocks || []).forEach(b => {
+    if (b.t === 'grid') b.cards.forEach(c => { karte[c.to] = c; });
+  });
+
+  /* Der Pfeil steht vorn, nicht hinten: er zeigt nach links, und links am
+     Rand gelesen heisst das zurueck. Am rechten Rand — wo auf jeder anderen
+     Karte der Pfeil nach vorn sitzt — hiesse derselbe Pfeil das Gegenteil
+     von dem, wo der Klick hinfuehrt. */
+  const auf =
+    '<a class="g-zweig-auf" href="' + href(elternId) + '">' +
+      '<span class="g-chev auf">' + ic('i-south') + '</span>' +
+      '<span class="g-disc">' + ic(eltern.icon) + '</span>' +
+      '<span class="g-zweig-txt">' +
+        '<span class="g-zweig-k">' + gt('Back to') + '</span>' +
+        '<span class="g-zweig-t">' + eltern.title + '</span>' +
+      '</span>' +
+    '</a>';
+
+  /* Auf den Hauptseiten — den Kindern der Guide-Startseite — faellt das
+     Raster ebenfalls weg. Ihre Geschwister sind die Stationen des Wegs, und
+     die stehen auf der Startseite schon vollstaendig; hier waeren sie eine
+     zweite, kuerzere Liste derselben Namen. Kuerzer, weil "Running a
+     Tournament" kein Kind der Startseite ist, sondern tiefer im Baum haengt
+     — die Zeile zeigte also nicht einmal den ganzen Weg. Der Sprung nach
+     oben genuegt: dort steht die vollstaendige Liste. */
+  const istHauptseite = !PAGES[elternId].parent;
+
+  /* Ein einziges Kind ist kein Geschwisterkreis — dann bleibt der Weg nach
+     oben, und das Raster faellt weg. */
+  const raster = (istHauptseite || kinder.length < 2) ? '' :
+    '<div class="g-grid">' + kinder.map(k => {
+      /* Beschriftung in drei Stufen: die Karte der Elternseite, sonst der
+         Titel des Knotens. Die Zeile darunter kommt notfalls aus cards.json —
+         die Kurzzeile, die auch die Ablaufkarte auf der Startseite traegt,
+         sonst die lange Subline der Bildkarte ohne ihre gesetzten Umbrueche.
+         So steht auch unter den Modusfamilien, die kein `grid` haben, mehr
+         als ein nackter Name. */
+      const c     = karte[k] || {};
+      const bild  = CARD_BY_ZIEL[k];
+      const label = c.label || PAGES[k].title;
+      const cap   = c.cap ||
+        (bild ? (bild.k || (bild.s || '').replace(/<br>/g, ' ')) : '') || '';
+      const rumpf =
+        '<span class="g-disc">' + ic(c.icon || PAGES[k].icon) + '</span>' +
+        '<span class="g-card-txt"><span class="g-card-label">' + label +
+          (k === id ? '<span class="g-chip">You are here</span>' : '') +
+        '</span>' +
+        (cap ? '<span class="g-card-cap">' + cap + '</span>' : '') +
+        '</span>';
+      /* Die eigene Seite bleibt eine Karte, aber keine Verknuepfung: ein Link
+         auf die Seite, auf der man schon steht, ist eine tote Bewegung. */
+      return k === id
+        ? '<div class="g-card jetzt" aria-current="page">' + rumpf + '</div>'
+        : '<a class="g-card" href="' + href(k) + '">' + rumpf +
+          '<span class="g-chev">' + ic('i-south') + '</span></a>';
+    }).join('') + '</div>';
+
+  return '<nav class="g-zweig" aria-label="More in ' + eltern.title + '">' +
+    auf + raster + '</nav>';
+}
 
 
 function crumbTrail(id){
@@ -454,11 +592,12 @@ function renderPage(id){
       '<p class="g-lead">' + p.lead + '</p>' +
     '</div>' + markeHtml + '</div>' +
     '<div class="g-stack' + (SHOT_SIDE ? ' shots-side' : '') + '">' + blocks.map(renderBlock).join('') + '</div>' +
+    renderZweig(id) +
     '<a class="g-cta" href="' + G_NACHBAR + 'downloads.html">' +
       '<img class="m" src="' + G_BASIS + 'assets/icon-192.png" width="192" height="192" ' +
       'loading="lazy" decoding="async" alt=""><div>' +
       '<div class="t">TournaQ Volley</div>' +
-      '<div class="s">The tournament engine — get the app</div>' +
+      '<div class="s">' + gt('The tournament engine — get the app') + '</div>' +
     '</div><span class="g-chev">' + ic('i-south') + '</span></a>';
 
   /* Verweise auf andere Guide-Seiten stehen im Inhalt als {{knoten}}: erst

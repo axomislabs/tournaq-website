@@ -80,20 +80,121 @@
   function zeichne() {
     rail.innerHTML =
       '<p class="g-map-h">TournaQ</p>' +
-      '<p class="g-map-sub">' +
-        (Object.keys(PAGES).length + Object.keys(EXTERN).length) + ' pages</p>' +
+      '<p class="g-map-sub">' + navSeitenZahl() + ' pages</p>' +
       '<nav>' + renderNav(AKTIV) + '</nav>';
+    zeige();
   }
   zeichne();
+
+  /* ── Die Abschnitte dieser Seite ──────────────────────────────────────
+     Ein paar Zeilen der Karte meinen keine andere Seite, sondern eine Stelle
+     in dieser: die Abschnitte von Home und Platform. Sie stehen als EXTERN
+     mit einem # in der Adresse und haengen unter ihrer Seite.
+
+     Sie navigieren nicht, sie fahren hin. Der Sprung des Browsers setzt die
+     Ueberschrift an den oberen Rand, wo der klebende Kopf sie halb verdeckt
+     und der Abschnitt ohne Anlauf beginnt; zentriert steht er in der Mitte
+     des Bildes, mit dem, was davor kam, noch sichtbar. Deshalb auch beim
+     Ankommen von einer anderen Seite: dort hat der Browser schon gesprungen,
+     bevor dieses Skript laeuft. */
+  var abschnitte = [];
+  Object.keys(EXTERN).forEach(function (id) {
+    var marke = EXTERN[id].url.split('#')[1];
+    var el = marke && document.getElementById(marke);
+    if (el) abschnitte.push({ marke: marke, el: el });
+  });
+
+  /* Welcher Abschnitt gerade im Bild steht — als Marke, nicht als Element:
+     zeichne() baut die Zeilen jedes Mal neu, ein gemerktes <a> waere danach
+     ein Fremdkoerper. */
+  var HIER = null;
+
+  function zeige() {
+    rail.querySelectorAll('nav a').forEach(function (a) {
+      var teil = a.href.split('#');
+      if (teil.length < 2 || teil[0] !== hierher()) return;
+      if (teil[1] === HIER) a.setAttribute('aria-current', 'location');
+      else a.removeAttribute('aria-current');
+    });
+  }
+
+  function hierher() { return location.href.split('#')[0]; }
+
+  function merke(marke) {
+    if (marke === HIER) return;
+    HIER = marke;
+    zeige();
+  }
+
+  function zentriere(marke, weich) {
+    var el = document.getElementById(marke);
+    if (!el) return false;
+    /* 'instant' und nicht 'auto': 'auto' heisst laut Norm "nimm, was
+       scroll-behavior sagt", und pages/index.html sagt dort smooth. Beim
+       Ankommen soll nichts animiert werden — der Browser ist schon
+       gesprungen, die Fahrt haette man verpasst. */
+    el.scrollIntoView({ block: 'center', behavior: weich ? 'smooth' : 'instant' });
+    /* Die Adresse nachfuehren, ohne den Sprung auszuloesen, den location.hash
+       ausloesen wuerde. Unter file:// ist der Ursprung null und der Browser
+       verweigert das — dann bleibt die Adresse eben stehen, gefahren wird
+       trotzdem. Die Seiten sollen sich per Doppelklick oeffnen lassen. */
+    try { history.replaceState(null, '', '#' + marke); } catch (e) {}
+    merke(marke);
+    return true;
+  }
+
+  /* Der Abschnitt, dessen Kopf zuletzt an der Bildmitte vorbeigezogen ist.
+     Ueber der ersten Ueberschrift — im Hero — leuchtet keine Zeile, denn dort
+     ist man auf der Seite und in keinem ihrer Abschnitte. */
+  function spaehe() {
+    var mitte = window.innerHeight / 2;
+    var beste = null, oben = -Infinity;
+    abschnitte.forEach(function (a) {
+      var t = a.el.getBoundingClientRect().top;
+      if (t <= mitte && t > oben) { oben = t; beste = a.marke; }
+    });
+    merke(beste);
+  }
 
   if (placeholder) placeholder.remove();
   main.insertBefore(rail, main.firstChild);
   main.classList.add('has-section-nav');
   document.body.classList.add('section-nav-drawer');
 
-  /* Auf- und Zuklappen: nur die Karte neu zeichnen, damit ein offener
-     Drawer offen bleibt. */
+  /* Erst jetzt spaehen: die Karte steht seit einer Zeile im Raster, und
+     damit stehen auch die Abschnitte, deren Lage gemessen wird. */
+  if (abschnitte.length) {
+    var laeuft = false;
+    window.addEventListener('scroll', function () {
+      if (laeuft) return;
+      laeuft = true;
+      requestAnimationFrame(function () { laeuft = false; spaehe(); });
+    }, { passive: true });
+    window.addEventListener('hashchange', function () {
+      zentriere(location.hash.slice(1), true);
+    });
+    /* Erst wenn die Bilder ihre Hoehe haben, steht der Abschnitt dort, wo er
+       stehen bleibt — vorher zentriert man auf eine Seite, die noch waechst. */
+    window.addEventListener('load', function () {
+      if (location.hash.length > 1) zentriere(location.hash.slice(1), false);
+      else spaehe();
+    });
+    spaehe();
+  }
+
+  /* Zwei Klicks fangen dieselbe Zeile ab: das Dreieck klappt sie auf und zu —
+     dabei wird nur die Karte neu gezeichnet, damit ein offener Drawer offen
+     bleibt —, und die Zeile eines Abschnitts dieser Seite faehrt hin, statt
+     den Browser springen zu lassen. Alles andere ist ein gewoehnlicher Link
+     und darf durch. */
   rail.addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (a && !e.target.closest('.g-tw') && a.href.split('#')[0] === hierher()
+          && a.href.indexOf('#') > 0) {
+      e.preventDefault();
+      zentriere(a.href.split('#')[1], true);
+      return;
+    }
     var tw = e.target.closest('.g-tw');
     if (!tw) return;
     e.preventDefault();

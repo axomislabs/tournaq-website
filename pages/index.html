@@ -43,10 +43,6 @@
       scroll-behavior: smooth;
     }
 
-    .lead-links {
-      margin-top: 14px;
-    }
-
     .lead a {
       color: var(--olive);
       font-weight: 700;
@@ -59,13 +55,38 @@
       border-bottom-color: var(--olive);
     }
 
-    /* mode-category reference beside a section headline, e.g. "(Quick Game)" */
-    .section-ref {
+    /* ── Guide call-to-action ──────────────────────────────────────────────
+       Each mode section used to name its category in the headline — "Just need
+       a scoreboard? (Quick Game)". That told you the name and nothing else.
+       The name now sits at the foot of the section as a link into the matching
+       user-guide page, so the same word also answers "where do I read more?".
+       .showcase-more is the variant that closes a white card: it spans both
+       grid tracks so its rule lines up with the card edges. .section-more is
+       the same link where there is no card to sit in. */
+    .section-more {
+      margin-top: 22px;
+      text-align: center;
+    }
+
+    .showcase-more {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+      text-align: center;
+    }
+
+    .section-more-link {
       display: inline-block;
-      font-size: 0.6em;
-      font-weight: 400;
-      color: var(--muted);
-      white-space: nowrap;
+      color: var(--olive);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .section-more-link:hover {
+      border-bottom-color: var(--olive);
     }
 
     .lead em {
@@ -85,20 +106,18 @@
       margin: 0 auto;
     }
 
+    /* Alle vier Absaetze tragen dasselbe Gewicht: der Text erklaert die App
+       von vorne bis hinten, da darf kein groesserer Aufmacher die uebrigen
+       drei zu Beiwerk erklaeren. Eine Groesse, eine Farbe. */
     .intro-copy p {
-      font-size: 15px;
-      line-height: 1.75;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--text);
       margin-bottom: 16px;
     }
 
     .intro-copy p:last-child {
       margin-bottom: 0;
-    }
-
-    .intro-copy .intro-open {
-      font-size: 17px;
-      line-height: 1.65;
-      color: var(--text);
     }
 
     .intro-copy strong {
@@ -120,49 +139,6 @@
       text-transform: uppercase;
       color: var(--gold-dark);
       margin: 34px 0 14px;
-    }
-
-    /* ── "What's the score again?" cards ── */
-    .ask-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 28px;
-    }
-
-    @media (max-width: 680px) {
-      .ask-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .ask-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .ask-card .ask-icon {
-      font-size: 26px;
-      display: block;
-      margin-bottom: 10px;
-    }
-
-    .ask-card .ask-quote {
-      display: block;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--olive-dark);
-      line-height: 1.35;
-      margin-bottom: 10px;
-    }
-
-    .ask-card p {
-      font-size: 14px;
-      line-height: 1.7;
-      margin: 0;
     }
 
     /* ── Format showcase ── */
@@ -376,11 +352,23 @@
     }
 
     /* ── Offline strip ── */
+    /* Vier Karten in einem auto-fit-Raster brechen auf 3 + 1 um — die letzte
+       Karte steht dann allein in der Reihe. Zwei feste Spalten ergeben ein
+       geschlossenes 2x2, die Spaltenbreite bleibt dabei auf Lesebreite
+       begrenzt, damit die kurzen Absaetze keine 500px-Zeilen bekommen. */
     .offline-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
       margin-top: 26px;
+      max-width: 880px;
+      margin-inline: auto;
+    }
+
+    @media (max-width: 620px) {
+      .offline-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .offline-item {
@@ -558,7 +546,7 @@
 
     <div class="hero">
       <h1 data-i18n="index.hero.title">Welcome to TournaQ Volley</h1>
-      <p class="subtitle" data-i18n="index.hero.subtitle">The Tournament Engine</p>
+      <p class="subtitle" data-i18n="index.hero.subtitle">Your Tournament Engine</p>
     </div>
   </header>
 
@@ -600,7 +588,7 @@
       <h2 class="section-title" data-i18n="index.engine.title">The volleyball tournament engine</h2>
 
       <div class="intro-copy">
-        <p class="intro-open" data-i18n-html="index.engine.p1"><strong>TournaQ Volley</strong> is the tournament engine that
+        <p data-i18n-html="index.engine.p1"><strong>TournaQ Volley</strong> is your tournament engine that
           helps you plan and run volleyball games and tournaments. Whether you just need a quick scoreboard, want to
           bring individual players together for a couple of hours, or run a full tournament properly — it is all the
           same app.</p>
@@ -695,49 +683,9 @@
       </div>
     </section>
 
-    <!-- 2 · The everyday pain, in the player's own voice -->
-    <section id="admin">
-      <h2 class="section-title" data-i18n="index.admin.title">The volleyball is great. The admin is not.</h2>
-      <p class="lead" data-i18n="index.admin.lead">It's 32 degrees. That last rally was unbelievable. And now nobody is quite sure whether it's
-        5–4 or 6–4 — or whose serve it is. Every session has this moment. TournaQ makes it disappear.</p>
-
-      <p class="lead lead-links" data-i18n-html="index.admin.links">Quickly <a href="#quick">set up a scoreboard</a>, run <a href="#mix">single player</a>
-        or <a href="#teams">team competitions</a>, and easily <a href="#session">manage your own tournament</a>.</p>
-
-      <div class="ask-grid">
-        <div class="ask-card">
-          <span class="ask-icon">🤔</span>
-          <span class="ask-quote" data-i18n="index.ask.score.q">"Wait — what was the score?"</span>
-          <p data-i18n="index.ask.score.text">Two taps per rally and the score lives on the phone instead of in someone's head. Got a call wrong? Undo
-            the last point and carry on.</p>
-        </div>
-
-        <div class="ask-card">
-          <span class="ask-icon">🔄</span>
-          <span class="ask-quote" data-i18n="index.ask.switch.q">"Weren't we supposed to switch?"</span>
-          <p data-i18n="index.ask.switch.text">Side changes and serving order are tracked for you. The game stops for good reasons — not because someone
-            lost count of the ends.</p>
-        </div>
-
-        <div class="ask-card">
-          <span class="ask-icon">⏭️</span>
-          <span class="ask-quote" data-i18n="index.ask.next.q">"Who's playing next?"</span>
-          <p data-i18n="index.ask.next.text">The next round is drawn and on screen before anyone has to ask. No huddle around a piece of paper between
-            games.</p>
-        </div>
-
-        <div class="ask-card">
-          <span class="ask-icon">🏆</span>
-          <span class="ask-quote" data-i18n="index.ask.won.q">"So… who actually won?"</span>
-          <p data-i18n="index.ask.won.text">Standings and rankings update themselves after every match. The winner comes out of the results, not out
-            of the loudest memory.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3 · Quick Game -->
+    <!-- 2 · Quick Game -->
     <section id="quick">
-      <h2 class="section-title"><span data-i18n="index.quick.title">Just need a scoreboard?</span> <span class="section-ref" data-i18n="index.quick.ref">(Quick Game)</span></h2>
+      <h2 class="section-title" data-i18n="index.quick.title">Just need a scoreboard?</h2>
       <p class="lead" data-i18n="index.quick.lead">Sometimes there is no tournament. Two teams, one match, and nobody wants to spend ten minutes
         setting things up first.</p>
 
@@ -771,12 +719,17 @@
                loading="lazy" decoding="async"
                alt="Quick Game scorecard mid-rally, with the serving side highlighted">
         </div>
+
+        <div class="showcase-more">
+          <a class="section-more-link" href="guide/quick-game.html"
+             data-i18n="index.quick.more">Read more on Quick Game in the user guide →</a>
+        </div>
       </div>
     </section>
 
-    <!-- 4 · The social heart -->
+    <!-- 3 · The social heart -->
     <section id="mix">
-      <h2 class="section-title"><span data-i18n="index.mix.title">Mix the people, not just the teams</span> <span class="section-ref" data-i18n="index.mix.ref">(Single Player Competitions)</span></h2>
+      <h2 class="section-title" data-i18n="index.mix.title">Mix the people, not just the teams</h2>
       <p class="lead" data-i18n="index.mix.lead">The best sessions are the ones where everyone plays with everyone. In these formats you enter as
         a player rather than as a team — TournaQ draws the partners, balances the rounds, and keeps a ranking for every
         individual player.</p>
@@ -835,15 +788,20 @@
         </div>
       </div>
 
+      <div class="section-more">
+        <a class="section-more-link" href="guide/scramble-competitions.html"
+           data-i18n="index.mix.more">Read more on Scramble Competitions in the user guide →</a>
+      </div>
     </section>
 
-    <!-- 5 · Team competitions -->
+    <!-- 4 · Team competitions -->
     <section id="teams">
-      <h2 class="section-title"><span data-i18n="index.teams.title">Or turn up with your partner</span> <span class="section-ref" data-i18n="index.teams.ref">(Team Competitions)</span></h2>
-      <!-- Key renamed from index.teams.lead: the old copy promised "a title at the
-           end", which is now only one of four formats. Reusing the key would have
-           left the German and Spanish text describing knockout only. -->
-      <p class="lead" data-i18n="index.teams.lead2">Some days you play as a team. Four formats, all playable today — each one a different
+      <h2 class="section-title" data-i18n="index.teams.title">Or turn up with your partner</h2>
+      <!-- Key renamed twice, for the same reason both times: the count is in the
+           sentence. index.teams.lead promised "a title at the end", true only of
+           knockout; lead2 said four formats, written before Royal Duos shipped.
+           Reusing a key would have left German and Spanish stating the old count. -->
+      <p class="lead" data-i18n="index.teams.lead3">Some days you play as a team. Five formats, all playable today — each one a different
         answer to the same question: who is actually best, and how much time have you got to find out?</p>
 
       <div class="explainer">
@@ -933,6 +891,28 @@
         </figure>
       </div>
 
+      <div class="explainer">
+        <div class="explainer-copy">
+          <h3 data-i18n="index.teams.royalduo.title">Royal Duos</h3>
+          <span class="explainer-lead" data-i18n="index.teams.royalduo.kicker">King of the Court, in fixed pairs</span>
+          <p data-i18n="index.teams.royalduo.text">No fixture list at all: hold the court and you stay on it, lose it and you queue up
+            again with the same partner. One partner for the whole tournament, and the table ranks duos rather than
+            players.</p>
+        </div>
+        <figure>
+          <a href="../assets/guide/05_royal_duo/12_court_automated_landscape-1600.webp" target="_blank" rel="noopener"
+             aria-label="Open the full-size diagram">
+            <img src="../assets/guide/05_royal_duo/12_court_automated_landscape-860.webp"
+                 srcset="../assets/guide/05_royal_duo/12_court_automated_landscape-860.webp 860w,
+                         ../assets/guide/05_royal_duo/12_court_automated_landscape-1600.webp 1600w"
+                 sizes="(max-width: 860px) 92vw, 850px"
+                 width="860" height="397"
+                 loading="lazy" decoding="async"
+                 alt="A Royal Duo court in landscape: the duo holding the court, the challenging duo and the one up next, with a five-point strike target">
+          </a>
+        </figure>
+      </div>
+
       <div class="showcase" style="margin-top: 26px;">
         <div>
           <ul>
@@ -943,7 +923,7 @@
             <li><strong data-i18n="index.teams.arena.li3.title">Not sure which to run?</strong> <span data-i18n="index.teams.arena.li3.text">Every mode card carries an
               info button explaining the format before you commit to it.</span></li>
           </ul>
-          <a class="card-more-link" href="modes/games-and-tournaments.html" data-i18n="index.teams.arena.link">See all modes →</a>
+          <a class="card-more-link" href="guide/arena.html" data-i18n="index.teams.arena.link">See all modes →</a>
         </div>
 
         <div class="showcase-shots">
@@ -955,10 +935,15 @@
                loading="lazy" decoding="async"
                alt="The TournaQ Arena listing quick games, social formats and the four team competitions">
         </div>
+
+        <div class="showcase-more">
+          <a class="section-more-link" href="guide/team-competitions.html"
+             data-i18n="index.teams.more">Read more on Team Competitions in the user guide →</a>
+        </div>
       </div>
     </section>
 
-    <!-- 6 · Depth: a real tournament from your pocket -->
+    <!-- 5 · Depth: a real tournament from your pocket -->
     <section id="session">
       <h2 class="section-title" data-i18n="index.session.title">A real tournament, run from your pocket</h2>
       <p class="lead" data-i18n-html="index.session.lead">Plenty of apps hand you a scoreboard. <em>TournaQ hands you the whole session.</em></p>
@@ -968,6 +953,9 @@
           <ul>
             <li><strong data-i18n="index.session.li1.title">Set it up the way your session actually works.</strong> <span data-i18n="index.session.li1.text">Match length, number of rounds, how
               many courts, how many players — not a fixed template you have to bend around.</span></li>
+            <li><strong data-i18n="index.session.category.title">Men's, women's, mixed or open.</strong> <span data-i18n="index.session.category.text">Pick the category and the roster follows — a men's event stops
+              offering the women in your club. Players with no gender recorded stay on the list, and the draw
+              itself never changes.</span></li>
             <li><strong data-i18n="index.session.li2.title">See the schedule before you commit.</strong> <span data-i18n="index.session.li2.text">The full round-by-round preview appears while you
               are still setting up, so you know what the afternoon looks like.</span></li>
             <li><strong data-i18n="index.session.li3.title">Get told when the draw isn't ideal.</strong> <span data-i18n="index.session.li3.text">TournaQ flags it when partner coverage is uneven
@@ -999,11 +987,11 @@
       </div>
 
       <div style="text-align:center; margin-top: 28px;">
-        <a href="features.html" class="button" data-i18n="index.session.cta">See Everything TournaQ Does</a>
+        <a href="guide.html" class="button" data-i18n="index.session.cta">See Everything TournaQ Does</a>
       </div>
     </section>
 
-    <!-- 7 · Practical magic -->
+    <!-- 6 · Practical magic -->
     <section id="offline">
       <h2 class="section-title" data-i18n="index.offline.title">The beach doesn't have wifi. TournaQ doesn't need it.</h2>
       <p class="lead" data-i18n="index.offline.lead">No signal, no account, no sign-up. Everything runs on the phone in your hand — and there is still
@@ -1037,7 +1025,7 @@
       </div>
     </section>
 
-    <!-- 8 · Sport scope -->
+    <!-- 7 · Sport scope -->
     <section id="sports">
       <h2 class="section-title" data-i18n="index.sports.title">Built for the volley family</h2>
       <p class="lead" data-i18n="index.sports.lead">TournaQ Volley is made first and foremost for beach volleyball and footvolley. Anything scored
@@ -1052,7 +1040,7 @@
       </div>
     </section>
 
-    <!-- 9 · Closing CTA -->
+    <!-- 8 · Closing CTA -->
     <div class="closing">
       <h2 data-i18n="index.closing.title">Bring it to your next session</h2>
       <p data-i18n="index.closing.text">TournaQ is in beta and being shaped by the people using it on court. Join in, run your next tournament with
@@ -1064,14 +1052,14 @@
       </div>
     </div>
 
-    <!-- 10 · Quiet partner line -->
+    <!-- 9 · Quiet partner line -->
     <div class="partner-line">
       <p data-i18n="index.partner.text">Already using a platform for registration and payments? Keep it — TournaQ takes over at the court and hands
         the results back.</p>
       <a href="platform.html" data-i18n="index.partner.link">For organisers &amp; platforms →</a>
     </div>
 
-    <!-- 11 · Contact -->
+    <!-- 10 · Contact -->
     <div class="feedback-cta">
       <div class="feedback-cta-text">
         <strong data-i18n="feedback.cta.title">Questions or Feedback?</strong>

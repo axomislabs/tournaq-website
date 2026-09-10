@@ -11,7 +11,7 @@ repeatable for every future round of updates.
 
     python3 tools/bake-feature-matrix.py                  # newest export in ~/Downloads
     python3 tools/bake-feature-matrix.py path/to.csv      # a specific file
-    python3 tools/bake-feature-matrix.py --page pages/features/feature-matrix.html
+    python3 tools/bake-feature-matrix.py --page archive/features/feature-matrix.html
 
 Older exports (before the Section column existed) are handled too: rows sharing
 tournament-features.html are split at the first Live Tournament feature.
@@ -19,7 +19,7 @@ tournament-features.html are split at the first Live Tournament feature.
 import argparse, csv, glob, json, os, re, shutil, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_PAGE = os.path.join(REPO, 'pages/features/feature-matrix.html')
+DEFAULT_PAGE = os.path.join(REPO, 'archive/features/feature-matrix.html')
 DOWNLOADS = os.path.expanduser('~/Downloads/feature-matrix-*.csv')
 
 PAGE_SECTION = {

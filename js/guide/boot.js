@@ -31,7 +31,11 @@ function render(){
   const raw = location.hash.replace(/^#\/?/, '');
   const neu = heute(raw);
   if (neu && PAGES[neu]) return location.replace(href(neu));
-  const id = PAGES[raw] ? raw : 'home';
+  /* Ohne Hash gilt der Knoten, auf dem die Datei steht — nicht 'home'. Solange
+     nur Hash-Routen neu zeichneten, war der Unterschied unsichtbar; seit auch
+     ein Sprachwechsel neu zeichnet, haette pages/guide/administration.html
+     beim Umschalten den Guide-Einstieg gezeigt. */
+  const id = PAGES[raw] ? raw : (window.__guideNode || 'home');
 
   NAV_ACTIVE = id;
   const seite = renderPage(id);
@@ -104,6 +108,28 @@ document.getElementById('g-body').addEventListener('click', e => {
 
 window.addEventListener('hashchange', render);
 
+/* ── Sprache ──────────────────────────────────────────────────────────────
+   Welche Sprache gilt, weiss js/i18n.js; es schreibt sie in <html lang> und
+   meldet jeden Wechsel als 'tq-lang'. Der Guide fragt also nicht nach, er
+   liest ab — so bleibt die Sprachwahl an einer Stelle.
+
+   Uebersetzt werden die Daten, nicht das DOM (js/guide/uebersetzen.js), und
+   danach wird neu gezeichnet: eine gebackene Seite bringt ihr Englisch
+   fertig mit, und nur ein neuer Durchlauf durch renderPage ersetzt es. */
+function spracheJetzt() {
+  return (document.documentElement.lang || 'en').slice(0, 2).toLowerCase();
+}
+
+function uebersetzeGuide() {
+  if (typeof guideSprache !== 'function') return false;
+  guideSprache(spracheJetzt());
+  return true;
+}
+
+document.addEventListener('tq-lang', () => {
+  if (uebersetzeGuide() && window.__guideReady) render();
+});
+
 /* i18n.js is deferred, and it sets document.title from data-i18n-title and
    unhides the body. Rendering on DOMContentLoaded puts this after it, so the
    per-page title sticks and the guide is never painted into a hidden body. */
@@ -112,15 +138,17 @@ document.addEventListener('DOMContentLoaded', () => {
      die Vorgaben stehen, eine gebackene Seite reicht ihren Kontext herein. */
   if (window.__guideKontext) setzeKontext(window.__guideKontext);
 
-  /* Counted, not typed: the label read "23 pages" long after the guide had
-     grown past it. */
-  document.querySelector('.g-map-sub').textContent =
-    Object.keys(PAGES).length + Object.keys(EXTERN).length + ' pages';
+  document.querySelector('.g-map-sub').textContent = navSeitenZahl() + ' pages';
 
   /* Eine gebackene Seite bringt ihren Inhalt fertig mit — neu gezeichnet wird
      nur, wenn eine Hash-Route auf einen Unterknoten zeigt. Ohne diese Bremse
      wuerde das erste Bild sofort durch ein identisches ersetzt, und wer ohne
-     JavaScript liest, saehe den Unterschied nicht, wohl aber jeder andere. */
-  if (!window.__guideBaked || location.hash) render();
+     JavaScript liest, saehe den Unterschied nicht, wohl aber jeder andere.
+
+     Eine fremde Sprache ist der dritte Fall: das mitgebrachte Englisch ist
+     dann nicht mehr das, was dastehen soll. */
+  uebersetzeGuide();
+  const fremd = spracheJetzt() !== 'en';
+  if (!window.__guideBaked || location.hash || fremd) render();
   window.__guideReady = true;
 });
