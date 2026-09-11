@@ -1,0 +1,170 @@
+{
+ "00_shell/01_splash-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "96c40468a2b8c71c49dbaf47af50bfd5305c76f579b021323e59e8f2631ec62b",
+  "w": 430
+ },
+ "00_shell/01_splash-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "96c40468a2b8c71c49dbaf47af50bfd5305c76f579b021323e59e8f2631ec62b",
+  "w": 860
+ },
+ "00_shell/02_home-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "264e8ab5ca043de911fddfbb2a2389a6ccad99f560636c9bd17fc9c186d7553a",
+  "w": 430
+ },
+ "00_shell/02_home-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "264e8ab5ca043de911fddfbb2a2389a6ccad99f560636c9bd17fc9c186d7553a",
+  "w": 860
+ },
+ "00_shell/03_home_full-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "710980a97fae1584fb4e9dc23a66985036b03080ed0148f78fb1a7c25e892df4",
+  "w": 430
+ },
+ "00_shell/03_home_full-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "710980a97fae1584fb4e9dc23a66985036b03080ed0148f78fb1a7c25e892df4",
+  "w": 645
+ },
+ "00_shell/04_arena-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b25da0e0705ce15cf8b31cc9cec343e72ba69726a3d51178db4111e6b0982f23",
+  "w": 430
+ },
+ "00_shell/04_arena-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b25da0e0705ce15cf8b31cc9cec343e72ba69726a3d51178db4111e6b0982f23",
+  "w": 860
+ },
+ "00_shell/05_arena_full-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "d009927bda0107406ce4e96c13056f627646bcadd1121e0ca8a11872629eb1b7",
+  "w": 430
+ },
+ "00_shell/05_arena_full-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "d009927bda0107406ce4e96c13056f627646bcadd1121e0ca8a11872629eb1b7",
+  "w": 645
+ },
+ "00_shell/06_tournament_history-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "9061afa1927be4a0acd049368f739ec5f79af33dedc9feba37de3e02ff8f414a",
+  "w": 430
+ },
+ "00_shell/06_tournament_history-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "9061afa1927be4a0acd049368f739ec5f79af33dedc9feba37de3e02ff8f414a",
+  "w": 645
+ },
+ "00_shell/07_tournament_history_filtered-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5bdf2c92e1ab4bed551fb25af82324ea5c0ff942cca675776f53f2138ea60b56",
+  "w": 430
+ },
+ "00_shell/07_tournament_history_filtered-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "5bdf2c92e1ab4bed551fb25af82324ea5c0ff942cca675776f53f2138ea60b56",
+  "w": 860
+ },
+ "00_shell/08_administration-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7d6cd8577ea260cb9840ab99837329ed78ac5bfffe40a3ad33aea902ac8b6f5e",
+  "w": 430
+ },
+ "00_shell/08_administration-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "7d6cd8577ea260cb9840ab99837329ed78ac5bfffe40a3ad33aea902ac8b6f5e",
+  "w": 860
+ },
+ "00_shell/09_more-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ea493f2f523e18d63f040f1c0f4b6fc794dcab4a32cfce819b522e0ef2d55523",
+  "w": 430
+ },
+ "00_shell/09_more-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "ea493f2f523e18d63f040f1c0f4b6fc794dcab4a32cfce819b522e0ef2d55523",
+  "w": 860
+ },
+ "00_shell/10_settings-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "94ed41b578d95122c3d2a8417f9f9dbc2945569b97082e79c1bd986a6899a908",
+  "w": 430
+ },
+ "00_shell/10_settings-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "94ed41b578d95122c3d2a8417f9f9dbc2945569b97082e79c1bd986a6899a908",
+  "w": 860
+ },
+ "00_shell/11_contact_and_about-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b7b5e42c48bb80d6d426571b2a311b99d777f93e01e407460af7b98c58f8f0b9",
+  "w": 430
+ },
+ "00_shell/11_contact_and_about-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "b7b5e42c48bb80d6d426571b2a311b99d777f93e01e407460af7b98c58f8f0b9",
+  "w": 645
+ },
+ "00_shell/12_sponsoring_and_promo-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "85d28bed1d74ba584a973f0e60a568ef69cd098ec277a916a0ee357859c96e49",
+  "w": 430
+ },
+ "00_shell/12_sponsoring_and_promo-645.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "85d28bed1d74ba584a973f0e60a568ef69cd098ec277a916a0ee357859c96e49",
+  "w": 645
+ },
+ "00_shell/13_become_a_tester-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "4da13c0c75f16f36df911a632e91f2dcdbdee2671f3b00614f49db8e252c2e4b",
+  "w": 430
+ },
+ "00_shell/13_become_a_tester-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "4da13c0c75f16f36df911a632e91f2dcdbdee2671f3b00614f49db8e252c2e4b",
+  "w": 860
+ },
+ "00_shell/14_coming_soon-430.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "6c33c0fcf600d711effbf9487e9ecba8ceee97cb443c04240dde5085f3b55b22",
+  "w": 430
+ },
+ "00_shell/14_coming_soon-860.webp": {
+  "crop": null,
+  "q": 80,
+  "sha": "6c33c0fcf600d711effbf9487e9ecba8ceee97cb443c04240dde5085f3b55b22",
+  "w": 860
+ }
+}

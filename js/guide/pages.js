@@ -149,7 +149,7 @@ navigation: {
   title:'Navigation & Settings', route:'/guide/navigation', icon:'i-menu', parent:'home',
   eyebrow:'The app shell',
   h1:['Navigation & ','Settings'],
-  lead:'Where things are, and the few switches that change how the app looks and speaks. Three cards on the home screen lead into everything the app can do; More holds the screens beside that flow, and Settings holds the language, the appearance and the privacy options. Every screen in this guide exists in both palettes — the dark one is at the bottom of this page, next to its light twin.',
+  lead:'Where things are, and the few switches that change how the app looks and speaks. Three cards on the home screen lead into everything the app can do; More holds the screens beside that flow, and Settings holds the language, the appearance and the privacy options. Every screen on this page is shown in both palettes — the dark twin next to the light one, under the same caption.',
   blocks:[
     panel('Where everything is','Three cards on the home screen, and everything in the app sits under one of them.',[
       item('i-arena','TournaQ Arena','Every format the app can run, and everything you have already run, underneath.'),
@@ -160,7 +160,9 @@ navigation: {
     shot('guide/00_shell/03_home_full',430,932,[430, 645],
       'The whole screen',
       'Below the three destinations sits the Quick Guide — the app in one picture, tap for the full flow — and the More about TournaQ card with the link to tournaq.com.',
-      'The full home screen including the Quick Guide card and the link to tournaq.com'),
+      'The full home screen including the Quick Guide card and the link to tournaq.com',
+      dunkel('guide_dark/00_shell/03_home_full',[430, 645],
+        'The full home screen in dark mode')),
     sect('More','i-south'),
     panel('Four screens behind More','Everything you open once, or once a season — none of it needed with a match running.',[
       item('i-star','Sponsoring & Promo','Ads, partnerships, and the ways to support the app.'),
@@ -171,7 +173,9 @@ navigation: {
     shot('guide/00_shell/09_more',430,932,[430, 860],
       'More',
       'Sponsoring & Promo, Contact & About, Settings and Become a Tester — four cards, in that order. The screens you need occasionally, kept out of the way of the ones you need mid-match.',
-      'The More screen with sponsoring, contact, settings and the tester route'),
+      'The More screen with sponsoring, contact, settings and the tester route',
+      dunkel('guide_dark/00_shell/09_more',[430, 860],
+        'The More screen in dark mode')),
     sect('Sponsoring & Promo','i-south'),
     panel('What is on it','Advertising and sponsorship pay for the continued development — the screen says so, and then gives you every way to be part of it.',[
       item('i-star','Support TournaQ','The reason the ads are there, and the ad slot itself, with a thank-you under it.'),
@@ -184,7 +188,9 @@ navigation: {
     shot('guide/00_shell/12_sponsoring_and_promo',430,1234,[430, 645],
       'Sponsoring & Promo',
       'The ad slot at the top, the two ways to give something back under it, and the partnership options below — three of them still marked Coming Soon.',
-      'The Sponsoring and Promo screen with the ad slot, the Instagram and rating rows and the partnership options'),
+      'The Sponsoring and Promo screen with the ad slot, the Instagram and rating rows and the partnership options',
+      dunkel('guide_dark/00_shell/12_sponsoring_and_promo',[430, 645],
+        'The Sponsoring and Promo screen in dark mode')),
     sect('Contact & About','i-south'),
     panel('What is on it','Every way to reach the team, and the documents you occasionally have to look up.',[
       item('i-share','Social','Instagram, @tournaq.'),
@@ -196,7 +202,9 @@ navigation: {
     shot('guide/00_shell/11_contact_and_about',430,1057,[430, 645],
       'Contact & About',
       'Social at the top, then the three ways to get in touch, the link to the feature overview, and the legal documents. The app version sits at the very bottom.',
-      'The Contact and About screen with social, support, resources and legal links'),
+      'The Contact and About screen with social, support, resources and legal links',
+      dunkel('guide_dark/00_shell/11_contact_and_about',[430, 645],
+        'The Contact and About screen in dark mode')),
     sect('Become a Tester','i-south'),
     panel('Two routes in, one per platform','Testing new features before they are released — TestFlight on iOS, the tester program on Android.',[
       item('i-qr','iOS · Download via TestFlight','A QR code that installs the beta directly. Signing up is optional here — it only helps us stay in touch.'),
@@ -207,7 +215,9 @@ navigation: {
     shot('guide/00_shell/13_become_a_tester',430,932,[430, 860],
       'Become a Tester',
       'The TestFlight route at the top, the sign-up for both platforms under it, and the note that Android needs that sign-up before anything arrives.',
-      'The Become a Tester screen with the TestFlight QR code and the sign-up options'),
+      'The Become a Tester screen with the TestFlight QR code and the sign-up options',
+      dunkel('guide_dark/00_shell/13_become_a_tester',[430, 860],
+        'The Become a Tester screen in dark mode')),
     sect('Settings','i-south'),
     fbox('i-menu','Appearance sits in More › Settings, next to the language','Automatic follows whatever the phone is set to; Light and Dark pin it yourself. It is the whole app rather than a handful of screens — the same guide, read on a phone in a dark hall, looks like this.'),
     shot('guide/00_shell/10_settings',430,932,[430, 860],
@@ -220,7 +230,9 @@ navigation: {
     shot('guide/00_shell/14_coming_soon',430,932,[430, 860],
       'Coming soon',
       'Tapping a format that has not shipped lands here rather than nowhere: what it will do, the page about it on the website, and the two ways to say what you need from it.',
-      'A Coming Soon screen for Player Profiles with the feedback and email buttons'),
+      'A Coming Soon screen for Player Profiles with the feedback and email buttons',
+      dunkel('guide_dark/00_shell/14_coming_soon',[430, 860],
+        'A Coming Soon screen in dark mode')),
     sect('The app in dark','i-south'),
     shot('guide/03_social_scramble/05_overview_full',430,1724,[430, 645],
       'The screen that stays open all afternoon',
@@ -3850,11 +3862,23 @@ const EXTERN = {
   'site-home-offline': {title:'Works Without Wifi',              icon:'i-off',      url:'index.html#offline'},
   'site-home-sports':  {title:'The Volley Family',               icon:'i-court',    url:'index.html#sports'},
 
+  /* Der Capability Explorer. Steht zwischen Home und Platform, weil er die
+     Bestandsaufnahme ist, auf die beide sich berufen: was die App kann,
+     Zeile fuer Zeile, gegen jeden Modus. Keine Sprungmarken darunter — die
+     Seite hat keine Abschnitte, sie hat Filter. */
+  'site-capabilities': {title:'Capabilities',                    icon:'i-grid',     url:'capabilities.html'},
+
   'site-platform':   {title:'Platform',                          icon:'i-star',     url:'platform.html'},
   'site-platform-idea':       {title:'The TournaQ Idea',         icon:'i-target',   url:'platform.html#idea'},
   'site-platform-scope':      {title:'A Competition Engine',     icon:'i-arena',    url:'platform.html#scope'},
   'site-platform-principles': {title:'Design Principles',        icon:'i-check',    url:'platform.html#principles'},
   'site-downloads':  {title:'Downloads',                         icon:'i-download', url:'downloads.html'},
+  /* Zwei Abschnitte, und die Unterscheidung traegt die Seite: oben die
+     Store-Veroeffentlichungen, die noch ausstehen, unten das offene
+     Testprogramm, ueber das die App heute schon zu haben ist. Der zweite
+     Eintrag faellt weg, sobald die Stores liefern. */
+  'site-downloads-releases': {title:'Available Downloads',    icon:'i-download', url:'downloads.html#releases'},
+  'site-downloads-beta':     {title:'Beta Testing',           icon:'i-people',   url:'downloads.html#beta'},
   'site-legal':      {title:'Legal',                             icon:'i-doc',      url:'legal.html'},
   /* Die drei Rechtstexte liegen nicht unter pages/, sondern in legal/. Weil
      jede Adresse hier relativ zu pages/ steht, geht es einen Ordner hoch —
@@ -3883,6 +3907,7 @@ const NAV = [
        ['site-home-session',1],['site-home-offline',1],['site-home-sports',1],
      'site-platform',
        ['site-platform-idea',1],['site-platform-scope',1],['site-platform-principles',1],
+     'site-capabilities',
 
      'home',
        ['administration',1],
@@ -3910,6 +3935,7 @@ const NAV = [
        ['navigation',1],
 
      'site-downloads',
+       ['site-downloads-releases',1],['site-downloads-beta',1],
      'site-legal',
        ['site-privacy',1],['site-terms',1],['site-notice',1],
      'site-contact',

@@ -413,6 +413,133 @@ main > section:has(> .section-title) > .section-text:last-child {
     object-fit: contain;
 }
 
+/* ── Install routes ─────────────────────────────────────────────────────────
+   Die App liegt im Test, nicht offen im Store: jede Plattform braucht zwei
+   Schritte statt einem. Der Kopf der Karte bleibt zentriert wie bei jeder
+   anderen Download-Karte — die Schritte sind eine Anleitung und lesen sich
+   linksbuendig. */
+.dl-steps {
+    list-style: none;
+    text-align: left;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.dl-steps > li {
+    background: var(--olive-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 0;
+}
+
+.dl-step-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+/* Die Ziffer traegt die Reihenfolge, seit list-style weg ist. */
+.dl-step-n {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--olive);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dl-step-head strong {
+    color: var(--olive-dark);
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.dl-steps p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Die Gruppenadresse im ersten Android-Schritt. anywhere, damit sie in einer
+   schmalen Spalte umbricht statt hinauszuragen. */
+.dl-steps p strong {
+    color: var(--olive-dark);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.dl-steps .btn {
+    font-size: 13px;
+    padding: 8px 14px;
+}
+
+/* Der Knopf und der Code gehoeren zum selben Schritt. Beide Ziele sind Links,
+   die nur auf dem Telefon etwas tun — gelesen wird die Seite aber meist am
+   Rechner. Der Knopf ist der Weg fuer den, der schon am Telefon ist, der Code
+   der Weg vom Bildschirm aufs Telefon: beides, nicht das eine statt des
+   anderen.
+
+   Untereinander und zentriert, nicht nebeneinander. Die vier Beschriftungen
+   sind verschieden lang — "Get TestFlight" gegen "Join on Google Groups" —,
+   und nebeneinander verschob jede davon ihren Code um ein anderes Stueck nach
+   rechts. Gestapelt liegt in jedem Schritt alles auf derselben Mittelachse,
+   gleich wie breit der Knopf gerade ausfaellt. */
+.dl-go {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.dl-qr {
+    margin: 0;
+    text-align: center;
+    flex: 0 0 auto;
+}
+
+/* Weiss und Rand liegen im SVG selbst, samt der Ruhezone, die ein Scanner
+   braucht — hier steht nur, wie gross der Code wird. 132px halten auch den
+   groessten der vier Codes (45 Module) bei gut 2,9px je Modul. */
+.dl-qr img {
+    width: 132px;
+    height: 132px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.dl-qr figcaption {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.3;
+    margin-top: 5px;
+}
+
+/* Der Hinweis unter den Store-Karten, der auf den Beta-Abschnitt zeigt: ein
+   .section-text, das aber nicht die Einleitung ist und deshalb Luft ueber
+   sich braucht statt darunter. */
+.section-text.dl-meantime {
+    margin-top: 24px;
+}
+
+/* Das Abzeichen ueber einer Abschnittsueberschrift — derzeit nur "Beta", das
+   ueber dem Testprogramm steht. */
+.section-badge {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
 .icon-box {
     width: 48px;
     height: 48px;
@@ -455,6 +582,31 @@ main > section:has(> .section-title) > .section-text:last-child {
     background: #9AA48A;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+/* Zweitrangig neben einem gefuellten Knopf: derselbe Umriss, keine Fuellung,
+   damit die Reihenfolge der beiden lesbar bleibt. Das Polster ist um die
+   Rahmenbreite kleiner, sonst stuende der Knopf hoeher als sein Nachbar. */
+.btn.ghost,
+.button.ghost {
+    background: none;
+    color: var(--olive);
+    border: 1px solid var(--olive);
+    padding: 9px 15px;
+}
+
+.btn.ghost:hover,
+.button.ghost:hover {
+    background: var(--olive-light);
+    color: var(--olive-dark);
+}
+
+/* Mehr als ein Knopf am Fuss einer Karte. */
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
 }
 
 .email-link,

@@ -24,6 +24,7 @@ list — a rolling capture is natively 645 wide and upscaling it would be a lie.
 
     python3 tools/import-guide-shots.py                  # everything new or changed
     python3 tools/import-guide-shots.py --only 07_league # one folder
+    python3 tools/import-guide-shots.py --dark --only 00_shell   # the dark twins
     python3 tools/import-guide-shots.py --check          # CI: stale? dead refs?
     python3 tools/import-guide-shots.py snippet 00_shell/04_arena --slot card
 
@@ -49,6 +50,15 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_SRC = os.path.join(os.path.dirname(REPO), 'tournaq/screenshots/guide_v2')
 OUT = os.path.join(REPO, 'assets/guide')
 MANIFEST = os.path.join(OUT, '.import-manifest.json')
+
+# The same tree rendered dark. The app writes it with one flag —
+# `flutter test --dart-define=TQ_DARK=true test/screenshots/*_shots.dart` — so a
+# dark twin of any shot already exists; importing is picking the ones a page
+# actually shows next to their light halves (`dunkel(...)` in js/guide/pages.js).
+# Separate output root and manifest, because both trees carry the same names.
+DARK_SRC = os.path.join(os.path.dirname(REPO), 'tournaq/screenshots/guide_v2_dark')
+DARK_OUT = os.path.join(REPO, 'assets/guide_dark')
+DARK_MANIFEST = os.path.join(DARK_OUT, '.import-manifest.json')
 SKIP_DIRS = {'_smoke'}
 
 # Frame classes, keyed by the exact size the generator emits. `widths` are the
@@ -116,6 +126,13 @@ def classify(w, h):
         if spec['match'](w, h):
             return name, spec
     return None, None
+
+
+def asset(src, width):
+    """The derivative a pages.js path names. Its first segment is the root —
+    `guide/` for the light set, `guide_dark/` for the dark one — so both
+    resolve without knowing which run is asking."""
+    return os.path.join(REPO, 'assets', '%s-%d.webp' % (src, width))
 
 
 def sources(src, only):
@@ -356,15 +373,28 @@ def cmd_check(args):
     if os.path.exists(pages_js):
         with io.open(pages_js, encoding='utf-8') as fh:
             src_js = fh.read()
-        for src, w, h, widths in re.findall(
-                r"shot\('([^']+)',(\d+),(\d+),\[([0-9, ]+)\]", src_js):
+        # `dunkel(...)` is the eighth argument of the `shot(...)` it belongs to
+        # and declares no size of its own — both halves are drawn at the shot's
+        # w/h. So the two are read in document order and the dark one is
+        # measured against the size its shot declared: a twin that is a few
+        # pixels taller would stretch under the same caption.
+        eintrag = re.compile(r"shot\('([^']+)',(\d+),(\d+),\[([0-9, ]+)\]"
+                             r"|dunkel\('([^']+)',\[([0-9, ]+)\]")
+        w = h = None
+        for m in eintrag.finditer(src_js):
+            if m.group(1):
+                src, w, h, widths = m.group(1), m.group(2), m.group(3), m.group(4)
+            else:
+                src, widths = m.group(5), m.group(6)
+                if w is None:
+                    problems.append('js/guide/pages.js: %s has no shot()' % src)
+                    continue
             ws = [int(x) for x in widths.split(',')]
             for wd in ws:
-                f = os.path.join(OUT, '%s-%d.webp' % (src[len('guide/'):], wd))
-                if not os.path.exists(f):
+                if not os.path.exists(asset(src, wd)):
                     problems.append('js/guide/pages.js: %s has no %dw derivative'
                                     % (src, wd))
-            first = os.path.join(OUT, '%s-%d.webp' % (src[len('guide/'):], ws[0]))
+            first = asset(src, ws[0])
             if os.path.exists(first):
                 with Image.open(first) as probe:
                     if (probe.width, probe.height) != (int(w), int(h)):
@@ -407,6 +437,8 @@ def main():
                     choices=['import', 'brand', 'check', 'snippet', 'suggest-crop'])
     ap.add_argument('target', nargs='?', help='shot path, for snippet / suggest-crop')
     ap.add_argument('--src', help='guide/ source root (default: ../tournaq/screenshots/guide)')
+    ap.add_argument('--dark', action='store_true',
+                    help='import the dark mirror (guide_v2_dark) into assets/guide_dark')
     ap.add_argument('--only', nargs='*', help='limit to these folders')
     ap.add_argument('--force', action='store_true', help='ignore the manifest and re-encode')
     ap.add_argument('--slot', default='card', choices=sorted(SLOTS), help='snippet: CSS slot')
@@ -416,6 +448,10 @@ def main():
     ap.add_argument('--eager', action='store_true', help='snippet: mark as the LCP image')
     ap.add_argument('--pad', type=int, default=30, help='suggest-crop: padding in px')
     args = ap.parse_args()
+
+    if args.dark:
+        global DEFAULT_SRC, OUT, MANIFEST
+        DEFAULT_SRC, OUT, MANIFEST = DARK_SRC, DARK_OUT, DARK_MANIFEST
 
     if args.command in ('snippet', 'suggest-crop') and not args.target:
         sys.exit('%s needs a shot path, e.g. 00_shell/04_arena' % args.command)

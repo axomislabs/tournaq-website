@@ -374,6 +374,23 @@
       }
     },
     {
+      "slug": "capabilities",
+      "bild": "Capabilities.png",
+      "titel": "Capability Explorer",
+      "sub": "Browse through all TournaQ\nfeatures and capabilities.",
+      "alt": "Capability Explorer — Browse through all TournaQ features and capabilities: a phone with the TournaQ home screen, surrounded by floating panels for brackets, players, schedule, score, chat and analytics.",
+      "hinweis": "Hero auf pages/capabilities.html. Keine Guide-Seite, deshalb kein ziel.",
+      "foto": {
+        "x": "50%",
+        "y": "50%",
+        "zoom": "1.0"
+      },
+      "iris": {
+        "x": "50%",
+        "y": "52%"
+      }
+    },
+    {
       "slug": "user-guide",
       "bild": "User Guide.png",
       "titel": "TournaQ User Guide",

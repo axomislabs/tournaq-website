@@ -26,7 +26,7 @@
  *
  *     node tools/bake-capabilities.mjs
  *
- * Schreibt die Daten inline in drafts/capabilities.html, zwischen die beiden
+ * Schreibt die Daten inline in pages/capabilities.html, zwischen die beiden
  * DATEN-Marken. Inline, weil die Seite von file:// aus funktionieren muss —
  * ein fetch() waere dort von CORS geblockt. Dieselbe Entscheidung wie in
  * archive/features/feature-matrix.html.
@@ -601,7 +601,7 @@ for (const b of bundles) {
 const DATEN = { modes:MODES, families:FAMILIEN, rows, bundles, cols:SPALTEN,
                 built:new Date().toISOString().slice(0, 10) };
 
-const ZIEL = 'drafts/capabilities.html';
+const ZIEL = 'pages/capabilities.html';
 const seite = lies(ZIEL);
 const A = '/* ==DATEN-ANFANG== */', E = '/* ==DATEN-ENDE== */';
 const [i, j] = [seite.indexOf(A), seite.indexOf(E)];

@@ -81,21 +81,13 @@
             </div>
         </div>
 
-        <section>
+        <section id="releases">
             <h1 class="section-title" data-i18n="downloads.section.title">Available Downloads</h1>
 
             <p class="section-text" data-i18n="downloads.section.text">
                 TournaQ is currently under active development. Download links will be added here when official releases
                 are available.
             </p>
-
-            <div class="feedback-cta">
-                <div class="feedback-cta-text">
-                    <strong data-i18n="downloads.beta.title">Want early access?</strong>
-                    <p data-i18n="downloads.beta.text">Sign up now for access to TournaQ test versions — and start organizing your volleyball events today.</p>
-                </div>
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog" class="feedback-cta-btn" target="_blank" rel="noopener" data-i18n="downloads.beta.btn">Sign Up for Beta Testing</a>
-            </div>
 
             <div class="downloads-grid">
 
@@ -141,6 +133,135 @@
                     <a class="btn disabled" data-i18n="downloads.comingsoon">Coming Soon</a>
                 </div>
 
+            </div>
+
+            <!-- Drei graue Coming-Soon-Knoepfe und kein Weg weiter waeren eine
+                 Sackgasse — der Satz zeigt auf den Abschnitt darunter. -->
+            <p class="section-text dl-meantime" data-i18n="downloads.section.meantime">
+                You do not have to wait for that, though. Until then the current build is handed out through the beta
+                programme below.
+            </p>
+        </section>
+
+        <!-- Der Weg, der heute schon funktioniert. Eigener Abschnitt statt in
+             den Karten oben, weil er befristet ist: sobald die App offiziell in
+             den Stores liegt, faellt dieser Block weg und die drei Karten
+             bekommen ihre Links. -->
+        <section id="beta">
+            <p class="section-badge"><span class="phase-status inprogress-status" data-i18n="downloads.testing.badge">Open now</span></p>
+
+            <h1 class="section-title" data-i18n="downloads.testing.title">Beta Testing</h1>
+
+            <p class="section-text" data-i18n="downloads.testing.text">
+                Until TournaQ Volley reaches the stores, each platform hands out the current build through its own test
+                programme. Same app, a version or two ahead — it just takes two steps to install rather than one. This
+                route closes once the official releases land above.
+            </p>
+
+            <div class="downloads-grid">
+
+                <div class="download-card">
+                    <div class="download-icon">
+                        <img src="../assets/google-play.svg" width="64" height="64" loading="lazy" decoding="async" alt="Google Play">
+                    </div>
+
+                    <h3 data-i18n="downloads.android.title">Android</h3>
+
+                    <p data-i18n="downloads.android.beta.text">
+                        Google Play hands the test build to a named list of testers only. Join the group first, and the
+                        store page will then let you install.
+                    </p>
+
+                    <ol class="dl-steps">
+                        <li>
+                            <div class="dl-step-head">
+                                <span class="dl-step-n">1</span>
+                                <strong data-i18n="downloads.android.step1.title">Join the tester group</strong>
+                            </div>
+                            <p data-i18n-html="downloads.android.step1.text.group">The group is <strong>tournaq-testing@googlegroups.com</strong>. Google Play checks the account your phone is signed in with against it, so join with that same Google account.</p>
+                            <div class="dl-go">
+                                <a class="btn" href="https://groups.google.com/g/tournaq-testing" target="_blank" rel="noopener" data-i18n="downloads.android.step1.btn">Join on Google Groups</a>
+                                <figure class="dl-qr">
+                                    <img src="../assets/qr/android-group.svg" width="132" height="132" loading="lazy" decoding="async"
+                                         alt="QR code that opens the tester group on Google Groups" data-i18n-alt="downloads.android.step1.qr.alt">
+                                    <figcaption data-i18n="downloads.qr.scan">Scan with your phone</figcaption>
+                                </figure>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="dl-step-head">
+                                <span class="dl-step-n">2</span>
+                                <strong data-i18n="downloads.android.step2.title">Install from Google Play</strong>
+                            </div>
+                            <p data-i18n="downloads.android.step2.text">Once you are in the group, the Play Store page offers the test build. If it still says the app is unavailable, give it a few minutes.</p>
+                            <div class="dl-go">
+                                <a class="btn" href="https://play.google.com/store/apps/details?id=com.martinadam.tournaq" target="_blank" rel="noopener" data-i18n="downloads.android.step2.btn">Open Google Play</a>
+                                <figure class="dl-qr">
+                                    <img src="../assets/qr/android-app.svg" width="132" height="132" loading="lazy" decoding="async"
+                                         alt="QR code that opens the TournaQ Volley page on Google Play" data-i18n-alt="downloads.android.step2.qr.alt">
+                                    <figcaption data-i18n="downloads.qr.scan">Scan with your phone</figcaption>
+                                </figure>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="download-card">
+                    <div class="download-icon">
+                        <img src="../assets/app-store.svg" width="48" height="64" loading="lazy" decoding="async" alt="App Store">
+                    </div>
+
+                    <h3 data-i18n="downloads.ios.title">iOS</h3>
+
+                    <p data-i18n="downloads.ios.beta.text">
+                        Apple ships test builds through TestFlight. Install TestFlight once, and the invite link below
+                        opens straight into it.
+                    </p>
+
+                    <ol class="dl-steps">
+                        <li>
+                            <div class="dl-step-head">
+                                <span class="dl-step-n">1</span>
+                                <strong data-i18n="downloads.ios.step1.title">Install TestFlight</strong>
+                            </div>
+                            <p data-i18n="downloads.ios.step1.text">Apple's own app for test builds. Free, from the App Store, and you only do this once.</p>
+                            <div class="dl-go">
+                                <a class="btn" href="https://apps.apple.com/app/testflight/id899247664" target="_blank" rel="noopener" data-i18n="downloads.ios.step1.btn">Get TestFlight</a>
+                                <figure class="dl-qr">
+                                    <img src="../assets/qr/ios-testflight.svg" width="132" height="132" loading="lazy" decoding="async"
+                                         alt="QR code that opens the TestFlight page in the App Store" data-i18n-alt="downloads.ios.step1.qr.alt">
+                                    <figcaption data-i18n="downloads.qr.scan">Scan with your phone</figcaption>
+                                </figure>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div class="dl-step-head">
+                                <span class="dl-step-n">2</span>
+                                <strong data-i18n="downloads.ios.step2.title">Install TournaQ Volley</strong>
+                            </div>
+                            <p data-i18n="downloads.ios.step2.text">Open the invite and TestFlight takes over — accept, install, and the app is on your home screen.</p>
+                            <div class="dl-go">
+                                <a class="btn" href="https://testflight.apple.com/join/uFzz7vd9" target="_blank" rel="noopener" data-i18n="downloads.ios.step2.btn">Open in TestFlight</a>
+                                <figure class="dl-qr">
+                                    <img src="../assets/qr/ios-app.svg" width="132" height="132" loading="lazy" decoding="async"
+                                         alt="QR code that opens the TournaQ Volley invite in TestFlight" data-i18n-alt="downloads.ios.step2.qr.alt">
+                                    <figcaption data-i18n="downloads.qr.scan">Scan with your phone</figcaption>
+                                </figure>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+
+            </div>
+
+            <div class="feedback-cta">
+                <div class="feedback-cta-text">
+                    <strong data-i18n="downloads.tester.title">Signing up is optional</strong>
+                    <p data-i18n="downloads.tester.text">Both routes above work without it. The form only tells us who you are, so we can ask what broke and let you know when a new build lands.</p>
+                </div>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog" class="feedback-cta-btn" target="_blank" rel="noopener" data-i18n="downloads.tester.btn">Sign Up as a Tester</a>
             </div>
         </section>
 

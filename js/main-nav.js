@@ -16,6 +16,7 @@
     <div class="nav-links">
       <a href="${base}index.html" data-i18n="nav.home">Home</a>
       <a href="${base}platform.html" data-i18n="nav.platform">Platform</a>
+      <a href="${base}capabilities.html" data-i18n="nav.capabilities">Capabilities</a>
       <a href="${base}guide.html" data-i18n="nav.guide">User Guide</a>
       <a href="${base}downloads.html" data-i18n="nav.downloads">Downloads</a>
       <a href="${base}legal.html" data-i18n="nav.legal">Legal</a>

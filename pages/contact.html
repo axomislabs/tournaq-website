@@ -67,7 +67,7 @@
                  width="1600" height="1000"
                  loading="eager" fetchpriority="high" decoding="async"
                  data-i18n-alt="contact.card.hero.alt"
-                 alt="A TournaQ contact card on a beach table listing feedback, email and Instagram, next to a volleyball">
+                 alt="A rotary phone with a TournaQ dial on a beach table, ringed by glowing icons for mail, chat, phone, Instagram and messages, with a beach volleyball court behind it">
             <div class="tq-card-text">
                 <div class="tq-card-body">
                     <span class="tq-t" data-i18n="contact.card.hero.title">Contact</span>
@@ -81,14 +81,22 @@
             <p data-i18n="contact.testers.p1">
                 TournaQ is looking for beach volleyball organisers, referees, and players to join as early test users. Your hands-on experience helps shape the app before wider release.
             </p>
-            <p data-i18n="contact.testers.p2">
-                Sign up to get early access, try new features first, and give direct input on what matters most to you.
+            <p data-i18n="contact.testers.p2.open">
+                The beta is already open. The current build installs straight from the Downloads page — through Google Play on Android, through TestFlight on iOS. Signing up is optional on top of that: it lets us tell you when a new build lands, and ask what broke.
             </p>
-            <a class="button"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog"
-                target="_blank" rel="noopener noreferrer" data-i18n="contact.testers.btn">
-                Sign Up as a Test User
-            </a>
+            <!-- Der Weg, der heute funktioniert, steht vorn; das Formular
+                 daneben als zweitrangiger Knopf, weil es keine Bedingung mehr
+                 ist. Beide Ziele stehen auf downloads.html#beta zusammen. -->
+            <div class="card-actions">
+                <a class="button" href="downloads.html#beta" data-i18n="contact.testers.btn.downloads">
+                    Get the Beta
+                </a>
+                <a class="button ghost"
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog"
+                    target="_blank" rel="noopener noreferrer" data-i18n="contact.testers.btn">
+                    Sign Up as a Test User
+                </a>
+            </div>
         </section>
 
         <section class="card">
