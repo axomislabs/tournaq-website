@@ -28,6 +28,15 @@ const GUIDE_RENDER_STRINGS = [
   'The tournament engine — get the app',
   'Light',
   'Dark',
+  'Feedback on this page',
+  'Your note arrives tagged with this page.',
+  'You are here',
+  'Home',
+  /* Die drei tragen einen Seitentitel hinter sich her, stehen also als
+     Praefix in der Liste — mit dem Leerzeichen, das sie vom Titel trennt. */
+  'More in ',
+  'Collapse ',
+  'Expand ',
 ];
 const gt = s => (typeof guideT === 'function' ? guideT(s) : s);
 
@@ -37,10 +46,23 @@ function setzeKontext(o = {}){
   if (o.nachbar !== undefined) G_NACHBAR = o.nachbar;
 }
 
+/* Der Praefix, den js/guide/pages.js den gespiegelten Zeilen unter Share
+   Feedback vor den Schluessel setzt. Eine solche Zeile traegt denselben Knoten
+   wie ihr Zwilling im Guide und meint doch etwas anderes: nicht die Seite, die
+   den Knoten erklaert, sondern die Stelle, an der man ihm etwas schreibt.
+   Daran haengen zwei Entscheidungen — wohin sie fuehrt, und dass sie nicht
+   mitleuchtet, wenn man auf der erklaerenden Seite steht. */
+const NAV_SPIEGEL = 'fb:';
+function navGespiegelt(key){
+  return typeof key === 'string' && key.indexOf(NAV_SPIEGEL) === 0;
+}
+
 /* Wohin eine Zeile des Rails zeigt: ein Guide-Knoten ueber G_LINK — der
    entscheidet, ob es eine eigene Datei oder eine Hash-Route wird —, eine
-   Website-Seite ueber ihre eigene Adresse. */
-function navZiel(id){
+   Website-Seite ueber ihre eigene Adresse. Eine gespiegelte Zeile geht an
+   beidem vorbei: ihr Ziel ist die Feedback-Seite an genau diesem Knoten. */
+function navZiel(id, key){
+  if (navGespiegelt(key)) return G_NACHBAR + 'feedback.html#/' + id;
   return EXTERN[id] ? G_NACHBAR + EXTERN[id].url : href(id);
 }
 
@@ -193,7 +215,8 @@ function renderBlock(b){
         '<div class="g-note-b">' + b.body + '</div></aside>';
 
     case 'grid':
-      return '<div class="g-grid">' + b.cards.map(c =>
+      /* Einspaltig, wo der Block es verlangt — siehe `grid` in pages.js. */
+      return '<div class="g-grid' + (b.spalten === 1 ? ' g-grid-eins' : '') + '">' + b.cards.map(c =>
         '<a class="g-card" href="' + href(c.to) + '">' +
           '<span class="g-disc">' + ic(c.icon) + '</span>' +
           '<span class="g-card-txt"><span class="g-card-label">' + c.label + '</span>' +
@@ -384,7 +407,7 @@ function renderZweig(id){
       const rumpf =
         '<span class="g-disc">' + ic(c.icon || PAGES[k].icon) + '</span>' +
         '<span class="g-card-txt"><span class="g-card-label">' + label +
-          (k === id ? '<span class="g-chip">You are here</span>' : '') +
+          (k === id ? '<span class="g-chip">' + gt('You are here') + '</span>' : '') +
         '</span>' +
         (cap ? '<span class="g-card-cap">' + cap + '</span>' : '') +
         '</span>';
@@ -396,7 +419,7 @@ function renderZweig(id){
           '<span class="g-chev">' + ic('i-south') + '</span></a>';
     }).join('') + '</div>';
 
-  return '<nav class="g-zweig" aria-label="More in ' + eltern.title + '">' +
+  return '<nav class="g-zweig" aria-label="' + gt('More in ') + eltern.title + '">' +
     auf + raster + '</nav>';
 }
 
@@ -454,7 +477,7 @@ function renderNav(active){
      Queue Modes stehen unter beiden Familien, und beide Wege sollen sichtbar
      sein, sobald man auf der Seite steht. */
   flat.forEach((n, at) => {
-    if (n.id !== active) return;
+    if (n.id !== active || navGespiegelt(n.key)) return;
     /* Die Zeile selbst zuerst, sofern sie Kinder hat: wer auf Legal steht,
        soll Privacy, Terms und Notice sehen, ohne erst zu klicken. */
     if (at + 1 < flat.length && flat[at + 1].depth > n.depth) NAV_OPEN.add(n.key);
@@ -478,16 +501,16 @@ function renderNav(active){
     const sub = n.depth ? 'sub' + (n.depth > 1 ? n.depth : '') : '';
     /* Auch eine Website-Zeile kann die aktuelle sein — auf der Seite, die
        sie meint. js/site-map.js reicht sie als active herein. */
-    const cur = n.id === active ? ' aria-current="page"' : '';
+    const cur = n.id === active && !navGespiegelt(n.key) ? ' aria-current="page"' : '';
     const tw  = kids
       ? '<span class="g-tw' + (open ? ' open' : '') + '" data-tw="' + n.key +
         '" role="button" tabindex="0" aria-expanded="' + open +
-        '" aria-label="' + (open ? 'Collapse ' : 'Expand ') + p.title + '">' +
+        '" aria-label="' + gt(open ? 'Collapse ' : 'Expand ') + p.title + '">' +
         ic('i-south', 'g-twi') + '</span>'
       : '<span class="g-tw empty"></span>';
 
     if (n.group) out += '<div class="g-group">' + n.group + '</div>';
-    out += '<a class="' + sub + '" href="' + navZiel(n.id) + '"' + cur + '>' +
+    out += '<a class="' + sub + '" href="' + navZiel(n.id, n.key) + '"' + cur + '>' +
       tw + ic(p.icon) + '<span>' + p.title + '</span></a>';
   });
   return out;
@@ -520,7 +543,7 @@ function renderPage(id){
 
   const trail = crumbTrail(id);
   const crumbs =
-    '<a href="' + G_NACHBAR + 'index.html">Home</a><span class="sep">/</span>' +
+    '<a href="' + G_NACHBAR + 'index.html">' + gt('Home') + '</a><span class="sep">/</span>' +
     trail.map((t, i) =>
       i === trail.length - 1
         ? '<span class="now">' + PAGES[t].title + '</span>'
@@ -593,6 +616,22 @@ function renderPage(id){
     '</div>' + markeHtml + '</div>' +
     '<div class="g-stack' + (SHOT_SIDE ? ' shots-side' : '') + '">' + blocks.map(renderBlock).join('') + '</div>' +
     renderZweig(id) +
+    /* Rueckmeldung zu genau dieser Seite. Die Knotenkennung ist in beiden
+       Haeusern dieselbe — was hier 'm-league-run' heisst, heisst dort auch
+       so —, also traegt der Verweis den Ort schon mit sich und niemand muss
+       im Formular erst suchen, wo er gerade war.
+
+       Vor dem Download-Aufruf und nicht danach: wer bis hierher gelesen hat,
+       hat seine Frage entweder beantwortet bekommen oder nicht, und das ist
+       der Moment, in dem er es sagen wuerde. Die App holt man sich danach. */
+    '<a class="g-fb" href="' + G_NACHBAR + 'feedback.html#/' + id + '">' +
+      '<span class="g-disc">' + ic('i-edit') + '</span>' +
+      '<span class="g-fb-txt">' +
+        '<span class="g-fb-t">' + gt('Feedback on this page') + '</span>' +
+        '<span class="g-fb-s">' + gt('Your note arrives tagged with this page.') + '</span>' +
+      '</span>' +
+      '<span class="g-chev">' + ic('i-south') + '</span>' +
+    '</a>' +
     '<a class="g-cta" href="' + G_NACHBAR + 'downloads.html">' +
       '<img class="m" src="' + G_BASIS + 'assets/icon-192.png" width="192" height="192" ' +
       'loading="lazy" decoding="async" alt=""><div>' +

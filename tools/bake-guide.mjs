@@ -18,8 +18,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
 
-const WURZEL = path.dirname(new URL('.', import.meta.url).pathname.replace(/\/$/, ''));
+const WURZEL = path.dirname(fileURLToPath(new URL('.', import.meta.url)).replace(/\/$/, ''));
+/* fileURLToPath statt .pathname: eine file:-URL ist prozentkodiert, und ein
+   Leerzeichen im Projektpfad kam hier als %20 an — 'Project%20TournaQ' gibt es
+   auf keiner Platte, also scheiterte jeder Lauf mit ENOENT. */
 const arg = process.argv.indexOf('--out');
 const AUS = path.join(WURZEL, arg > 0 ? process.argv[arg + 1] : 'pages');
 
@@ -32,6 +36,9 @@ const EIGENE_SEITE = [
   'scrambles', 'm-social-scramble',
   'queue-modes', 'm-royal-rotation', 'm-royal-shuffle', 'm-doghouse', 'm-royal-duo',
   'tournament-hub', 'tournament', 'scorecards',
+  // Eigene Adresse, damit der Menuepunkt verlinkbar ist und nicht nur als
+  // Hash-Route unter guide.html existiert.
+  'demo-data',
   'sc-classic', 'sc-scramble', 'sc-queue', 'exported',
   'navigation',
 ];
@@ -284,6 +291,248 @@ const GUIDE_DATEI = ${JSON.stringify(Object.fromEntries(Object.keys(PAGES).map(i
 fs.writeFileSync(path.join(WURZEL, 'js/guide/tree.js'), baum);
 
 console.log(`js/guide/tree.js: ${Object.keys(stumpf).length} Knoten, ${Math.round(baum.length / 1024)} KB`);
+
+/* ── Erkennungsbilder fuer pages/feedback.html ─────────────────────────────
+ * Wer eine Rueckmeldung schreibt, muss zuerst wiedererkennen, wo er stand.
+ * Der Guide hat die Bilder dafuer laengst — dieselben Aufnahmen, die auf den
+ * Guide-Seiten unter einer Bildunterschrift stehen und auf pages/index.html
+ * die Abschnitte tragen. Hier werden sie je Knoten gebuendelt, damit die
+ * Feedback-Seite neben dem Namen einer Stelle auch ihr Bild zeigen kann.
+ *
+ * Eine eigene Datei und nicht js/guide/tree.js: den Baum laden alle Seiten
+ * mit Karte, die Bilder braucht bisher nur eine. Was eine Seite braucht,
+ * soll nicht jede tragen.
+ *
+ * Hoechstens drei je Knoten, und hochkant vor quer: im Streifen zaehlt der
+ * erste Blick, und die Hochkant-Aufnahme ist die, unter der man den Schirm
+ * im Kopf hat. Nur wo es ausschliesslich Querformat gibt (die Scorecards im
+ * Liegen), steht eben das.
+ */
+const JE_KNOTEN = 3;
+
+/* Die Knoten ohne eigene Aufnahme — Familien und Uebersichtsseiten, deren
+ * Inhalt aus Karten und Text besteht. Welches Bild eine Stelle am besten
+ * wiedererkennbar macht, ist eine redaktionelle Entscheidung wie EIGENE_SEITE
+ * oben, keine Eigenschaft der Daten. Steht ein Knoten hier nicht, erbt er
+ * weiter unten von seinem ersten Kind, sonst von seinem Elternteil.
+ *
+ * Der Alternativtext steht nur dort, wo die Aufnahme im Guide selbst nicht
+ * vorkommt; sonst wird ihrer von dort genommen und bleibt eine Quelle. Er
+ * steht dann in allen drei Sprachen hier, und nicht in js/guide/locales.js:
+ * dessen Schluessel ist der englische Satz *aus dem Guide*, und diese Saetze
+ * stehen nirgends im Guide. tools/guide-merge.mjs schoebe sie beim naechsten
+ * Lauf unter WAISEN — als Beleg dafuer, dass jemand einen englischen Satz
+ * geaendert hat, was hier schlicht nicht stimmte. */
+const ERKENNUNG = {
+  /* 'home' heisst auf der Feedback-Seite "Woanders" — was zu keinem Schirm
+     gehoert. Ein Bild daneben wuerde genau das Gegenteil behaupten. */
+  'home': [],
+
+  'administration': [['guide/01_admin/01_administration', {
+    en: 'The Administration screen with Players, Teams and Groups',
+    de: 'Der Verwaltungsschirm mit Spielern, Teams und Gruppen',
+    es: 'La pantalla de Administración con Jugadores, Equipos y Grupos' }]],
+  'admin-hand': [['guide/01_admin/02_players'], ['guide/01_admin/07_teams'],
+                 ['guide/01_admin/11_groups']],
+
+  'arena': [['guide/00_shell/04_arena', {
+    en: 'The TournaQ Arena with the game families and their modes',
+    de: 'Die TournaQ Arena mit den Spielfamilien und ihren Modi',
+    es: 'La TournaQ Arena con las familias de juego y sus modos' }]],
+  'quick-game': [['guide/02_quick_game/01_games', {
+    en: 'The Quick Games screen with Start Game above the match history',
+    de: 'Der Schirm Quick Games mit Start Game über der Spielhistorie',
+    es: 'La pantalla Quick Games con Start Game sobre el historial de partidos' }]],
+
+  'tournament-hub': [['guide/08_league/01_hub', {
+    en: 'A Tournament Hub with its setup card above the tournament history',
+    de: 'Ein Turnier-Hub mit seiner Einrichtungskarte über der Turnierhistorie',
+    es: 'Un Hub de Torneos con su tarjeta de configuración sobre el historial de torneos' }]],
+  'tournament': [['guide/08_league/04_table'], ['guide/03_social_scramble/04_overview']],
+
+  'brackets': [['guide/09_elimination_single/04_bracket'], ['guide/08_league/04_table']],
+  'scrambles': [['guide/03_social_scramble/04_overview']],
+  'queue-modes': [['guide/06_royal_shuffle/04_overview']],
+
+  'm-league': [['guide/08_league/01_hub', {
+    en: 'The Leagues Tournament Hub',
+    de: 'Der Turnier-Hub der Ligen',
+    es: 'El Hub de Torneos de las Ligas' }], ['guide/08_league/04_table']],
+  'm-elimination': [['guide/09_elimination_single/01_hub', {
+    en: 'The Eliminations Tournament Hub',
+    de: 'Der Turnier-Hub der Eliminations',
+    es: 'El Hub de Torneos de las Eliminaciones' }], ['guide/09_elimination_single/04_bracket']],
+  'm-classic': [['guide/11_tournaq_classic/01_hub', {
+    en: 'The TournaQ Classics Tournament Hub',
+    de: 'Der Turnier-Hub der TournaQ Classics',
+    es: 'El Hub de Torneos de los TournaQ Classics' }], ['guide/11_tournaq_classic/04_schedule']],
+  'm-swiss': [['guide/12_swiss_system/01_hub', {
+    en: 'The Swiss Systems Tournament Hub',
+    de: 'Der Turnier-Hub der Schweizer Systeme',
+    es: 'El Hub de Torneos de los Sistemas Suizos' }], ['guide/12_swiss_system/04_rounds']],
+  'm-social-scramble': [['guide/03_social_scramble/01_hub', {
+    en: 'The Social Scrambles Tournament Hub',
+    de: 'Der Turnier-Hub der Social Scrambles',
+    es: 'El Hub de Torneos de los Social Scrambles' }], ['guide/03_social_scramble/04_overview']],
+  'm-royal-rotation': [['guide/04_royal_rotation/01_hub', {
+    en: 'The Royal Rotations Tournament Hub',
+    de: 'Der Turnier-Hub der Royal Rotations',
+    es: 'El Hub de Torneos de las Royal Rotations' }], ['guide/04_royal_rotation/04_overview']],
+  'm-royal-shuffle': [['guide/06_royal_shuffle/01_hub', {
+    en: 'The Royal Shuffles Tournament Hub',
+    de: 'Der Turnier-Hub der Royal Shuffles',
+    es: 'El Hub de Torneos de los Royal Shuffles' }], ['guide/06_royal_shuffle/04_overview']],
+  'm-doghouse': [['guide/07_doghouse_shuffle/01_hub', {
+    en: 'The Doghouse Shuffles Tournament Hub',
+    de: 'Der Turnier-Hub der Doghouse Shuffles',
+    es: 'El Hub de Torneos de los Doghouse Shuffles' }], ['guide/07_doghouse_shuffle/04_overview']],
+  'm-royal-duo': [['guide/05_royal_duo/01_hub', {
+    en: 'The Royal Duos Tournament Hub',
+    de: 'Der Turnier-Hub der Royal Duos',
+    es: 'El Hub de Torneos de los Royal Duos' }], ['guide/05_royal_duo/04_overview']],
+};
+
+/* Jede Aufnahme, die im Guide vorkommt, mit ihren Massen und ihrem
+ * Alternativtext. Der erste Fund gewinnt: dieselbe Datei steht auf mehreren
+ * Seiten, beschrieben ist sie dort, wo sie zuerst erklaert wird. */
+const AUFNAHMEN = {};
+for (const s of Object.values(PAGES)) {
+  for (const b of (s.blocks || [])) {
+    if (b && b.t === 'shot' && !AUFNAHMEN[b.src]) {
+      AUFNAHMEN[b.src] = { w: b.w, h: b.h, sizes: b.sizes, alt: b.alt || '' };
+    }
+  }
+}
+
+/* Masse und vorhandene Breiten einer Aufnahme, die der Guide nicht selbst
+ * zeigt — von der Platte gelesen statt geraten. Ein falsches Seitenverhaeltnis
+ * im width/height-Paar laesst die Seite beim Laden springen, und genau davor
+ * schuetzt das Paar ja. */
+function vp8Masse(datei) {
+  const b = fs.readFileSync(datei);
+  if (b.toString('latin1', 0, 4) !== 'RIFF' || b.toString('latin1', 8, 12) !== 'WEBP') {
+    throw new Error('Kein WebP: ' + datei);
+  }
+  const art = b.toString('latin1', 12, 16);
+  if (art === 'VP8 ') return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+  if (art === 'VP8L') {
+    const v = b.readUInt32LE(21);
+    return { w: (v & 0x3fff) + 1, h: ((v >> 14) & 0x3fff) + 1 };
+  }
+  if (art === 'VP8X') {
+    return { w: (b[24] | (b[25] << 8) | (b[26] << 16)) + 1,
+             h: (b[27] | (b[28] << 8) | (b[29] << 16)) + 1 };
+  }
+  throw new Error('Unbekannte WebP-Form ' + art + ': ' + datei);
+}
+
+function vonPlatte(src, alt) {
+  const ordner = path.join(WURZEL, 'assets', path.dirname(src));
+  const stamm = path.basename(src);
+  const sizes = fs.readdirSync(ordner)
+    .map(f => new RegExp('^' + stamm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-(\\d+)\\.webp$').exec(f))
+    .filter(Boolean).map(m => Number(m[1])).sort((a, b) => a - b);
+  if (!sizes.length) throw new Error('Keine Aufnahme zu ' + src);
+  const { w, h } = vp8Masse(path.join(ordner, stamm + '-' + sizes[0] + '.webp'));
+  return { w, h, sizes, alt: alt || '' };
+}
+
+/* Die Uebersetzungen des Guides. Sein Schluessel ist der englische Satz
+ * selbst, also findet ein Alternativtext aus einem shot-Block seine deutsche
+ * und spanische Fassung hier, ohne dass irgendwo eine zweite Liste entstuende.
+ * Die Feedback-Seite laedt js/guide/locales.js nicht — 750 KB fuer drei
+ * Bildunterschriften —, deshalb reisen die paar Saetze mit, die sie braucht. */
+const sprKtx2 = vm.createContext({});
+vm.runInContext(fs.readFileSync(path.join(WURZEL, 'js/guide/locales.js'), 'utf8'),
+                sprKtx2, { filename: 'js/guide/locales.js' });
+const UEBERSETZT = vm.runInContext('GUIDE_LOCALES', sprKtx2);
+const SPRACHEN = ['de', 'es'];
+
+/* Eine Aufnahme, wie der Streifen sie braucht — aus dem Guide, wenn er sie
+ * kennt, sonst von der Platte. `alt` ist entweder nichts (dann steht der
+ * Alternativtext im Guide) oder {en, de, es} aus der Tabelle oben. */
+function aufnahme(src, alt) {
+  const a = AUFNAHMEN[src] || vonPlatte(src, alt && alt.en);
+  const en = (alt && alt.en) || a.alt;
+  const aus = { src, w: a.w, h: a.h, sizes: a.sizes, alt: en };
+  for (const s of SPRACHEN) {
+    const u = (alt && alt[s]) || (UEBERSETZT[s] && UEBERSETZT[s][en]);
+    /* Fehlt eine Uebersetzung, bleibt der englische Satz stehen — dieselbe
+       Zusage wie ueberall sonst auf der Site. */
+    if (u) aus[s] = u;
+  }
+  return aus;
+}
+
+const hochkant = a => a.h > a.w;
+
+/* Was ein Knoten selbst zeigt: seine eigenen Aufnahmen in der Reihenfolge der
+   Guide-Seite — dort steht die kennzeichnende zuerst, und die zu erraten waere
+   schlechter, als sie abzuschreiben. Querformat faellt weg, solange es
+   Hochkantes gibt: die Kachel im Streifen ist hochkant.
+
+   Die langen darunter ("_full", eine gescrollte Liste ueber drei
+   Schirmhoehen) bleiben drin. Die Kachel beschneidet sie oben, und oben steht,
+   woran man den Schirm erkennt: Titelzeile, erste Zeilen. */
+function eigene(id) {
+  const alle = (PAGES[id].blocks || []).filter(b => b && b.t === 'shot')
+    .map(b => aufnahme(b.src));
+  const h = alle.filter(hochkant);
+  return (h.length ? h : alle).slice(0, JE_KNOTEN);
+}
+
+const KINDER = {};
+for (const [id, s] of Object.entries(PAGES)) {
+  if (s.parent) (KINDER[s.parent] = KINDER[s.parent] || []).push(id);
+}
+
+/* Erst das Kuratierte, dann das Eigene, dann das erste Kind, das etwas hat,
+ * und zuletzt das Elternteil. Die Reihenfolge ist die der Naehe: je weiter
+ * oben gegriffen wird, desto ungefaehrer wird das Bild — aber ein ungefaehres
+ * Bild verortet immer noch besser als gar keines. */
+const gesehen = {};
+function erkennung(id) {
+  if (gesehen[id]) return gesehen[id];
+  gesehen[id] = [];                       /* gegen Ringe, falls je einer entsteht */
+
+  let aus;
+  if (ERKENNUNG[id]) {
+    aus = ERKENNUNG[id].map(([src, alt]) => aufnahme(src, alt));
+  } else {
+    aus = eigene(id);
+    if (!aus.length) {
+      for (const k of (KINDER[id] || [])) {
+        aus = erkennung(k);
+        if (aus.length) break;
+      }
+    }
+    if (!aus.length && PAGES[id].parent) aus = erkennung(PAGES[id].parent);
+  }
+  gesehen[id] = aus;
+  return aus;
+}
+
+const BILDER = {};
+for (const id of Object.keys(PAGES)) {
+  const a = erkennung(id);
+  if (a.length) BILDER[id] = a;
+}
+
+const bilder = `/* Erzeugt von tools/bake-guide.mjs aus js/guide/pages.js — nicht von Hand
+   aendern. Zu jedem Knoten des Guides die Aufnahmen, an denen man die Stelle
+   in der App wiedererkennt: dieselben, die der Guide unter seinen
+   Bildunterschriften zeigt. js/feedback.js zeichnet sie als Streifen neben
+   den Namen der Stelle; \`src\` ist der Pfad unter assets/ ohne Groessensuffix,
+   \`sizes\` sind die Breiten, die auf der Platte liegen. \`alt\` ist englisch,
+   \`de\` und \`es\` tragen dieselbe Beschreibung in den beiden anderen Sprachen
+   — fehlt eine, bleibt es beim englischen Satz. */
+const GUIDE_SHOT = ${JSON.stringify(BILDER)};
+`;
+fs.writeFileSync(path.join(WURZEL, 'js/guide/shots.js'), bilder);
+
+console.log(`js/guide/shots.js: ${Object.keys(BILDER).length} Knoten, ` +
+            `${Object.values(BILDER).reduce((n, a) => n + a.length, 0)} Aufnahmen, ` +
+            `${Math.round(bilder.length / 1024)} KB`);
 
 /* ── Linkpruefung ──────────────────────────────────────────────────────── */
 let tot = 0;

@@ -16,9 +16,13 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { eindeutig, locales } from './guide-strings.mjs';
 
-const WURZEL = path.dirname(new URL('.', import.meta.url).pathname.replace(/\/$/, ''));
+const WURZEL = path.dirname(fileURLToPath(new URL('.', import.meta.url)).replace(/\/$/, ''));
+/* fileURLToPath statt .pathname: eine file:-URL ist prozentkodiert, und ein
+   Leerzeichen im Projektpfad kam hier als %20 an — 'Project%20TournaQ' gibt es
+   auf keiner Platte, also scheiterte jeder Lauf mit ENOENT. */
 const ZIEL = path.join(WURZEL, 'js/guide/locales.js');
 const SPRACHEN = ['de', 'es'];
 

@@ -1,0 +1,527 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   pages/feedback.html
+
+   Die Karte links braucht hier nichts Eigenes: .section-nav aus
+   css/style.css gibt ihr Raster, Klebrigkeit und den Drawer, .g-map aus
+   css/guide.css die Zeilen darin. Beide haengen am selben Element, wie auf
+   jeder anderen Seite ausserhalb des Guides. Was hier steht, ist nur das,
+   was es dort noch nicht gibt: das Suchfeld, der Zaehler an einer Zeile und
+   das Formular rechts.
+
+   Kein Dark Mode — die Website hat keinen, und eine einzelne Seite, die
+   ploetzlich dunkel kann, waere ein Bruch und kein Feature.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* css/guide.css gibt svg.g-ic seine Groesse und sein fill:none nur innerhalb
+   von .guide und .g-map — die Karte also bedient, das Formular daneben nicht.
+   Ungeregelt rendert dasselbe Symbol als schwarze Flaeche in Originalgroesse.
+   Dieselben Werte, nur fuer die Kaesten dieser Seite. */
+.fb-node svg.g-ic,
+.fb-list svg.g-ic {
+  width: 1em;
+  height: 1em;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+
+/* ── Die Karte ──────────────────────────────────────────────────────────── */
+
+.fb-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--olive-dark);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.fb-search:focus-visible {
+  outline: 2px solid var(--olive);
+  outline-offset: 1px;
+}
+
+/* Wie viele Notizen an dieser Stelle haengen. Steht rechts in der Zeile und
+   traegt die Zahl, nicht nur einen Punkt: zwischen "eine Kleinigkeit" und
+   "hier stimmt grundsaetzlich etwas nicht" liegt genau diese Zahl. */
+.fb-count {
+  margin-left: auto;
+  flex: 0 0 auto;
+  min-width: 17px;
+  padding: 1px 5px;
+  border-radius: 9px;
+  background: var(--gold);
+  color: #3A3E16;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.g-map a[aria-current="page"] .fb-count {
+  background: var(--gold);
+  color: #3A3E16;
+}
+
+.fb-none {
+  padding: 10px 9px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ── Der aktive Knoten ──────────────────────────────────────────────────── */
+
+.fb-crumbs {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.fb-crumbs a { color: var(--olive); text-decoration: none; }
+.fb-crumbs a:hover { text-decoration: underline; }
+.fb-crumbs .sep { margin: 0 6px; opacity: 0.5; }
+.fb-crumbs .now { color: var(--olive-dark); font-weight: 700; }
+
+.fb-node-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+}
+
+.fb-node-ic { font-size: 22px; color: var(--olive); flex: 0 0 auto; }
+
+.fb-lead {
+  margin: 0 0 22px;
+  color: var(--muted);
+}
+
+.fb-field { margin-bottom: 20px; }
+
+.fb-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.fb-hint {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* ── Erkennungsbilder ─────────────────────────────────────────────────────
+   Die Aufnahmen des Guides zu der Stelle, die links gewaehlt ist. Gut hundert
+   Pixel breit: genug zum Wiedererkennen, zu wenig zum Lesen — wer lesen will,
+   klickt, und dann liegt das Bild gross ueber der Seite.
+   ─────────────────────────────────────────────────────────────────────── */
+
+.fb-erk { margin: 0 0 22px; }
+
+.fb-erk-h {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.fb-erk-reihe { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.fb-erk-kachel {
+  display: block;
+  width: 116px;
+  height: 210px;
+  padding: 0;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: zoom-in;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.fb-erk-kachel:hover {
+  border-color: var(--olive);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09);
+}
+
+.fb-erk-kachel:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+
+/* Oben beschnitten, nicht mittig. Woran ein Schirm erkannt wird, steht in
+   seiner Kopfzeile und den ersten Zeilen darunter — und die langen Aufnahmen,
+   die eine gescrollte Seite am Stueck zeigen, waeren mittig beschnitten ein
+   Ausschnitt aus der Mitte einer Liste und damit aus dem Nichts. */
+.fb-erk-kachel img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* Auf dem Handy wird die Karte schmal und das Formular wichtiger als der
+   Streifen darueber — die Kacheln geben Platz ab, ohne zu verschwinden. */
+@media (max-width: 760px) {
+  .fb-erk-kachel { width: 88px; height: 160px; }
+}
+
+/* Das grosse Bild. Ueber dem Drawer (59/60 in css/style.css), weil es das
+   Oberste auf der Seite ist, solange es offen steht. */
+.fb-licht {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(24, 26, 10, 0.72);
+  cursor: zoom-out;
+}
+
+/* Die Aufnahme behaelt ihre Breite und wird gescrollt, statt auf Schirmhoehe
+   geschrumpft zu werden: eine Seite von 430 auf 2888 waere sonst ein
+   fingerbreiter Streifen, auf dem nichts mehr zu erkennen ist. */
+.fb-licht-rahmen {
+  max-height: 100%;
+  overflow: auto;
+  /* Ist die Aufnahme zu Ende gescrollt, soll nicht die Seite darunter
+     weiterrutschen — sie steht ja noch da, wo man sie verlassen hat. */
+  overscroll-behavior: contain;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  -webkit-overflow-scrolling: touch;
+}
+
+.fb-licht-rahmen img {
+  display: block;
+  width: min(380px, 84vw);
+  height: auto;
+}
+
+/* Am Schirm festgemacht, nicht am Rahmen: der Rahmen scrollt, der Knopf soll
+   bleiben, wo die Hand ihn sucht. */
+.fb-licht-x {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--olive-dark);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.fb-licht-x:hover { background: var(--panel-inset); }
+.fb-licht-x:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+
+/* ── Art der Rueckmeldung ───────────────────────────────────────────────── */
+
+.fb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.fb-chip {
+  padding: 7px 13px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--olive-dark);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.fb-chip:hover { background: var(--olive-light); }
+
+.fb-chip.on {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: white;
+}
+
+.fb-chip:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+
+/* ── Freitext ───────────────────────────────────────────────────────────── */
+
+.fb-textwrap { position: relative; }
+
+.fb-text {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 46px 12px 12px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  resize: vertical;
+}
+
+.fb-text:focus-visible { outline: 2px solid var(--olive); outline-offset: 1px; }
+
+/* Der Diktierknopf sitzt im Feld, oben rechts: unten waere er dort, wo der
+   Text hinwaechst, und wanderte mit jeder Zeile weiter weg. */
+.fb-mic {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.fb-mic:hover { background: var(--panel-inset); }
+.fb-mic.an { background: var(--gold); border-color: var(--gold-dark); }
+
+/* ── Screenshots ────────────────────────────────────────────────────────── */
+
+.fb-drop {
+  padding: 14px;
+  background: var(--panel);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+.fb-drop.drueber { border-color: var(--olive); background: var(--panel-inset); }
+.fb-drop:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+
+.fb-drop-hint {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.fb-shots { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb-shots:not(:empty) { margin-bottom: 10px; }
+
+.fb-shot {
+  position: relative;
+  display: inline-flex;
+  width: 74px;
+  height: 74px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.fb-shot img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Ein Bild, das nicht mehr in diesem Browser liegt — importierte Notizen
+   tragen Ids, deren Blobs woanders stecken. */
+.fb-shot.fehlt::after {
+  content: "⊘";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 22px;
+  color: var(--muted);
+}
+
+.fb-shot-x {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 19px;
+  height: 19px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  color: white;
+  background: rgba(26, 26, 26, 0.62);
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.fb-shot-x:hover { background: rgba(179, 69, 61, 0.92); }
+
+.fb-pick { font-size: 13px; padding: 6px 12px; }
+
+/* ── Der Korb ───────────────────────────────────────────────────────────── */
+
+.fb-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.fb-empty { color: var(--muted); }
+
+.fb-list {
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fb-item {
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.fb-item-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 6px;
+}
+
+.fb-item-where {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--olive-dark);
+  text-decoration: none;
+}
+
+.fb-item-where:hover { text-decoration: underline; }
+.fb-item-where .g-ic { font-size: 14px; color: var(--olive); }
+
+.fb-item-kind {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+}
+
+/* Die vier Arten tragen die einzigen Farben der Seite, die nicht aus der
+   Marke kommen — sie sollen im Korb auf einen Blick auseinanderfallen. */
+.fb-item-kind.k-bug { background: #B3453D; }
+.fb-item-kind.k-confusing { background: #A97800; }
+.fb-item-kind.k-idea { background: #556B2F; }
+.fb-item-kind.k-praise { background: #4E8F5C; }
+
+.fb-item-x {
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.fb-item-x:hover { background: rgba(179, 69, 61, 0.14); color: #B3453D; }
+
+.fb-item-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.fb-item-shots {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Wer schreibt, und wohin es geht ────────────────────────────────────── */
+
+.fb-who {
+  padding: 14px;
+  margin-bottom: 18px;
+  background: var(--panel-inset);
+  border-radius: 10px;
+}
+
+.fb-who-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.fb-who-row input {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: 14px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.fb-who-row input:focus-visible { outline: 2px solid var(--olive); outline-offset: 1px; }
+
+.fb-mailnote {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+.fb-actions { flex-wrap: wrap; }
+
+.fb-danger { color: #B3453D; border-color: rgba(179, 69, 61, 0.4); }
+.fb-danger:hover { background: rgba(179, 69, 61, 0.1); }
+
+/* Kein Speicher, kein Gedaechtnis: das muss oben stehen und darf nicht wie
+   eine Randnotiz aussehen — sonst tippt jemand zwanzig Minuten ins Nichts. */
+.fb-warn {
+  padding: 12px 14px;
+  margin: 0 0 18px;
+  background: #FDF3E3;
+  border: 1px solid var(--gold-dark);
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #6b4f00;
+}
+
+@media (max-width: 560px) {
+  .fb-chips { gap: 6px; }
+  .fb-chip { font-size: 12.5px; padding: 6px 11px; }
+  .fb-shot { width: 64px; height: 64px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-chip { transition: none; }
+}
+
+/* Die Summe eines zugeklappten Zweigs, nicht die Zahl der Zeile selbst:
+   leiser gesetzt, damit "hier drunter liegt etwas" und "hier liegt etwas"
+   sich unterscheiden. */
+.fb-count.summe {
+  background: var(--panel-inset);
+  color: var(--olive-dark);
+  border: 1px solid var(--border);
+}

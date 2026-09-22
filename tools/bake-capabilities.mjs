@@ -34,8 +34,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
 
-const WURZEL = path.dirname(new URL('.', import.meta.url).pathname.replace(/\/$/, ''));
+const WURZEL = path.dirname(fileURLToPath(new URL('.', import.meta.url)).replace(/\/$/, ''));
+/* fileURLToPath statt .pathname: eine file:-URL ist prozentkodiert, und ein
+   Leerzeichen im Projektpfad kam hier als %20 an — 'Project%20TournaQ' gibt es
+   auf keiner Platte, also scheiterte jeder Lauf mit ENOENT. */
 const lies = (p) => fs.readFileSync(path.join(WURZEL, p), 'utf8');
 
 /* ── Die Modi, in der Reihenfolge des NAV-Baums ───────────────────────────
@@ -318,104 +322,198 @@ const features = FEATURES.map(f => {
    Ein Buendel ohne `zweck` faellt nicht still auf die Zaehlung zurueck,
    sondern wird unten gemeldet.
 
+   `name` und `zweck` stehen in en/de/es, und das ist der Unterschied zu
+   allem anderen hier: die Zeilen selbst kommen englisch aus dem Guide und
+   aus der Matrix, das Buendel dagegen ist Text dieser Tabelle. Stand er nur
+   auf Deutsch, las die englische Seite deutsche Ueberschriften und deutsche
+   Untertitel — genau das war der Fehler. Englisch ist wie in der Oberflaeche
+   des Explorers Vorgabe und Rueckfall; fehlt eine Sprache, steht der
+   englische Satz da. `suche` bleibt einsprachig und mischt die Woerter
+   aller drei, denn es wird nie gezeigt, nur durchsucht — und die Suche
+   bekommt ohnehin alle drei Namen und Zwecksaetze in den Heuhaufen.
+
    Unvollstaendig und soll es sein: was hier fehlt, bleibt eine einzelne
    Zeile und ist damit nicht falsch, nur unverbunden. */
 const BUENDEL = [
-  { name:'Seitenwechsel', suche:'side swap change ends switch sides Seiten wechseln',
-    zweck:'Wann die Seiten getauscht werden: der Wechselpunkt im Setup, die Ansage samt gedrehter Zähler auf der Karte — oder abgeschaltet und von Hand gewischt.', keys:[
+  { name:{ en:'Side change', de:'Seitenwechsel', es:'Cambio de lado' },
+    suche:'side swap change ends switch sides Seiten wechseln',
+    zweck:{
+      en:'When the sides swap: the change point in Setup, the announcement with the counter turned round on the card — or switched off and swiped across by hand.',
+      de:'Wann die Seiten getauscht werden: der Wechselpunkt im Setup, die Ansage samt gedrehter Zähler auf der Karte — oder abgeschaltet und von Hand gewischt.',
+      es:'Cuándo se cambian los lados: el punto de cambio en el Setup, el aviso con el marcador girado en la planilla — o desactivado y deslizado a mano.' }, keys:[
     'feature|scoring-10', 'Setup|Side change',
     'Scorecard|Side-change reminder', 'Scorecard|Side swap' ]},
-  { name:'Zielpunktzahl', suche:'target points Zielpunkte Punktziel',
-    zweck:'Bis wohin gespielt wird: die Punktzahl im Setup, auf der Karte immer sichtbar, und die Nachfrage, sobald eine Seite sie erreicht.', keys:[
+  { name:{ en:'Target score', de:'Zielpunktzahl', es:'Puntos meta' },
+    suche:'target points Zielpunkte Punktziel puntos meta',
+    zweck:{
+      en:'How far the game runs: the score in Setup, always visible on the card, and the prompt as soon as one side reaches it.',
+      de:'Bis wohin gespielt wird: die Punktzahl im Setup, auf der Karte immer sichtbar, und die Nachfrage, sobald eine Seite sie erreicht.',
+      es:'Hasta dónde se juega: los puntos en el Setup, siempre visibles en la planilla, y el aviso en cuanto un lado los alcanza.' }, keys:[
     'feature|scoring-9', 'Setup|Target score', 'Setup|Notify at target score',
     'Scorecard|Target score', 'Scorecard|Target-reached prompt' ]},
-  { name:'Sätze', suche:'sets best of Satz Saetze',
-    zweck:'Ob über Sätze gespielt wird und über wie viele: die App führt den Satzstand mit und wechselt von sich aus in den nächsten Satz.', keys:[
+  { name:{ en:'Sets', de:'Sätze', es:'Sets' },
+    suche:'sets best of Satz Saetze',
+    zweck:{
+      en:'Whether the game runs over sets and over how many: the app keeps the set score and moves into the next set by itself.',
+      de:'Ob über Sätze gespielt wird und über wie viele: die App führt den Satzstand mit und wechselt von sich aus in den nächsten Satz.',
+      es:'Si se juega por sets y por cuántos: la app lleva el marcador de sets y pasa al siguiente por su cuenta.' }, keys:[
     'feature|scoring-2', 'Setup|Sets per game', 'Scorecard|Set overview' ]},
-  { name:'Aufschlag', suche:'serve service serving Aufschlag Angabe',
-    zweck:'Wer angibt: die erste Angabe wird angesagt, danach wandert die Anzeige mit jedem Punktgewinn der Gegenseite selbst weiter.', keys:[
+  { name:{ en:'Serve', de:'Aufschlag', es:'Saque' },
+    suche:'serve service serving Aufschlag Angabe saque',
+    zweck:{
+      en:'Who serves: the first serve is announced, after that the indicator moves on by itself with every point the other side wins.',
+      de:'Wer angibt: die erste Angabe wird angesagt, danach wandert die Anzeige mit jedem Punktgewinn der Gegenseite selbst weiter.',
+      es:'Quién saca: el primer saque se anuncia, y después el indicador avanza solo con cada punto que gana el otro lado.' }, keys:[
     'feature|scoring-3', 'Scorecard|Serves-first banner', 'Scorecard|Serving indicator' ]},
-  { name:'Schiedsrichter', suche:'referee ref umpire Schiri',
-    zweck:'Wer ein Spiel leitet: Vorschläge aus dem Spielerfeld, die Wahl zwischen vollen Plätzen und freigehaltenem Schiri, und auf jeder Karte, wer gerade pfeift.', keys:[
+  { name:{ en:'Referee', de:'Schiedsrichter', es:'Árbitro' },
+    suche:'referee ref umpire Schiri árbitro arbitro',
+    zweck:{
+      en:'Who runs a game: suggestions from the player pool, the choice between full courts and a referee kept free, and on every card, who is whistling right now.',
+      de:'Wer ein Spiel leitet: Vorschläge aus dem Spielerfeld, die Wahl zwischen vollen Plätzen und freigehaltenem Schiri, und auf jeder Karte, wer gerade pfeift.',
+      es:'Quién dirige un partido: sugerencias del grupo de jugadores, la elección entre pistas llenas y un árbitro reservado, y en cada planilla, quién pita en ese momento.' }, keys:[
     'feature|scoring-11', 'Setup|Referees', 'Run|Referees',
-    'Run|\u201cRefs covered\u201d / \u201c{n} without a ref\u201d',
+    'Run|“Refs covered” / “{n} without a ref”',
     'Scorecard|Referee banner', 'Scorecard|Change referee' ]},
-  { name:'Plätze', suche:'court courts Platz Plaetze Feld Felder',
-    zweck:'Auf wie vielen Feldern gleichzeitig gespielt wird und wie die Spiele darauf verteilt werden — auch mitten im Turnier, wenn ein Platz dazukommt oder wegfällt.', keys:[
+  { name:{ en:'Courts', de:'Plätze', es:'Pistas' },
+    suche:'court courts Platz Plaetze Feld Felder pista pistas',
+    zweck:{
+      en:'How many courts run at the same time and how the games are spread across them — mid-tournament too, when a court is added or drops out.',
+      de:'Auf wie vielen Feldern gleichzeitig gespielt wird und wie die Spiele darauf verteilt werden — auch mitten im Turnier, wenn ein Platz dazukommt oder wegfällt.',
+      es:'En cuántas pistas se juega a la vez y cómo se reparten los partidos — también a mitad del torneo, cuando se suma o se cae una pista.' }, keys:[
     'feature|tournament-10', 'feature|tournament-7',
     'Setup|Courts', 'Setup|One court per group',
-    'Run|Courts', 'Run|Court allocation', 'Run|\u201c{n} courts\u201d',
+    'Run|Courts', 'Run|Court allocation', 'Run|“{n} courts”',
     'Scorecard|Court', 'Scorecard|Start / Finish court' ]},
-  { name:'Zeitplan & Tempo', suche:'schedule pace timing Zeitplan Tempo Startzeit',
-    zweck:'Wann es losgeht, wie schnell gespielt wird und woran man sieht, ob es noch passt: Startzeit, Spieltempo, Vorschau und der Hinweis „fällig / überfällig“.', keys:[
+  { name:{ en:'Schedule & pace', de:'Zeitplan & Tempo', es:'Horario y ritmo' },
+    suche:'schedule pace timing Zeitplan Tempo Startzeit horario ritmo',
+    zweck:{
+      en:'When it starts, how fast it runs and how you can tell whether it still fits: start time, game pace, preview and the “due / overdue” hint.',
+      de:'Wann es losgeht, wie schnell gespielt wird und woran man sieht, ob es noch passt: Startzeit, Spieltempo, Vorschau und der Hinweis „fällig / überfällig“.',
+      es:'Cuándo empieza, a qué ritmo se juega y en qué se ve si todavía cuadra: hora de inicio, ritmo de partido, vista previa y el aviso «pendiente / retrasado».' }, keys:[
     'feature|tournament-2', 'feature|tournament-3',
     'Setup|Start date', 'Setup|Start time', 'Setup|Anchored start',
     'Setup|Game pace', 'Setup|Pace alerts', 'Setup|Schedule detail',
     'Setup|Schedule Preview', 'Run|Schedule preview',
-    'Run|\u201cEst. finish {time}\u201d / \u201cFinished {time}\u201d', 'Run|\u201cEnds {time}\u201d',
+    'Run|“Est. finish {time}” / “Finished {time}”', 'Run|“Ends {time}”',
     'Scorecard|Schedule card' ]},
-  { name:'Pausen', suche:'break breaks rest Pause Pausen',
-    zweck:'Wie viel Ruhe zwischen den Spielen liegt: Pause nach Runde, nach Slot und vor dem K.-o. — und wie viele Spiele hintereinander jemandem zugemutet werden.', keys:[
+  { name:{ en:'Breaks', de:'Pausen', es:'Descansos' },
+    suche:'break breaks rest Pause Pausen descanso descansos',
+    zweck:{
+      en:'How much rest sits between the games: a break after a round, after a slot and before the knockout — and how many games in a row anyone is asked to play.',
+      de:'Wie viel Ruhe zwischen den Spielen liegt: Pause nach Runde, nach Slot und vor dem K.-o. — und wie viele Spiele hintereinander jemandem zugemutet werden.',
+      es:'Cuánto descanso hay entre partidos: pausa tras la ronda, tras el bloque y antes de la eliminatoria — y cuántos partidos seguidos se le piden a alguien.' }, keys:[
     'Setup|Break after a round', 'Setup|Break Between Rounds', 'Setup|Break after a slot',
     'Setup|Break before knockout', 'Setup|Back-to-back' ]},
-  { name:'Auslosung', suche:'draw pairing seeding random Auslosung Setzung',
-    zweck:'Wie die Paarungen zustande kommen: zufällig oder gesetzt, neu gewürfelt oder einzeln von Hand getauscht — bis das erste Spiel läuft, dann steht die Auslosung fest.', keys:[
+  { name:{ en:'Draw', de:'Auslosung', es:'Sorteo' },
+    suche:'draw pairing seeding random Auslosung Setzung sorteo',
+    zweck:{
+      en:'How the pairings come about: random or seeded, rolled again or swapped one by one by hand — until the first game is running, then the draw is set.',
+      de:'Wie die Paarungen zustande kommen: zufällig oder gesetzt, neu gewürfelt oder einzeln von Hand getauscht — bis das erste Spiel läuft, dann steht die Auslosung fest.',
+      es:'Cómo salen los emparejamientos: al azar o preclasificados, vueltos a sortear o cambiados uno a uno a mano — hasta que arranca el primer partido; entonces el sorteo queda fijado.' }, keys:[
     'Setup|Pairing', 'Setup|Pair up players', 'Setup|Draw again', 'Setup|Swap {name} with',
     'Setup|Generation', 'Run|Bracket generation', 'Run|Adjust draw', 'Run|The draw is set',
-    'Run|\u201cRedraw\u201d', 'Run|\u201cAdjust draw\u201d', 'Run|\u201cRandom\u201d',
-    'Run|\u201cReroll round 1\u201d', 'Scorecard|Pairs the next round' ]},
-  { name:'Spielformat', suche:'format 2v2 3v3 Spielformat',
-    zweck:'Nach welchen Regeln ein Spiel gewonnen wird — Sätze, Zielpunktzahl, Seitenwechsel — als Vorgabe fürs ganze Turnier und abweichend je Runde, Slot oder Ebene.', keys:[
+    'Run|“Redraw”', 'Run|“Adjust draw”', 'Run|“Random”',
+    'Run|“Reroll round 1”', 'Scorecard|Pairs the next round' ]},
+  { name:{ en:'Game format', de:'Spielformat', es:'Formato de juego' },
+    suche:'format 2v2 3v3 Spielformat formato',
+    zweck:{
+      en:'The rules by which a game is won — sets, target score, side change — as the default for the whole tournament and differing per round, slot or tier.',
+      de:'Nach welchen Regeln ein Spiel gewonnen wird — Sätze, Zielpunktzahl, Seitenwechsel — als Vorgabe fürs ganze Turnier und abweichend je Runde, Slot oder Ebene.',
+      es:'Con qué reglas se gana un partido — sets, puntos meta, cambio de lado — como ajuste para todo el torneo y distinto por ronda, bloque o nivel.' }, keys:[
     'Setup|Game format', 'Setup|Format', 'Setup|Format for one round',
     'Setup|Format for one slot', 'Setup|Format per tier',
-    'Run|\u201c{n}v{n}\u201d', 'Run|\u201c2v2\u201d' ]},
-  { name:'Uhr', suche:'timer clock time control duration Uhr Dauer',
-    zweck:'Wenn nicht auf Punkte, sondern auf Zeit gespielt wird: Rundendauer und Sessionlänge, und auf der Karte Uhr anhalten, weiterlaufen lassen oder Zeit korrigieren.', keys:[
+    'Run|“{n}v{n}”', 'Run|“2v2”' ]},
+  { name:{ en:'Clock', de:'Uhr', es:'Reloj' },
+    suche:'timer clock time control duration Uhr Dauer reloj temporizador',
+    zweck:{
+      en:'When the game runs on time instead of points: round duration and session length, and on the card stop the clock, let it run on or correct the time.',
+      de:'Wenn nicht auf Punkte, sondern auf Zeit gespielt wird: Rundendauer und Sessionlänge, und auf der Karte Uhr anhalten, weiterlaufen lassen oder Zeit korrigieren.',
+      es:'Cuando no se juega a puntos sino a tiempo: duración de ronda y de la sesión, y en la planilla parar el reloj, dejarlo correr o corregir el tiempo.' }, keys:[
     'feature|scoring-5', 'feature|scoring-8', 'Setup|Match Duration',
     'Scorecard|Round timer', 'Scorecard|Session timer' ]},
-  { name:'Punkte zählen', suche:'scoring points history Punkte Verlauf',
-    zweck:'Der Kern der Scorecard: Punkt für Punkt tippen, jeder Stand bleibt mit seinem Verlauf gespeichert, und eine fertige Karte wird gesperrt statt weiter verändert.', keys:[
+  { name:{ en:'Counting points', de:'Punkte zählen', es:'Contar puntos' },
+    suche:'scoring points history Punkte Verlauf puntos historial',
+    zweck:{
+      en:'The heart of the scorecard: tap point by point, every score stays saved with its history, and a finished card is locked instead of changed on.',
+      de:'Der Kern der Scorecard: Punkt für Punkt tippen, jeder Stand bleibt mit seinem Verlauf gespeichert, und eine fertige Karte wird gesperrt statt weiter verändert.',
+      es:'El núcleo de la planilla: tocar punto a punto, cada marcador queda guardado con su historial, y una planilla terminada se bloquea en vez de seguir cambiando.' }, keys:[
     'feature|scoring-1', 'feature|scoring-6', 'Scorecard|Score buttons',
     'Scorecard|Match History', 'Scorecard|Lock banner' ]},
-  { name:'Ergebnis nachtragen', suche:'correct manual undo korrigieren nachtragen',
-    zweck:'Für alles, was nicht live getippt wurde: den letzten Punkt zurücknehmen, oder das Endergebnis eines fertig gespielten Spiels von Hand eintragen.', keys:[
+  { name:{ en:'Entering a result later', de:'Ergebnis nachtragen', es:'Añadir el resultado después' },
+    suche:'correct manual undo korrigieren nachtragen corregir deshacer',
+    zweck:{
+      en:'For everything that was not tapped live: take the last point back, or enter the final score of a game already played by hand.',
+      de:'Für alles, was nicht live getippt wurde: den letzten Punkt zurücknehmen, oder das Endergebnis eines fertig gespielten Spiels von Hand eintragen.',
+      es:'Para todo lo que no se registró en vivo: deshacer el último punto, o introducir a mano el resultado final de un partido ya jugado.' }, keys:[
     'feature|scoring-4', 'Run|Manually Set Score', 'Scorecard|Undo' ]},
-  { name:'Turnier als Excel', suche:'excel xlsx workbook export import Tabelle',
-    zweck:'Das ganze Turnier als Tabelle heraus und wieder herein: Übersicht auf Papier oder am Rechner, und die dort eingetragenen Ergebnisse kommen zurück in die App.', keys:[
+  { name:{ en:'Tournament as Excel', de:'Turnier als Excel', es:'Torneo en Excel' },
+    suche:'excel xlsx workbook export import Tabelle hoja de cálculo',
+    zweck:{
+      en:'The whole tournament out as a spreadsheet and back in again: an overview on paper or at the computer, and the results entered there come back into the app.',
+      de:'Das ganze Turnier als Tabelle heraus und wieder herein: Übersicht auf Papier oder am Rechner, und die dort eingetragenen Ergebnisse kommen zurück in die App.',
+      es:'Todo el torneo a una hoja de cálculo y de vuelta: una vista en papel o en el ordenador, y los resultados anotados allí regresan a la app.' }, keys:[
     'feature|tournament-11', 'Run|Export tournament', 'Run|Import tournament' ]},
-  { name:'QR-Übergabe', suche:'QR export import share Uebergabe',
-    zweck:'Ein Spiel an ein anderes Handy geben und das Ergebnis zurückholen, ganz ohne Netz. Die geliehene Karte kennt ihre echte Position und schreibt nirgends hin außer zurück.', keys:[
+  { name:{ en:'QR handover', de:'QR-Übergabe', es:'Traspaso por QR' },
+    suche:'QR export import share Uebergabe traspaso',
+    zweck:{
+      en:'Hand a game to another phone and fetch the result back, with no network at all. The borrowed card knows its real position and writes nowhere but back.',
+      de:'Ein Spiel an ein anderes Handy geben und das Ergebnis zurückholen, ganz ohne Netz. Die geliehene Karte kennt ihre echte Position und schreibt nirgends hin außer zurück.',
+      es:'Pasar un partido a otro móvil y recuperar el resultado, sin red alguna. La planilla prestada conoce su posición real y no escribe en ningún sitio salvo de vuelta.' }, keys:[
     'feature|tournament-6', 'Run|Export game', 'Run|Import result',
-    'Scorecard|App-bar QR menu', 'Scorecard|\u201cExport result\u201d',
+    'Scorecard|App-bar QR menu', 'Scorecard|“Export result”',
     'Scorecard|The real position', 'Scorecard|Read-only event',
     'Scorecard|Upcoming games, frozen', 'Scorecard|It writes nowhere but back',
     'Scorecard|Back to Hub', 'Scorecard|Coming home' ]},
-  { name:'Rauswurf', suche:'eject kick out Rauswerfen',
-    zweck:'Wann eine Seite den Platz verlässt: automatisch an der Schwelle des Modus, mit Nachfrage auf der Karte, oder von Hand — eine Runde aussetzen oder ganz raus.', keys:[
+  { name:{ en:'Eject', de:'Rauswurf', es:'Expulsión' },
+    suche:'eject kick out Rauswerfen expulsar',
+    zweck:{
+      en:'When a side leaves the court: automatically at the threshold of the mode, with a prompt on the card, or by hand — sit out one round or out for good.',
+      de:'Wann eine Seite den Platz verlässt: automatisch an der Schwelle des Modus, mit Nachfrage auf der Karte, oder von Hand — eine Runde aussetzen oder ganz raus.',
+      es:'Cuándo un lado deja la pista: automáticamente en el umbral del modo, con un aviso en la planilla, o a mano — saltar una ronda o fuera del todo.' }, keys:[
     'Setup|Auto-eject challenger',
-    'Run|\u201cAuto-eject @ {n}\u201d / \u201cAuto-eject off\u201d',
+    'Run|“Auto-eject @ {n}” / “Auto-eject off”',
     'Scorecard|Eject', 'Scorecard|Automatic eject prompts', 'Scorecard|Take this duo out' ]},
-  { name:'Strafpunkte', suche:'strike strikes Strafpunkte',
-    zweck:'Die Schwelle, ab der die Seite am Platz als Sieger geht statt weiterzuspielen — samt der Nachfrage, wenn sie erreicht ist. Auf 0 ist sie abgeschaltet.', keys:[
-    'Setup|Strike Points', 'Run|\u201c{n} pt strike\u201d', 'Scorecard|Strike prompt' ]},
-  { name:'Ausbruch', suche:'escape doghouse Ausbruch',
-    zweck:'Wie viele Punkte die Seite im Doghouse braucht, um wieder herauszukommen — samt der Meldung, wenn sie es geschafft hat. Auf 0 ist sie abgeschaltet.', keys:[
-    'Setup|Escape Points', 'Run|\u201c{n} pt escape\u201d', 'Scorecard|Escape prompt' ]},
-  { name:'Niederlagengrenze', suche:'loss limit out Niederlagen',
-    zweck:'Nach wie vielen verlorenen Spielen die Seite im Doghouse automatisch getauscht wird, damit dort niemand festhängt. Auf 0 ist die Grenze abgeschaltet.', keys:[
-    'Setup|Loss Limit', 'Run|\u201c{n} loss limit\u201d', 'Scorecard|Loss-limit prompt' ]},
-  { name:'Aufstellung', suche:'roster players teams fill random Aufstellung Meldeliste',
-    zweck:'Wer mitspielt: Spieler und Teams aus der Verwaltung holen, nach Gruppe filtern, neu anlegen oder zufällig füllen — und mitten im Turnier tauschen, pausieren, abmelden.', keys:[
+  { name:{ en:'Strike points', de:'Strafpunkte', es:'Puntos de strike' },
+    suche:'strike strikes Strafpunkte',
+    zweck:{
+      en:'The threshold at which the side on court leaves as the winner instead of playing on — along with the prompt once it is reached. At 0 it is switched off.',
+      de:'Die Schwelle, ab der die Seite am Platz als Sieger geht statt weiterzuspielen — samt der Nachfrage, wenn sie erreicht ist. Auf 0 ist sie abgeschaltet.',
+      es:'El umbral a partir del cual el lado en pista se va como ganador en vez de seguir jugando — con el aviso al alcanzarlo. En 0 está desactivado.' }, keys:[
+    'Setup|Strike Points', 'Run|“{n} pt strike”', 'Scorecard|Strike prompt' ]},
+  { name:{ en:'Escape', de:'Ausbruch', es:'Escape' },
+    suche:'escape doghouse Ausbruch',
+    zweck:{
+      en:'How many points the side in the Doghouse needs to get out again — along with the message once they have made it. At 0 it is switched off.',
+      de:'Wie viele Punkte die Seite im Doghouse braucht, um wieder herauszukommen — samt der Meldung, wenn sie es geschafft hat. Auf 0 ist sie abgeschaltet.',
+      es:'Cuántos puntos necesita el lado en el Doghouse para volver a salir — con el mensaje cuando lo consigue. En 0 está desactivado.' }, keys:[
+    'Setup|Escape Points', 'Run|“{n} pt escape”', 'Scorecard|Escape prompt' ]},
+  { name:{ en:'Loss limit', de:'Niederlagengrenze', es:'Límite de pérdidas' },
+    suche:'loss limit out Niederlagen pérdidas perdidas',
+    zweck:{
+      en:'After how many lost games the side in the Doghouse is swapped out automatically, so that nobody gets stuck there. At 0 the limit is switched off.',
+      de:'Nach wie vielen verlorenen Spielen die Seite im Doghouse automatisch getauscht wird, damit dort niemand festhängt. Auf 0 ist die Grenze abgeschaltet.',
+      es:'Tras cuántos partidos perdidos se cambia automáticamente al lado en el Doghouse, para que nadie se quede atascado allí. En 0 el límite está desactivado.' }, keys:[
+    'Setup|Loss Limit', 'Run|“{n} loss limit”', 'Scorecard|Loss-limit prompt' ]},
+  { name:{ en:'Roster', de:'Aufstellung', es:'Participantes' },
+    suche:'roster players teams fill random Aufstellung Meldeliste participantes',
+    zweck:{
+      en:'Who is playing: pull players and teams out of Administration, filter by group, create new ones or fill at random — and swap, pause or withdraw them mid-tournament.',
+      de:'Wer mitspielt: Spieler und Teams aus der Verwaltung holen, nach Gruppe filtern, neu anlegen oder zufällig füllen — und mitten im Turnier tauschen, pausieren, abmelden.',
+      es:'Quién juega: traer jugadores y equipos desde Administración, filtrar por grupo, crearlos nuevos o llenar al azar — y cambiarlos, pausarlos o retirarlos a mitad del torneo.' }, keys:[
     'feature|administration-8', 'feature|administration-9', 'feature|administration-10',
     'feature|administration-13',
-    'Setup|Roster \u2014 Teams or Players', 'Setup|Teams', 'Setup|Players',
+    'Setup|Roster — Teams or Players', 'Setup|Teams', 'Setup|Players',
     'Setup|Target Players', 'Setup|Fill random', 'Setup|Fill {count} random',
     'Setup|Clear all', 'Setup|Count mismatch', 'Setup|Confirm the count',
     'Setup|Add existing teams', 'Setup|Create a duo', 'Setup|{count} duos',
-    'Run|Teams / Players', 'Run|\u201c{n} teams\u201d', 'Run|\u201c{n} players\u201d',
-    'Run|\u201cTeams\u201d', 'Run|\u201cDuos\u201d' ]},
-  { name:'Querformat', suche:'landscape rotate Querformat drehen',
-    zweck:'Das Handy quer legen: dieselben Bedienelemente neu angeordnet, für den Netzpfosten oder den Tisch am Spielfeldrand.', keys:[
+    'Run|Teams / Players', 'Run|“{n} teams”', 'Run|“{n} players”',
+    'Run|“Teams”', 'Run|“Duos”' ]},
+  { name:{ en:'Landscape', de:'Querformat', es:'Horizontal' },
+    suche:'landscape rotate Querformat drehen horizontal girar',
+    zweck:{
+      en:'Lay the phone on its side: the same controls rearranged, for the net post or the table at the edge of the court.',
+      de:'Das Handy quer legen: dieselben Bedienelemente neu angeordnet, für den Netzpfosten oder den Tisch am Spielfeldrand.',
+      es:'Poner el móvil de lado: los mismos controles reordenados, para el poste de la red o la mesa junto a la pista.' }, keys:[
     'feature|scoring-7', 'feature|device-3', 'Scorecard|Landscape' ]},
 ];
 
@@ -541,9 +639,9 @@ const bundles = BUENDEL.map((b, i) => {
   const keys = [];
   for (const k of b.keys) {
     const r = nachKey.get(k);
-    if (!r)               { unbekannt.push(`${b.name}: ${k}`); continue; }
-    if (vergeben.has(k))  { doppelt.push(`${k} — ${vergeben.get(k)} und ${b.name}`); continue; }
-    vergeben.set(k, b.name);
+    if (!r)               { unbekannt.push(`${b.name.de}: ${k}`); continue; }
+    if (vergeben.has(k))  { doppelt.push(`${k} — ${vergeben.get(k)} und ${b.name.de}`); continue; }
+    vergeben.set(k, b.name.de);
     r.bundle = id;
     keys.push(k);
   }
@@ -552,13 +650,21 @@ const bundles = BUENDEL.map((b, i) => {
      einstellt, nicht dort, wo sie zufaellig zuerst erwaehnt wird. */
   const lead = keys.slice().sort((x, y) =>
     RANG[nachKey.get(x).kind] - RANG[nachKey.get(y).kind])[0] || null;
-  return { id, name:b.name, suche:b.suche || '', zweck:b.zweck || '', keys, lead };
+  return { id, name:b.name, suche:b.suche || '', zweck:b.zweck || null, keys, lead };
 }).filter(b => b.keys.length);
 
-/* Ein Buendel, dem der Zwecksatz fehlt, zeigt auf der Seite wieder nur seine
-   Zusammensetzung — "1× Einstellung · 12× Bedienung". Das ist der Zustand,
-   von dem die Zweckzeile weggefuehrt hat, deshalb wird er gemeldet. */
-const ohneZweck = bundles.filter(b => !b.zweck);
+/* Gezaehlt wird je Sprache, nicht je Buendel. Fehlt nur eine, steht dort der
+   englische Satz — lesbar, aber unuebersetzt. Fehlt auch der englische, faellt
+   das Buendel auf seine Zusammensetzung zurueck: "1× Einstellung · 12×
+   Bedienung". Das ist der Zustand, von dem die Zweckzeile weggefuehrt hat,
+   deshalb wird beides gemeldet und die fehlende Sprache dazu. */
+const SPRACHEN = ['en', 'de', 'es'];
+const ohneZweck = bundles.filter(b => SPRACHEN.some(l => !(b.zweck && b.zweck[l])));
+
+/* Dasselbe fuer den Namen: faellt eine Sprache aus, steht auf der Seite die
+   englische Ueberschrift — richtig, aber nicht uebersetzt. Still bleibt das
+   nicht. */
+const ohneName = bundles.filter(b => SPRACHEN.some(l => !(b.name && b.name[l])));
 
 /* ── Gegenprobe 2: sagt der Guide etwas anderes als die Matrix? ──────────
    Die erste Gegenprobe vergleicht die Matrix mit sich selbst. Diese hier
@@ -616,9 +722,15 @@ console.log(`${zaehl('capability')} Faehigkeiten + ${zaehl('setting')} Einstellu
   `${zaehl('control')} Bedienung/Verhalten = ${rows.length} Zeilen → ${ZIEL}`);
 console.log(`${bundles.length} Buendel fassen ${vergeben.size} davon zusammen, ` +
   `${rows.length - vergeben.size} stehen allein`);
+const fehlend = (feld) => (b) => SPRACHEN.filter(l => !(b[feld] && b[feld][l])).join('/');
 if (ohneZweck.length) {
-  console.log(`\n${ohneZweck.length} Buendel ohne Zwecksatz — die Seite zeigt dort nur die Zaehlung:`);
-  ohneZweck.forEach(b => console.log('   ' + b.name));
+  console.log(`\n${ohneZweck.length} Buendel ohne Zwecksatz — dort steht die englische Fassung`);
+  console.log('oder, fehlt auch die, nur die Zaehlung:');
+  ohneZweck.forEach(b => console.log(`   ${b.name.de || b.name.en} — fehlt: ${fehlend('zweck')(b)}`));
+}
+if (ohneName.length) {
+  console.log(`\n${ohneName.length} Buendel ohne uebersetzten Namen — dort steht die englische Ueberschrift:`);
+  ohneName.forEach(b => console.log(`   ${b.name.en || b.id} — fehlt: ${fehlend('name')(b)}`));
 }
 if (unbekannt.length) {
   console.log(`\n${unbekannt.length} Buendel-Schluessel treffen keine Zeile:`);

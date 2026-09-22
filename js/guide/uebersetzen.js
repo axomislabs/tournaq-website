@@ -12,8 +12,15 @@
  * einer, bleibt der englische stehen — dieselbe Zusage wie beim Inline-Text
  * der uebrigen Seiten.
  *
- * PAGES und CARDS sind mit `const` deklariert und lassen sich nicht neu
- * binden, also wird an Ort und Stelle ersetzt. Damit ein Sprachwechsel nicht
+ * Uebersetzt werden PAGES, EXTERN und CARDS. EXTERN stand lange nicht dabei
+ * — die Zeilen der Seitenleiste, die aus dem Guide hinaus auf die uebrige
+ * Website zeigen, blieben deshalb in jeder Sprache englisch, waehrend die
+ * Guide-Zeilen daneben uebersetzt waren. tools/guide-strings.mjs hat sie von
+ * Anfang an mitgezaehlt, also lagen die Uebersetzungen bereit und wurden nur
+ * nie eingesetzt.
+ *
+ * PAGES, EXTERN und CARDS sind mit `const` deklariert und lassen sich nicht
+ * neu binden, also wird an Ort und Stelle ersetzt. Damit ein Sprachwechsel nicht
  * auf bereits uebersetztem Text aufsetzt, wird beim ersten Lauf eine
  * englische Kopie beiseitegelegt; jede Umschaltung geht von ihr aus.
  */
@@ -26,6 +33,7 @@ var GUIDE_TEXTFELDER = [
   'title', 'eyebrow', 'h1', 'lead',   /* Seite   */
   'badge', 'sub',                     /* panel   */
   'label', 'cap',                     /* item, step, split, fork, grid, sect */
+  'chip',                             /* die Marke neben einem Etikett       */
   'body', 'alt',                      /* fbox, shot, note */
   'name', 'values', 'dflt', 'what', 'when', 'help',  /* opts */
   'cols'                              /* die Spaltenkoepfe einer opts-Tabelle */
@@ -120,8 +128,9 @@ function guideT(en) {
 
 function guideSichere() {
   if (GUIDE_EN) return;
-  GUIDE_EN = { pages: [], cards: [] };
+  GUIDE_EN = { pages: [], extern: [], cards: [] };
   guideGehe(typeof PAGES !== 'undefined' ? PAGES : {}, function (s) { GUIDE_EN.pages.push(s); });
+  guideGehe(typeof EXTERN !== 'undefined' ? EXTERN : {}, function (s) { GUIDE_EN.extern.push(s); });
   guideGeheKarten(typeof CARDS !== 'undefined' ? CARDS : {}, function (s) { GUIDE_EN.cards.push(s); });
 }
 
@@ -143,6 +152,7 @@ function guideSprache(lang) {
     };
   };
   i = 0; guideGehe(typeof PAGES !== 'undefined' ? PAGES : {}, setze(GUIDE_EN.pages));
+  i = 0; guideGehe(typeof EXTERN !== 'undefined' ? EXTERN : {}, setze(GUIDE_EN.extern));
   i = 0; guideGeheKarten(typeof CARDS !== 'undefined' ? CARDS : {}, setze(GUIDE_EN.cards));
   return fehlt;
 }

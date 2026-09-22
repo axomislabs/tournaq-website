@@ -206,10 +206,11 @@
       "sub": "Team up for timed games with everyone in your group.\nPlay a full tournament in less than an hour.",
       "ziel": "m-social-scramble",
       "alt": "Social Scrambles — Team up for timed games with everyone in your group. Play a full tournament in less than an hour.",
+      "hinweis": "Die Anzeigetafel mit der Match-Zeit steht am rechten Bildrand. zoom muss auf 1.0 bleiben - alles darueber beschneidet seitlich und schneidet die Zeit ab.",
       "foto": {
         "x": "50%",
-        "y": "96%",
-        "zoom": "1.18"
+        "y": "10%",
+        "zoom": "1.0"
       },
       "iris": {
         "x": "50%",

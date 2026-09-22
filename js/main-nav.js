@@ -20,7 +20,7 @@
       <a href="${base}guide.html" data-i18n="nav.guide">User Guide</a>
       <a href="${base}downloads.html" data-i18n="nav.downloads">Downloads</a>
       <a href="${base}legal.html" data-i18n="nav.legal">Legal</a>
-      <a href="${base}contact.html" data-i18n="nav.contact">Contact</a>
+      <a href="${base}contact.html" data-i18n="nav.contactFeedback">Contact &amp; Feedback</a>
     </div>
   `;
 

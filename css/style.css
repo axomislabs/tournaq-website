@@ -609,6 +609,45 @@ main > section:has(> .section-title) > .section-text:last-child {
     margin-top: 14px;
 }
 
+/* Die Unterpunkte der Kontaktseite, direkt unter der Bildkarte. Seit die
+   Kopfzeile Kontakt und Feedback in einem Eintrag fuehrt, ist das die Stelle,
+   an der man sieht, was darunter haengt — drei Sprungmarken in die Seite und
+   der Weg auf die Feedback-Seite. Der eine, der die Seite verlaesst, ist
+   gefuellt; die Sprungmarken tragen nur ihren Umriss, wie .button.ghost. */
+.contact-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 26px;
+}
+
+.contact-jump a {
+    background: none;
+    color: var(--olive);
+    border: 1px solid var(--olive);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+
+.contact-jump a:hover {
+    background: var(--olive-light);
+    color: var(--olive-dark);
+}
+
+.contact-jump a.page {
+    background: var(--olive);
+    color: white;
+}
+
+.contact-jump a.page:hover {
+    background: var(--olive-dark);
+    color: white;
+}
+
 .email-link,
 .info-box a {
     color: var(--olive);

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-i18n-base="../" data-i18n-title="page.feedback.title" data-nav-active="contact.html">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback – TournaQ</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="../favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <meta name="theme-color" content="#3A3E16">
+
+    <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/cards.css">
+  <link rel="stylesheet" href="../css/guide.css">
+  <link rel="stylesheet" href="../css/feedback.css">
+    <script src="../js/main-nav.js" defer></script>
+  <script src="../js/i18n.js" defer></script>
+  <!-- Dieselbe Karte wie im User Guide und auf contact.html: derselbe Baum aus
+       tree.js, derselbe Renderer aus render.js. js/site-map.js fehlt hier
+       absichtlich — es verlinkt die Zeilen auf die Guide-Dateien, und auf
+       dieser Seite muss eine Zeile den Punkt auswaehlen, statt wegzufuehren.
+       js/feedback.js setzt dafuer seinen eigenen Link-Kontext. -->
+  <script src="../js/guide/tree.js" defer></script>
+  <script src="../js/guide/sprite.js" defer></script>
+  <script src="../js/guide/render.js" defer></script>
+  <!-- Zu jedem Knoten die Aufnahmen, an denen man die Stelle wiedererkennt —
+       dieselben, die der Guide zeigt. Gebacken von tools/bake-guide.mjs, und
+       ausserhalb dieser Seite laedt sie niemand: den Baum braucht jede Seite
+       mit Karte, die Bilder nur diese hier. -->
+  <script src="../js/guide/shots.js" defer></script>
+  <script src="../js/feedback.js" defer></script>
+</head>
+
+<body>
+
+    <header>
+        <nav class="nav">
+            <a class="logo" href="index.html">
+                <img src="../assets/brand/tournaq-logo-land-450.webp" alt="TournaQ" width="225" height="150" loading="eager" decoding="async">
+            </a>
+
+            <input type="checkbox" id="nav-toggle" class="nav-toggle" aria-label="Toggle navigation">
+            <label for="nav-toggle" class="nav-burger" aria-label="Open navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+
+      <div id="main-nav-links"></div>
+            <div class="lang-switcher"></div>
+        </nav>
+
+                <div class="lang-switcher"></div>
+
+        <div class="hero">
+            <h1 data-i18n="feedback.hero.title">Feedback</h1>
+            <p data-i18n="feedback.hero.subtitle">Tell us where you were and what happened.</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- js/feedback.js schiebt die Karte hier als erstes Kind hinein und
+             setzt has-section-nav auf <main>. -->
+
+        <section class="card fb-intro">
+            <h2 data-i18n="feedback.intro.title">Find your spot, then tell us</h2>
+            <p data-i18n="feedback.intro.p1">
+                The map on the left carries the same structure as the app. Pick the place you were when something went wrong, confused you, or worked so well it deserves saying — then write it down right there. Every spot shows what it looks like in the app, so you can see you picked the right one.
+            </p>
+            <p data-i18n="feedback.intro.p2">
+                Notes stay on this device until you send them. Nothing is uploaded while you type, and you can collect as many as you like before handing them over in one go.
+            </p>
+        </section>
+
+        <div id="fb-node"></div>
+
+        <section class="card fb-basket" id="fb-basket"></section>
+    </main>
+
+    <footer>
+        <p data-i18n="footer.copyright">© 2026 Martin Adam · TournaQ</p>
+        <p style="margin-top:6px">
+            <a href="index.html" data-i18n="footer.home">Home</a> &nbsp;·&nbsp;
+            <a href="legal.html" data-i18n="footer.legalHub">Legal Hub</a> &nbsp;·&nbsp;
+            <a href="contact.html" data-i18n="footer.contact">Contact</a>
+        </p>
+    </footer>
+
+</body>
+
+</html>

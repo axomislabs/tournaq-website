@@ -76,30 +76,21 @@
             </div>
         </div>
 
-        <section class="card">
-            <h2 data-i18n="contact.testers.title">Become a Test User</h2>
-            <p data-i18n="contact.testers.p1">
-                TournaQ is looking for beach volleyball organisers, referees, and players to join as early test users. Your hands-on experience helps shape the app before wider release.
-            </p>
-            <p data-i18n="contact.testers.p2.open">
-                The beta is already open. The current build installs straight from the Downloads page — through Google Play on Android, through TestFlight on iOS. Signing up is optional on top of that: it lets us tell you when a new build lands, and ask what broke.
-            </p>
-            <!-- Der Weg, der heute funktioniert, steht vorn; das Formular
-                 daneben als zweitrangiger Knopf, weil es keine Bedingung mehr
-                 ist. Beide Ziele stehen auf downloads.html#beta zusammen. -->
-            <div class="card-actions">
-                <a class="button" href="downloads.html#beta" data-i18n="contact.testers.btn.downloads">
-                    Get the Beta
-                </a>
-                <a class="button ghost"
-                    href="https://docs.google.com/forms/d/e/1FAIpQLSfunugzmu72k3LqMRpIP_qzT6Rzaap7qm34HA4P7wsFRQKS_Q/viewform?usp=dialog"
-                    target="_blank" rel="noopener noreferrer" data-i18n="contact.testers.btn">
-                    Sign Up as a Test User
-                </a>
-            </div>
-        </section>
+        <!-- Die Unterpunkte dieser Seite. Sie stehen hier oben, weil die
+             Kopfzeile nur noch einen Eintrag fuer beides traegt: was unter
+             Kontakt haengt, muss man von hier aus sehen. Alle drei springen in
+             die Seite. Die Feedback-Seite hatte hier eine vierte Marke mit
+             Fuellung, die sie als "andere Seite" auswies — sie hiess "Feedback
+             on a Specific Screen" und stand neben "Share Feedback", und dass
+             beide dasselbe meinen, sah man dieser Reihe nicht an. Geblieben ist
+             der Abschnitt; der Weg auf die Seite haengt an seinem Knopf. -->
+        <nav class="contact-jump" aria-label="On this page">
+            <a href="#feedback" data-i18n="contact.feedback.title">Share Feedback</a>
+            <a href="#inquiries" data-i18n="contact.inquiries.title">Business, Legal or Privacy Inquiries</a>
+            <a href="#instagram" data-i18n="contact.instagram.title">Instagram</a>
+        </nav>
 
-        <section class="card">
+        <section class="card" id="feedback">
             <h2 data-i18n="contact.feedback.title">Share Feedback</h2>
             <p data-i18n="contact.feedback.p1">
                 TournaQ is actively under development. Feedback from organizers, clubs,
@@ -110,14 +101,27 @@
                 community.
             </p>
 
-            <a class="button"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfLJQT5bASsvEFN6emXW67Y75otvCKXwfOmP_p7PYCdtgY2jQ/viewform?usp=dialog"
-                target="_blank" rel="noopener noreferrer" data-i18n="contact.feedback.btn">
-                Submit Feedback
-            </a>
+            <p data-i18n="contact.feedback.p3">
+                If your feedback belongs to one particular screen, the feedback page carries the same structure as the app — find the spot, and write it down right there.
+            </p>
+
+            <!-- Der strukturierte Weg steht vorn, das allgemeine Formular
+                 daneben: eine Rueckmeldung, die schon weiss, zu welchem
+                 Bildschirm sie gehoert, ist die brauchbarere. Wer nur etwas
+                 loswerden will, nimmt weiter das Formular. -->
+            <div class="card-actions">
+                <a class="button" href="feedback.html" data-i18n="contact.feedback.title">
+                    Share Feedback
+                </a>
+                <a class="button ghost"
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSfLJQT5bASsvEFN6emXW67Y75otvCKXwfOmP_p7PYCdtgY2jQ/viewform?usp=dialog"
+                    target="_blank" rel="noopener noreferrer" data-i18n="contact.feedback.btn">
+                    Submit Feedback
+                </a>
+            </div>
         </section>
 
-        <section class="card">
+        <section class="card" id="inquiries">
             <h2 data-i18n="contact.inquiries.title">Business, Legal or Privacy Inquiries</h2>
             <p data-i18n="contact.inquiries.text">
                 For legal, privacy, business, or support-related inquiries, you can contact TournaQ by email.
@@ -127,7 +131,7 @@
             </p>
         </section>
 
-        <section>
+        <section id="instagram">
             <div class="card">
                 <h3 data-i18n="contact.instagram.title">Instagram</h3>
                 <p data-i18n="contact.instagram.text">

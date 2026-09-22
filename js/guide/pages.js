@@ -40,7 +40,12 @@ const arm   = (label, items) => ({label, items});
 const fbox  = (icon, title, body, lines) => ({t:'fbox', icon, title, body, lines});
 const sect  = (label, icon='i-south') => ({t:'sect', label, icon});
 const note  = (title, body) => ({t:'note', title, body});
-const grid  = (cards) => ({t:'grid', cards});
+/* `spalten: 1` stellt die Karten untereinander statt ins Raster. Fuer
+   Abschnitte, die nebeneinander gelesen werden sollen — vier Karten in
+   einem Dreierraster lassen die vierte allein in der letzten Zeile
+   stehen, und neben einem Abschnitt mit nur einer Karte, die ohnehin die
+   ganze Breite bekommt, zerfaellt das Bild vollends. */
+const grid  = (cards, o={}) => ({t:'grid', cards, ...o});
 const imgcards = (cards) => ({t:'imgcards', cards});
 /* Ein App-Screenshot mit Bildunterschrift. `src` ist der Pfad unter assets/
    ohne Groessensuffix, `sizes` die Breiten, die auf der Platte liegen — beide
@@ -107,7 +112,7 @@ home: {
   title:'TournaQ User Guide', route:'/guide', icon:'i-map', parent:null,
   eyebrow:'The map',
   h1:['','TournaQ',' User Guide'],
-  lead:'The TournaQ User Guide takes you through every important function of the app. It starts with Administration — optional, set up before your games and tournaments so it is ready when you need it — but you can just as well go straight into the TournaQ Arena and do your administration while you build the tournament. Follow the flow below and tap any card to go deeper.',
+  lead:'The TournaQ User Guide takes you through every important function of the app. It starts with Administration — optional, set up before your games and tournaments so it is ready when you need it — but you can just as well go straight into the TournaQ Arena and do your administration while you build the tournament. If you are just starting out, install the ' + pageLink('demo-data','Demo Data') + ' first — example tournaments in every mode, so you have a filled app to tap through while you read. Follow the flow below and tap any card to go deeper.',
   blocks:[
     flow('principle'),
     panel('The way through','What each stop on the map does.',[
@@ -145,6 +150,220 @@ home: {
    dahin auf der Startseite des Guides, gleich hinter der Einleitung, und war
    dort viel zu frueh fuer sein Gewicht. Auf der Startseite blieb das Paar
    hell/dunkel des Home-Schirms und der Verweis hierher. ── */
+/* ══ Demo Data ══════════════════════════════════════════════════════════
+   Erzeugt aus dem Katalog der App (QaTourFixtures.catalogue) — nicht von
+   Hand pflegen. Aendert sich der Datensatz, neu erzeugen und einsetzen:
+   die Liste hier und die Turniere im Geraet kommen aus denselben Tabellen.
+
+   Der Satz sind siebenundvierzig Turniere. Untereinander gelesen stand vor
+   dem Swiss System neun Modi lang nichts als Scrollen, und wer einen Modus
+   sehen wollte, kam an den anderen nicht vorbei. Darum traegt 'demo-data'
+   nur noch die Uebersicht — die drei Familien der Arena und ihre Modi —, und
+   die Zeilen stehen unveraendert auf je einer Unterseite. Dieselbe Teilung
+   hat die App in lib/pages/explainers/demo_data_mode_explainer_page.dart.
+
+   Die Unterseiten bekommen keine eigene Datei (tools/bake-guide.mjs,
+   EIGENE_SEITE): sie haengen als Hash-Route unter guide/demo-data.html.
+   Eine zweite Seite mit dem Titel "Swiss Systems" stuende sonst neben der
+   echten Modusseite und nur eine von beiden kann die gesuchte sein.
+   ══════════════════════════════════════════════════════════════════════ */
+'demo-data': {
+  title:'Demo Data', route:'/guide/demo-data', icon:'i-star', parent:'home',
+  eyebrow:'Try it out',
+  h1:['Demo ','Data'],
+  lead:'One tap fills the app with 47 tournaments and 6 Quick Games on a roster of 220 players and 69 teams: every mode, at both ends of the settings that change how it looks, and each of them at a different point in its life. 7 are freshly drawn, 21 are running, 19 are played out. It is made to be looked at rather than played — install it, tap through, and see what each mode actually does before you set up an event of your own.',
+  blocks:[
+    panel('How to install it','In the app, not here — Administration, then the menu at the top right.',[
+      item('i-admin','Administration › Install tour data','It replaces everything stored on the device, so install it before you have a real tournament on there, not after.'),
+      item('i-off','Works offline','Nothing is downloaded. The events are built on the device from the tables the app ships with, which is why they look the same on every phone.'),
+    ]),
+    fbox('i-check','Three points in a life','Every mode appears both running and played out, and a few are left freshly drawn. That is the axis the set is built on, because a mode looks like a different app at each of them.',[
+      {icon:'i-clock', title:'Drawn', body:'Scheduled and timed, nobody has played a point'},
+      {icon:'i-bolt', title:'Running', body:'Part played, one thing live, the rest still to come'},
+      {icon:'i-trophy', title:'Finished', body:'Played to the end, with a winner and final standings'},
+    ]),
+    sect('Quick Games','i-bolt'),
+    grid([
+      {icon:'i-bolt', label:'Quick Games · 6 games', cap:'A scored match with nothing around it. These sit on the Games page rather than in the Arena.', to:'demo-quick-game'},
+    ], {spalten:1}),
+    sect('Scramble Competitions','i-people'),
+    grid([
+      {icon:'i-swap', label:'Social Scrambles · 9 events', cap:'New teams every round, scored individually. Whoever does not fit on court sits out in turn.', to:'demo-scramble'},
+    ], {spalten:1}),
+    sect('Queue Modes','i-queue'),
+    grid([
+      {icon:'i-crown', label:'Royal Rotations · 7 events', cap:'A queue at the court, partners redrawn every round.', to:'demo-rotation'},
+      {icon:'i-crown', label:'Royal Duos · 4 events', cap:'The same queue with standing pairs — the team is what gets ranked.', to:'demo-duo'},
+      {icon:'i-crown', label:'Royal Shuffles · 5 events', cap:'A queue for individual players; the sides are formed at the court.', to:'demo-shuffle'},
+      {icon:'i-queue', label:'Doghouse Shuffles · 4 events', cap:'Like Royal Shuffle, plus the doghouse and a limit of three losses.', to:'demo-doghouse'},
+    ], {spalten:1}),
+    sect('Team Competitions','i-bracket'),
+    grid([
+      {icon:'i-grid', label:'Leagues · 5 events', cap:'Everybody against everybody, a table at the end.', to:'demo-league'},
+      {icon:'i-bracket', label:'Eliminations · 5 events', cap:'One defeat or two — a plain knockout and a double elimination, side by side.', to:'demo-elimination'},
+      {icon:'i-trophy', label:'TournaQ Classics · 4 events', cap:'Group stage first, then knockout over one, two or three tiers.', to:'demo-classic'},
+      {icon:'i-target', label:'Swiss Systems · 4 events', cap:'A fixed number of rounds, like paired against like. Nobody is knocked out.', to:'demo-swiss'},
+    ], {spalten:1}),
+  ],
+  next:['arena','tournament-hub'],
+},
+
+'demo-quick-game': {
+  title:'Quick Games', route:'/guide/demo-data/quick-game', icon:'i-bolt', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Quick Games'],
+  lead:'A scored match with no tournament behind it. These are the one part of the set that is not in the Arena — they sit on the Games page, they come with the roster rather than with the tournaments, and they are therefore in every data set the app installs. The four that matter are the corners: one set and best of three, each of them running and played out.',
+  blocks:[
+    panel('Quick Games · 6 games',null,[
+      item('i-bolt','Sun Vipers vs Dune Kings','2v2 · one set to 21 — A single set to 21, still running. The plain case, and the one the Games page hands straight back to the scorecard — open it, tap a point, and you are where a Quick Game normally lives.',{chip:'Running'}),
+      item('i-bolt','Sand Herons vs Coral Kings','2v2 · one set to 21 — The same match closed. One set was all there was, so the winner line under the card rests on that set alone and there is no set strip to read it off.',{chip:'Finished'}),
+      item('i-bolt','Sun Herons vs Cliff Herons','2v2 · best of 3 to 21 — Best of three at one set each, with the decider live at 8–6. Every card in the set strip carries a real score and the third one is active — the only state in which the format shows what it does.',{chip:'Running'}),
+      item('i-bolt','Wave Vipers vs Salt Kings','2v2 · best of 3 to 21 — The same format played out over all three sets, 2–1. Put it beside the running one: the difference between a live strip and a finished one is the reason both are here.',{chip:'Finished'}),
+      item('i-bolt','Blue Herons vs Sun Kings','2v2 · one set to 21 — One point under the target, so a single tap raises the “Target Reached” prompt. Here to be landed on rather than played towards.',{chip:'Running'}),
+      item('i-bolt','Dune Runners vs Salt Runners','3v3 · one set to 15 — Three a side and a set to 15 instead of 21 — the two settings every other row leaves alone. Finished, so the line-up of three names stands on the card and in the result.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-scramble': {
+  title:'Social Scrambles', route:'/guide/demo-data/social-scramble', icon:'i-swap', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Social Scrambles'],
+  lead:'New teams every round, scored individually. Whoever does not fit on court sits out in turn.',
+  blocks:[
+    panel('Social Scrambles · 9 events',null,[
+      item('i-swap','Scramble · 9p/1c draw','9 players · 2v2 · 1 court · 18 rounds · 4+1 min a round · 1:30 h in total — Nine people on one net: four play, five wait, and it goes round. Freshly drawn, so you can see what such a plan looks like before anybody has played.',{chip:'Drawn'}),
+      item('i-swap','Scramble · 9p/1c live','9 players · 2v2 · 1 court · 18 rounds · 4+1 min a round · 1:30 h in total — The ordinary club evening on a single net. Eighteen rounds are two full passes of the fair unit of nine, so everybody ends up having played the same number of games.',{chip:'Running'}),
+      item('i-swap','Scramble · 9p/1c done','9 players · 2v2 · 1 court · 18 rounds · 4+1 min a round · 1:30 h in total — Played out in full: eight games each, and the final table shows that sitting out is not a loss — a round on the bench earns nobody a game against them.',{chip:'Finished'}),
+      item('i-swap','Scramble · 24p/3c live','24 players · 2v2 · 3 courts · 12 rounds · 4+1 min a round · 1 h in total — Twelve play, twelve wait. The fair unit here is only two, because 24 and 12 share a large common factor — every even round count works out.',{chip:'Running'}),
+      item('i-swap','Scramble · 24p/3c done','24 players · 2v2 · 3 courts · 12 rounds · 4+1 min a round · 1 h in total — Played out, six games per person, an individual ranking over thirty-six games.',{chip:'Finished'}),
+      item('i-swap','Scramble · 15p/1c 3v3 live','15 players · 3v3 · 1 court · 15 rounds · 4+1 min a round · 1:15 h in total — Threes instead of doubles on one net: six play, nine wait. Fair unit five, and fifteen is a multiple of it.',{chip:'Running'}),
+      item('i-swap','Scramble · 15p/1c 3v3 done','15 players · 3v3 · 1 court · 15 rounds · 4+1 min a round · 1:15 h in total — Played out, six games per person. Shows how a line-up with three names a side fits onto the cards.',{chip:'Finished'}),
+      item('i-swap','Scramble · 30p/2c 4v4 live','30 players · 4v4 · 2 courts · 15 rounds · 4+1 min a round · 1:15 h in total · mixed — Four a side, sixteen on court, fourteen beside it. Fair unit fifteen — the round count hits it exactly; any other would have left an uneven game count.',{chip:'Running'}),
+      item('i-swap','Scramble · 30p/2c 4v4 done','30 players · 4v4 · 2 courts · 15 rounds · 4+1 min a round · 1:15 h in total · mixed — Finished: eight games per person, and the largest line-up Social Scramble has in the set.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-rotation': {
+  title:'Royal Rotations', route:'/guide/demo-data/royal-rotation', icon:'i-crown', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Royal Rotations'],
+  lead:'A queue at the court, partners redrawn every round.',
+  blocks:[
+    panel('Royal Rotations · 7 events',null,[
+      item('i-crown','Rotation · 44p/4c MAN draw','44 players · 2v2 · 4 courts · 6 rounds · 12+1 min a round · 1:18 h in total · seated by hand — Eleven people a court, seated by hand: the app suggests nothing, and the court screen waits for somebody to set the teams.',{chip:'Drawn'}),
+      item('i-crown','Rotation · 44p/4c MAN live','44 players · 2v2 · 4 courts · 6 rounds · 12+1 min a round · 1:18 h in total · seated by hand — Mid-session and still set by hand — the largest rotation in the set.',{chip:'Running'}),
+      item('i-crown','Rotation · 44p/4c MAN done','44 players · 2v2 · 4 courts · 6 rounds · 12+1 min a round · 1:18 h in total · seated by hand — Played out, with an individual ranking over forty-four people.',{chip:'Finished'}),
+      item('i-crown','Rotation · 15p/1c AP live','15 players · 2v2 · 1 court · 6 rounds · 12+1 min a round · 1:18 h in total · Auto All-Play — Auto All-Play on one court: on court, challengers, up next — and the scorekeeper comes from outside that chain. The floor would be nine; here there are fifteen.',{chip:'Running'}),
+      item('i-crown','Rotation · 15p/1c AP done','15 players · 2v2 · 1 court · 6 rounds · 12+1 min a round · 1:18 h in total · Auto All-Play — The same mode to the end: everybody was on court, everybody kept score once, and the ranking is in.',{chip:'Finished'}),
+      item('i-crown','Rotation · 15p/1c JMP live','15 players · 2v2 · 1 court · 6 rounds · 12+1 min a round · 1:18 h in total · seated automatically · odd player: jumper — The same fifteen, but seated automatically and in jumper mode: the spare player jumps into whichever side needs a body, instead of being paired with a placeholder. Read it beside the All-Play row.',{chip:'Running'}),
+      item('i-crown','Rotation · 15p/1c JMP done','15 players · 2v2 · 1 court · 6 rounds · 12+1 min a round · 1:18 h in total · seated automatically · odd player: jumper — Played out — to compare with the same size under Auto All-Play: same people, same round count, a different session.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-duo': {
+  title:'Royal Duos', route:'/guide/demo-data/royal-duo', icon:'i-crown', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Royal Duos'],
+  lead:'The same queue with standing pairs — the team is what gets ranked.',
+  blocks:[
+    panel('Royal Duos · 4 events',null,[
+      item('i-crown','Duo · 40p/4c AP draw','40 players · 2v2 · 4 courts · 6 rounds · 15+5 min a round · 2 h in total · Auto All-Play — Twenty standing pairs, five a court — exactly the floor at which Auto All-Play with pairs can fill every role.',{chip:'Drawn'}),
+      item('i-crown','Duo · 24p/3c MAN live','24 players · 2v2 · 3 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated by hand — Twelve pairs on three courts, seated by hand. The pair stays together for the whole session, only the opponents change — and here it is the organiser who seats them.',{chip:'Running'}),
+      item('i-crown','Duo · 24p/3c done','24 players · 2v2 · 3 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated automatically — Finished, with a team ranking instead of an individual one — that is the difference from Royal Rotation, and here it stands at the end.',{chip:'Finished'}),
+      item('i-crown','Duo · 12p/1c live','12 players · 2v2 · 1 court · 8 rounds · 8+2 min a round · 1:20 h in total · seated automatically — Six standing pairs on a single net. Two play, four wait, and whoever wins stays on — on one court the queue is the whole event. Short rounds, so it keeps moving.',{chip:'Running'}),
+    ]),
+  ],
+},
+'demo-shuffle': {
+  title:'Royal Shuffles', route:'/guide/demo-data/royal-shuffle', icon:'i-crown', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Royal Shuffles'],
+  lead:'A queue for individual players; the sides are formed at the court.',
+  blocks:[
+    panel('Royal Shuffles · 5 events',null,[
+      item('i-crown','Shuffle · 10p/2c MAN live','10 players · 2v2 · 2 courts · 6 rounds · 10+2 min a round · 1:12 h in total · seated by hand — Five a court — the floor. Here the app says outright that a court has no Up Next and the challenger rotation cannot fire there. That is exactly what this row is for.',{chip:'Running'}),
+      item('i-crown','Shuffle · 28p/4c live','28 players · 2v2 · 4 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated automatically — Seven a court, the recommended depth: on court, challengers, and somebody still in the queue.',{chip:'Running'}),
+      item('i-crown','Shuffle · 28p/4c done','28 players · 2v2 · 4 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated automatically — Played out, with an individual ranking over eight rounds.',{chip:'Finished'}),
+      item('i-crown','Shuffle · 36p/4c AP draw','36 players · 2v2 · 4 courts · 6 rounds · 15+5 min a round · 2 h in total · Auto All-Play — Nine a court: Auto All-Play seats the whole chain itself and rotates the scorekeeper through.',{chip:'Drawn'}),
+      item('i-crown','Shuffle · 12p/1c done','12 players · 2v2 · 1 court · 8 rounds · 8+2 min a round · 1:20 h in total · seated automatically — Twelve individual players on one net, played out in full. Twelve a court is well above the recommended depth of seven, so the queue is long and everybody got on often enough — the smallest unit in which the mode can be seen whole.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-doghouse': {
+  title:'Doghouse Shuffles', route:'/guide/demo-data/doghouse', icon:'i-queue', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Doghouse Shuffles'],
+  lead:'Like Royal Shuffle, plus the doghouse and a limit of three losses.',
+  blocks:[
+    panel('Doghouse Shuffles · 4 events',null,[
+      item('i-queue','Doghouse · 28p/4c MAN live','28 players · 2v2 · 4 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated by hand — Seven a court, seated by hand. While it runs you can see who is in the doghouse and how many losses they have left.',{chip:'Running'}),
+      item('i-queue','Doghouse · 28p/4c done','28 players · 2v2 · 4 courts · 8 rounds · 10+2 min a round · 1:36 h in total · seated automatically — Finished: at the top stands whoever climbed out most often.',{chip:'Finished'}),
+      item('i-queue','Doghouse · 12p/1c live','12 players · 2v2 · 1 court · 8 rounds · 8+2 min a round · 1:20 h in total · seated automatically — Twelve people on one net. On a single court you can see at any moment who is in the doghouse, how many losses are left and who has just climbed out.',{chip:'Running'}),
+      item('i-queue','Doghouse · 28p/2c 3v3 AP draw','28 players · 3v3 · 2 courts · 6 rounds · 15+5 min a round · 2 h in total · Auto All-Play — Three a side under Auto All-Play: that pushes the floor up to thirteen a court instead of seven. The only queue session in the set that is not played two a side.',{chip:'Drawn'}),
+    ]),
+  ],
+},
+'demo-league': {
+  title:'Leagues', route:'/guide/demo-data/league', icon:'i-grid', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Leagues'],
+  lead:'Everybody against everybody, a table at the end.',
+  blocks:[
+    panel('Leagues · 5 events',null,[
+      item('i-grid','League · 6T/3c live','6 teams · 2v2 · 3 courts · best of 3 to 21 · one leg — Everybody against everybody on three courts, at halfway. The table is already sorting itself out, but not everything has been played.',{chip:'Running'}),
+      item('i-grid','League · 6T/3c done','6 teams · 2v2 · 3 courts · best of 3 to 21 · one leg — A finished table over fifteen fixtures — the smallest league in the set, played out in full.',{chip:'Finished'}),
+      item('i-grid','League · 12T/6c 2L live','12 teams · 2v2 · 6 courts · best of 3 to 21 · 2 legs — Home and away: everybody plays everybody twice, 132 fixtures. The longest schedule in the set, at halfway.',{chip:'Running'}),
+      item('i-grid','League · 12T/6c 2L done','12 teams · 2v2 · 6 courts · best of 3 to 21 · 2 legs · men\'s — Played out in full — a table that has to be sorted over 132 fixtures. Run as a men\'s league, so the category pill and the team badges agree.',{chip:'Finished'}),
+      item('i-grid','League · 4T/2c 6v6 draw','4 teams · 6v6 · 2 courts · one set to 21 · one leg — Six a side, the largest team size the app knows. Here you can see how a line-up with six names fits onto the cards — in one set to 21 rather than best of three, because twelve people on court take long enough anyway.',{chip:'Drawn'}),
+    ]),
+  ],
+},
+'demo-elimination': {
+  title:'Eliminations', route:'/guide/demo-data/elimination', icon:'i-bracket', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Eliminations'],
+  lead:'Two brackets under one mode. In a single elimination one defeat ends it, and an odd field goes out over byes or a play-in; in a double elimination the losers bracket keeps a team in until the second defeat.',
+  blocks:[
+    panel('Single Elimination · 3 events','A plain knockout. Odd fields go out over byes or a play-in.',[
+      item('i-bracket','Cup · 12T/4c live','12 teams · 2v2 · 4 courts · best of 3 to 21 · byes — A sixteen-slot bracket with four byes, at halfway: half the canvas is decided, one match is running, the rest is open. Four courts, because the first round has exactly four real fixtures.',{chip:'Running'}),
+      item('i-bracket','Cup · 12T/4c done','12 teams · 2v2 · 4 courts · best of 3 to 21 · byes — Played through to the winner, with a champion and final places. Twelve teams are not a power of two, so the bracket carries real byes — a champion who never played a first round is right here.',{chip:'Finished'}),
+      item('i-bracket','Cup · 13T/4c PI draw','13 teams · 2v2 · 4 courts · best of 3 to 21 · play-in instead of byes — Thirteen teams with a play-in instead of byes: an eight-slot bracket with five preliminary matches under it. Put the two twelve-team rows beside it — there the same question is settled with byes, and the difference is immediate.',{chip:'Drawn'}),
+    ]),
+    panel('Double Elimination · 2 events','Winners and losers bracket side by side; only the second defeat sends a team home.',[
+      item('i-bracket','Double · 8T/4c live','8 teams · 2v2 · 4 courts · best of 3 to 21 — Eight teams, winners and losers side by side, at halfway. Here you can see where a defeat moves a team to, instead of throwing it out.',{chip:'Running'}),
+      item('i-bracket','Double · 8T/4c done','8 teams · 2v2 · 4 courts · best of 3 to 21 — To the end: the winner of the losers bracket plays the winner of the winners bracket, and that is exactly what stands at the close.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-classic': {
+  title:'TournaQ Classics', route:'/guide/demo-data/tournaq-classic', icon:'i-trophy', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['TournaQ Classics'],
+  lead:'Group stage first, then knockout over one, two or three tiers.',
+  blocks:[
+    panel('TournaQ Classics · 4 events',null,[
+      item('i-trophy','Classic · 32T/8c G-S-B live','32 teams · 2v2 · 8 courts · best of 3 to 21 · 8 groups · Gold 1+2, Silver 3, Bronze 4 — Gold takes the group winners and runners-up, Silver the thirds, Bronze the fourths — nobody\'s day ends after the group stage. Eight courts, so all eight groups play at once. At halfway: the group tables stand in part, the three brackets are filling up.',{chip:'Running'}),
+      item('i-trophy','Classic · 32T/8c G-S-B done','32 teams · 2v2 · 8 courts · best of 3 to 21 · 8 groups · Gold 1+2, Silver 3, Bronze 4 — Played out in full, three winners: Gold, Silver and Bronze. The largest field in the set, and the case where three knockout tiers stand finished side by side.',{chip:'Finished'}),
+      item('i-trophy','Classic · 20T/8c G+S-DE live','20 teams · 2v2 · 8 courts · best of 3 to 21 · 4 groups · Gold 1+2+3, Silver 4, double elim. — Gold takes group places 1 to 3, twelve teams in a bracket with four byes. Silver takes only the fourths and is played as double elimination, so those four get more than one match. The fifths are out. At halfway.',{chip:'Running'}),
+      item('i-trophy','Classic · 20T/8c G+S-DE done','20 teams · 2v2 · 8 courts · best of 3 to 21 · 4 groups · Gold 1+2+3, Silver 4, double elim. — Finished, with two winners and two differently built brackets side by side — that is the case per-tier play format exists for in the first place.',{chip:'Finished'}),
+    ]),
+  ],
+},
+'demo-swiss': {
+  title:'Swiss Systems', route:'/guide/demo-data/swiss-system', icon:'i-target', parent:'demo-data',
+  eyebrow:'Demo Data',
+  h1:['Swiss Systems'],
+  lead:'A fixed number of rounds, like paired against like. Nobody is knocked out.',
+  blocks:[
+    panel('Swiss Systems · 4 events',null,[
+      item('i-target','Swiss · 8T/4c live','8 teams · 2v2 · 4 courts · best of 3 to 21 · 3 rounds — Round one scored, round two already re-paired — like against like. The real appeal of the mode, and on four courts a round is exactly one pass.',{chip:'Running'}),
+      item('i-target','Swiss · 8T/4c done','8 teams · 2v2 · 4 courts · best of 3 to 21 · 3 rounds — Played out over all three rounds, with a final ranking and Buchholz as the tie-break.',{chip:'Finished'}),
+      item('i-target','Swiss · 20T/10c live','20 teams · 2v2 · 10 courts · best of 3 to 21 · 5 rounds — Twenty teams on ten courts: one round is one pass. Mid-tournament the pairing engine has already re-sorted the whole table several times.',{chip:'Running'}),
+      item('i-target','Swiss · 20T/10c done','20 teams · 2v2 · 10 courts · best of 3 to 21 · 5 rounds — Five rounds complete, a final ranking over twenty teams — without anybody going home after a single defeat.',{chip:'Finished'}),
+    ]),
+  ],
+},
+
 navigation: {
   title:'Navigation & Settings', route:'/guide/navigation', icon:'i-menu', parent:'home',
   eyebrow:'The app shell',
@@ -194,15 +413,14 @@ navigation: {
     sect('Contact & About','i-south'),
     panel('What is on it','Every way to reach the team, and the documents you occasionally have to look up.',[
       item('i-share','Social','Instagram, @tournaq.'),
-      item('i-doc','Contact & support','Email to team@tournaq.com, a feedback form for bugs and feature requests, and the link to the website.'),
-      item('i-map','Resources','The feature overview on tournaq.com — every mode and every feature, beyond what fits into the app.'),
+      item('i-doc','Contact & support','Email to team@tournaq.com, the website, the User Guide, and the feedback page for bugs and feature requests.'),
       item('i-shield','Legal','Privacy Policy, Terms of Use, and the Legal Notice with the developer and app information required in the EU.'),
       item('i-doc','The version number','At the foot of the screen. The one thing worth quoting when you report something.', {tone:'tint'}),
     ]),
-    shot('guide/00_shell/11_contact_and_about',430,1057,[430, 645],
+    shot('guide/00_shell/11_contact_and_about',430,1010,[430, 645],
       'Contact & About',
-      'Social at the top, then the three ways to get in touch, the link to the feature overview, and the legal documents. The app version sits at the very bottom.',
-      'The Contact and About screen with social, support, resources and legal links',
+      'Social at the top, then the four ways to reach the team and the documentation, and the legal documents under them. The app version sits at the very bottom.',
+      'The Contact and About screen with social, support and legal links',
       dunkel('guide_dark/00_shell/11_contact_and_about',[430, 645],
         'The Contact and About screen in dark mode')),
     sect('Become a Tester','i-south'),
@@ -266,6 +484,16 @@ administration: {
       {icon:'i-edit', label:'Upfront, by hand', cap:'One at a time, before the season starts.', to:'admin-hand'},
       {icon:'i-upload', label:'Bulk upload', cap:'A whole club from one spreadsheet.', to:'admin-bulk'},
       {icon:'i-trophy', label:'During tournament setup', cap:'Add people while you build the event.', to:'admin-setup'},
+    ]),
+    sect('The menu at the top right', 'i-menu'),
+    panel('Administration › menu','The three roster actions, and the one that fills the app for you.',[
+      item('i-download','Download template','An XLS with the right columns already in place. Step one of the round trip under ' + pageLink('admin-bulk','Bulk upload') + '.'),
+      item('i-upload','Import players…','Reads a filled-in template back in and creates every player, team and group it finds.'),
+      item('i-download','Export players…','Your whole roster back out as a file, in the same format the template uses.'),
+      item('i-star','Install tour data','Fills the app with the ' + pageLink('demo-data','Demo Data') + ' instead of anything of your own: example events in every mode, on a roster you did not have to type. It replaces everything stored on the device, so reach for it before you have a real tournament on there, not after.'),
+    ]),
+    grid([
+      {icon:'i-star', label:'Demo Data', cap:'What that last entry installs \u2014 47 tournaments and 6 Quick Games, every mode drawn, running and played out.', to:'demo-data'},
     ]),
   ],
   next:['admin-hand','arena'],
@@ -3887,7 +4115,24 @@ const EXTERN = {
   'site-privacy':    {title:'Privacy Policy',                     icon:'i-shield',  url:'../legal/privacy-policy.html'},
   'site-terms':      {title:'Terms of Use',                       icon:'i-doc',     url:'../legal/terms-of-use.html'},
   'site-notice':     {title:'Legal Notice',                       icon:'i-admin',   url:'../legal/legal-notice.html'},
-  'site-contact':    {title:'Contact',                           icon:'i-share',    url:'contact.html'},
+  /* Kontakt traegt seit der Zusammenlegung beides: die Seite selbst und die
+     Feedback-Seite, die als eigene Datei darunter haengt. Die Sprungmarken
+     stehen hier aus demselben Grund wie bei Home und Downloads — eine lange
+     Seite bekommt in der Karte ihr Verzeichnis.
+
+     Feedback steht nur noch einmal da. Es waren zwei Zeilen — "Share Feedback"
+     fuer den Abschnitt auf contact.html, "Feedback on a Specific Screen" fuer
+     die Seite daneben —, und wer sie las, musste einen Unterschied vermuten,
+     den es nicht gibt: beide meinen dasselbe Anliegen. Geblieben ist "Share
+     Feedback", und es fuehrt dorthin, wo man es auch tut. Darunter haengt der
+     Baum dieser Seite, gerechnet in FEEDBACK_AST; "Somewhere else" ist darin
+     die Stelle fuer alles, was zu keinem Bildschirm gehoert — der allgemeine
+     Fall, den die weggefallene Zeile meinte. */
+  'site-contact':    {title:'Contact & Feedback',                 icon:'i-share',    url:'contact.html'},
+  'site-contact-feedback':  {title:'Share Feedback',                        icon:'i-edit',  url:'feedback.html'},
+  'site-contact-general':   {title:'Somewhere else',                        icon:'i-map',   url:'feedback.html#/home'},
+  'site-contact-inquiries': {title:'Business, Legal or Privacy Inquiries',  icon:'i-doc',   url:'contact.html#inquiries'},
+  'site-contact-instagram': {title:'Instagram',                             icon:'i-share', url:'contact.html#instagram'},
 };
 
 
@@ -3900,15 +4145,10 @@ const EXTERN = {
    Seiten erreichbar. Der dritte Eintrag ist der eigene Schluessel der Zeile,
    damit die zwei Zweige unabhaengig auf- und zuklappen.
    ══════════════════════════════════════════════════════════════════════════ */
-const NAV = [
-  {group:null, ids:[
-     'site-home',
-       ['site-home-engine',1],['site-home-quick',1],['site-home-mix',1],['site-home-teams',1],
-       ['site-home-session',1],['site-home-offline',1],['site-home-sports',1],
-     'site-platform',
-       ['site-platform-idea',1],['site-platform-scope',1],['site-platform-principles',1],
-     'site-capabilities',
 
+/* Der Ast des User Guide. Steht als eigene Liste, weil er zweimal im Baum
+   haengt: einmal als Guide, einmal als Unterbau von Share Feedback. */
+const GUIDE_AST = [
      'home',
        ['administration',1],
          ['admin-hand',2],
@@ -3933,12 +4173,55 @@ const NAV = [
        ['tournament',1],['tournament-controls',2],
        ['scorecards',1],['sc-classic',2],['sc-scramble',2],['sc-queue',2],['exported',2],
        ['navigation',1],
+       ['demo-data',1],
+         ['demo-quick-game',2],
+         ['demo-scramble',2],
+         ['demo-rotation',2],['demo-duo',2],['demo-shuffle',2],['demo-doghouse',2],
+         ['demo-league',2],['demo-elimination',2],['demo-classic',2],['demo-swiss',2],
+];
+
+/* Derselbe Ast noch einmal, als das Verzeichnis der Feedback-Seite. Die traegt
+   keinen eigenen Baum — sie ist der Guide, nur mit einem Formular statt einer
+   Erklaerung an jeder Stelle. Genau deshalb wird er hier gerechnet und nicht
+   ein zweites Mal getippt: eine neue Guide-Seite steht damit von selbst auch
+   in der Feedback-Karte, und die zwei koennen nicht auseinanderlaufen.
+
+   'home' faellt weg. Im Guide ist das die Startseite, auf der Feedback-Seite
+   die Stelle "Somewhere else" — die steht als eigene EXTERN-Zeile davor. Was
+   darunter hing, rueckt eine Ebene hoch unter "Share Feedback".
+
+   Das 'fb:' vor dem Schluessel tut zweierlei. Es haelt die zwei Vorkommen
+   einer Seite beim Auf- und Zuklappen auseinander, wie bei Queue Modes. Und
+   js/guide/render.js erkennt daran, dass die Zeile nicht die erklaerende Seite
+   meint, sondern die Stelle, an der man ihr etwas schreibt: sie fuehrt auf
+   feedback.html, und sie leuchtet nicht mit, wenn man im Guide auf der Seite
+   steht, die denselben Knoten traegt. */
+const FEEDBACK_AST = GUIDE_AST.slice(1).map(function (e) {
+  const id    = Array.isArray(e) ? e[0] : e;
+  const tiefe = Array.isArray(e) ? e[1] : 0;
+  return [id, tiefe + 1, 'fb:' + ((Array.isArray(e) && e[2]) || id)];
+});
+
+const NAV = [
+  {group:null, ids:[
+     'site-home',
+       ['site-home-engine',1],['site-home-quick',1],['site-home-mix',1],['site-home-teams',1],
+       ['site-home-session',1],['site-home-offline',1],['site-home-sports',1],
+     'site-platform',
+       ['site-platform-idea',1],['site-platform-scope',1],['site-platform-principles',1],
+     'site-capabilities',
+
+     ...GUIDE_AST,
 
      'site-downloads',
        ['site-downloads-releases',1],['site-downloads-beta',1],
      'site-legal',
        ['site-privacy',1],['site-terms',1],['site-notice',1],
      'site-contact',
+       ['site-contact-feedback',1],
+         ['site-contact-general',2],
+         ...FEEDBACK_AST,
+       ['site-contact-inquiries',1],['site-contact-instagram',1],
   ]},
 ];
 

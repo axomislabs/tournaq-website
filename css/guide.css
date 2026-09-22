@@ -116,6 +116,10 @@
 .g-map a.sub3 { margin-left: 46px; font-size: 12px; }
 .g-map a.sub4 { margin-left: 60px; font-size: 12px; }
 .g-map a.sub5 { margin-left: 74px; font-size: 11.5px; }
+/* Sechs Ebenen gibt es nur an einer Stelle: der Baum der Feedback-Seite
+   haengt in der Karte unter "Share Feedback" und damit eine Stufe tiefer
+   als derselbe Baum unter dem Guide. */
+.g-map a.sub6 { margin-left: 88px; font-size: 11.5px; }
 
 /* The disclosure arrow lives inside the <a> so the row keeps its flex
    layout; its click handler stops the navigation the anchor would do. */
@@ -534,6 +538,10 @@ a.g-card:hover {
 
 /* Node grid — the clickable "where to next" */
 .g-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 11px; }
+/* Eine Karte je Zeile. Erzwungen statt dem auto-fit ueberlassen: bei vier
+   Karten setzt das Raster drei nebeneinander und laesst die vierte allein
+   in der zweiten Zeile stehen. */
+.g-grid.g-grid-eins { grid-template-columns: 1fr; }
 
 .g-hero { margin-bottom: 22px; }
 
@@ -796,6 +804,35 @@ a.g-card:hover {
 .g-card.jetzt .g-card-label,
 .g-card.jetzt .g-card-cap { color: var(--g-faint); }
 .g-card.jetzt .g-chip { color: var(--g-faint); border-color: var(--g-rail); }
+
+/* ── Rueckmeldung zu dieser Seite ─────────────────────────────────────
+   Bewusst leiser als der Download-Aufruf darunter: das ist ein Angebot,
+   keine Aufforderung. Derselbe Kasten wie eine g-card, damit er sich in den
+   Seitenfuss einfuegt, statt mit dem Banner um Aufmerksamkeit zu ringen. */
+.g-fb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 34px;
+  padding: 13px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--olive-dark);
+  text-decoration: none;
+  transition: background 0.12s ease;
+}
+
+.g-fb:hover { background: var(--panel-inset); }
+.g-fb:focus-visible { outline: 2px solid var(--olive); outline-offset: 2px; }
+.g-fb-txt { display: flex; flex-direction: column; min-width: 0; }
+.g-fb-t { font-size: 15px; font-weight: 700; }
+.g-fb-s { font-size: 13px; color: var(--muted); margin-top: 1px; }
+.g-fb .g-chev { margin-left: auto; color: var(--olive); flex: none; }
+.g-fb:hover .g-fb-t { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Stehen beide untereinander, braucht der zweite keinen vollen Abstand mehr. */
+.g-fb + .g-cta { margin-top: 12px; }
 
 /* ── Closing CTA ──────────────────────────────────────────────────── */
 .g-cta {
