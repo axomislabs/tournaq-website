@@ -17,7 +17,8 @@
    Ungeregelt rendert dasselbe Symbol als schwarze Flaeche in Originalgroesse.
    Dieselben Werte, nur fuer die Kaesten dieser Seite. */
 .fb-node svg.g-ic,
-.fb-list svg.g-ic {
+.fb-list svg.g-ic,
+.fb-menu svg.g-ic {
   width: 1em;
   height: 1em;
   stroke: currentColor;
@@ -525,3 +526,12 @@
   color: var(--olive-dark);
   border: 1px solid var(--border);
 }
+
+/* ── Der Weg zur Karte auf dem Telefon ────────────────────────────────────
+   Unter 900px liegt die Karte als Schublade hinter dem Burger, und ein
+   Burger im Kopf verspricht das Seitenmenue, nicht den App-Baum. Der Knopf
+   macht das Versprechen sichtbar und steht vor dem Text, den er erklaert.
+   .g-menu aus css/guide.css traegt das Aussehen und blendet sich oberhalb
+   von 900px selbst aus — hier steht nur, wie viel Luft er nach unten
+   braucht, damit er nicht auf der Einleitungskarte klebt. */
+.fb-menu { margin: 0 0 14px; }

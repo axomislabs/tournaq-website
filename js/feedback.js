@@ -32,10 +32,11 @@
   var TEXTE = {
     en: {
       mapHead: 'Where were you?',
+      mapOpen: 'Pick a spot',
       mapSub: 'Pick the spot, then write',
       search: 'Search the app…',
       searchNone: 'Nothing matches that.',
-      generalTitle: 'Somewhere else',
+      generalTitle: 'General feedback',
       generalLead: 'Something that does not belong to one screen.',
       hereLead: 'Feedback on this part of the app.',
       erkHead: 'This is what it looks like',
@@ -80,10 +81,11 @@
     },
     de: {
       mapHead: 'Wo warst du?',
+      mapOpen: 'Stelle wählen',
       mapSub: 'Stelle wählen, dann schreiben',
       search: 'App durchsuchen…',
       searchNone: 'Dazu passt nichts.',
-      generalTitle: 'Woanders',
+      generalTitle: 'Generelles Feedback',
       generalLead: 'Etwas, das zu keinem einzelnen Bildschirm gehört.',
       hereLead: 'Rückmeldung zu diesem Teil der App.',
       erkHead: 'So sieht die Stelle aus',
@@ -128,10 +130,11 @@
     },
     es: {
       mapHead: '¿Dónde estabas?',
+      mapOpen: 'Elegir punto',
       mapSub: 'Elige el punto y escribe',
       search: 'Buscar en la app…',
       searchNone: 'No hay coincidencias.',
-      generalTitle: 'En otro sitio',
+      generalTitle: 'Comentarios generales',
       generalLead: 'Algo que no pertenece a una sola pantalla.',
       hereLead: 'Comentarios sobre esta parte de la app.',
       erkHead: 'Así se ve este sitio',
@@ -403,8 +406,52 @@
   var knotenKasten = document.getElementById('fb-node');
   var korbKasten = document.getElementById('fb-basket');
 
+  /* Der Burger im Kopf oeffnet die Karte zwar, sieht aber aus wie das
+     Seitenmenue — niemand vermutet den App-Baum dahinter. Der Guide stellt
+     dafuer einen eigenen Knopf in seine Topbar; hier steht er ueber dem
+     Text. Sichtbar nur, wo die Karte zur Schublade wird: .g-menu aus
+     css/guide.css ist oberhalb von 900px auf display:none. */
+  var kartenKnopf = document.createElement('button');
+  kartenKnopf.type = 'button';
+  kartenKnopf.className = 'g-menu fb-menu';
+  kartenKnopf.id = 'fb-menu';
+  kartenKnopf.setAttribute('aria-controls', 'fb-map');
+  kartenKnopf.setAttribute('aria-expanded', 'false');
+  kartenKnopf.addEventListener('click', function () {
+    if (rail.classList.contains('open')) schliesse(); else oeffne();
+  });
+
+  function beschrifteKnopf() {
+    kartenKnopf.innerHTML =
+      '<svg class="g-ic" aria-hidden="true"><use href="#i-menu"/></svg>' +
+      t('mapOpen');
+  }
+
+  /* Unter 900px ist die Karte der einzige Ausweg: css/style.css blendet die
+     Klappliste im Kopf aus, sobald body.section-nav-drawer gesetzt ist, und
+     der Burger oeffnet dann diese Schublade. Ohne die Seitenlinks darin
+     endet der Weg hier — man kommt auf die Seite und nicht mehr weg. Also
+     dasselbe wie in js/section-nav.js: die Anker aus dem Kopf geklont, nicht
+     neu gebaut, damit sie ihre aufgeloesten Ziele und ihr data-i18n behalten.
+     Sichtbar sind sie nur im Drawer, .section-nav-site regelt das. */
+  function seitenMarkup() {
+    var quelle = document.querySelector('.nav-links');
+    if (!quelle) return '';
+    var kasten = document.createElement('div');
+    kasten.className = 'section-nav-site';
+    kasten.innerHTML =
+      '<div class="section-nav-group section-nav-group-first">TournaQ</div>' +
+      '<nav></nav><div class="section-nav-sep"></div>';
+    var nav = kasten.querySelector('nav');
+    quelle.querySelectorAll('a').forEach(function (a) {
+      nav.appendChild(a.cloneNode(true));
+    });
+    return kasten.outerHTML;
+  }
+
   function zeichneKarte() {
     rail.innerHTML =
+      seitenMarkup() +
       '<p class="g-map-h">' + t('mapHead') + '</p>' +
       '<p class="g-map-sub">' + t('mapSub') + '</p>' +
       '<input type="search" class="fb-search" id="fb-search" placeholder="' +
@@ -1008,6 +1055,7 @@
 
   /* ── Verdrahtung ──────────────────────────────────────────────────────── */
   function zeichneAlles() {
+    beschrifteKnopf();
     zeichneKarte();
     zeichneKnoten();
     zeichneKorb();
@@ -1195,6 +1243,11 @@
   var scrim = null;
   function oeffne() {
     rail.classList.add('open');
+    kartenKnopf.setAttribute('aria-expanded', 'true');
+    /* Der Burger bleibt die eine Wahrheit ueber "offen" — sonst zeigt er ein
+       Menue an, waehrend die Schublade schon aufsteht. Ein gesetztes checked
+       loest kein change aus, oeffnet also nichts ein zweites Mal. */
+    if (toggle) toggle.checked = true;
     if (scrim) return;
     scrim = document.createElement('div');
     scrim.className = 'g-scrim';
@@ -1203,6 +1256,7 @@
   }
   function schliesse() {
     rail.classList.remove('open');
+    kartenKnopf.setAttribute('aria-expanded', 'false');
     if (toggle) toggle.checked = false;
     if (scrim) { scrim.remove(); scrim = null; }
   }
@@ -1225,6 +1279,7 @@
 
   /* ── Start ────────────────────────────────────────────────────────────── */
   main.insertBefore(rail, main.firstChild);
+  main.insertBefore(kartenKnopf, rail.nextSibling);
   main.classList.add('has-section-nav');
   document.body.classList.add('section-nav-drawer');
 
