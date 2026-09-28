@@ -174,7 +174,7 @@ home: {
   lead:'One tap fills the app with 47 tournaments and 6 Quick Games on a roster of 220 players and 69 teams: every mode, at both ends of the settings that change how it looks, and each of them at a different point in its life. 7 are freshly drawn, 21 are running, 19 are played out. It is made to be looked at rather than played — install it, tap through, and see what each mode actually does before you set up an event of your own.',
   blocks:[
     panel('How to install it','In the app, not here — Administration, then the menu at the top right.',[
-      item('i-admin','Administration › Install tour data','It replaces everything stored on the device, so install it before you have a real tournament on there, not after.'),
+      item('i-admin','Administration › Install demo data','It replaces everything stored on the device, so install it before you have a real tournament on there, not after.'),
       item('i-off','Works offline','Nothing is downloaded. The events are built on the device from the tables the app ships with, which is why they look the same on every phone.'),
     ]),
     fbox('i-check','Three points in a life','Every mode appears both running and played out, and a few are left freshly drawn. That is the axis the set is built on, because a mode looks like a different app at each of them.',[
@@ -400,14 +400,12 @@ navigation: {
       item('i-star','Support TournaQ','The reason the ads are there, and the ad slot itself, with a thank-you under it.'),
       item('i-share','Follow the Journey','Events and games where TournaQ was on the court — tag the app on Instagram and it gets shared.'),
       item('i-check','Enjoying TournaQ?','A rating, from inside the app.'),
-      item('i-clock','Three opportunities, marked Coming Soon','Partner Spotlight, Tournament Partnerships and Promote Your Event — named so you can see where it is going, none of them live yet.'),
-      item('i-people','Interested in partnering?','How TournaQ works with platforms, clubs and federations, with the platform page on tournaq.com one tap away.'),
       item('i-edit','Help Shape TournaQ','Give Feedback or Email Us, for suggestions about future features and partnerships.', {tone:'tint'}),
     ]),
-    shot('guide/00_shell/12_sponsoring_and_promo',430,1234,[430, 645],
+    shot('guide/00_shell/12_sponsoring_and_promo',430,932,[430, 645],
       'Sponsoring & Promo',
-      'The ad slot at the top, the two ways to give something back under it, and the partnership options below — three of them still marked Coming Soon.',
-      'The Sponsoring and Promo screen with the ad slot, the Instagram and rating rows and the partnership options',
+      'The ad slot at the top, the two ways to give something back under it, and the feedback card at the bottom.',
+      'The Sponsoring and Promo screen with the ad slot, the Instagram and rating rows and the feedback card',
       dunkel('guide_dark/00_shell/12_sponsoring_and_promo',[430, 645],
         'The Sponsoring and Promo screen in dark mode')),
     sect('Contact & About','i-south'),
@@ -490,7 +488,7 @@ administration: {
       item('i-download','Download template','An XLS with the right columns already in place. Step one of the round trip under ' + pageLink('admin-bulk','Bulk upload') + '.'),
       item('i-upload','Import players…','Reads a filled-in template back in and creates every player, team and group it finds.'),
       item('i-download','Export players…','Your whole roster back out as a file, in the same format the template uses.'),
-      item('i-star','Install tour data','Fills the app with the ' + pageLink('demo-data','Demo Data') + ' instead of anything of your own: example events in every mode, on a roster you did not have to type. It replaces everything stored on the device, so reach for it before you have a real tournament on there, not after.'),
+      item('i-star','Install demo data','Fills the app with the ' + pageLink('demo-data','Demo Data') + ' instead of anything of your own: example events in every mode, on a roster you did not have to type. It replaces everything stored on the device, so reach for it before you have a real tournament on there, not after.'),
     ]),
     grid([
       {icon:'i-star', label:'Demo Data', cap:'What that last entry installs \u2014 47 tournaments and 6 Quick Games, every mode drawn, running and played out.', to:'demo-data'},
