@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Bake the install QR codes for the beta section on the downloads page.
+"""Bake the install QR codes for the downloads page.
 
 Both test programmes are a two-step install, and both steps are a link that
 only helps on a phone — while the person reading the page is usually sitting
-at a laptop. A QR code per step is the bridge, so the four codes here are
-exactly the four buttons in pages/downloads.html.
+at a laptop. A QR code per button is the bridge. android-app and ios-appstore
+sit on the store cards; the other three belonged to the beta section and are
+kept for printed material.
 
 The codes are committed as SVG rather than fetched from a QR service at page
 load: the destinations change about once a year, an external image request on
@@ -42,6 +43,7 @@ TARGETS = {
     "ios-app": "https://testflight.apple.com/join/uFzz7vd9",
     "android-group": "https://groups.google.com/g/tournaq-testing",
     "android-app": "https://play.google.com/store/apps/details?id=com.martinadam.tournaq",
+    "ios-appstore": "https://apps.apple.com/app/tournaq-volley/id6776166410",
 }
 
 

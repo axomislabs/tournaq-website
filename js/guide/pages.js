@@ -4104,7 +4104,6 @@ const EXTERN = {
      Testprogramm, ueber das die App heute schon zu haben ist. Der zweite
      Eintrag faellt weg, sobald die Stores liefern. */
   'site-downloads-releases': {title:'Available Downloads',    icon:'i-download', url:'downloads.html#releases'},
-  'site-downloads-beta':     {title:'Beta Testing',           icon:'i-people',   url:'downloads.html#beta'},
   'site-legal':      {title:'Legal',                             icon:'i-doc',      url:'legal.html'},
   /* Die drei Rechtstexte liegen nicht unter pages/, sondern in legal/. Weil
      jede Adresse hier relativ zu pages/ steht, geht es einen Ordner hoch —
@@ -4212,7 +4211,7 @@ const NAV = [
      ...GUIDE_AST,
 
      'site-downloads',
-       ['site-downloads-releases',1],['site-downloads-beta',1],
+       ['site-downloads-releases',1],
      'site-legal',
        ['site-privacy',1],['site-terms',1],['site-notice',1],
      'site-contact',

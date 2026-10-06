@@ -526,6 +526,45 @@ main > section:has(> .section-title) > .section-text:last-child {
     margin-top: 5px;
 }
 
+/* Die drei Store-Karten: Knopf und Code sitzen unten auf einer Linie, auch
+   wenn der Text darueber in einer Karte eine Zeile kuerzer ist. */
+#releases .download-card {
+    display: flex;
+    flex-direction: column;
+}
+
+#releases .download-card .dl-go {
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+/* Platzhalter in der Web-Karte: dieselbe Groesse und derselbe Rahmen wie ein
+   Code, damit die Reihe ruhig bleibt. */
+.dl-web-tile {
+    width: 132px;
+    height: 132px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #3A3E16;
+}
+
+.dl-web-tile img {
+    width: 64px;
+    height: 64px;
+    border: 0;
+    border-radius: 14px;
+}
+
 /* Der Hinweis unter den Store-Karten, der auf den Beta-Abschnitt zeigt: ein
    .section-text, das aber nicht die Einleitung ist und deshalb Luft ueber
    sich braucht statt darunter. */
