@@ -1182,6 +1182,8 @@ var GUIDE_LOCALES = {
     "Pick this to look at the points alone, no matter who won the game under the rules of the mode. Every point you scored while on court counts, across all rounds.": "Wähl das, um allein auf die Punkte zu schauen, ganz gleich, wer das Spiel nach den Regeln des Modus gewonnen hat. Jeder Punkt, den du auf dem Platz gemacht hast, zählt, über alle Runden hinweg.",
     "The four modes": "Die vier Modi",
     "Round-robin standings across a full season of fixtures, with one or two legs. Everybody plays everybody, and the table decides it.": "Tabellenstand nach dem Prinzip „jeder gegen jeden“ über eine volle Spielzeit, mit einem oder zwei Durchgängen. Jeder spielt gegen jeden, und die Tabelle entscheidet.",
+    "Set it up in the web app": "In der Web-App einrichten",
+    "Opens app.tournaq.com straight at this mode’s setup.": "Öffnet app.tournaq.com direkt in der Einrichtung dieses Modus.",
     "How it runs": "Wie es läuft",
     "Teams enter": "Teams treten an",
     "Fixed pairs, straight from Administration or built at setup.": "Feste Paare, direkt aus der Verwaltung oder bei der Einrichtung gebaut.",
@@ -2539,7 +2541,6 @@ var GUIDE_LOCALES = {
     "Design Principles": "Gestaltungsprinzipien",
     "Downloads": "Downloads",
     "Available Downloads": "Verfügbare Downloads",
-    "Beta Testing": "Betatest",
     "Privacy Policy": "Datenschutzrichtlinie",
     "Terms of Use": "Nutzungsbedingungen",
     "Legal Notice": "Impressum",
@@ -2562,6 +2563,7 @@ var GUIDE_LOCALES = {
     /* WAISEN — das englische Original gibt es so nicht mehr.
        Entweder der Satz wurde umformuliert (dann hier loeschen und neu
        uebersetzen) oder die Seite ist weg (dann hier loeschen). */
+    "Beta Testing": "Betatest",
     "Feedback on a Specific Screen": "Feedback zu einem bestimmten Bildschirm",
     "The TournaQ User Guide takes you through every important function of the app. It starts with Administration — optional, set up before your games and tournaments so it is ready when you need it — but you can just as well go straight into the TournaQ Arena and do your administration while you build the tournament. Follow the flow below and tap any card to go deeper.": "Der TournaQ User Guide führt dich durch jede wichtige Funktion der App. Er beginnt mit der Verwaltung — optional, vor deinen Spielen und Turnieren eingerichtet, damit sie bereitsteht, wenn du sie brauchst — aber du kannst genauso gut direkt in die TournaQ Arena gehen und deine Verwaltung nebenbei erledigen, während du das Turnier aufbaust. Folge dem Ablauf unten und tippe auf eine Karte, um tiefer einzusteigen.",
     "Email to team@tournaq.com, a feedback form for bugs and feature requests, and the link to the website.": "E-Mail an team@tournaq.com, ein Feedback-Formular für Fehler und Funktionswünsche, und der Link zur Website.",
@@ -3760,6 +3762,8 @@ var GUIDE_LOCALES = {
     "Pick this to look at the points alone, no matter who won the game under the rules of the mode. Every point you scored while on court counts, across all rounds.": "Elige esto para mirar solo los puntos, sin importar quién ganó el partido según las reglas del modo. Cuenta cada punto que hiciste estando en pista, en todas las rondas.",
     "The four modes": "Los cuatro modos",
     "Round-robin standings across a full season of fixtures, with one or two legs. Everybody plays everybody, and the table decides it.": "Clasificación de todos contra todos a lo largo de una temporada completa de enfrentamientos, a una o dos vueltas. Todos juegan contra todos, y la tabla lo decide.",
+    "Set it up in the web app": "Configúralo en la app web",
+    "Opens app.tournaq.com straight at this mode’s setup.": "Abre app.tournaq.com directamente en la configuración de este modo.",
     "How it runs": "Cómo funciona",
     "Teams enter": "Entran los equipos",
     "Fixed pairs, straight from Administration or built at setup.": "Parejas fijas, directas de Administración o formadas al configurar.",
@@ -5117,7 +5121,6 @@ var GUIDE_LOCALES = {
     "Design Principles": "Principios de diseño",
     "Downloads": "Descargas",
     "Available Downloads": "Descargas disponibles",
-    "Beta Testing": "Pruebas beta",
     "Privacy Policy": "Política de Privacidad",
     "Terms of Use": "Términos de Uso",
     "Legal Notice": "Aviso Legal",
@@ -5140,6 +5143,7 @@ var GUIDE_LOCALES = {
     /* WAISEN — das englische Original gibt es so nicht mehr.
        Entweder der Satz wurde umformuliert (dann hier loeschen und neu
        uebersetzen) oder die Seite ist weg (dann hier loeschen). */
+    "Beta Testing": "Pruebas beta",
     "Feedback on a Specific Screen": "Comentarios sobre una pantalla concreta",
     "The TournaQ User Guide takes you through every important function of the app. It starts with Administration — optional, set up before your games and tournaments so it is ready when you need it — but you can just as well go straight into the TournaQ Arena and do your administration while you build the tournament. Follow the flow below and tap any card to go deeper.": "La Guía de usuario de TournaQ te lleva por todas las funciones importantes de la app. Empieza por la Administración — opcional, preparada antes de tus partidos y torneos para que esté lista cuando la necesites — pero puedes ir igual de bien directo a la TournaQ Arena y hacer la administración mientras montas el torneo. Sigue el recorrido de abajo y toca cualquier tarjeta para profundizar.",
     "Email to team@tournaq.com, a feedback form for bugs and feature requests, and the link to the website.": "Email a team@tournaq.com, un formulario de opinión para errores y peticiones de funciones, y el enlace al sitio web.",

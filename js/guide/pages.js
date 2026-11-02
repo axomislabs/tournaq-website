@@ -46,6 +46,13 @@ const note  = (title, body) => ({t:'note', title, body});
    stehen, und neben einem Abschnitt mit nur einer Karte, die ohnehin die
    ganze Breite bekommt, zerfaellt das Bild vollends. */
 const grid  = (cards, o={}) => ({t:'grid', cards, ...o});
+/* Die Karte direkt unter dem Lead jeder Modus-Seite. Sie oeffnet die
+   Web-App gleich in der Einrichtung dieses Modus — app.tournaq.com/?setup=
+   <slug>, gelesen von lib/app/web_deep_link.dart im App-Repo. Der Slug ist
+   der Dateiname der Modus-Seite (pages/guide/modes/<slug>.html). */
+const webapp = slug => grid([{icon:'i-arena', label:'Set it up in the web app',
+  cap:'Opens app.tournaq.com straight at this mode’s setup.',
+  href:'https://app.tournaq.com/?setup=' + slug}], {spalten:1});
 const imgcards = (cards) => ({t:'imgcards', cards});
 /* Ein App-Screenshot mit Bildunterschrift. `src` ist der Pfad unter assets/
    ohne Groessensuffix, `sizes` die Breiten, die auf der Platte liegen — beide
@@ -1452,6 +1459,7 @@ scrambles: {
   h1:['Leagues'],
   lead:'Round-robin standings across a full season of fixtures, with one or two legs. Everybody plays everybody, and the table decides it.',
   blocks:[
+    webapp('league'),
     panel('How it runs',null,[
       step(1,'i-people','Teams enter','Fixed pairs, straight from Administration or built at setup.'),
       step(2,'i-grid','Fixtures generated','Every team against every other. Twice, if you pick two legs.'),
@@ -1487,6 +1495,7 @@ scrambles: {
   h1:['Royal ','Duos'],
   lead:'King of the Court played in fixed pairs. You enter as a duo and keep that partner for the whole tournament, so the ranking is by team rather than by player. This is a queue mode: if you have not read how the queue, the ejections and the ranking work, start with ' + pageLink('queue-modes','Queue Modes') + '.',
   blocks:[
+    webapp('royal-duo'),
     panel('How it works',null,[
       step(1,'i-people','You enter as a pair','Your partner is settled before the first whistle and does not change again.'),
       step(2,'i-crown','Hold the court','Win and you stay. Lose and the duo goes back to the queue.'),
@@ -3818,6 +3827,7 @@ scrambles: {
   h1:['Eliminations'],
   lead:'A plain knockout. Two flavours, depending on how harsh you want the first loss to be.',
   blocks:[
+    webapp('elimination'),
     panel('Two variants',null,[
       item('i-bracket','Single elimination','Lose once and you are out. Shortest possible format.'),
       item('i-sync','Double elimination','A loss drops you into the lower bracket. Lose twice and you are out.'),
@@ -3853,6 +3863,7 @@ scrambles: {
   h1:['TournaQ ','Classics'],
   lead:'The full tournament day: a qualification phase first, then knockout tiers assigned by how you did in it.',
   blocks:[
+    webapp('tournaq-classic'),
     panel('How it runs',null,[
       step(1,'i-people','Groups drawn','Teams split into groups for the qualification phase.'),
       step(2,'i-grid','Group stage','Round robin inside each group.'),
@@ -3889,6 +3900,7 @@ scrambles: {
   h1:['Swiss Systems'],
   lead:'Paired each round against someone on the same score as you. No eliminations, a full schedule for everybody, and the field sorts itself.',
   blocks:[
+    webapp('swiss-system'),
     panel('How it runs',null,[
       step(1,'i-swap','Round 1 drawn','Pairings from the seeding, or at random.'),
       step(2,'i-target','Then: like against like','Every following round pairs teams by current score, so games stay close.'),
@@ -3924,6 +3936,7 @@ scrambles: {
   h1:['Social Scrambles'],
   lead:'A timed, rotating mixer where teams are redrawn every round. Nobody stays partnered for long — the whole point is to play with and against as many different people as possible.',
   blocks:[
+    webapp('social-scramble'),
     panel('How a round works',null,[
       step(1,'i-people','Teams are drawn','Randomly, at the start of every round.'),
       step(2,'i-court','All courts play at once','For the set match duration.'),
@@ -3963,6 +3976,7 @@ scrambles: {
   h1:['Royal ','Rotations'],
   lead:'King of the court, played as a scramble. You get a partner for the round, hold the court as long as you can win, and then the whole field rotates.',
   blocks:[
+    webapp('royal-rotation'),
     panel('How it works',null,[
       step(1,'i-people','Partners drawn for the round','Your partner is fixed for the round — and different in the next one.'),
       step(2,'i-crown','Hold the court','Win and you stay. Lose and you go back to the queue.'),
@@ -4004,6 +4018,7 @@ scrambles: {
   h1:['Royal ','Shuffles'],
   lead:'A King of the Court mode where you are shuffled together with a new partner for every new rally on your court — and over a tournament you will have played alongside just about everyone in the group. This is a queue mode: if you have not read how the queue, the ejections and the ranking work, start with ' + pageLink('queue-modes','Queue Modes') + '.',
   blocks:[
+    webapp('royal-shuffle'),
     panel('How a game works',null,[
       step(1,'i-bolt','Define who serves','Either the challengers serve or the court team does — decided once, and it stays that way for the whole tournament.'),
       step(2,'i-score','Align on the scoring and ejection rules','Everyone on court should know what wins a game and what sends a side back into the queue. They are set out under ' + pageLink('queue-modes','Queue Modes') + '.'),
@@ -4029,6 +4044,7 @@ scrambles: {
   h1:['Doghouse ','Shuffles'],
   lead:'The same queue, with a crueller rule. The pinned side scores side-outs to escape — and one lost rally sends the count back to zero.',
   blocks:[
+    webapp('doghouse'),
     panel('How a game works',null,[
       item('i-target','Win a rally','Score a side-out.'),
       item('i-sync','Lose a rally','Game lost — and the side-out count resets to zero.'),

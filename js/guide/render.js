@@ -217,7 +217,11 @@ function renderBlock(b){
     case 'grid':
       /* Einspaltig, wo der Block es verlangt — siehe `grid` in pages.js. */
       return '<div class="g-grid' + (b.spalten === 1 ? ' g-grid-eins' : '') + '">' + b.cards.map(c =>
-        '<a class="g-card" href="' + href(c.to) + '">' +
+        /* `href` statt `to`: die Karte fuehrt aus dem Guide hinaus, in die
+           Web-App — siehe webapp() in pages.js. */
+        (c.href
+          ? '<a class="g-card" href="' + c.href + '" target="_blank" rel="noopener">'
+          : '<a class="g-card" href="' + href(c.to) + '">') +
           '<span class="g-disc">' + ic(c.icon) + '</span>' +
           '<span class="g-card-txt"><span class="g-card-label">' + c.label + '</span>' +
           '<span class="g-card-cap">' + c.cap + '</span></span>' +
@@ -363,7 +367,7 @@ function renderZweig(id){
      Geschwister ist; alles andere faellt beim Zugriff durch. */
   const karte = {};
   (eltern.blocks || []).forEach(b => {
-    if (b.t === 'grid') b.cards.forEach(c => { karte[c.to] = c; });
+    if (b.t === 'grid') b.cards.forEach(c => { if (c.to) karte[c.to] = c; });
   });
 
   /* Der Pfeil steht vorn, nicht hinten: er zeigt nach links, und links am
